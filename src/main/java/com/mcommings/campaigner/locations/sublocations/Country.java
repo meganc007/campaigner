@@ -9,19 +9,14 @@ import java.util.List;
 public class Country {
     private long id;
     private String name;
-    private Government government;
     private String description;
-    private String region;
-    private String climate;
-    private List<City> cities;
+    private Continent continent;
+    private Government government;
 
-    public Country(long id, String name, Government government, String description, String region, String climate, List<City> cities) {
+    public Country(long id, String name, Government government, String description) {
         this.id = id;
         this.name = name;
         this.government = government;
         this.description = description;
-        this.region = region;
-        this.climate = climate;
-        this.cities = cities;
     }
 }

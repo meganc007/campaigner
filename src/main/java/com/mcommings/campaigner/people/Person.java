@@ -3,7 +3,6 @@ package com.mcommings.campaigner.people;
 import com.mcommings.campaigner.items.Currency;
 import com.mcommings.campaigner.items.Item;
 import com.mcommings.campaigner.items.Weapon;
-import com.mcommings.campaigner.statblocks.Statblock;
 import lombok.Data;
 import com.mcommings.campaigner.locations.Location;
 
@@ -12,29 +11,16 @@ import java.util.List;
 @Data
 public class Person {
     private long id;
-    private String name;
-    private String description;
+    private String firstName;
+    private String lastName;
     private int age;
-    private Type type;
-//    private List<Relationship> relationships;
-    private Location location;
+    private String title;
     private Race race;
-    private String job;
-    private List<Item> items;
-    private List<Weapon> weapons;
-    private List<Currency> moneyOwned;
-    private List<String> skills;
-    private Statblock statblock;
-    private String alignment;
-    private List<String> motives;
-    private List<String> bonds;
-    private String deity;
-
-    enum Type {
-        PLAYER_CHARACTER,
-        NPC,
-        ENEMY
-    };
+    private boolean isNPC;
+    private boolean isEnemy;
+    private String personality;
+    private String description;
+    private String notes;
 
     enum Race {
         HUMAN,
