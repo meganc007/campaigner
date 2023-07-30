@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Objects.isNull;
 
@@ -29,7 +30,8 @@ public class RaceService implements IRace {
 
     @Override
     public boolean raceAlreadyExists(Race race) {
-        return raceRepository.findRaceByName(race.getName()).isPresent();
+        Optional<Race> existingRace = raceRepository.findRaceByName(race.getName());
+        return existingRace.isPresent();
     }
 
     @Override
