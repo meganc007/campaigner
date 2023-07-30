@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services;
 
-import com.mcommings.campaigner.governments.Government;
+import com.mcommings.campaigner.models.Government;
 import com.mcommings.campaigner.locations.Location;
 import com.mcommings.campaigner.locations.sublocations.Continent;
 import com.mcommings.campaigner.locations.sublocations.Country;

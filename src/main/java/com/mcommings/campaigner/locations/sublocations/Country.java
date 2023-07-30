@@ -1,9 +1,7 @@
 package com.mcommings.campaigner.locations.sublocations;
 
-import com.mcommings.campaigner.governments.Government;
+import com.mcommings.campaigner.models.Government;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class Country {
