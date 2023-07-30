@@ -86,7 +86,7 @@ INSERT INTO public.governments(name, description)
 VALUES ('Technocracy', 'A form of government in which the decision-makers are selected based on their expertise in a given area of responsibility, particularly with regard to scientific or technical knowledge.');
 
 INSERT INTO public.governments(name, description)
-VALUES ('Theocracy', 'A form of government in which one or more deities are recognized as supreme ruling authorities, giving divine guidance to human intermediaries who manage the government\'s daily affairs.');
+VALUES ('Theocracy', E'A form of government in which one or more deities are recognized as supreme ruling authorities, giving divine guidance to human intermediaries who manage the government\'s daily affairs.');
 
 INSERT INTO public.governments(name, description)
 VALUES ('Totalitarianism', 'A form of government and a political system that prohibits all opposition parties, outlaws individual and group opposition to the state and its claims, and exercises an extremely high if not complete degree of control and regulation over public and private life.');

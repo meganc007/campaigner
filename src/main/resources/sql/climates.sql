@@ -11,7 +11,7 @@ INSERT INTO public.climates(name, description)
 VALUES ('Humid subtropical', 'A temperate climate type characterized by hot and humid summers, and cool to mild winters.');
 
 INSERT INTO public.climates(name, description)
-VALUES ('Ice cap', 'A polar climate where no mean monthly temperature exceeds 0 Celsius or 32 Fahrenheit. The climate generally covers areas at high latitudes and polar regions. There is limited animal life in most ice cap climates and they\'re inhospitable to human life.');
+VALUES ('Ice cap', E'A polar climate where no mean monthly temperature exceeds 0 Celsius or 32 Fahrenheit. The climate generally covers areas at high latitudes and polar regions. There is limited animal life in most ice cap climates and they\'re inhospitable to human life.');
 
 INSERT INTO public.climates(name, description)
 VALUES ('Oceanic', 'A temperate climate sub-type generally featuring cool summers and mild winters (for their latitude), with a relatively narrow annual temperature range and few extremes of temperature.');

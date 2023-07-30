@@ -1,5 +1,5 @@
 INSERT INTO public.terrains(name, description)
-VALUES ('Mountain', 'A mountain is an elevated portion of the Earth\'s crust, generally with steep sides that show significant exposed bedrock. Although definitions vary, a mountain may differ from a plateau in having a limited summit area, and is usually higher than a hill, typically rising at least 300 metres above the surrounding land.');
+VALUES ('Mountain', E'A mountain is an elevated portion of the Earth\'s crust, generally with steep sides that show significant exposed bedrock. Although definitions vary, a mountain may differ from a plateau in having a limited summit area, and is usually higher than a hill, typically rising at least 300 metres above the surrounding land.');
 
 INSERT INTO public.terrains(name, description)
 VALUES ('Mountain range', 'A series of mountains or hills arranged in a line and connected by high ground. A mountain system or mountain belt is a group of mountain ranges with similarity in form, structure, and alignment that have arisen from the same cause.');

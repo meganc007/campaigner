@@ -107,7 +107,7 @@ INSERT INTO public.jobs(name, description)
 VALUES ('Assassin', 'A murderer by hire.');
 
 INSERT INTO public.jobs(name, description)
-VALUES ('Thief', 'A person who steals another person\'s property.');
+VALUES ('Thief', E'A person who steals another person\'s property.');
 
 INSERT INTO public.jobs(name, description)
 VALUES ('Crime boss', 'A person in charge of a criminal organization.');
@@ -185,7 +185,7 @@ INSERT INTO public.jobs(name, description)
 VALUES ('Mercenary', 'An individual who joins a conflict for personal profit.');
 
 INSERT INTO public.jobs(name, description)
-VALUES ('Scout', 'A person sent out ahead of a main force so as to gather information about the enemy\'s position, strength, or movements.');
+VALUES ('Scout', E'A person sent out ahead of a main force so as to gather information about the enemy\'s position, strength, or movements.');
 
 INSERT INTO public.jobs(name, description)
 VALUES ('Slaver', 'A person dealing in or owning slaves.');
