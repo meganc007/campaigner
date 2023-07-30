@@ -154,13 +154,14 @@ create table place_types(
 	id int generated always as identity,
 	name varchar not null,
 	description varchar,
+	primary key(id)
 );
 
 create table places (
 	id int generated always as identity, 
 	name varchar not null,
 	description varchar,
-	constraint fk_type foreign key(id) references place_types(id) not null,
+	constraint fk_type foreign key(id) references place_types(id),
 	constraint fk_terrain foreign key(id) references terrains(id),
 	constraint fk_country foreign key(id) references countries(id),
 	constraint fk_city foreign key(id) references cities(id),
@@ -190,7 +191,7 @@ create table races (
 create table jobs (
 	id int generated always as identity,
 	name varchar not null,
-	description varchar
+	description varchar,
 	primary key(id)
 );
 
