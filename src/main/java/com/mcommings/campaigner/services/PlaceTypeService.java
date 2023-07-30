@@ -1,23 +1,23 @@
 package com.mcommings.campaigner.services;
 
-import com.mcommings.campaigner.interfaces.IPlaceTypes;
+import com.mcommings.campaigner.interfaces.IPlaceType;
 import com.mcommings.campaigner.models.IPlaceTypesRepository;
-import com.mcommings.campaigner.models.PlaceTypes;
+import com.mcommings.campaigner.models.PlaceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class PlaceTypesService implements IPlaceTypes {
+public class PlaceTypeService implements IPlaceType {
 
     private final IPlaceTypesRepository placeTypesRepository;
 
     @Autowired
-    public PlaceTypesService(IPlaceTypesRepository placeTypesRepository) {this.placeTypesRepository = placeTypesRepository;}
+    public PlaceTypeService(IPlaceTypesRepository placeTypesRepository) {this.placeTypesRepository = placeTypesRepository;}
 
     @Override
-    public List<PlaceTypes> getPlaceTypes() {
+    public List<PlaceType> getPlaceTypes() {
         return placeTypesRepository.findAll();
     }
 }

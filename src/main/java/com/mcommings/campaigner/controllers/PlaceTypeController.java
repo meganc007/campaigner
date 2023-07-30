@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.controllers;
 
-import com.mcommings.campaigner.models.PlaceTypes;
-import com.mcommings.campaigner.services.PlaceTypesService;
+import com.mcommings.campaigner.models.PlaceType;
+import com.mcommings.campaigner.services.PlaceTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,15 +11,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "api/locations/place-types")
-public class PlaceTypesController {
+public class PlaceTypeController {
 
-    private final PlaceTypesService placeTypesService;
+    private final PlaceTypeService placeTypeService;
 
     @Autowired
-    public PlaceTypesController(PlaceTypesService placeTypesService) {this.placeTypesService = placeTypesService;}
+    public PlaceTypeController(PlaceTypeService placeTypeService) {this.placeTypeService = placeTypeService;}
 
     @GetMapping
-    public List<PlaceTypes> getPlaceTypes() {
-        return placeTypesService.getPlaceTypes();
+    public List<PlaceType> getPlaceTypes() {
+        return placeTypeService.getPlaceTypes();
     }
 }
