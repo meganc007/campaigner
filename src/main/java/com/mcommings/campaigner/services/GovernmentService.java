@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.models.Government;
-import com.mcommings.campaigner.models.IGovernmentRepository;
+import com.mcommings.campaigner.models.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.interfaces.IGovernment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

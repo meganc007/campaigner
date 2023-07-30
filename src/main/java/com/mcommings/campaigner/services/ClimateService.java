@@ -2,7 +2,7 @@ package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.interfaces.IClimate;
 import com.mcommings.campaigner.models.Climate;
-import com.mcommings.campaigner.models.IClimateRepository;
+import com.mcommings.campaigner.models.repositories.IClimateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

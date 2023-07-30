@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.interfaces.IWealth;
-import com.mcommings.campaigner.models.IWealthRepository;
+import com.mcommings.campaigner.models.repositories.IWealthRepository;
 import com.mcommings.campaigner.models.Wealth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.interfaces.IRace;
-import com.mcommings.campaigner.models.IRaceRepository;
+import com.mcommings.campaigner.models.repositories.IRaceRepository;
 import com.mcommings.campaigner.models.Race;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

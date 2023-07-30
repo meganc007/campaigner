@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.interfaces.IPlaceType;
-import com.mcommings.campaigner.models.IPlaceTypesRepository;
+import com.mcommings.campaigner.models.repositories.IPlaceTypesRepository;
 import com.mcommings.campaigner.models.PlaceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
