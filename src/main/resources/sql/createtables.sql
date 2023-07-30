@@ -1,43 +1,43 @@
+drop table if exists calendar;
+drop table if exists celestial_events;
 drop table if exists months;
 drop table if exists days;
 drop table if exists moons;
 drop table if exists suns;
-drop table if exists celestial_events;
-drop table if exists calendar;
+drop table if exists inventory;
+drop table if exists events_places_people;
+drop table if exists quests;
+drop table if exists hooks_places_people;
+drop table if exists hooks;
+drop table if exists conditionals;
+drop table if exists objectives_places_people_items_weapons;
+drop table if exists outcomes_places_people_items_weapons;
+drop table if exists places;
 drop table if exists terrains;
+drop table if exists events;
+drop table if exists cities;
 drop table if exists settlement_types;
+drop table if exists countries;
 drop table if exists governments;
 drop table if exists climates;
+drop table if exists monsters;
+drop table if exists outcomes;
+drop table if exists rewards;
+drop table if exists objectives;
 drop table if exists wealth;
 drop table if exists landmarks;
 drop table if exists continents;
-drop table if exists countries;
-drop table if exists cities;
 drop table if exists place_types;
-drop table if exists places;
-drop table if exists events;
+drop table if exists people_jobs;
+drop table if exists people;
 drop table if exists races;
 drop table if exists jobs;
-drop table if exists people;
-drop table if exists people_jobs;
-drop table if exists item_types;
 drop table if exists items;
-drop table if exists weapon_types;
-drop table if exists damage_types;
+drop table if exists item_types;
 drop table if exists weapons;
+drop table if exists weapon_types;
 drop table if exists weapon_damages;
-drop table if exists inventory;
-drop table if exists events_places_people;
-drop table if exists monsters;
-drop table if exists hooks;
-drop table if exists hooks_places_people;
-drop table if exists objectives;
-drop table if exists objectives_places_people_items_weapons;
-drop table if exists outcomes;
-drop table if exists outcomes_places_people_items_weapons;
-drop table if exists rewards;
-drop table if exists conditionals;
-drop table if exists quests;
+drop table if exists damage_types;
 
 create table months (
 	id int generated always as identity,
@@ -144,6 +144,7 @@ create table cities (
 	id int generated always as identity, 
 	name varchar not null,
 	description varchar,
+	constraint fk_wealth foreign key(id) references wealth(id),
 	constraint fk_country foreign key(id) references countries(id),
 	constraint fk_settlement foreign key(id) references settlement_types(id),
 	constraint fk_government foreign key(id) references governments(id),
@@ -202,6 +203,7 @@ create table people (
 	age int,
 	title varchar,
 	constraint fk_race foreign key(id) references races(id),
+	constraint fk_wealth foreign key(id) references wealth(id),
 	isNPC bool not null,
 	isEnemy bool not null,
 	personality varchar,
