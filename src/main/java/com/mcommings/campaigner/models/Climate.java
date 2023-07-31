@@ -2,24 +2,26 @@ package com.mcommings.campaigner.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 @Entity
 @Table(name = "climates")
-public class Climate {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@ToString(callSuper = true)
+public class Climate extends BaseEntity {
 
     @Id
-    @SequenceGenerator(name = "climates_id_seq", sequenceName = "climates_id_seq", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "climates_id_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String name;
-    private String description;
 
-    public Climate () {}
+    public Climate () {
+        super();
+    }
 
     public Climate(int id, String name, String description) {
         this.id = id;
-        this.name = name;
-        this.description = description;
+        super.setName(name);
+        super.setDescription(description);
     }
 }

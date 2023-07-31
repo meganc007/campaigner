@@ -2,24 +2,26 @@ package com.mcommings.campaigner.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 @Entity
 @Table(name = "place_types")
-public class PlaceType {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@ToString(callSuper = true)
+public class PlaceType extends BaseEntity {
 
     @Id
-    @SequenceGenerator(name = "place_types_id_seq", sequenceName = "place_types_id_seq", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "place_types_id_seq")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String name;
-    private String description;
 
-    public PlaceType() {}
+    public PlaceType() {
+        super();
+    }
 
     public PlaceType(int id, String name, String description) {
         this.id = id;
-        this.name = name;
-        this.description = description;
+        this.setName(name);
+        this.setDescription(description);
     }
 }
