@@ -36,7 +36,7 @@ public class RaceService implements IRace {
         if(raceNameIsNull(race)) {
             throw new IllegalArgumentException("Race name cannot be null.");
         }
-        if(raceAlreadyExists(race)) {
+        if(RepositoryHelper.nameAlreadyExists(raceRepository, race)) {
             throw new DataIntegrityViolationException("Race already exists.");
         }
         raceRepository.saveAndFlush(race);
@@ -67,12 +67,6 @@ public class RaceService implements IRace {
         raceToUpdate.setName(race.getName());
         raceToUpdate.setDescription(race.getDescription());
         raceToUpdate.set_exotic(race.is_exotic());
-    }
-
-    @Override
-    public boolean raceAlreadyExists(Race race) {
-        Optional<Race> existingRace = raceRepository.findRaceByName(race.getName());
-        return existingRace.isPresent();
     }
 
     @Override

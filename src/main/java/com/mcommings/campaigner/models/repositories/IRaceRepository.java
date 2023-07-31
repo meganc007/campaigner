@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface IRaceRepository extends JpaRepository<Race, Integer> {
-    Optional<Race> findRaceByName(String name);
+    Optional<Race> findByName(String name);
 }
