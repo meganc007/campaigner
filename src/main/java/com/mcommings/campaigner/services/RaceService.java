@@ -29,17 +29,6 @@ public class RaceService implements IRace {
     }
 
     @Override
-    public boolean raceAlreadyExists(Race race) {
-        Optional<Race> existingRace = raceRepository.findRaceByName(race.getName());
-        return existingRace.isPresent();
-    }
-
-    @Override
-    public boolean raceNameIsNull(Race race) {
-        return isNull(race.getName());
-    }
-
-    @Override
     @Transactional
     public void saveRace(Race race) throws IllegalArgumentException, DataIntegrityViolationException {
 
@@ -52,4 +41,33 @@ public class RaceService implements IRace {
         raceRepository.saveAndFlush(race);
     }
 
+    @Override
+    @Transactional
+    public void deleteRace(int raceId) throws IllegalArgumentException, DataIntegrityViolationException {
+        if (raceDoesNotExist(raceId)) {
+            throw new IllegalArgumentException("Unable to delete; This race was not found.");
+        }
+// TODO: after adding the People table/repo, check that Race id isn't a foreign key before deleting
+//        if(raceUsedAsForeignKey) {
+//            throw new DataIntegrityViolationException("Unable to delete; This race is used in another table.");
+//        }
+
+        raceRepository.deleteById(raceId);
+    }
+
+    @Override
+    public boolean raceAlreadyExists(Race race) {
+        Optional<Race> existingRace = raceRepository.findRaceByName(race.getName());
+        return existingRace.isPresent();
+    }
+
+    @Override
+    public boolean raceNameIsNull(Race race) {
+        return isNull(race.getName());
+    }
+
+    @Override
+    public boolean raceDoesNotExist(int raceId) {
+        return !raceRepository.existsById(raceId);
+    }
 }

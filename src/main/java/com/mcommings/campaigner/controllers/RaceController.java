@@ -5,6 +5,7 @@ import com.mcommings.campaigner.services.RaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 @RestController
@@ -24,5 +25,10 @@ public class RaceController {
     @PostMapping
     public void saveRace(@RequestBody Race race) {
         raceService.saveRace(race);
+    }
+
+    @DeleteMapping(path = "{raceId}")
+    public void deleteRace(@PathVariable("raceId") int raceId) {
+        raceService.deleteRace(raceId);
     }
 }
