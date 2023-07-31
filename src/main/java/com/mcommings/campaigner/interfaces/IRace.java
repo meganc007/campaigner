@@ -14,6 +14,4 @@ public interface IRace {
 
     public void updateRace(int raceId, Race race);
 
-    public boolean raceNameIsNull(Race race);
-
 }

@@ -33,18 +33,20 @@ public class RaceService implements IRace {
     @Transactional
     public void saveRace(Race race) throws IllegalArgumentException, DataIntegrityViolationException {
 
-        if(raceNameIsNull(race)) {
-            throw new IllegalArgumentException("Race name cannot be null.");
+        if(RepositoryHelper.nameIsNullOrEmpty(race)) {
+            throw new IllegalArgumentException("Race name cannot be null or empty.");
         }
         if(RepositoryHelper.nameAlreadyExists(raceRepository, race)) {
             throw new DataIntegrityViolationException("Race already exists.");
         }
+
         raceRepository.saveAndFlush(race);
     }
 
     @Override
     @Transactional
     public void deleteRace(int raceId) throws IllegalArgumentException, DataIntegrityViolationException {
+
         if (RepositoryHelper.cannotFindId(raceRepository, raceId)) {
             throw new IllegalArgumentException("Unable to delete; This race was not found.");
         }
@@ -69,8 +71,4 @@ public class RaceService implements IRace {
         raceToUpdate.set_exotic(race.is_exotic());
     }
 
-    @Override
-    public boolean raceNameIsNull(Race race) {
-        return isNull(race.getName());
-    }
 }
