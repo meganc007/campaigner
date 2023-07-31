@@ -31,4 +31,9 @@ public class RaceController {
     public void deleteRace(@PathVariable("raceId") int raceId) {
         raceService.deleteRace(raceId);
     }
+
+    @PutMapping(path = "{raceId}")
+    public void updateRace(@PathVariable("raceId") int raceId, @RequestBody Race race) {
+        raceService.updateRace(raceId, race);
+    }
 }

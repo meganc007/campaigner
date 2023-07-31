@@ -12,9 +12,13 @@ public interface IRace {
 
     public void deleteRace(int raceId);
 
+    public void updateRace(int raceId, Race race);
+
+    public Race getRaceById(int raceId);
+
     public boolean raceAlreadyExists(Race race);
 
     public boolean raceNameIsNull(Race race);
 
-    public boolean raceDoesNotExist(int id);
+    public boolean raceDoesNotExist(int raceId);
 }

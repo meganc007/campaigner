@@ -56,6 +56,19 @@ public class RaceService implements IRace {
     }
 
     @Override
+    @Transactional
+    public void updateRace(int raceId, Race race) throws IllegalArgumentException, DataIntegrityViolationException {
+
+        if(raceDoesNotExist(raceId)) {
+            throw new IllegalArgumentException("Unable to update; This race was not found.");
+        }
+        Race raceToUpdate = getRaceById(raceId);
+        raceToUpdate.setName(race.getName());
+        raceToUpdate.setDescription(race.getDescription());
+        raceToUpdate.set_exotic(race.is_exotic());
+    }
+
+    @Override
     public boolean raceAlreadyExists(Race race) {
         Optional<Race> existingRace = raceRepository.findRaceByName(race.getName());
         return existingRace.isPresent();
@@ -69,5 +82,10 @@ public class RaceService implements IRace {
     @Override
     public boolean raceDoesNotExist(int raceId) {
         return !raceRepository.existsById(raceId);
+    }
+
+    @Override
+    public Race getRaceById(int raceId) {
+        return raceRepository.findById(raceId).get();
     }
 }
