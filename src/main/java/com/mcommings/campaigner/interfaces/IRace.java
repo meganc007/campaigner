@@ -14,11 +14,8 @@ public interface IRace {
 
     public void updateRace(int raceId, Race race);
 
-    public Race getRaceById(int raceId);
-
     public boolean raceAlreadyExists(Race race);
 
     public boolean raceNameIsNull(Race race);
 
-    public boolean raceDoesNotExist(int raceId);
 }

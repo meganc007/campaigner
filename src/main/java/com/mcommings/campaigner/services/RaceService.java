@@ -1,6 +1,7 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.interfaces.IRace;
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.repositories.IRaceRepository;
 import com.mcommings.campaigner.models.Race;
 import jakarta.transaction.Transactional;
@@ -44,7 +45,7 @@ public class RaceService implements IRace {
     @Override
     @Transactional
     public void deleteRace(int raceId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (raceDoesNotExist(raceId)) {
+        if (RepositoryHelper.cannotFindId(raceRepository, raceId)) {
             throw new IllegalArgumentException("Unable to delete; This race was not found.");
         }
 // TODO: after adding the People table/repo, check that Race id isn't a foreign key before deleting
@@ -59,10 +60,10 @@ public class RaceService implements IRace {
     @Transactional
     public void updateRace(int raceId, Race race) throws IllegalArgumentException, DataIntegrityViolationException {
 
-        if(raceDoesNotExist(raceId)) {
+        if(RepositoryHelper.cannotFindId(raceRepository, raceId)) {
             throw new IllegalArgumentException("Unable to update; This race was not found.");
         }
-        Race raceToUpdate = getRaceById(raceId);
+        Race raceToUpdate = RepositoryHelper.getById(raceRepository, raceId);
         raceToUpdate.setName(race.getName());
         raceToUpdate.setDescription(race.getDescription());
         raceToUpdate.set_exotic(race.is_exotic());
@@ -77,15 +78,5 @@ public class RaceService implements IRace {
     @Override
     public boolean raceNameIsNull(Race race) {
         return isNull(race.getName());
-    }
-
-    @Override
-    public boolean raceDoesNotExist(int raceId) {
-        return !raceRepository.existsById(raceId);
-    }
-
-    @Override
-    public Race getRaceById(int raceId) {
-        return raceRepository.findById(raceId).get();
     }
 }
