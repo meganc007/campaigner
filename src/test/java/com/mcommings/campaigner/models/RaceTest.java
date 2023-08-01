@@ -1,9 +1,7 @@
-package com.mcommings.campaigner;
+package com.mcommings.campaigner.models;
 
-import com.mcommings.campaigner.models.Race;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 public class RaceTest {
 
