@@ -17,7 +17,7 @@ public class RepositoryHelperTest {
     private IRaceRepository raceRepository;
 
     @Test
-    public void cannotFindIdReturnsTrue() {
+    public void whenAnIdIsNotFound_cannotFindId_ReturnsTrue() {
         int id = 1;
         Mockito.when(raceRepository.existsById(id)).thenReturn(false);
         boolean expected = true;
@@ -28,7 +28,7 @@ public class RepositoryHelperTest {
     }
 
     @Test
-    public void cannotFindIdReturnsFalse() {
+    public void whenAnIdIsFound_cannotFindId_ReturnsFalse() {
         int id = 1;
         Mockito.when(raceRepository.existsById(id)).thenReturn(true);
         boolean expected = false;
@@ -39,7 +39,7 @@ public class RepositoryHelperTest {
     }
 
     @Test
-    public void getByIdFindsARecord() {
+    public void whenIdIsValid_getById_FindsARecord() {
         int id = 1;
         String name = "Test Race";
         String description = "This is a test race.";
@@ -54,7 +54,7 @@ public class RepositoryHelperTest {
     }
 
     @Test
-    public void getByIdDoesNotFindARecord() {
+    public void whenIdIsInvalid_getById_DoesNotFindARecord() {
         int id = 1;
         String name = "Test Race";
         String description = "This is a test race.";
@@ -71,7 +71,7 @@ public class RepositoryHelperTest {
     }
 
     @Test
-    public void nameAlreadyExistsReturnsTrue() {
+    public void whenNameExists_nameAlreadyExists_ReturnsTrue() {
         int id = 1;
         String name = "Test Race";
         String description = "This is a test race.";
@@ -88,7 +88,7 @@ public class RepositoryHelperTest {
     }
 
     @Test
-    public void nameAlreadyExistsReturnsFalse() {
+    public void whenNameDoesNotExist_nameAlreadyExists_ReturnsFalse() {
         int id = 1;
         String name = "Test Race";
         String description = "This is a test race.";
@@ -111,7 +111,7 @@ public class RepositoryHelperTest {
     }
 
     @Test
-    public void whenNameIsNull_nameIsNullOrEmptyReturnsTrue() {
+    public void whenNameIsNull_nameIsNullOrEmpty_ReturnsTrue() {
         Race testRace = new Race();
 
         boolean expected = true;
@@ -121,7 +121,7 @@ public class RepositoryHelperTest {
         Assertions.assertTrue(actual);
     }
     @Test
-    public void whenNameIsEmpty_nameIsNullOrEmptyReturnsTrue() {
+    public void whenNameIsEmpty_nameIsNullOrEmpty_ReturnsTrue() {
         int id = 1;
         String name = "";
         String description = "test";
@@ -137,7 +137,7 @@ public class RepositoryHelperTest {
     }
 
     @Test
-    public void whenNameIsNotNullOrEmpty_nameIsNullOrEmptyReturnsFalse() {
+    public void whenNameIsNotNullOrEmpty_nameIsNullOrEmpty_ReturnsFalse() {
         int id = 1;
         String name = "Test";
         String description = "test";
