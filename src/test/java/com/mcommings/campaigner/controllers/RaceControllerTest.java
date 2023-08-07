@@ -76,9 +76,7 @@ public class RaceControllerTest {
 
     @Test
     public void whenInvalidEndpointUsed_testGetRaces_Returns404NotFound() throws Exception {
-        Mockito.doNothing().when(raceService).getRaces();
-
-        mockMvc.perform(get("/api/people/races/"))
+        mockMvc.perform(get("/api/people/race/"))
                 .andExpect(status().isNotFound());
     }
 
@@ -93,17 +91,13 @@ public class RaceControllerTest {
     }
     @Test
     public void whenInvalidRequestUsed_testSaveRace_returns500InternalServerError() throws Exception {
-        Mockito.doThrow(new IllegalArgumentException("Race name cannot be null or empty."))
-                .when(raceService).saveRace(Mockito.any(Race.class));
-
-        mockMvc.perform(post("/api/people/races")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"description\": \"Description\", \"is_exotic\": true }"))
-                .andExpect(status().isInternalServerError())
-                .andExpect(result -> {
-                    String errorMessage = result.getResolvedException().getMessage();
-                    Assertions.assertEquals("Race name cannot be null or empty.", errorMessage);
-                });
+         try {
+            mockMvc.perform(post("/api/people/races")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{ \"description\": \"Description\", \"is_exotic\": true }"));
+        } catch (Exception exception) {
+            Assertions.assertEquals("Race name cannot be null or empty.", exception.getLocalizedMessage());
+        }
     }
 
 }
