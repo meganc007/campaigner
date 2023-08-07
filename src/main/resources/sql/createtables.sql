@@ -24,12 +24,12 @@ drop table if exists monsters;
 drop table if exists outcomes;
 drop table if exists rewards;
 drop table if exists objectives;
-drop table if exists wealth;
 drop table if exists landmarks;
 drop table if exists continents;
 drop table if exists place_types;
 drop table if exists people_jobs;
 drop table if exists people;
+drop table if exists wealth;
 drop table if exists races;
 drop table if exists jobs;
 drop table if exists items;
@@ -185,7 +185,7 @@ create table races (
 	id int generated always as identity,
 	name varchar not null,
 	description varchar,
-	isExotic bool not null,
+	is_exotic bool not null,
 	primary key(id)
 );
 

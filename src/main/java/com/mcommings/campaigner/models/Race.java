@@ -6,22 +6,24 @@ import lombok.ToString;
 
 @Data
 @Entity
-@Table(name = "climates")
+@Table(name = "races")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @ToString(callSuper = true)
-public class Climate extends BaseEntity {
+public class Race extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    private boolean is_exotic;
 
-    public Climate () {
+    public Race() {
         super();
     }
 
-    public Climate(int id, String name, String description) {
+    public Race(int id, String name, String description, boolean is_exotic) {
         this.id = id;
         super.setName(name);
         super.setDescription(description);
+        this.is_exotic = is_exotic;
     }
 }
