@@ -51,7 +51,7 @@ public class RaceTest {
     }
 
     @Test
-    public void whenRaceIsValid_saveRace_savesTheRace() {
+    public void whenRaceIsValid_saveRace_SavesTheRace() {
         Race race = new Race(1, "Race 1", "Description 1", true);
         when(raceRepository.saveAndFlush(race)).thenReturn(race);
 
@@ -80,7 +80,7 @@ public class RaceTest {
     }
 
     @Test
-    public void whenRaceIdExists_deleteRace_deletesTheRace() {
+    public void whenRaceIdExists_deleteRace_DeletesTheRace() {
         int raceId = 1;
         when(raceRepository.existsById(raceId)).thenReturn(true);
         assertDoesNotThrow(() -> raceService.deleteRace(raceId));
@@ -98,7 +98,7 @@ public class RaceTest {
     // when id is a foreign key in another table
 
     @Test
-    public void whenRaceIdIsFound_updateRace_updatesTheRace() {
+    public void whenRaceIdIsFound_updateRace_UpdatesTheRace() {
         int raceId = 1;
         Race race = new Race(raceId, "Old Race Name", "Old Description", false);
         Race raceToUpdate = new Race(raceId, "Updated Race Name", "Updated Description", true);
@@ -117,7 +117,7 @@ public class RaceTest {
     }
 
     @Test
-    public void whenRaceIdIsNotFound_updateRace_throwsIllegalArgumentException() {
+    public void whenRaceIdIsNotFound_updateRace_ThrowsIllegalArgumentException() {
         int raceId = 1;
         Race race = new Race(raceId, "Old Race Name", "Old Description", false);
 
