@@ -11,6 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -60,10 +61,11 @@ public class RaceTest {
 
     @Test
     public void whenRaceNameIsInvalid_saveRace_ThrowsIllegalArgumentException() {
-        Race race = new Race(1, "", "Description 1", true);
-        when(raceRepository.saveAndFlush(race)).thenReturn(race);
+        Race raceWithEmptyName = new Race(1, "", "Description 1", true);
+        Race raceWithNullName = new Race(2, null, "Description 2", true);
 
-        assertThrows(IllegalArgumentException.class, () -> raceService.saveRace(race));
+        assertThrows(IllegalArgumentException.class, () -> raceService.saveRace(raceWithEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> raceService.saveRace(raceWithNullName));
     }
 
     @Test
@@ -74,7 +76,6 @@ public class RaceTest {
         when(raceRepository.saveAndFlush(raceWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
 
         assertDoesNotThrow(() -> raceService.saveRace(race));
-
         assertThrows(DataIntegrityViolationException.class, () -> raceService.saveRace(raceWithDuplicatedName));
     }
 
@@ -96,5 +97,33 @@ public class RaceTest {
     //TODO: after this functionality is added, test that deleteRace doesn't delete
     // when id is a foreign key in another table
 
+    @Test
+    public void whenRaceIdIsFound_updateRace_updatesTheRace() {
+        int raceId = 1;
+        Race race = new Race(raceId, "Old Race Name", "Old Description", false);
+        Race raceToUpdate = new Race(raceId, "Updated Race Name", "Updated Description", true);
+
+        when(raceRepository.existsById(raceId)).thenReturn(true);
+        when(raceRepository.findById(raceId)).thenReturn(Optional.of(race));
+
+        raceService.updateRace(raceId, raceToUpdate);
+
+        verify(raceRepository).findById(raceId);
+
+        Race result = raceRepository.findById(raceId).get();
+        Assertions.assertEquals(raceToUpdate.getName(), result.getName());
+        Assertions.assertEquals(raceToUpdate.getDescription(), result.getDescription());
+        Assertions.assertEquals(raceToUpdate.is_exotic(), result.is_exotic());
+    }
+
+    @Test
+    public void whenRaceIdIsNotFound_updateRace_throwsIllegalArgumentException() {
+        int raceId = 1;
+        Race race = new Race(raceId, "Old Race Name", "Old Description", false);
+
+        when(raceRepository.existsById(raceId)).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class, () -> raceService.updateRace(raceId, race));
+    }
 
 }
