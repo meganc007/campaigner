@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.interfaces.IJob;
-import com.mcommings.campaigner.models.repositories.IJobRepository;
 import com.mcommings.campaigner.models.Job;
+import com.mcommings.campaigner.models.repositories.IJobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,5 +19,20 @@ public class JobService implements IJob {
     @Override
     public List<Job> getJobs() {
         return jobRepository.findAll();
+    }
+
+    @Override
+    public void saveJob(Job job) {
+
+    }
+
+    @Override
+    public void deleteJob(int jobId) {
+
+    }
+
+    @Override
+    public void updateJob(int jobId, Job job) {
+
     }
 }

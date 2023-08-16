@@ -3,9 +3,7 @@ package com.mcommings.campaigner.controllers;
 import com.mcommings.campaigner.models.Job;
 import com.mcommings.campaigner.services.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,5 +18,20 @@ public class JobController {
     @GetMapping
     public List<Job> getJobs() {
         return jobService.getJobs();
+    }
+
+    @PostMapping
+    public void saveJob(@RequestBody Job job) {
+        jobService.saveJob(job);
+    }
+
+    @DeleteMapping(path = "{jobId}")
+    public void deleteJob(@PathVariable("jobId") int jobId) {
+        jobService.deleteJob(jobId);
+    }
+
+    @PutMapping(path = "{jobId}")
+    public void updateJob(@PathVariable("jobId") int jobId, @RequestBody Job job) {
+        jobService.updateJob(jobId, job);
     }
 }
