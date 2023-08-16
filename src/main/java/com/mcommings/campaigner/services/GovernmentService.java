@@ -20,4 +20,19 @@ public class GovernmentService implements IGovernment {
     public List<Government> getGovernments() {
         return governmentRepository.findAll();
     }
+
+    @Override
+    public void saveGovernment(Government government) {
+
+    }
+
+    @Override
+    public void deleteGovernment(int governmentId) {
+
+    }
+
+    @Override
+    public void updateGovernment(int governmentId, Government government) {
+
+    }
 }
