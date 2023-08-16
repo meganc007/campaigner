@@ -44,7 +44,7 @@ public class RaceService implements IRace {
     @Transactional
     public void deleteRace(int raceId) throws IllegalArgumentException, DataIntegrityViolationException {
 
-        if (RepositoryHelper.cannotFindId(raceRepository, raceId)) {
+        if(RepositoryHelper.cannotFindId(raceRepository, raceId)) {
             throw new IllegalArgumentException("Unable to delete; This race was not found.");
         }
 // TODO: after adding the People table/repo, check that Race id isn't a foreign key before deleting
