@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface IClimate {
 
-    public List<Climate> getClimates();
+    List<Climate> getClimates();
 
-    public void saveClimate(Climate climate);
+    void saveClimate(Climate climate);
 
-    public void deleteClimate(int climateId);
+    void deleteClimate(int climateId);
 
-    public void updateClimate(int climateId, Climate climate);
+    void updateClimate(int climateId, Climate climate);
 }

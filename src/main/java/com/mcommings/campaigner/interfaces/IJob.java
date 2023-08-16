@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface IJob {
 
-    public List<Job> getJobs();
+    List<Job> getJobs();
 
-    public void saveJob(Job job);
+    void saveJob(Job job);
 
-    public void deleteJob(int jobId);
+    void deleteJob(int jobId);
 
-    public void updateJob(int jobId, Job job);
+    void updateJob(int jobId, Job job);
 }

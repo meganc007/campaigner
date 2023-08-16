@@ -6,12 +6,12 @@ import java.util.List;
 
 public interface IRace {
 
-    public List<Race> getRaces();
+    List<Race> getRaces();
 
-    public void saveRace(Race race);
+    void saveRace(Race race);
 
-    public void deleteRace(int raceId);
+    void deleteRace(int raceId);
 
-    public void updateRace(int raceId, Race race);
+    void updateRace(int raceId, Race race);
 
 }
