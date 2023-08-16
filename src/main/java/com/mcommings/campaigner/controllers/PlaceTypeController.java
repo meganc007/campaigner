@@ -3,9 +3,7 @@ package com.mcommings.campaigner.controllers;
 import com.mcommings.campaigner.models.PlaceType;
 import com.mcommings.campaigner.services.PlaceTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,5 +19,20 @@ public class PlaceTypeController {
     @GetMapping
     public List<PlaceType> getPlaceTypes() {
         return placeTypeService.getPlaceTypes();
+    }
+
+    @PostMapping
+    public void savePlaceType(@RequestBody PlaceType placeType) {
+        placeTypeService.savePlaceType(placeType);
+    }
+
+    @DeleteMapping(path = "{placeTypeId}")
+    public void deletePlacetype(@PathVariable("placeTypeId") int placeTypeId) {
+        placeTypeService.deletePlaceType(placeTypeId);
+    }
+
+    @PutMapping(path = "{placeTypeId}")
+    public void updatePlacetype(@PathVariable("placeTypeId") int placeTypeId, @RequestBody PlaceType placeType) {
+        placeTypeService.updatePlaceType(placeTypeId, placeType);
     }
 }
