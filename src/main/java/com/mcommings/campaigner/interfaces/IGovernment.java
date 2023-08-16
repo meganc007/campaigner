@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface IGovernment {
 
-    public List<Government> getGovernments();
+    List<Government> getGovernments();
 
-    public void saveGovernment(Government government);
+    void saveGovernment(Government government);
 
-    public void deleteGovernment(int governmentId);
+    void deleteGovernment(int governmentId);
 
-    public void updateGovernment(int governmentId, Government government);
+    void updateGovernment(int governmentId, Government government);
 }

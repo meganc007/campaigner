@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface ITerrain {
 
-    public List<Terrain> getTerrains();
+    List<Terrain> getTerrains();
 }

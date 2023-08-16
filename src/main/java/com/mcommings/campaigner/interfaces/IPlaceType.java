@@ -6,5 +6,11 @@ import java.util.List;
 
 public interface IPlaceType {
 
-    public List<PlaceType> getPlaceTypes();
+    List<PlaceType> getPlaceTypes();
+
+    void savePlaceType(PlaceType placeType);
+
+    void deletePlaceType(int placeTypeId);
+
+    void updatePlaceType(int placeTypeId, PlaceType placeType);
 }
