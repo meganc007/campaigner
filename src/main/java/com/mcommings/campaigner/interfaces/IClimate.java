@@ -10,7 +10,7 @@ public interface IClimate {
 
     public void saveClimate(Climate climate);
 
-    public void deleteClimate(int id);
+    public void deleteClimate(int climateId);
 
-    public void updateClimate(int id, Climate climate);
+    public void updateClimate(int climateId, Climate climate);
 }

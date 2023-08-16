@@ -37,12 +37,24 @@ public class ClimateService implements IClimate {
     }
 
     @Override
-    public void deleteClimate(int id) {
+    @Transactional
+    public void deleteClimate(int climateId) throws IllegalArgumentException, DataIntegrityViolationException {
+        if(RepositoryHelper.cannotFindId(climateRepository, climateId)) {
+            throw new IllegalArgumentException("Unable to delete; This climate was not found.");
+        }
+        //TODO: check that Climate isn't a foreign key before deleting
 
+        climateRepository.deleteById(climateId);
     }
 
     @Override
-    public void updateClimate(int id, Climate climate) {
-
+    @Transactional
+    public void updateClimate(int climateId, Climate climate) throws IllegalArgumentException, DataIntegrityViolationException {
+        if(RepositoryHelper.cannotFindId(climateRepository, climateId)) {
+            throw new IllegalArgumentException("Unable to update; This climate was not found.");
+        }
+        Climate climateToUpdate = RepositoryHelper.getById(climateRepository, climateId);
+        climateToUpdate.setName(climate.getName());
+        climateToUpdate.setDescription(climate.getDescription());
     }
 }
