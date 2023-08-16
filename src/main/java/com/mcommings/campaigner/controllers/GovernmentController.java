@@ -3,9 +3,7 @@ package com.mcommings.campaigner.controllers;
 import com.mcommings.campaigner.models.Government;
 import com.mcommings.campaigner.services.GovernmentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,5 +19,20 @@ public class GovernmentController {
     @GetMapping
     public List<Government> getGovernments() {
         return governmentService.getGovernments();
+    }
+
+    @PostMapping
+    public void saveGovernment(@RequestBody Government government) {
+        governmentService.saveGovernment(government);
+    }
+
+    @DeleteMapping(path = "{governmentId}")
+    public void deleteGovernment(@PathVariable("governmentId") int governmentId) {
+        governmentService.deleteGovernment(governmentId);
+    }
+
+    @PutMapping(path = "{governmentId}")
+    public void updateGovernment(@PathVariable("governmentId") int governmentId, @RequestBody Government government) {
+        governmentService.updateGovernment(governmentId, government);
     }
 }
