@@ -1,8 +1,9 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.interfaces.ISettlementType;
-import com.mcommings.campaigner.models.repositories.ISettlementTypeRepository;
 import com.mcommings.campaigner.models.SettlementType;
+import com.mcommings.campaigner.models.repositories.ISettlementTypeRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,5 +20,23 @@ public class SettlementTypeService implements ISettlementType {
     @Override
     public List<SettlementType> getSettlementTypes() {
         return settlementTypeRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public void saveSettlementType(SettlementType settlementType) {
+
+    }
+
+    @Override
+    @Transactional
+    public void deleteSettlementType(int settlementTypeId) {
+
+    }
+
+    @Override
+    @Transactional
+    public void updateSettlementType(int settlementTypeId, SettlementType settlementType) {
+
     }
 }
