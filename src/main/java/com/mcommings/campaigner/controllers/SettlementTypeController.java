@@ -3,9 +3,7 @@ package com.mcommings.campaigner.controllers;
 import com.mcommings.campaigner.models.SettlementType;
 import com.mcommings.campaigner.services.SettlementTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,5 +19,21 @@ public class SettlementTypeController {
     @GetMapping
     public List<SettlementType> getSettlementTypes() {
         return settlementTypeService.getSettlementTypes();
+    }
+
+    @PostMapping
+    public void saveSettlementType(@RequestBody SettlementType settlementType) {
+        settlementTypeService.saveSettlementType(settlementType);
+    }
+
+    @DeleteMapping(path = "{settlementTypeId}")
+    public void deleteSettlementType(@PathVariable("settlementTypeId") int settlementTypeId) {
+        settlementTypeService.deleteSettlementType(settlementTypeId);
+    }
+
+    @PutMapping(path = "{settlementTypeId}")
+    public void updateSettlementType(@PathVariable("settlementTypeId") int settlementTypeId,
+                                     @RequestBody SettlementType settlementType) {
+        settlementTypeService.updateSettlementType(settlementTypeId, settlementType);
     }
 }
