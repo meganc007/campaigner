@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.ErrorMessage.*;
+
 @Service
 public class ClimateService implements IClimate {
 
@@ -27,10 +29,10 @@ public class ClimateService implements IClimate {
     @Transactional
     public void saveClimate(Climate climate) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.nameIsNullOrEmpty(climate)) {
-            throw new IllegalArgumentException("Climate name cannot be null or empty.");
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
         if(RepositoryHelper.nameAlreadyExists(climateRepository, climate)) {
-            throw new DataIntegrityViolationException("Climate already exists.");
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
         climateRepository.saveAndFlush(climate);
@@ -40,7 +42,7 @@ public class ClimateService implements IClimate {
     @Transactional
     public void deleteClimate(int climateId) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(climateRepository, climateId)) {
-            throw new IllegalArgumentException("Unable to delete; This climate was not found.");
+            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         //TODO: check that Climate isn't a foreign key before deleting
 
@@ -51,7 +53,7 @@ public class ClimateService implements IClimate {
     @Transactional
     public void updateClimate(int climateId, Climate climate) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(climateRepository, climateId)) {
-            throw new IllegalArgumentException("Unable to update; This climate was not found.");
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Climate climateToUpdate = RepositoryHelper.getById(climateRepository, climateId);
         climateToUpdate.setName(climate.getName());

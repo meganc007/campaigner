@@ -3,9 +3,7 @@ package com.mcommings.campaigner.controllers;
 import com.mcommings.campaigner.models.Wealth;
 import com.mcommings.campaigner.services.WealthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,7 +16,22 @@ public class WealthController {
     public WealthController(WealthService wealthService) {this.wealthService = wealthService;}
 
     @GetMapping
-    List<Wealth> getWealth() {
+    public List<Wealth> getWealth() {
         return wealthService.getWealth();
+    }
+
+    @PostMapping
+    public void saveWealth(@RequestBody Wealth wealth) {
+        wealthService.saveWealth(wealth);
+    }
+
+    @DeleteMapping(path = "{wealthId}")
+    public void deleteWealth(@PathVariable int wealthId) {
+        wealthService.deleteWealth(wealthId);
+    }
+
+    @PutMapping(path = "{wealthId}")
+    public void updateWealth(@PathVariable int wealthId, @RequestBody Wealth wealth) {
+        wealthService.updateWealth(wealthId, wealth);
     }
 }

@@ -7,11 +7,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class WealthTest {
@@ -44,6 +48,78 @@ public class WealthTest {
 
         Assertions.assertEquals(0, result.size());
         Assertions.assertEquals(wealthList, result);
+    }
 
+    @Test
+    public void whenWealthIsValid_saveWealth_SavesTheWealth() {
+        Wealth wealth = new Wealth(1, "Wealth 1");
+        when(wealthRepository.saveAndFlush(wealth)).thenReturn(wealth);
+
+        assertDoesNotThrow(() -> wealthService.saveWealth(wealth));
+        verify(wealthRepository, times(1)).saveAndFlush(wealth);
+    }
+
+    @Test
+    public void whenWealthNameIsInvalid_saveWealth_ThrowsIllegalArgumentException() {
+        Wealth wealthWithEmptyName = new Wealth(1, "");
+        Wealth wealthWithNullName = new Wealth(2, null);
+
+        assertThrows(IllegalArgumentException.class, () -> wealthService.saveWealth(wealthWithEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> wealthService.saveWealth(wealthWithNullName));
+    }
+
+    @Test
+    public void whenWealthNameAlreadyExists_saveWealth_ThrowsDataIntegrityViolationException() {
+        Wealth wealth = new Wealth(1, "Wealth 1");
+        Wealth wealthWithDuplicatedName = new Wealth(2, "Wealth 1");
+        when(wealthRepository.saveAndFlush(wealth)).thenReturn(wealth);
+        when(wealthRepository.saveAndFlush(wealthWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
+
+        assertDoesNotThrow(() -> wealthService.saveWealth(wealth));
+        assertThrows(DataIntegrityViolationException.class, () -> wealthService.saveWealth(wealthWithDuplicatedName));
+    }
+
+    @Test
+    public void whenWealthIdExists_deleteWealth_DeletesTheWealth() {
+        int wealthId = 1;
+        when(wealthRepository.existsById(wealthId)).thenReturn(true);
+        assertDoesNotThrow(() -> wealthService.deleteWealth(wealthId));
+        verify(wealthRepository, times(1)).deleteById(wealthId);
+    }
+
+    @Test
+    public void whenWealthIdDoesNotExist_deleteWealth_ThrowsIllegalArgumentException() {
+        int wealthId = 9000;
+        when(wealthRepository.existsById(wealthId)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> wealthService.deleteWealth(wealthId));
+    }
+
+    //TODO: test that deleteWealth doesn't delete when it's a foreign key
+
+    @Test
+    public void whenWealthIdIsFound_updateWealth_UpdatesTheWealth() {
+        int wealthId = 1;
+        Wealth wealth = new Wealth(wealthId, "Old Wealth Name");
+        Wealth wealthToUpdate = new Wealth(wealthId, "Updated Wealth Name");
+
+        when(wealthRepository.existsById(wealthId)).thenReturn(true);
+        when(wealthRepository.findById(wealthId)).thenReturn(Optional.of(wealth));
+
+        wealthService.updateWealth(wealthId, wealthToUpdate);
+
+        verify(wealthRepository).findById(wealthId);
+
+        Wealth result = wealthRepository.findById(wealthId).get();
+        Assertions.assertEquals(wealthToUpdate.getName(), result.getName());
+    }
+
+    @Test
+    public void whenWealthIdIsNotFound_updateWealth_ThrowsIllegalArgumentException() {
+        int wealthId = 1;
+        Wealth wealth = new Wealth(wealthId, "Old Wealth Name");
+
+        when(wealthRepository.existsById(wealthId)).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class, () -> wealthService.updateWealth(wealthId, wealth));
     }
 }
