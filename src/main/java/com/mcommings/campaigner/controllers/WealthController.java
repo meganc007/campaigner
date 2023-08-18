@@ -16,22 +16,22 @@ public class WealthController {
     public WealthController(WealthService wealthService) {this.wealthService = wealthService;}
 
     @GetMapping
-    List<Wealth> getWealth() {
+    public List<Wealth> getWealth() {
         return wealthService.getWealth();
     }
 
     @PostMapping
-    void saveWealth(@RequestBody Wealth wealth) {
+    public void saveWealth(@RequestBody Wealth wealth) {
         wealthService.saveWealth(wealth);
     }
 
     @DeleteMapping(path = "{wealthId}")
-    void deleteWealth(@PathVariable int wealthId) {
+    public void deleteWealth(@PathVariable int wealthId) {
         wealthService.deleteWealth(wealthId);
     }
 
     @PutMapping(path = "{wealthId}")
-    void updateWealth(@PathVariable int wealthId, @RequestBody Wealth wealth) {
+    public void updateWealth(@PathVariable int wealthId, @RequestBody Wealth wealth) {
         wealthService.updateWealth(wealthId, wealth);
     }
 }
