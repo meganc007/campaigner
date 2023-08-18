@@ -127,6 +127,7 @@ create table landmarks (
 
 create table continents (
 	id int generated always as identity,
+	name varchar,
 	description varchar,
 	primary key(id)
 );
