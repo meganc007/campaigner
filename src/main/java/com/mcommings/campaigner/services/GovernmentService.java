@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.ErrorMessage.*;
+
 @Service
 public class GovernmentService implements IGovernment {
 
@@ -28,10 +30,10 @@ public class GovernmentService implements IGovernment {
     @Transactional
     public void saveGovernment(Government government) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.nameIsNullOrEmpty(government)) {
-            throw new IllegalArgumentException("Government name cannot be null or empty.");
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
         if(RepositoryHelper.nameAlreadyExists(governmentRepository, government)) {
-            throw new DataIntegrityViolationException("Government already exists.");
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
         governmentRepository.saveAndFlush(government);
@@ -41,7 +43,7 @@ public class GovernmentService implements IGovernment {
     @Transactional
     public void deleteGovernment(int governmentId) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(governmentRepository, governmentId)) {
-            throw new IllegalArgumentException("Unable to delete; This government was not found.");
+            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         //TODO: check if government id is a foreign key
 
@@ -53,7 +55,7 @@ public class GovernmentService implements IGovernment {
     @Transactional
     public void updateGovernment(int governmentId, Government government) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(governmentRepository, governmentId)) {
-            throw new IllegalArgumentException("Unable to update; This government was not found.");
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Government governmentToUpdate = RepositoryHelper.getById(governmentRepository, governmentId);
         governmentToUpdate.setName(government.getName());

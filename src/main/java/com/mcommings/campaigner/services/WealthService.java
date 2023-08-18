@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.ErrorMessage.*;
+
 @Service
 public class WealthService implements IWealth {
 
@@ -27,10 +29,10 @@ public class WealthService implements IWealth {
     @Transactional
     public void saveWealth(Wealth wealth) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.nameIsNullOrEmpty(wealth)) {
-            throw new IllegalArgumentException("Wealth name cannot be null or empty.");
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
         if(RepositoryHelper.nameAlreadyExists(wealthRepository, wealth)) {
-            throw new DataIntegrityViolationException("Wealth already exists.");
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
         wealthRepository.saveAndFlush(wealth);
@@ -40,7 +42,7 @@ public class WealthService implements IWealth {
     @Transactional
     public void deleteWealth(int wealthId) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(wealthRepository, wealthId)) {
-            throw new IllegalArgumentException("Unable to delete; This wealth not be found.");
+            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         //TODO: check if foreign key
 
@@ -51,7 +53,7 @@ public class WealthService implements IWealth {
     @Transactional
     public void updateWealth(int wealthId, Wealth wealth) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(wealthRepository, wealthId)) {
-            throw new IllegalArgumentException("Unable to update; This wealth not be found.");
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
 
         Wealth wealthToUpdate = RepositoryHelper.getById(wealthRepository, wealthId);

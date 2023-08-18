@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.ErrorMessage.*;
+
 @Service
 public class SettlementTypeService implements ISettlementType {
 
@@ -28,10 +30,10 @@ public class SettlementTypeService implements ISettlementType {
     @Transactional
     public void saveSettlementType(SettlementType settlementType) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.nameIsNullOrEmpty(settlementType)) {
-            throw new IllegalArgumentException("Settlement Type name cannot be null or empty.");
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
         if(RepositoryHelper.nameAlreadyExists(settlementTypeRepository, settlementType)) {
-            throw new DataIntegrityViolationException("Settlement Type already exists.");
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
         settlementTypeRepository.saveAndFlush(settlementType);
@@ -41,7 +43,7 @@ public class SettlementTypeService implements ISettlementType {
     @Transactional
     public void deleteSettlementType(int settlementTypeId) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(settlementTypeRepository, settlementTypeId)) {
-            throw new IllegalArgumentException("Unable to delete; This settlement type was not found.");
+            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         //TODO: check if foreign key
 
@@ -52,7 +54,7 @@ public class SettlementTypeService implements ISettlementType {
     @Transactional
     public void updateSettlementType(int settlementTypeId, SettlementType settlementType) {
         if(RepositoryHelper.cannotFindId(settlementTypeRepository, settlementTypeId)) {
-            throw new IllegalArgumentException("Unable to update; This settlement type was not found.");
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         SettlementType settlementTypeToUpdate = RepositoryHelper.getById(settlementTypeRepository, settlementTypeId);
         settlementTypeToUpdate.setName(settlementType.getName());

@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.ErrorMessage.*;
+
 @Service
 public class RaceService implements IRace {
 
@@ -31,10 +33,10 @@ public class RaceService implements IRace {
     public void saveRace(Race race) throws IllegalArgumentException, DataIntegrityViolationException {
 
         if(RepositoryHelper.nameIsNullOrEmpty(race)) {
-            throw new IllegalArgumentException("Race name cannot be null or empty.");
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
         if(RepositoryHelper.nameAlreadyExists(raceRepository, race)) {
-            throw new DataIntegrityViolationException("Race already exists.");
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
         raceRepository.saveAndFlush(race);
@@ -45,7 +47,7 @@ public class RaceService implements IRace {
     public void deleteRace(int raceId) throws IllegalArgumentException, DataIntegrityViolationException {
 
         if(RepositoryHelper.cannotFindId(raceRepository, raceId)) {
-            throw new IllegalArgumentException("Unable to delete; This race was not found.");
+            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
 // TODO: after adding the People table/repo, check that Race id isn't a foreign key before deleting
 //        if(raceUsedAsForeignKey) {
@@ -60,7 +62,7 @@ public class RaceService implements IRace {
     public void updateRace(int raceId, Race race) throws IllegalArgumentException, DataIntegrityViolationException {
 
         if(RepositoryHelper.cannotFindId(raceRepository, raceId)) {
-            throw new IllegalArgumentException("Unable to update; This race was not found.");
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Race raceToUpdate = RepositoryHelper.getById(raceRepository, raceId);
         raceToUpdate.setName(race.getName());

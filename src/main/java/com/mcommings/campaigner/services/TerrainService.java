@@ -1,5 +1,6 @@
 package com.mcommings.campaigner.services;
 
+import com.mcommings.campaigner.ErrorMessage;
 import com.mcommings.campaigner.interfaces.ITerrain;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Terrain;
@@ -10,6 +11,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.mcommings.campaigner.ErrorMessage.*;
 
 @Service
 public class TerrainService implements ITerrain {
@@ -27,10 +30,10 @@ public class TerrainService implements ITerrain {
     @Transactional
     public void saveTerrain(Terrain terrain) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.nameIsNullOrEmpty(terrain)) {
-            throw new IllegalArgumentException("Terrain name cannot be null or empty.");
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
         if(RepositoryHelper.nameAlreadyExists(terrainRepository, terrain)) {
-            throw new DataIntegrityViolationException("Terrain already exists.");
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
         terrainRepository.saveAndFlush(terrain);
@@ -40,7 +43,7 @@ public class TerrainService implements ITerrain {
     @Transactional
     public void deleteTerrain(int terrainId) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(terrainRepository, terrainId)) {
-            throw new IllegalArgumentException("Unable to delete; This terrain not found.");
+            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         //TODO: check if foreign key
 
@@ -51,7 +54,7 @@ public class TerrainService implements ITerrain {
     @Transactional
     public void updateTerrain(int terrainId, Terrain terrain) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(terrainRepository, terrainId)) {
-            throw new IllegalArgumentException("Unable to update; This terrain not found.");
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
 
         Terrain terrainToUpdate = RepositoryHelper.getById(terrainRepository, terrainId);

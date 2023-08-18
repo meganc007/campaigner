@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.ErrorMessage.*;
+
 @Service
 public class PlaceTypeService implements IPlaceType {
 
@@ -28,10 +30,10 @@ public class PlaceTypeService implements IPlaceType {
     @Transactional
     public void savePlaceType(PlaceType placeType) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.nameIsNullOrEmpty(placeType)) {
-            throw new IllegalArgumentException("Place Type name cannot be null or empty.");
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
         if(RepositoryHelper.nameAlreadyExists(placeTypesRepository, placeType)) {
-            throw new DataIntegrityViolationException("Place Type already exists.");
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         placeTypesRepository.saveAndFlush(placeType);
     }
@@ -40,7 +42,7 @@ public class PlaceTypeService implements IPlaceType {
     @Transactional
     public void deletePlaceType(int placeTypeId) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(placeTypesRepository, placeTypeId)) {
-            throw new IllegalArgumentException("Unable to delete; This place type was not found.");
+            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         //TODO: check if foreign key
 
@@ -51,7 +53,7 @@ public class PlaceTypeService implements IPlaceType {
     @Transactional
     public void updatePlaceType(int placeTypeId, PlaceType placeType) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(placeTypesRepository, placeTypeId)) {
-            throw new IllegalArgumentException("Unable to update; This place type was not found.");
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         PlaceType placeTypeToUpdate = RepositoryHelper.getById(placeTypesRepository, placeTypeId);
         placeTypeToUpdate.setName(placeType.getName());

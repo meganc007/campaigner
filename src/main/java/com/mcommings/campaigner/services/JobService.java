@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.ErrorMessage.*;
+
 @Service
 public class JobService implements IJob {
 
@@ -28,10 +30,10 @@ public class JobService implements IJob {
     @Transactional
     public void saveJob(Job job) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.nameIsNullOrEmpty(job)) {
-            throw new IllegalArgumentException("Job name cannot be null or empty.");
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
         if(RepositoryHelper.nameAlreadyExists(jobRepository, job)) {
-            throw new DataIntegrityViolationException("Job already exists.");
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         jobRepository.saveAndFlush(job);
     }
@@ -40,7 +42,7 @@ public class JobService implements IJob {
     @Transactional
     public void deleteJob(int jobId) throws IllegalArgumentException, DataIntegrityViolationException {
         if(RepositoryHelper.cannotFindId(jobRepository, jobId)) {
-            throw new IllegalArgumentException("Unable to delete; This job was not found.");
+            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         //TODO: check if foreign key
 
@@ -51,7 +53,7 @@ public class JobService implements IJob {
     @Transactional
     public void updateJob(int jobId, Job job) {
         if(RepositoryHelper.cannotFindId(jobRepository, jobId)) {
-            throw new IllegalArgumentException("Unable to update; This job was not found.");
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Job jobToUpdate = RepositoryHelper.getById(jobRepository, jobId);
         jobToUpdate.setName(job.getName());
