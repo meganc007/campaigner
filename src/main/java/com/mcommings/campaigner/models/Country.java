@@ -16,10 +16,10 @@ public class Country extends BaseEntity {
     private int id;
 
     @Column(name="fk_continent")
-    private Integer continentId;
+    private Integer fk_continent;
 
     @Column(name="fk_government")
-    private Integer governmentId;
+    private Integer fk_government;
 
     @ManyToOne
     @JoinColumn(name = "fk_continent", referencedColumnName = "id", updatable=false, insertable=false)
@@ -38,11 +38,11 @@ public class Country extends BaseEntity {
         this.setName(name);
         this.setDescription(description);
     }
-    public Country(int id, String name, String description, Integer continentId, Integer governmentId) {
+    public Country(int id, String name, String description, Integer fk_continent, Integer fk_government) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
-        this.continentId = continentId;
-        this.governmentId = governmentId;
+        this.fk_continent = fk_continent;
+        this.fk_government = fk_government;
     }
 }

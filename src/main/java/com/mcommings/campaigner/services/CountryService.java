@@ -1,9 +1,7 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.interfaces.ICountry;
-import com.mcommings.campaigner.models.Continent;
 import com.mcommings.campaigner.models.Country;
-import com.mcommings.campaigner.models.Government;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.repositories.IContinentRepository;
 import com.mcommings.campaigner.models.repositories.ICountryRepository;
@@ -57,9 +55,9 @@ public class CountryService implements ICountry {
         if(RepositoryHelper.cannotFindId(countryRepository, countryId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//        if(RepositoryHelper.isForeignKey(countryRepository, getListOfRelatedRepositories(), countryId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if(RepositoryHelper.isForeignKey(countryRepository, getListOfRelatedRepositories(), countryId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
         countryRepository.deleteById(countryId);
     }
 
@@ -73,8 +71,8 @@ public class CountryService implements ICountry {
         Country countryToUpdate = RepositoryHelper.getById(countryRepository, countryId);
         countryToUpdate.setName(country.getName());
         countryToUpdate.setDescription(country.getDescription());
-        countryToUpdate.setContinentId(country.getContinentId());
-        countryToUpdate.setGovernmentId(country.getGovernmentId());
+        countryToUpdate.setFk_continent(country.getFk_continent());
+        countryToUpdate.setFk_government(country.getFk_government());
     }
 
     private List<CrudRepository> getListOfRelatedRepositories() {

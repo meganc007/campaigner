@@ -1,16 +1,15 @@
 package com.mcommings.campaigner.models;
 
-import jakarta.persistence.JoinColumn;
 import org.springframework.data.repository.CrudRepository;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.mcommings.campaigner.ErrorMessage.ID_NOT_FOUND;
+import static com.mcommings.campaigner.ErrorMessage.RH_UNABLE_TO_PROCESS_FOREIGN_KEY_LOOKUP;
 import static java.util.Objects.isNull;
 
 public class RepositoryHelper {
@@ -29,8 +28,7 @@ public class RepositoryHelper {
             String name = getNameValueAsString(object);
             Optional<T> existingRecord = (Optional<T>) findByNameMethod.invoke(repository, name);
             return existingRecord.isPresent();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -38,15 +36,74 @@ public class RepositoryHelper {
     public static <T> boolean nameIsNullOrEmpty(T object) {
         try {
             return isNull(getNameValueAsObject(object)) || getNameValueAsString(object).isEmpty();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
         }
     }
 
-//    public static <T> boolean isForeignKey(List<CrudRepository> repositories, int id) {
-//        return repositories.stream().anyMatch(r -> r.existsById(id));
-//    }
+    public static <T> boolean isForeignKey(CrudRepository<T, Integer> repository, List<CrudRepository> repositories, int id) {
+        if (cannotFindId(repository, id)) {
+            throw new IllegalArgumentException(ID_NOT_FOUND.message);
+        }
+
+        T record = getById(repository, id);
+        List<String> names = getListOfForeignKeyColumnNames(record);
+
+        HashMap<CrudRepository, String> reposAndColumns = createReposAndColumnsHashMap(repositories, names);
+
+        return reposAndColumns.entrySet().stream().anyMatch(entry -> {
+            String getterName = retrieveNameOfForeignKeyGetterMethod(record, entry);
+            return isTheRecordAForeignKeyForThisRepo(entry, getterName, record);
+        });
+    }
+
+    private static <T> List<String> getListOfForeignKeyColumnNames(T record) {
+        Field[] fields = record.getClass().getDeclaredFields();
+        List<String> fieldNames = new ArrayList<>();
+        for (Field field : fields) {
+            fieldNames.add(field.getName());
+        }
+        return fieldNames.stream().filter(n -> n.contains("fk_")).collect(Collectors.toList());
+    }
+
+    private static HashMap<CrudRepository, String> createReposAndColumnsHashMap(List<CrudRepository> repositories,
+                                                                                List<String> names) {
+        if (repositories.size() != names.size()) {
+            throw new IllegalArgumentException(RH_UNABLE_TO_PROCESS_FOREIGN_KEY_LOOKUP.message);
+        }
+
+        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
+        for (int i = 0; i < repositories.size(); i++) {
+            reposAndColumns.put(repositories.get(i), names.get(i));
+        }
+        return reposAndColumns;
+    }
+
+    private static <T> String retrieveNameOfForeignKeyGetterMethod(T record, Map.Entry<CrudRepository, String> entry) {
+        return Arrays.stream(record.getClass().getDeclaredMethods()).filter(m ->
+                methodHasAGetterThatMatchesForeignKeyColumnName(m, entry)
+        ).findFirst().get().getName();
+    }
+
+    private static boolean methodHasAGetterThatMatchesForeignKeyColumnName(Method m, Map.Entry<CrudRepository, String> entry) {
+        return m.getName().contains("get") &&
+                m.getName().toUpperCase().contains(String.valueOf(entry.getValue()).toUpperCase());
+    }
+
+    private static <T> boolean isTheRecordAForeignKeyForThisRepo(Map.Entry<CrudRepository, String> entry,
+                                                                 String getterName,
+                                                                 T record) {
+        try {
+            Object value = record.getClass().getMethod(getterName).invoke(record);
+            return value != null ? entry.getKey().existsById(value) : false;
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private static <T> Method getRepoMethod(CrudRepository<T, Integer> repository, String methodName) throws NoSuchMethodException {
         return repository.getClass().getMethod(methodName, String.class);
