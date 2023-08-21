@@ -15,11 +15,19 @@ public class Country extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "fk_continent")
+    @Column(name="fk_continent")
     private Integer continentId;
 
-    @Column(name = "fk_government")
+    @Column(name="fk_government")
     private Integer governmentId;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_continent", referencedColumnName = "id", updatable=false, insertable=false)
+    private Continent continent;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_government", referencedColumnName = "id", updatable=false, insertable=false)
+    private Government government;
 
     public Country() {
         super();
@@ -30,7 +38,7 @@ public class Country extends BaseEntity {
         this.setName(name);
         this.setDescription(description);
     }
-    public Country(int id, String name, String description, int continentId, int governmentId) {
+    public Country(int id, String name, String description, Integer continentId, Integer governmentId) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);

@@ -33,7 +33,7 @@ public class CountryTest {
         String description = "This is a custom Country.";
 
         Country country = new Country(id, name, description);
-        String expected = "Country(super=BaseEntity(name=Custom Country, description=This is a custom Country.), id=1, continentId=null, governmentId=null)";
+        String expected = "Country(super=BaseEntity(name=Custom Country, description=This is a custom Country.), id=1, continentId=null, governmentId=null, continent=null, government=null)";
 
         Assertions.assertEquals(expected, country.toString());
     }
@@ -75,7 +75,7 @@ public class CountryTest {
         Integer governmentId = 3;
 
         Country country = new Country(id, name, description, continentId, governmentId);
-        String expected = "Country(super=BaseEntity(name=Custom Country, description=This is a custom Country.), id=1, continentId=1, governmentId=3)";
+        String expected = "Country(super=BaseEntity(name=Custom Country, description=This is a custom Country.), id=1, continentId=1, governmentId=3, continent=null, government=null)";
 
         Assertions.assertEquals(expected, country.toString());
     }

@@ -1,28 +1,36 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.interfaces.ICountry;
+import com.mcommings.campaigner.models.Continent;
 import com.mcommings.campaigner.models.Country;
+import com.mcommings.campaigner.models.Government;
 import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.repositories.IContinentRepository;
 import com.mcommings.campaigner.models.repositories.ICountryRepository;
+import com.mcommings.campaigner.models.repositories.IGovernmentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.CSS;
-import java.util.List;
+import java.util.*;
 
-import static com.mcommings.campaigner.ErrorMessage.NAME_EXISTS;
-import static com.mcommings.campaigner.ErrorMessage.NULL_OR_EMPTY;
+import static com.mcommings.campaigner.ErrorMessage.*;
 
 @Service
 public class CountryService implements ICountry {
 
     private final ICountryRepository countryRepository;
+    private final IContinentRepository continentRepository;
+    private final IGovernmentRepository governmentRepository;
 
     @Autowired
-    public CountryService(ICountryRepository countryRepository) {
+    public CountryService(ICountryRepository countryRepository, IContinentRepository continentRepository,
+                          IGovernmentRepository governmentRepository) {
         this.countryRepository = countryRepository;
+        this.continentRepository = continentRepository;
+        this.governmentRepository = governmentRepository;
     }
 
     @Override
@@ -39,20 +47,39 @@ public class CountryService implements ICountry {
         if(RepositoryHelper.nameAlreadyExists(countryRepository, country)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-        //TODO: if wrong # of FKs present throw IllegalArgumentException
-//        countryRepository.saveAndFlush(job);
 
+        countryRepository.saveAndFlush(country);
     }
 
     @Override
     @Transactional
     public void deleteCountry(int countryId) throws IllegalArgumentException, DataIntegrityViolationException {
-
+        if(RepositoryHelper.cannotFindId(countryRepository, countryId)) {
+            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
+        }
+//        if(RepositoryHelper.isForeignKey(countryRepository, getListOfRelatedRepositories(), countryId)) {
+//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+//        }
+        countryRepository.deleteById(countryId);
     }
 
     @Override
     @Transactional
-    public void updateCountry(int countryId, Country country) throws IllegalArgumentException, DataIntegrityViolationException {
-
+    public void updateCountry(int countryId, Country country) throws IllegalArgumentException,
+            DataIntegrityViolationException {
+        if(RepositoryHelper.cannotFindId(countryRepository, countryId)) {
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
+        }
+        Country countryToUpdate = RepositoryHelper.getById(countryRepository, countryId);
+        countryToUpdate.setName(country.getName());
+        countryToUpdate.setDescription(country.getDescription());
+        countryToUpdate.setContinentId(country.getContinentId());
+        countryToUpdate.setGovernmentId(country.getGovernmentId());
     }
+
+    private List<CrudRepository> getListOfRelatedRepositories() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
+        return repositories;
+    }
+
 }
