@@ -45,6 +45,9 @@ public class CountryService implements ICountry {
         if(RepositoryHelper.nameAlreadyExists(countryRepository, country)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
+        if(RepositoryHelper.foreignKeyIsNotValid(countryRepository, getListOfForeignKeyRepositories(), country)) {
+            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
+        }
 
         countryRepository.saveAndFlush(country);
     }
@@ -55,9 +58,10 @@ public class CountryService implements ICountry {
         if(RepositoryHelper.cannotFindId(countryRepository, countryId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if(RepositoryHelper.isForeignKey(countryRepository, getListOfRelatedRepositories(), countryId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-        }
+// right implementation, wrong idea; I want to check if country is a foreign key, not if it has foreign keys
+//        if(RepositoryHelper.isForeignKey(countryRepository, getListOfRepositoriesWhereCountryIsAForeignKey(), countryId)) {
+//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+//        }
         countryRepository.deleteById(countryId);
     }
 
@@ -75,7 +79,7 @@ public class CountryService implements ICountry {
         countryToUpdate.setFk_government(country.getFk_government());
     }
 
-    private List<CrudRepository> getListOfRelatedRepositories() {
+    private List<CrudRepository> getListOfForeignKeyRepositories() {
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
         return repositories;
     }

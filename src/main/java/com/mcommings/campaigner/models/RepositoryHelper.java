@@ -1,5 +1,7 @@
 package com.mcommings.campaigner.models;
 
+import lombok.SneakyThrows;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
 import java.lang.reflect.Field;
@@ -8,8 +10,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.mcommings.campaigner.ErrorMessage.ID_NOT_FOUND;
-import static com.mcommings.campaigner.ErrorMessage.RH_UNABLE_TO_PROCESS_FOREIGN_KEY_LOOKUP;
+import static com.mcommings.campaigner.ErrorMessage.*;
 import static java.util.Objects.isNull;
 
 public class RepositoryHelper {
@@ -41,7 +42,8 @@ public class RepositoryHelper {
         }
     }
 
-    public static <T> boolean isForeignKey(CrudRepository<T, Integer> repository, List<CrudRepository> repositories, int id) {
+    public static <T> boolean isForeignKey(CrudRepository<T, Integer> repository,
+                                           List<CrudRepository> repositories, int id) {
         if (cannotFindId(repository, id)) {
             throw new IllegalArgumentException(ID_NOT_FOUND.message);
         }
@@ -54,6 +56,18 @@ public class RepositoryHelper {
         return reposAndColumns.entrySet().stream().anyMatch(entry -> {
             String getterName = retrieveNameOfForeignKeyGetterMethod(record, entry);
             return isTheRecordAForeignKeyForThisRepo(entry, getterName, record);
+        });
+    }
+
+    public static <T> boolean foreignKeyIsNotValid(CrudRepository<T, Integer> repository,
+                                                   List<CrudRepository> repositories,
+                                                   Object requestItem) {
+        List<String> names = getListOfForeignKeyColumnNames(requestItem);
+        HashMap<CrudRepository, String> reposAndColumns = createReposAndColumnsHashMap(repositories, names);
+
+        return !reposAndColumns.entrySet().stream().allMatch(entry -> {
+            String getterName = retrieveNameOfForeignKeyGetterMethod(requestItem, entry);
+            return isTheRecordAForeignKeyForThisRepo(entry, getterName, requestItem);
         });
     }
 
@@ -93,16 +107,27 @@ public class RepositoryHelper {
     private static <T> boolean isTheRecordAForeignKeyForThisRepo(Map.Entry<CrudRepository, String> entry,
                                                                  String getterName,
                                                                  T record) {
-        try {
-            Object value = record.getClass().getMethod(getterName).invoke(record);
-            return value != null ? entry.getKey().existsById(value) : false;
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+        Object value = getForeignKeyIdValueFromMethod(entry, getterName, record);
+        if(isNull(value)) {
+            throw new IllegalArgumentException(ID_NOT_FOUND.message);
         }
+
+        return doesForeignKeyExist(entry, value);
+    }
+
+    @SneakyThrows
+    private static <T> Object getForeignKeyIdValueFromMethod(Map.Entry<CrudRepository, String> entry,
+                                                         String getterName,
+                                                         T record) {
+        return record.getClass().getMethod(getterName).invoke(record);
+    }
+
+    private static boolean foreignKeyIsNotFound(Map.Entry<CrudRepository, String> entry, Object value) {
+        return !entry.getKey().findById(value).isPresent();
+    }
+
+    private static boolean doesForeignKeyExist(Map.Entry<CrudRepository, String> entry, Object value) {
+        return entry.getKey().existsById(value);
     }
 
     private static <T> Method getRepoMethod(CrudRepository<T, Integer> repository, String methodName) throws NoSuchMethodException {
