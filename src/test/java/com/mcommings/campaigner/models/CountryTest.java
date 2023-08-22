@@ -45,8 +45,8 @@ public class CountryTest {
         Assertions.assertEquals(0, country.getId());
         Assertions.assertNull(country.getName());
         Assertions.assertNull(country.getDescription());
-        Assertions.assertNull(country.getContinentId());
-        Assertions.assertNull(country.getGovernmentId());
+        Assertions.assertNull(country.getFk_continent());
+        Assertions.assertNull(country.getFk_government());
     }
 
     @Test
@@ -54,16 +54,16 @@ public class CountryTest {
         int id = 1;
         String name = "Custom Country";
         String description = "This is a custom Country.";
-        Integer continentId = 1;
-        Integer governmentId = 3;
+        Integer fk_continent = 1;
+        Integer fk_government = 3;
 
-        Country country = new Country(id, name, description, continentId, governmentId);
+        Country country = new Country(id, name, description, fk_continent, fk_government);
 
         Assertions.assertEquals(id, country.getId());
         Assertions.assertEquals(name, country.getName());
         Assertions.assertEquals(description, country.getDescription());
-        Assertions.assertEquals(continentId, country.getContinentId());
-        Assertions.assertEquals(governmentId, country.getGovernmentId());
+        Assertions.assertEquals(fk_continent, country.getFk_continent());
+        Assertions.assertEquals(fk_government, country.getFk_government());
     }
 
     @Test
