@@ -135,35 +135,42 @@ public class CountryTest {
     //TODO: test that deleteCountry doesn't delete when it's a foreign key
 
     @Test
-    public void whenCountryIdIsFound_updateCountry_UpdatesTheCountry() {
-        int countryId1 = 1;
-        int countryId2 = 2;
+    public void whenCountryIdWithNoFKIsFound_updateCountry_UpdatesTheCountry() {
+        int countryId = 1;
 
-        Country country = new Country(countryId1, "Old Country Name", "Old Description");
-        Country countryToUpdateNoFK = new Country(countryId1, "Updated Country Name", "Updated Description");
+        Country country = new Country(countryId, "Old Country Name", "Old Description");
+        Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description");
 
-        Country country2 = new Country(countryId2, "Test Country Name", "Test Description");
-        Country countryToUpdateWithFK = new Country(countryId2, "Updated Country Name", "Updated Description", 1, 2);
+        when(countryRepository.existsById(countryId)).thenReturn(true);
+        when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));
 
-        when(countryRepository.existsById(countryId1)).thenReturn(true);
-        when(countryRepository.findById(countryId1)).thenReturn(Optional.of(country));
+        countryService.updateCountry(countryId, countryToUpdate);
 
-        when(countryRepository.existsById(countryId2)).thenReturn(true);
-        when(countryRepository.findById(countryId2)).thenReturn(Optional.of(country2));
+        verify(countryRepository).findById(countryId);
 
-        countryService.updateCountry(countryId1, countryToUpdateNoFK);
-        countryService.updateCountry(countryId2, countryToUpdateWithFK);
+        Country result = countryRepository.findById(countryId).get();
+        Assertions.assertEquals(countryToUpdate.getName(), result.getName());
+        Assertions.assertEquals(countryToUpdate.getDescription(), result.getDescription());
+    }
+    @Test
+    public void whenCountryIdWithFKIsFound_updateCountry_UpdatesTheCountry() {
+        int countryId = 2;
 
-        verify(countryRepository).findById(countryId1);
-        verify(countryRepository).findById(countryId2);
+        Country country = new Country(countryId, "Test Country Name", "Test Description");
+        Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description", 1, 2);
 
-        Country result1 = countryRepository.findById(countryId1).get();
-        Assertions.assertEquals(countryToUpdateNoFK.getName(), result1.getName());
-        Assertions.assertEquals(countryToUpdateNoFK.getDescription(), result1.getDescription());
+        when(countryRepository.existsById(countryId)).thenReturn(true);
+        when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));
 
-        Country result2 = countryRepository.findById(countryId2).get();
-        Assertions.assertEquals(countryToUpdateWithFK.getName(), result2.getName());
-        Assertions.assertEquals(countryToUpdateWithFK.getDescription(), result2.getDescription());
+        countryService.updateCountry(countryId, countryToUpdate);
+
+        verify(countryRepository).findById(countryId);
+
+        Country result = countryRepository.findById(countryId).get();
+        Assertions.assertEquals(countryToUpdate.getName(), result.getName());
+        Assertions.assertEquals(countryToUpdate.getDescription(), result.getDescription());
+        Assertions.assertEquals(countryToUpdate.getFk_continent(), result.getFk_continent());
+        Assertions.assertEquals(countryToUpdate.getFk_government(), result.getFk_government());
     }
 
     @Test
