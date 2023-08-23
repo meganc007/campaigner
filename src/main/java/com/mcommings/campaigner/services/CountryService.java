@@ -58,7 +58,7 @@ public class CountryService implements ICountry {
         if(RepositoryHelper.cannotFindId(countryRepository, countryId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-// right implementation, wrong idea; I want to check if country is a foreign key, not if it has foreign keys
+// TODO: right implementation, wrong idea; I want to check if country is a foreign key, not if it has foreign keys
 //        if(RepositoryHelper.isForeignKey(countryRepository, getListOfRepositoriesWhereCountryIsAForeignKey(), countryId)) {
 //            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
 //        }
