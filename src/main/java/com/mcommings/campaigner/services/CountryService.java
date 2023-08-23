@@ -45,7 +45,8 @@ public class CountryService implements ICountry {
         if(RepositoryHelper.nameAlreadyExists(countryRepository, country)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-        if(RepositoryHelper.foreignKeyIsNotValid(countryRepository, getListOfForeignKeyRepositories(), country)) {
+        if(hasForeignKeys(country) &&
+                RepositoryHelper.foreignKeyIsNotValid(countryRepository, getListOfForeignKeyRepositories(), country)) {
             throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
         }
 
@@ -77,6 +78,10 @@ public class CountryService implements ICountry {
         countryToUpdate.setDescription(country.getDescription());
         countryToUpdate.setFk_continent(country.getFk_continent());
         countryToUpdate.setFk_government(country.getFk_government());
+    }
+
+    private boolean hasForeignKeys(Country country) {
+        return country.getFk_continent() != null || country.getFk_government() != null;
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {

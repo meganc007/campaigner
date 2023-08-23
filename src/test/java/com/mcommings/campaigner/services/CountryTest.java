@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.models.Country;
+import com.mcommings.campaigner.models.repositories.IContinentRepository;
 import com.mcommings.campaigner.models.repositories.ICountryRepository;
+import com.mcommings.campaigner.models.repositories.IGovernmentRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,6 +24,10 @@ public class CountryTest {
     
     @Mock
     private ICountryRepository countryRepository;
+    @Mock
+    private IContinentRepository continentRepository;
+    @Mock
+    private IGovernmentRepository governmentRepository;
 
     @InjectMocks
     private CountryService countryService;
@@ -52,17 +58,25 @@ public class CountryTest {
     }
 
     @Test
-    public void whenCountryIsValid_saveCountry_SavesTheCountry() {
+    public void whenCountryWithNoForeignKeysIsValid_saveCountry_SavesTheCountry() {
         Country country = new Country(1, "Country 1", "Description 1");
-        Country countryWithFK = new Country(2, "Country 2", "Description 2", 1, 3);
         when(countryRepository.saveAndFlush(country)).thenReturn(country);
-        when(countryRepository.saveAndFlush(countryWithFK)).thenReturn(countryWithFK);
 
         assertDoesNotThrow(() -> countryService.saveCountry(country));
-        assertDoesNotThrow(() -> countryService.saveCountry(countryWithFK));
 
         verify(countryRepository, times(1)).saveAndFlush(country);
-        verify(countryRepository, times(1)).saveAndFlush(countryWithFK);
+    }
+    @Test
+    public void whenCountryWithForeignKeysIsValid_saveCountry_SavesTheCountry() {
+        Country country = new Country(1, "Country 1", "Description 1", 1, 3);
+
+        when(continentRepository.existsById(1)).thenReturn(true);
+        when(governmentRepository.existsById(3)).thenReturn(true);
+        when(countryRepository.saveAndFlush(country)).thenReturn(country);
+
+        assertDoesNotThrow(() -> countryService.saveCountry(country));
+
+        verify(countryRepository, times(1)).saveAndFlush(country);
     }
 
     @Test
@@ -78,11 +92,29 @@ public class CountryTest {
     public void whenCountryNameAlreadyExists_saveCountry_ThrowsDataIntegrityViolationException() {
         Country country = new Country(1, "Country 1", "Description 1", 1, 2);
         Country countryWithDuplicatedName = new Country(2, "Country 1", "Description 2", 3, 4);
+
+        when(continentRepository.existsById(1)).thenReturn(true);
+        when(continentRepository.existsById(3)).thenReturn(true);
+        when(governmentRepository.existsById(2)).thenReturn(true);
+        when(governmentRepository.existsById(4)).thenReturn(true);
+
         when(countryRepository.saveAndFlush(country)).thenReturn(country);
         when(countryRepository.saveAndFlush(countryWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
 
         assertDoesNotThrow(() -> countryService.saveCountry(country));
         assertThrows(DataIntegrityViolationException.class, () -> countryService.saveCountry(countryWithDuplicatedName));
+    }
+
+    @Test
+    public void whenCountryHasInvalidForeignKeys_saveCountry_ThrowsDataIntegrityViolationException() {
+        Country country = new Country(1, "Country 1", "Description 1", 1, 2);
+
+        when(continentRepository.existsById(1)).thenReturn(true);
+        when(continentRepository.existsById(3)).thenReturn(false);
+        when(countryRepository.saveAndFlush(country)).thenReturn(country);
+
+        assertThrows(DataIntegrityViolationException.class, () -> countryService.saveCountry(country));
+
     }
 
     @Test
