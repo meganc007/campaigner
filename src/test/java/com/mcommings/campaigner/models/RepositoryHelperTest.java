@@ -152,4 +152,6 @@ public class RepositoryHelperTest {
         Assertions.assertFalse(actual);
     }
 
+    //TODO: add tests for foreign key lookups
+
 }
