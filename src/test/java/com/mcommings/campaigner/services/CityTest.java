@@ -98,11 +98,13 @@ public class CityTest {
         City cityWithDuplicatedName = new City(2, "City 1", "Description 2", 5, 6, 7, 8);
 
         when(cityRepository.existsById(1)).thenReturn(true);
+        when(wealthRepository.existsById(1)).thenReturn(true);
         when(countryRepository.existsById(2)).thenReturn(true);
         when(settlementTypeRepository.existsById(3)).thenReturn(true);
         when(governmentRepository.existsById(4)).thenReturn(true);
 
-        when(cityRepository.existsById(5)).thenReturn(true);
+        when(cityRepository.existsById(2)).thenReturn(true);
+        when(wealthRepository.existsById(5)).thenReturn(true);
         when(countryRepository.existsById(6)).thenReturn(true);
         when(settlementTypeRepository.existsById(7)).thenReturn(true);
         when(governmentRepository.existsById(8)).thenReturn(true);
