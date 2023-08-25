@@ -8,8 +8,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -166,26 +168,49 @@ public class CityTest {
         Assertions.assertEquals(cityToUpdateNoFK.getDescription(), result1.getDescription());
     }
     @Test
-    public void whenCityIdWithFKIsFound_updateCity_UpdatesTheCity() {
+    public void whenCityIdWithValidFKIsFound_updateCity_UpdatesTheCity() {
         int cityId = 2;
 
         City city = new City(cityId, "Test City Name", "Test Description");
-        City cityToUpdateWithFK = new City(cityId, "Updated City Name", "Updated Description", 1, 2, 3, 4);
+        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", 1, 2, 3, 4);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(wealthRepository, countryRepository, settlementTypeRepository, governmentRepository));
 
         when(cityRepository.existsById(cityId)).thenReturn(true);
         when(cityRepository.findById(cityId)).thenReturn(Optional.of(city));
+        when(wealthRepository.existsById(1)).thenReturn(true);
+        when(countryRepository.existsById(2)).thenReturn(true);
+        when(settlementTypeRepository.existsById(3)).thenReturn(true);
+        when(governmentRepository.existsById(4)).thenReturn(true);
 
-        cityService.updateCity(cityId, cityToUpdateWithFK);
+        cityService.updateCity(cityId, cityToUpdate);
 
         verify(cityRepository).findById(cityId);
 
         City result = cityRepository.findById(cityId).get();
-        Assertions.assertEquals(cityToUpdateWithFK.getName(), result.getName());
-        Assertions.assertEquals(cityToUpdateWithFK.getDescription(), result.getDescription());
-        Assertions.assertEquals(cityToUpdateWithFK.getFk_wealth(), result.getFk_wealth());
-        Assertions.assertEquals(cityToUpdateWithFK.getFk_country(), result.getFk_country());
-        Assertions.assertEquals(cityToUpdateWithFK.getFk_settlement(), result.getFk_settlement());
-        Assertions.assertEquals(cityToUpdateWithFK.getFk_government(), result.getFk_government());
+        Assertions.assertEquals(cityToUpdate.getName(), result.getName());
+        Assertions.assertEquals(cityToUpdate.getDescription(), result.getDescription());
+        Assertions.assertEquals(cityToUpdate.getFk_wealth(), result.getFk_wealth());
+        Assertions.assertEquals(cityToUpdate.getFk_country(), result.getFk_country());
+        Assertions.assertEquals(cityToUpdate.getFk_settlement(), result.getFk_settlement());
+        Assertions.assertEquals(cityToUpdate.getFk_government(), result.getFk_government());
+    }
+
+    @Test
+    public void whenCityIdWithInvalidFKIsFound_updateCity_ThrowsDataIntegrityViolationException() {
+        int cityId = 2;
+
+        City city = new City(cityId, "Test City Name", "Test Description");
+        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", 1, 2, 3, 4);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(wealthRepository, countryRepository, settlementTypeRepository, governmentRepository));
+
+        when(cityRepository.existsById(cityId)).thenReturn(true);
+        when(cityRepository.findById(cityId)).thenReturn(Optional.of(city));
+        when(wealthRepository.existsById(1)).thenReturn(true);
+        when(countryRepository.existsById(2)).thenReturn(false);
+        when(settlementTypeRepository.existsById(3)).thenReturn(true);
+        when(governmentRepository.existsById(4)).thenReturn(false);
+
+        assertThrows(DataIntegrityViolationException.class, () -> cityService.updateCity(cityId, cityToUpdate));
     }
 
     @Test
