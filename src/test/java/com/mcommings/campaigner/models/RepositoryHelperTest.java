@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class RepositoryHelperTest {
@@ -169,22 +168,31 @@ public class RepositoryHelperTest {
         Assertions.assertFalse(actual);
     }
 
+    @Test
+    public void whenThereIsAForeignKey_isForeignKey_ReturnsTrue() {
+        Country country = new Country(1, "Country", "Description", 1, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
 
-// TODO: tests for foreign key lookups
-//    @Test
-//    public void whenThereIsAForeignKey_isForeignKey_ReturnsTrue() {
-//    }
-//
-//    @Test
-//    public void whenThereIsNotAForeignKey_isForeignKey_ReturnsFalse() {
-//    }
+        Mockito.when(countryRepository.findById(1)).thenReturn(Optional.of(country));
+        Mockito.when(continentRepository.existsById(1)).thenReturn(true);
+
+        assertDoesNotThrow(() -> RepositoryHelper.isForeignKey(countryRepository, repositories, 1));
+        boolean actual = RepositoryHelper.isForeignKey(countryRepository, repositories, 1);
+        Assertions.assertTrue(actual);
+    }
 
     @Test
-    public void whenForeignKeyIdIsNotFound_isForeignKey_ThrowsIllegalArgumentException() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository));
-        Mockito.when(continentRepository.existsById(1)).thenReturn(false);
+    public void whenThereIsNotAForeignKey_isForeignKey_ReturnsFalse() {
+        Country country = new Country(1, "Country", "Description", 1, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
 
-        assertThrows(IllegalArgumentException.class, () -> RepositoryHelper.isForeignKey(continentRepository, repositories, 1));
+        Mockito.when(countryRepository.findById(1)).thenReturn(Optional.of(country));
+        Mockito.when(continentRepository.existsById(1)).thenReturn(false);
+        Mockito.when(governmentRepository.existsById(1)).thenReturn(false);
+
+        assertDoesNotThrow(() -> RepositoryHelper.isForeignKey(countryRepository, repositories, 1));
+        boolean actual = RepositoryHelper.isForeignKey(countryRepository, repositories, 1);
+        Assertions.assertFalse(actual);
     }
 
     @Test

@@ -44,9 +44,6 @@ public class RepositoryHelper {
 
     public static <T> boolean isForeignKey(CrudRepository<T, Integer> repository,
                                            List<CrudRepository> repositories, int id) {
-        if (cannotFindId(repository, id)) {
-            throw new IllegalArgumentException(ID_NOT_FOUND.message);
-        }
 
         T record = getById(repository, id);
         List<String> names = getListOfForeignKeyColumnNames(record);
