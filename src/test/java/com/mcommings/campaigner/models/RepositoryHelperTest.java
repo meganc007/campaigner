@@ -1,5 +1,8 @@
 package com.mcommings.campaigner.models;
 
+import com.mcommings.campaigner.models.repositories.IContinentRepository;
+import com.mcommings.campaigner.models.repositories.ICountryRepository;
+import com.mcommings.campaigner.models.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.models.repositories.IRaceRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -7,14 +10,27 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.repository.CrudRepository;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 public class RepositoryHelperTest {
 
     @Mock
     private IRaceRepository raceRepository;
+    @Mock
+    private ICountryRepository countryRepository;
+    @Mock
+    private IContinentRepository continentRepository;
+    @Mock
+    private IGovernmentRepository governmentRepository;
 
     @Test
     public void whenAnIdIsNotFound_cannotFindId_ReturnsTrue() {
@@ -120,6 +136,7 @@ public class RepositoryHelperTest {
         Assertions.assertEquals(expected, actual);
         Assertions.assertTrue(actual);
     }
+
     @Test
     public void whenNameIsEmpty_nameIsNullOrEmpty_ReturnsTrue() {
         int id = 1;
@@ -152,6 +169,49 @@ public class RepositoryHelperTest {
         Assertions.assertFalse(actual);
     }
 
-    //TODO: add tests for foreign key lookups
+
+// TODO: tests for foreign key lookups
+//    @Test
+//    public void whenThereIsAForeignKey_isForeignKey_ReturnsTrue() {
+//    }
+//
+//    @Test
+//    public void whenThereIsNotAForeignKey_isForeignKey_ReturnsFalse() {
+//    }
+
+    @Test
+    public void whenForeignKeyIdIsNotFound_isForeignKey_ThrowsIllegalArgumentException() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository));
+        Mockito.when(continentRepository.existsById(1)).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class, () -> RepositoryHelper.isForeignKey(continentRepository, repositories, 1));
+    }
+
+    @Test
+    public void whenThereIsAnInvalidForeignKey_foreignKeyIsNotValid_ReturnsTrue() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
+        Object requestItem = new Country(1, "Country", "Description", 1, 2);
+
+        Mockito.when(continentRepository.existsById(1)).thenReturn(false);
+        Mockito.when(governmentRepository.existsById(2)).thenReturn(false);
+        Mockito.when(RepositoryHelper.foreignKeyIsNotValid(countryRepository, repositories, requestItem)).thenReturn(true);
+
+        assertDoesNotThrow(() -> RepositoryHelper.foreignKeyIsNotValid(countryRepository, repositories, requestItem));
+        boolean actual = RepositoryHelper.foreignKeyIsNotValid(countryRepository, repositories, requestItem);
+        Assertions.assertTrue(actual);
+    }
+
+    @Test
+    public void whenThereIsAValidForeignKey_foreignKeyIsNotValid_ReturnsFalse() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
+        Object requestItem = new Country(1, "Country", "Description", 1, 2);
+        Mockito.when(RepositoryHelper.foreignKeyIsNotValid(countryRepository, repositories, requestItem)).thenReturn(false);
+
+        Mockito.when(continentRepository.existsById(1)).thenReturn(true);
+        Mockito.when(governmentRepository.existsById(2)).thenReturn(true);
+
+        assertDoesNotThrow(() -> RepositoryHelper.foreignKeyIsNotValid(countryRepository, repositories, requestItem));
+        Assertions.assertFalse(RepositoryHelper.foreignKeyIsNotValid(countryRepository, repositories, requestItem));
+    }
 
 }
