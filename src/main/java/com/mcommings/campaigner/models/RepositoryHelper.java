@@ -1,7 +1,6 @@
 package com.mcommings.campaigner.models;
 
 import lombok.SneakyThrows;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
 import java.lang.reflect.Field;
@@ -42,17 +41,11 @@ public class RepositoryHelper {
         }
     }
 
-    public static <T> boolean isForeignKey(CrudRepository<T, Integer> repository,
-                                           List<CrudRepository> repositories, int id) {
+    public static <T> boolean isForeignKey(List<CrudRepository> repositories, String columnName, int id) {
 
-        T record = getById(repository, id);
-        List<String> names = getListOfForeignKeyColumnNames(record);
-
-        HashMap<CrudRepository, String> reposAndColumns = createReposAndColumnsHashMap(repositories, names);
-
-        return reposAndColumns.entrySet().stream().anyMatch(entry -> {
-            String getterName = retrieveNameOfForeignKeyGetterMethod(record, entry);
-            return isTheRecordAForeignKeyForThisRepo(entry, getterName, record);
+        return repositories.stream().anyMatch(r -> {
+            String fkFind = getForeignKeyColumnMethodName(r, columnName);
+            return containsForeignKeyValues(r, fkFind, id);
         });
     }
 
@@ -66,6 +59,22 @@ public class RepositoryHelper {
             String getterName = retrieveNameOfForeignKeyGetterMethod(requestItem, entry);
             return isTheRecordAForeignKeyForThisRepo(entry, getterName, requestItem);
         });
+    }
+
+    private static String getForeignKeyColumnMethodName(CrudRepository r, String columnName) {
+        return Arrays.stream(r.getClass().getDeclaredMethods()).filter(m ->
+                doesTheMethodContainColumnName(m, columnName)
+        ).findFirst().get().getName();
+    }
+
+    private static boolean doesTheMethodContainColumnName(Method m, String columnName) {
+        return m.getName().toUpperCase().contains(columnName.toUpperCase());
+    }
+
+    @SneakyThrows
+    private static boolean containsForeignKeyValues(CrudRepository r, String fkFind, int id) {
+        List<Object> value = (List<Object>) r.getClass().getMethod(fkFind, Integer.class).invoke(r, id);
+        return value != null && value.size() > 0;
     }
 
     private static <T> List<String> getListOfForeignKeyColumnNames(T record) {

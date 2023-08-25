@@ -1,14 +1,19 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.interfaces.IContinent;
+import com.mcommings.campaigner.interfaces.ICountry;
 import com.mcommings.campaigner.models.Continent;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.repositories.IContinentRepository;
+import com.mcommings.campaigner.models.repositories.ICountryRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.ErrorMessage.*;
@@ -17,10 +22,12 @@ import static com.mcommings.campaigner.ErrorMessage.*;
 public class ContinentService implements IContinent {
 
     private final IContinentRepository continentRepository;
+    private final ICountryRepository countryRepository;
 
     @Autowired
-    public ContinentService(IContinentRepository continentRepository) {
+    public ContinentService(IContinentRepository continentRepository, ICountryRepository countryRepository) {
         this.continentRepository = continentRepository;
+        this.countryRepository = countryRepository;
     }
 
     @Override
@@ -47,7 +54,9 @@ public class ContinentService implements IContinent {
         if(RepositoryHelper.cannotFindId(continentRepository, continentId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: check if foreign key
+        if(RepositoryHelper.isForeignKey(getListOfReposWhereContinentIsAForeignKey(), getColumnName(), continentId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         continentRepository.deleteById(continentId);
     }
@@ -64,5 +73,14 @@ public class ContinentService implements IContinent {
         Continent continentToUpdate = RepositoryHelper.getById(continentRepository, continentId);
         continentToUpdate.setName(continent.getName());
         continentToUpdate.setDescription(continent.getDescription());
+    }
+
+    private List<CrudRepository> getListOfReposWhereContinentIsAForeignKey() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository));
+        return repositories;
+    }
+
+    private String getColumnName() {
+        return "fk_continent";
     }
 }
