@@ -1,6 +1,7 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.models.Country;
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.repositories.IContinentRepository;
 import com.mcommings.campaigner.models.repositories.ICountryRepository;
 import com.mcommings.campaigner.models.repositories.IGovernmentRepository;
@@ -10,8 +11,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -153,14 +156,17 @@ public class CountryTest {
         Assertions.assertEquals(countryToUpdate.getDescription(), result.getDescription());
     }
     @Test
-    public void whenCountryIdWithFKIsFound_updateCountry_UpdatesTheCountry() {
+    public void whenCountryIdWithValidFKIsFound_updateCountry_UpdatesTheCountry() {
         int countryId = 2;
 
         Country country = new Country(countryId, "Test Country Name", "Test Description");
         Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description", 1, 2);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
 
         when(countryRepository.existsById(countryId)).thenReturn(true);
         when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));
+        when(continentRepository.existsById(1)).thenReturn(true);
+        when(governmentRepository.existsById(2)).thenReturn(true);
 
         countryService.updateCountry(countryId, countryToUpdate);
 
@@ -171,6 +177,21 @@ public class CountryTest {
         Assertions.assertEquals(countryToUpdate.getDescription(), result.getDescription());
         Assertions.assertEquals(countryToUpdate.getFk_continent(), result.getFk_continent());
         Assertions.assertEquals(countryToUpdate.getFk_government(), result.getFk_government());
+    }
+    @Test
+    public void whenCountryIdWithInvalidFKIsFound_updateCountry_ThrowsDataIntegrityViolationException() {
+        int countryId = 1;
+
+        Country country = new Country(countryId, "Test Country Name", "Test Description");
+        Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description", 1, 2);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
+
+        when(countryRepository.existsById(countryId)).thenReturn(true);
+        when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));
+        when(continentRepository.existsById(1)).thenReturn(true);
+        when(governmentRepository.existsById(2)).thenReturn(false);
+
+        assertThrows(DataIntegrityViolationException.class, () -> countryService.updateCountry(countryId, countryToUpdate));
     }
 
     @Test

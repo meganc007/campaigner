@@ -73,6 +73,10 @@ public class CountryService implements ICountry {
         if(RepositoryHelper.cannotFindId(countryRepository, countryId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
+        if(hasForeignKeys(country) &&
+                RepositoryHelper.foreignKeyIsNotValid(countryRepository, getListOfForeignKeyRepositories(), country)) {
+            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+        }
         Country countryToUpdate = RepositoryHelper.getById(countryRepository, countryId);
         countryToUpdate.setName(country.getName());
         countryToUpdate.setDescription(country.getDescription());
