@@ -1,15 +1,20 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.models.Continent;
+import com.mcommings.campaigner.models.Country;
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.repositories.IContinentRepository;
+import com.mcommings.campaigner.models.repositories.ICountryRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +26,9 @@ import static org.mockito.Mockito.*;
 public class ContinentTest {
     @Mock
     private IContinentRepository continentRepository;
+
+    @Mock
+    private ICountryRepository countryRepository;
 
     @InjectMocks
     private ContinentService continentService;
@@ -93,7 +101,20 @@ public class ContinentTest {
         assertThrows(IllegalArgumentException.class, () -> continentService.deleteContinent(continentId));
     }
 
-    //TODO: test that deleteContinent doesn't delete when it's a foreign key
+    @Test
+    public void whenContinentIdIsAForeignKeyForAnotherTable_deleteContinent_ThrowsDataIntegrityViolationException() {
+        int continentId = 1;
+        Country country = new Country(1, "Country", "Description", continentId, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository));
+        List<Country> countries = new ArrayList<>(Arrays.asList(country));
+
+        when(continentRepository.existsById(1)).thenReturn(true);
+        when(countryRepository.findByfk_continent(continentId)).thenReturn(countries);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, "fk_continent", continentId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> continentService.deleteContinent(continentId));
+    }
 
     @Test
     public void whenContinentIdIsFound_updateContinent_UpdatesTheContinent() {
