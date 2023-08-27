@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_CONTINENT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -111,7 +112,7 @@ public class ContinentTest {
         when(continentRepository.existsById(1)).thenReturn(true);
         when(countryRepository.findByfk_continent(continentId)).thenReturn(countries);
 
-        boolean actual = RepositoryHelper.isForeignKey(repositories, "fk_continent", continentId);
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_CONTINENT.columnName, continentId);
         Assertions.assertTrue(actual);
         assertThrows(DataIntegrityViolationException.class, () -> continentService.deleteContinent(continentId));
     }

@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_CONTINENT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @ExtendWith(MockitoExtension.class)
@@ -178,8 +179,8 @@ public class RepositoryHelperTest {
 
         Mockito.when(countryRepository.findByfk_continent(1)).thenReturn(countries);
 
-        assertDoesNotThrow(() -> RepositoryHelper.isForeignKey(repositories, "fk_continent", 1));
-        boolean actual = RepositoryHelper.isForeignKey(repositories, "fk_continent", 1);
+        assertDoesNotThrow(() -> RepositoryHelper.isForeignKey(repositories, FK_CONTINENT.columnName, 1));
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_CONTINENT.columnName, 1);
         Assertions.assertTrue(actual);
     }
 
@@ -190,8 +191,8 @@ public class RepositoryHelperTest {
 
         Mockito.when(countryRepository.findByfk_continent(1)).thenReturn(countries);
 
-        assertDoesNotThrow(() -> RepositoryHelper.isForeignKey(repositories, "fk_continent", 1));
-        boolean actual = RepositoryHelper.isForeignKey(repositories, "fk_continent", 1);
+        assertDoesNotThrow(() -> RepositoryHelper.isForeignKey(repositories, FK_CONTINENT.columnName, 1));
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_CONTINENT.columnName, 1);
         Assertions.assertFalse(actual);
     }
 

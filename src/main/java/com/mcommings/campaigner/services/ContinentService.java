@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_CONTINENT;
 
 @Service
 public class ContinentService implements IContinent {
@@ -53,7 +54,7 @@ public class ContinentService implements IContinent {
         if(RepositoryHelper.cannotFindId(continentRepository, continentId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if(RepositoryHelper.isForeignKey(getListOfReposWhereContinentIsAForeignKey(), getColumnName(), continentId)) {
+        if(RepositoryHelper.isForeignKey(getListOfReposWhereContinentIsAForeignKey(), FK_CONTINENT.columnName, continentId)) {
             throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
 
@@ -77,9 +78,5 @@ public class ContinentService implements IContinent {
     private List<CrudRepository> getListOfReposWhereContinentIsAForeignKey() {
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository));
         return repositories;
-    }
-
-    private String getColumnName() {
-        return "fk_continent";
     }
 }
