@@ -104,7 +104,7 @@ public class WealthTest {
     }
 
     @Test
-    public void whenWealthIdIsAForeignKeyForAnotherTable_deleteWealth_ThrowsDataIntegrityViolationException() {
+    public void whenWealthIdIsAForeignKey_deleteWealth_ThrowsDataIntegrityViolationException() {
         int wealthId = 1;
         City city = new City(1, "City", "Description", wealthId, 1, 1, 1);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));

@@ -3,6 +3,7 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.interfaces.ICountry;
 import com.mcommings.campaigner.models.Country;
 import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.repositories.ICityRepository;
 import com.mcommings.campaigner.models.repositories.IContinentRepository;
 import com.mcommings.campaigner.models.repositories.ICountryRepository;
 import com.mcommings.campaigner.models.repositories.IGovernmentRepository;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_COUNTRY;
 
 @Service
 public class CountryService implements ICountry {
@@ -23,12 +25,15 @@ public class CountryService implements ICountry {
     private final IContinentRepository continentRepository;
     private final IGovernmentRepository governmentRepository;
 
+    private final ICityRepository cityRepository;
+
     @Autowired
     public CountryService(ICountryRepository countryRepository, IContinentRepository continentRepository,
-                          IGovernmentRepository governmentRepository) {
+                          IGovernmentRepository governmentRepository, ICityRepository cityRepository) {
         this.countryRepository = countryRepository;
         this.continentRepository = continentRepository;
         this.governmentRepository = governmentRepository;
+        this.cityRepository = cityRepository;
     }
 
     @Override
@@ -59,10 +64,10 @@ public class CountryService implements ICountry {
         if(RepositoryHelper.cannotFindId(countryRepository, countryId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-// TODO: right implementation, wrong idea; I want to check if country is a foreign key, not if it has foreign keys
-//        if(RepositoryHelper.isForeignKey(countryRepository, getListOfRepositoriesWhereCountryIsAForeignKey(), countryId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWhereCountryIsAForeignKey(), FK_COUNTRY.columnName, countryId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
+
         countryRepository.deleteById(countryId);
     }
 
@@ -82,6 +87,11 @@ public class CountryService implements ICountry {
         countryToUpdate.setDescription(country.getDescription());
         countryToUpdate.setFk_continent(country.getFk_continent());
         countryToUpdate.setFk_government(country.getFk_government());
+    }
+
+    private List<CrudRepository> getReposWhereCountryIsAForeignKey() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
+        return repositories;
     }
 
     private boolean hasForeignKeys(Country country) {

@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.services;
 
+import com.mcommings.campaigner.models.City;
 import com.mcommings.campaigner.models.Country;
 import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.repositories.ICityRepository;
 import com.mcommings.campaigner.models.repositories.IContinentRepository;
 import com.mcommings.campaigner.models.repositories.ICountryRepository;
 import com.mcommings.campaigner.models.repositories.IGovernmentRepository;
@@ -18,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_COUNTRY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -31,6 +34,9 @@ public class CountryTest {
     private IContinentRepository continentRepository;
     @Mock
     private IGovernmentRepository governmentRepository;
+
+    @Mock
+    private ICityRepository cityRepository;
 
     @InjectMocks
     private CountryService countryService;
@@ -135,7 +141,20 @@ public class CountryTest {
         assertThrows(IllegalArgumentException.class, () -> countryService.deleteCountry(countryId));
     }
 
-    //TODO: test that deleteCountry doesn't delete when it's a foreign key
+    @Test
+    public void whenCountryIdIsAForeignKey_deleteCountry_ThrowsDataIntegrityViolationException() {
+        int countryId = 1;
+        City city = new City(1, "Country", "Description", 1, countryId, 1, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
+        List<City> cities = new ArrayList<>(Arrays.asList(city));
+
+        when(countryRepository.existsById(countryId)).thenReturn(true);
+        when(cityRepository.findByfk_country(countryId)).thenReturn(cities);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_COUNTRY.columnName, countryId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> countryService.deleteCountry(countryId));
+    }
 
     @Test
     public void whenCountryIdWithNoFKIsFound_updateCountry_UpdatesTheCountry() {
