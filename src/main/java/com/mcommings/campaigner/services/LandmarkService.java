@@ -31,10 +31,10 @@ public class LandmarkService implements ILandmark {
     @Override
     @Transactional
     public void saveLandmark(Landmark landmark) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.nameIsNullOrEmpty(landmark)) {
+        if (RepositoryHelper.nameIsNullOrEmpty(landmark)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if(RepositoryHelper.nameAlreadyExists(landmarkRepository, landmark)) {
+        if (RepositoryHelper.nameAlreadyExists(landmarkRepository, landmark)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
@@ -44,7 +44,7 @@ public class LandmarkService implements ILandmark {
     @Override
     @Transactional
     public void deleteLandmark(int landmarkId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.cannotFindId(landmarkRepository, landmarkId)) {
+        if (RepositoryHelper.cannotFindId(landmarkRepository, landmarkId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         //TODO: check if foreign key
@@ -56,7 +56,7 @@ public class LandmarkService implements ILandmark {
     @Transactional
     public void updateLandmark(int landmarkId, Landmark landmark)
             throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.cannotFindId(landmarkRepository, landmarkId)) {
+        if (RepositoryHelper.cannotFindId(landmarkRepository, landmarkId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Landmark landmarkToUpdate = RepositoryHelper.getById(landmarkRepository, landmarkId);

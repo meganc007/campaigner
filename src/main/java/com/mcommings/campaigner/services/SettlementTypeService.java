@@ -54,7 +54,7 @@ public class SettlementTypeService implements ISettlementType {
         if (RepositoryHelper.cannotFindId(settlementTypeRepository, settlementTypeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if(RepositoryHelper.isForeignKey(getReposWhereSettlementTypeIsAForeignKey(), FK_SETTLEMENT.columnName, settlementTypeId)) {
+        if (RepositoryHelper.isForeignKey(getReposWhereSettlementTypeIsAForeignKey(), FK_SETTLEMENT.columnName, settlementTypeId)) {
             throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
 

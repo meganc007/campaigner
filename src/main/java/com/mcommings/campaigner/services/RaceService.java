@@ -32,10 +32,10 @@ public class RaceService implements IRace {
     @Transactional
     public void saveRace(Race race) throws IllegalArgumentException, DataIntegrityViolationException {
 
-        if(RepositoryHelper.nameIsNullOrEmpty(race)) {
+        if (RepositoryHelper.nameIsNullOrEmpty(race)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if(RepositoryHelper.nameAlreadyExists(raceRepository, race)) {
+        if (RepositoryHelper.nameAlreadyExists(raceRepository, race)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
@@ -46,11 +46,11 @@ public class RaceService implements IRace {
     @Transactional
     public void deleteRace(int raceId) throws IllegalArgumentException, DataIntegrityViolationException {
 
-        if(RepositoryHelper.cannotFindId(raceRepository, raceId)) {
+        if (RepositoryHelper.cannotFindId(raceRepository, raceId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
 // TODO: after adding the People table/repo, check that Race id isn't a foreign key before deleting
-//        if(raceUsedAsForeignKey) {
+//        if (raceUsedAsForeignKey) {
 //            throw new DataIntegrityViolationException("Unable to delete; This race is used in another table.");
 //        }
 
@@ -61,7 +61,7 @@ public class RaceService implements IRace {
     @Transactional
     public void updateRace(int raceId, Race race) throws IllegalArgumentException, DataIntegrityViolationException {
 
-        if(RepositoryHelper.cannotFindId(raceRepository, raceId)) {
+        if (RepositoryHelper.cannotFindId(raceRepository, raceId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Race raceToUpdate = RepositoryHelper.getById(raceRepository, raceId);

@@ -114,7 +114,7 @@ public class RepositoryHelper {
                                                                  String getterName,
                                                                  T record) {
         Object value = getForeignKeyIdValueFromMethod(entry, getterName, record);
-        if(isNull(value)) {
+        if (isNull(value)) {
             throw new IllegalArgumentException(ID_NOT_FOUND.message);
         }
 

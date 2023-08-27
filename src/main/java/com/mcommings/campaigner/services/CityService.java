@@ -74,7 +74,7 @@ public class CityService implements ICity {
         if (RepositoryHelper.cannotFindId(cityRepository, cityId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if(hasForeignKeys(city) &&
+        if (hasForeignKeys(city) &&
                 RepositoryHelper.foreignKeyIsNotValid(cityRepository, getListOfForeignKeyRepositories(), city)) {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }

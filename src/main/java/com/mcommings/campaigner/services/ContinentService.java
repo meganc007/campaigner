@@ -38,10 +38,10 @@ public class ContinentService implements IContinent {
     @Override
     @Transactional
     public void saveContinent(Continent continent) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.nameIsNullOrEmpty(continent)) {
+        if (RepositoryHelper.nameIsNullOrEmpty(continent)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if(RepositoryHelper.nameAlreadyExists(continentRepository, continent)) {
+        if (RepositoryHelper.nameAlreadyExists(continentRepository, continent)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
@@ -51,10 +51,10 @@ public class ContinentService implements IContinent {
     @Override
     @Transactional
     public void deleteContinent(int continentId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.cannotFindId(continentRepository, continentId)) {
+        if (RepositoryHelper.cannotFindId(continentRepository, continentId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if(RepositoryHelper.isForeignKey(getReposWhereContinentIsAForeignKey(), FK_CONTINENT.columnName, continentId)) {
+        if (RepositoryHelper.isForeignKey(getReposWhereContinentIsAForeignKey(), FK_CONTINENT.columnName, continentId)) {
             throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
 
@@ -66,7 +66,7 @@ public class ContinentService implements IContinent {
     public void updateContinent(int continentId, Continent continent)
             throws IllegalArgumentException, DataIntegrityViolationException {
 
-        if(RepositoryHelper.cannotFindId(continentRepository, continentId)) {
+        if (RepositoryHelper.cannotFindId(continentRepository, continentId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
 

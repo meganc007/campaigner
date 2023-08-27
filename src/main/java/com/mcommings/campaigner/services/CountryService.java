@@ -44,13 +44,13 @@ public class CountryService implements ICountry {
     @Override
     @Transactional
     public void saveCountry(Country country) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.nameIsNullOrEmpty(country)) {
+        if (RepositoryHelper.nameIsNullOrEmpty(country)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if(RepositoryHelper.nameAlreadyExists(countryRepository, country)) {
+        if (RepositoryHelper.nameAlreadyExists(countryRepository, country)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-        if(hasForeignKeys(country) &&
+        if (hasForeignKeys(country) &&
                 RepositoryHelper.foreignKeyIsNotValid(countryRepository, getListOfForeignKeyRepositories(), country)) {
             throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
         }
@@ -61,7 +61,7 @@ public class CountryService implements ICountry {
     @Override
     @Transactional
     public void deleteCountry(int countryId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.cannotFindId(countryRepository, countryId)) {
+        if (RepositoryHelper.cannotFindId(countryRepository, countryId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         if (RepositoryHelper.isForeignKey(getReposWhereCountryIsAForeignKey(), FK_COUNTRY.columnName, countryId)) {
@@ -75,10 +75,10 @@ public class CountryService implements ICountry {
     @Transactional
     public void updateCountry(int countryId, Country country) throws IllegalArgumentException,
             DataIntegrityViolationException {
-        if(RepositoryHelper.cannotFindId(countryRepository, countryId)) {
+        if (RepositoryHelper.cannotFindId(countryRepository, countryId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if(hasForeignKeys(country) &&
+        if (hasForeignKeys(country) &&
                 RepositoryHelper.foreignKeyIsNotValid(countryRepository, getListOfForeignKeyRepositories(), country)) {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }

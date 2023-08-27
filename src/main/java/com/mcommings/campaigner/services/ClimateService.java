@@ -28,10 +28,10 @@ public class ClimateService implements IClimate {
     @Override
     @Transactional
     public void saveClimate(Climate climate) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.nameIsNullOrEmpty(climate)) {
+        if (RepositoryHelper.nameIsNullOrEmpty(climate)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if(RepositoryHelper.nameAlreadyExists(climateRepository, climate)) {
+        if (RepositoryHelper.nameAlreadyExists(climateRepository, climate)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
@@ -41,7 +41,7 @@ public class ClimateService implements IClimate {
     @Override
     @Transactional
     public void deleteClimate(int climateId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.cannotFindId(climateRepository, climateId)) {
+        if (RepositoryHelper.cannotFindId(climateRepository, climateId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         //TODO: check that Climate isn't a foreign key before deleting
@@ -52,7 +52,7 @@ public class ClimateService implements IClimate {
     @Override
     @Transactional
     public void updateClimate(int climateId, Climate climate) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.cannotFindId(climateRepository, climateId)) {
+        if (RepositoryHelper.cannotFindId(climateRepository, climateId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Climate climateToUpdate = RepositoryHelper.getById(climateRepository, climateId);

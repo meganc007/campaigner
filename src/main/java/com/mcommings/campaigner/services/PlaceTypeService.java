@@ -29,10 +29,10 @@ public class PlaceTypeService implements IPlaceType {
     @Override
     @Transactional
     public void savePlaceType(PlaceType placeType) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.nameIsNullOrEmpty(placeType)) {
+        if (RepositoryHelper.nameIsNullOrEmpty(placeType)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if(RepositoryHelper.nameAlreadyExists(placeTypesRepository, placeType)) {
+        if (RepositoryHelper.nameAlreadyExists(placeTypesRepository, placeType)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         placeTypesRepository.saveAndFlush(placeType);
@@ -41,7 +41,7 @@ public class PlaceTypeService implements IPlaceType {
     @Override
     @Transactional
     public void deletePlaceType(int placeTypeId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.cannotFindId(placeTypesRepository, placeTypeId)) {
+        if (RepositoryHelper.cannotFindId(placeTypesRepository, placeTypeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         //TODO: check if foreign key
@@ -52,7 +52,7 @@ public class PlaceTypeService implements IPlaceType {
     @Override
     @Transactional
     public void updatePlaceType(int placeTypeId, PlaceType placeType) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.cannotFindId(placeTypesRepository, placeTypeId)) {
+        if (RepositoryHelper.cannotFindId(placeTypesRepository, placeTypeId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         PlaceType placeTypeToUpdate = RepositoryHelper.getById(placeTypesRepository, placeTypeId);
