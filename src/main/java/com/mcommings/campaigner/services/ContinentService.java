@@ -54,7 +54,7 @@ public class ContinentService implements IContinent {
         if(RepositoryHelper.cannotFindId(continentRepository, continentId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if(RepositoryHelper.isForeignKey(getListOfReposWhereContinentIsAForeignKey(), FK_CONTINENT.columnName, continentId)) {
+        if(RepositoryHelper.isForeignKey(getReposWhereContinentIsAForeignKey(), FK_CONTINENT.columnName, continentId)) {
             throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
 
@@ -75,7 +75,7 @@ public class ContinentService implements IContinent {
         continentToUpdate.setDescription(continent.getDescription());
     }
 
-    private List<CrudRepository> getListOfReposWhereContinentIsAForeignKey() {
+    private List<CrudRepository> getReposWhereContinentIsAForeignKey() {
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository));
         return repositories;
     }

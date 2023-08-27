@@ -1,6 +1,9 @@
 package com.mcommings.campaigner.services;
 
+import com.mcommings.campaigner.models.City;
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Wealth;
+import com.mcommings.campaigner.models.repositories.ICityRepository;
 import com.mcommings.campaigner.models.repositories.IWealthRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,11 +11,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_WEALTH;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,9 @@ public class WealthTest {
 
     @Mock
     private IWealthRepository wealthRepository;
+
+    @Mock
+    private ICityRepository cityRepository;
 
     @InjectMocks
     private WealthService wealthService;
@@ -94,7 +103,20 @@ public class WealthTest {
         assertThrows(IllegalArgumentException.class, () -> wealthService.deleteWealth(wealthId));
     }
 
-    //TODO: test that deleteWealth doesn't delete when it's a foreign key
+    @Test
+    public void whenWealthIdIsAForeignKeyForAnotherTable_deleteWealth_ThrowsDataIntegrityViolationException() {
+        int wealthId = 1;
+        City city = new City(1, "City", "Description", wealthId, 1, 1, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
+        List<City> cities = new ArrayList<>(Arrays.asList(city));
+
+        when(wealthRepository.existsById(wealthId)).thenReturn(true);
+        when(cityRepository.findByfk_wealth(wealthId)).thenReturn(cities);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_WEALTH.columnName, wealthId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> wealthService.deleteWealth(wealthId));
+    }
 
     @Test
     public void whenWealthIdIsFound_updateWealth_UpdatesTheWealth() {

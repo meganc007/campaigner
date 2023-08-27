@@ -109,7 +109,7 @@ public class ContinentTest {
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository));
         List<Country> countries = new ArrayList<>(Arrays.asList(country));
 
-        when(continentRepository.existsById(1)).thenReturn(true);
+        when(continentRepository.existsById(continentId)).thenReturn(true);
         when(countryRepository.findByfk_continent(continentId)).thenReturn(countries);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_CONTINENT.columnName, continentId);
