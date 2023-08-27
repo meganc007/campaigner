@@ -144,7 +144,7 @@ public class CountryTest {
     @Test
     public void whenCountryIdIsAForeignKey_deleteCountry_ThrowsDataIntegrityViolationException() {
         int countryId = 1;
-        City city = new City(1, "Country", "Description", 1, countryId, 1, 1);
+        City city = new City(1, "City", "Description", 1, countryId, 1, 1);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
         List<City> cities = new ArrayList<>(Arrays.asList(city));
 
