@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.mcommings.campaigner.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 public class CityService implements ICity {

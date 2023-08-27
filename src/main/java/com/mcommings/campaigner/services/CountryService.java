@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static com.mcommings.campaigner.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 public class CountryService implements ICountry {

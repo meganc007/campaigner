@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.mcommings.campaigner.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 public class JobService implements IJob {

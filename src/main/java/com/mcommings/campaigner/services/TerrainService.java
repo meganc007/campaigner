@@ -1,6 +1,5 @@
 package com.mcommings.campaigner.services;
 
-import com.mcommings.campaigner.ErrorMessage;
 import com.mcommings.campaigner.interfaces.ITerrain;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Terrain;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.mcommings.campaigner.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 public class TerrainService implements ITerrain {

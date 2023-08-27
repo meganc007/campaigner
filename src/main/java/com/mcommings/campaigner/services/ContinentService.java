@@ -1,7 +1,6 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.interfaces.IContinent;
-import com.mcommings.campaigner.interfaces.ICountry;
 import com.mcommings.campaigner.models.Continent;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.repositories.IContinentRepository;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.mcommings.campaigner.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 public class ContinentService implements IContinent {

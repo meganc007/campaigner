@@ -1,4 +1,4 @@
-package com.mcommings.campaigner;
+package com.mcommings.campaigner.enums;
 
 public enum ErrorMessage {
     NULL_OR_EMPTY("Item name cannot be null or empty."),
