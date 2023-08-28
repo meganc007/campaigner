@@ -1,11 +1,12 @@
-drop table if exists calendar;
 drop table if exists celestial_events;
-drop table if exists months;
+drop table if exists events_places_people;
+drop table if exists events;
 drop table if exists days;
+drop table if exists weeks;
+drop table if exists months;
 drop table if exists moons;
 drop table if exists suns;
 drop table if exists inventory;
-drop table if exists events_places_people;
 drop table if exists quests;
 drop table if exists hooks_places_people;
 drop table if exists hooks;
@@ -14,9 +15,9 @@ drop table if exists objectives_places_people_items_weapons;
 drop table if exists outcomes_places_people_items_weapons;
 drop table if exists places;
 drop table if exists terrains;
-drop table if exists events;
 drop table if exists cities;
 drop table if exists settlement_types;
+drop table if exists regions;
 drop table if exists countries;
 drop table if exists governments;
 drop table if exists climates;
@@ -130,13 +131,6 @@ create table wealth (
 	primary key(id)
 );
 
-create table landmarks (
-	id int generated always as identity, 
-	name varchar not null,
-	description varchar not null,
-	primary key(id)
-);
-
 create table continents (
 	id int generated always as identity,
 	name varchar,
@@ -155,21 +149,6 @@ create table countries (
 	primary key(id)
 );
 
-create table cities (
-	id int generated always as identity, 
-	name varchar not null,
-	description varchar,
-	fk_wealth int,
-	fk_country int,
-	fk_settlement int,
-	fk_government int,
-	constraint fk_wealth foreign key(fk_wealth) references wealth(id),
-	constraint fk_country foreign key(fk_country) references countries(id),
-	constraint fk_settlement foreign key(fk_settlement) references settlement_types(id),
-	constraint fk_government foreign key(fk_government) references governments(id),
-	primary key(id)
-);
-
 create table place_types(
 	id int generated always as identity,
 	name varchar not null,
@@ -177,18 +156,57 @@ create table place_types(
 	primary key(id)
 );
 
+create table regions (
+    id int generated always as identity,
+    name varchar not null,
+    description varchar,
+    fk_country int,
+    fk_climate int,
+    constraint fk_country foreign key(fk_country) references countries(id),
+    constraint fk_climate foreign key(fk_climate) references climates(id),
+    primary key(id)
+);
+
+create table cities (
+	id int generated always as identity,
+	name varchar not null,
+	description varchar,
+	fk_wealth int,
+	fk_country int,
+	fk_settlement int,
+	fk_government int,
+	fk_region int,
+	constraint fk_wealth foreign key(fk_wealth) references wealth(id),
+	constraint fk_country foreign key(fk_country) references countries(id),
+	constraint fk_settlement foreign key(fk_settlement) references settlement_types(id),
+	constraint fk_government foreign key(fk_government) references governments(id),
+	constraint fk_region foreign key(fk_region) references regions(id),
+	primary key(id)
+);
+
+create table landmarks (
+	id int generated always as identity,
+	name varchar not null,
+	description varchar not null,
+	fk_region int,
+	constraint fk_region foreign key(fk_region) references regions(id),
+	primary key(id)
+);
+
 create table places (
-	id int generated always as identity, 
+	id int generated always as identity,
 	name varchar not null,
 	description varchar,
 	fk_place_type int,
     fk_terrain int,
     fk_country int,
     fk_city int,
+    fk_region int,
 	constraint fk_place_type foreign key(fk_place_type) references place_types(id),
 	constraint fk_terrain foreign key(fk_terrain) references terrains(id),
 	constraint fk_country foreign key(fk_country) references countries(id),
 	constraint fk_city foreign key(fk_city) references cities(id),
+	constraint fk_region foreign key(fk_region) references regions(id),
 	primary key(id)
 );
 
