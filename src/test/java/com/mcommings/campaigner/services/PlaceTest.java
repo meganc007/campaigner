@@ -143,6 +143,7 @@ public class PlaceTest {
         assertThrows(IllegalArgumentException.class, () -> placeService.deletePlace(placeId));
     }
 
+//    TODO: add this when tables that use Place as fk are added
 //    @Test
 //    public void whenPlaceIdIsAForeignKey_deletePlace_ThrowsDataIntegrityViolationException() {
 //        int placeId = 1;
