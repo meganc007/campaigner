@@ -1,6 +1,9 @@
 package com.mcommings.campaigner.services;
 
+import com.mcommings.campaigner.models.City;
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.SettlementType;
+import com.mcommings.campaigner.models.repositories.ICityRepository;
 import com.mcommings.campaigner.models.repositories.ISettlementTypeRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,11 +11,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_SETTLEMENT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,9 @@ public class SettlementTypeTest {
 
     @Mock
     private ISettlementTypeRepository settlementTypeRepository;
+
+    @Mock
+    private ICityRepository cityRepository;
 
     @InjectMocks
     private SettlementTypeService settlementTypeService;
@@ -95,7 +104,20 @@ public class SettlementTypeTest {
         assertThrows(IllegalArgumentException.class, () -> settlementTypeService.deleteSettlementType(settlementTypeId));
     }
 
-    //TODO: test that deleteSettlementType doesn't delete when it's a foreign key
+    @Test
+    public void whenSettlementTypeIdIsAForeignKey_deleteSettlementType_ThrowsDataIntegrityViolationException() {
+        int settlementTypeId = 1;
+        City city = new City(1, "City", "Description", 1, 1, settlementTypeId, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
+        List<City> cities = new ArrayList<>(Arrays.asList(city));
+
+        when(settlementTypeRepository.existsById(settlementTypeId)).thenReturn(true);
+        when(cityRepository.findByfk_settlement(settlementTypeId)).thenReturn(cities);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_SETTLEMENT.columnName, settlementTypeId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> settlementTypeService.deleteSettlementType(settlementTypeId));
+    }
 
     @Test
     public void whenSettlementTypeIdIsFound_updateSettlementType_UpdatesTheSettlementType() {

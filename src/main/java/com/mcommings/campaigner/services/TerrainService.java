@@ -1,6 +1,5 @@
 package com.mcommings.campaigner.services;
 
-import com.mcommings.campaigner.ErrorMessage;
 import com.mcommings.campaigner.interfaces.ITerrain;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Terrain;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.mcommings.campaigner.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 public class TerrainService implements ITerrain {
@@ -29,10 +28,10 @@ public class TerrainService implements ITerrain {
     @Override
     @Transactional
     public void saveTerrain(Terrain terrain) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.nameIsNullOrEmpty(terrain)) {
+        if (RepositoryHelper.nameIsNullOrEmpty(terrain)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if(RepositoryHelper.nameAlreadyExists(terrainRepository, terrain)) {
+        if (RepositoryHelper.nameAlreadyExists(terrainRepository, terrain)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
@@ -42,7 +41,7 @@ public class TerrainService implements ITerrain {
     @Override
     @Transactional
     public void deleteTerrain(int terrainId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.cannotFindId(terrainRepository, terrainId)) {
+        if (RepositoryHelper.cannotFindId(terrainRepository, terrainId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
         //TODO: check if foreign key
@@ -53,7 +52,7 @@ public class TerrainService implements ITerrain {
     @Override
     @Transactional
     public void updateTerrain(int terrainId, Terrain terrain) throws IllegalArgumentException, DataIntegrityViolationException {
-        if(RepositoryHelper.cannotFindId(terrainRepository, terrainId)) {
+        if (RepositoryHelper.cannotFindId(terrainRepository, terrainId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
 

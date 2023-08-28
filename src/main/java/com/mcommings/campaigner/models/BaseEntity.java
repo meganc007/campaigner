@@ -8,10 +8,10 @@ import lombok.Data;
 @MappedSuperclass
 public abstract class BaseEntity {
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column
+    @Column(name = "description")
     private String description;
 
 }

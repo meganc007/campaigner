@@ -66,8 +66,10 @@ create table suns (
 create table celestial_events (
 	id int generated always as identity,
 	name varchar not null,
-	constraint fk_moon foreign key(id) references moons(id),
-	constraint fk_sun foreign key(id) references suns(id),
+	fk_moon int,
+	fk_sun int,
+	constraint fk_moon foreign key(fk_moon) references moons(id),
+	constraint fk_sun foreign key(fk_sun) references suns(id),
 	primary key(id)
 );
 
@@ -77,10 +79,13 @@ create table calendar (
 	daysInYear int,
 	daysInMonth int,
 	daysInWeek int,
-	constraint fk_month foreign key(id) references months(id),
+	fk_month int,
 	weekNum int,
-	constraint fk_day foreign key(id) references days(id),
-	constraint fk_celestial_events foreign key(id) references celestial_events(id),
+	fk_day int,
+	fk_celestial_events int,
+	constraint fk_month foreign key(fk_month) references months(id),
+	constraint fk_day foreign key(fk_day) references days(id),
+	constraint fk_celestial_events foreign key(fk_celestial_events) references celestial_events(id),
 	primary key(id)
 );
 
@@ -127,6 +132,7 @@ create table landmarks (
 
 create table continents (
 	id int generated always as identity,
+	name varchar,
 	description varchar,
 	primary key(id)
 );
@@ -135,8 +141,10 @@ create table countries (
 	id int generated always as identity, 
 	name varchar not null,
 	description varchar,
-	constraint fk_continent foreign key(id) references continents(id),
-	constraint fk_government foreign key(id) references governments(id),
+	fk_continent int,
+	fk_government int,
+	constraint fk_continent foreign key(fk_continent) references continents(id),
+	constraint fk_government foreign key(fk_government) references governments(id),
 	primary key(id)
 );
 
@@ -144,10 +152,14 @@ create table cities (
 	id int generated always as identity, 
 	name varchar not null,
 	description varchar,
-	constraint fk_wealth foreign key(id) references wealth(id),
-	constraint fk_country foreign key(id) references countries(id),
-	constraint fk_settlement foreign key(id) references settlement_types(id),
-	constraint fk_government foreign key(id) references governments(id),
+	fk_wealth int,
+	fk_country int,
+	fk_settlement int,
+	fk_government int,
+	constraint fk_wealth foreign key(fk_wealth) references wealth(id),
+	constraint fk_country foreign key(fk_country) references countries(id),
+	constraint fk_settlement foreign key(fk_settlement) references settlement_types(id),
+	constraint fk_government foreign key(fk_government) references governments(id),
 	primary key(id)
 );
 
@@ -162,10 +174,14 @@ create table places (
 	id int generated always as identity, 
 	name varchar not null,
 	description varchar,
-	constraint fk_type foreign key(id) references place_types(id),
-	constraint fk_terrain foreign key(id) references terrains(id),
-	constraint fk_country foreign key(id) references countries(id),
-	constraint fk_city foreign key(id) references cities(id),
+	fk_place_type int,
+    fk_terrain int,
+    fk_country int,
+    fk_city int,
+	constraint fk_place_type foreign key(fk_place_type) references place_types(id),
+	constraint fk_terrain foreign key(fk_terrain) references terrains(id),
+	constraint fk_country foreign key(fk_country) references countries(id),
+	constraint fk_city foreign key(fk_city) references cities(id),
 	primary key(id)
 );
 
@@ -175,9 +191,12 @@ create table events (
 	year int,
 	month varchar,
 	day int,
-	constraint fk_city foreign key(id) references cities(id),
-	constraint fk_continent foreign key(id) references continents(id),
-	constraint fk_country foreign key(id) references countries(id),
+	fk_city int,
+    fk_continent int,
+    fk_country int,
+	constraint fk_city foreign key(fk_city) references cities(id),
+	constraint fk_continent foreign key(fk_continent) references continents(id),
+	constraint fk_country foreign key(fk_country) references countries(id),
 	primary key(id)
 );
 
@@ -202,8 +221,10 @@ create table people (
 	lastName varchar,
 	age int,
 	title varchar,
-	constraint fk_race foreign key(id) references races(id),
-	constraint fk_wealth foreign key(id) references wealth(id),
+	fk_race int,
+    fk_wealth int,
+	constraint fk_race foreign key(fk_race) references races(id),
+	constraint fk_wealth foreign key(fk_wealth) references wealth(id),
 	isNPC bool not null,
 	isEnemy bool not null,
 	personality varchar,
@@ -214,8 +235,10 @@ create table people (
 
 create table people_jobs (
 	id int generated always as identity,
-	constraint fk_person foreign key(id) references people(id),
-	constraint fk_job foreign key(id) references jobs(id),
+	fk_person int,
+    fk_job int,
+	constraint fk_person foreign key(fk_person) references people(id),
+	constraint fk_job foreign key(fk_job) references jobs(id),
 	primary key(id)
 );
 
@@ -234,7 +257,8 @@ create table items (
 	silverValue numeric,
 	copperValue numeric,
 	weight numeric,
-	constraint fk_type foreign key(id) references item_types(id),
+	fk_type int,
+	constraint fk_type foreign key(fk_type) references item_types(id),
 	isMagical bool,
 	isCursed bool,
 	notes varchar,
@@ -263,7 +287,8 @@ create table weapons (
 	silverValue numeric,
 	copperValue numeric,
 	weight numeric,
-	constraint fk_type foreign key(id) references weapon_types(id),
+	fk_type int,
+	constraint fk_type foreign key(fk_type) references weapon_types(id),
 	isMagical bool,
 	isCursed bool,
 	notes varchar,
@@ -273,24 +298,32 @@ create table weapons (
 create table weapon_damages (
 	id int generated always as identity,
 	amount int,
-	constraint fk_type foreign key(id) references damage_types(id),
+	fk_type int,
+	constraint fk_type foreign key(fk_type) references damage_types(id),
 	primary key(id)
 );
 
 create table inventory (
 	id int generated always as identity,
-	constraint fk_person foreign key(id) references people(id),
-	constraint fk_item foreign key(id) references items(id),
-	constraint fk_weapon foreign key(id) references weapons(id),
-	constraint fk_place foreign key(id) references places(id),
+	fk_person int,
+    fk_item int,
+    fk_weapon int,
+    fk_place int,
+	constraint fk_person foreign key(fk_person) references people(id),
+	constraint fk_item foreign key(fk_item) references items(id),
+	constraint fk_weapon foreign key(fk_weapon) references weapons(id),
+	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
 
 create table events_places_people (
 	id int generated always as identity,
-	constraint fk_person foreign key(id) references people(id),
-	constraint fk_event foreign key(id) references events(id),
-	constraint fk_places foreign key(id) references places(id),
+	fk_person int,
+    fk_event int,
+    fk_place int,
+	constraint fk_person foreign key(fk_person) references people(id),
+	constraint fk_event foreign key(fk_event) references events(id),
+	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
 
@@ -314,9 +347,12 @@ create table hooks (
 
 create table hooks_places_people (
 	id int generated always as identity,
-	constraint fk_hook foreign key(id) references hooks(id),
-	constraint fk_person foreign key(id) references people(id),
-	constraint fk_places foreign key(id) references places(id),
+	fk_hook int,
+    fk_person int,
+    fk_place int,
+	constraint fk_hook foreign key(fk_hook) references hooks(id),
+	constraint fk_person foreign key(fk_person) references people(id),
+	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
 
@@ -329,11 +365,16 @@ create table objectives (
 
 create table objectives_places_people_items_weapons (
 	id int generated always as identity,
-	constraint fk_objective foreign key(id) references objectives(id),
-	constraint fk_item foreign key(id) references items(id),
-	constraint fk_weapon foreign key(id) references weapons(id),
-	constraint fk_person foreign key(id) references people(id),
-	constraint fk_places foreign key(id) references places(id),
+	fk_objective int,
+    fk_item int,
+    fk_weapon int,
+    fk_person int,
+    fk_place int,
+	constraint fk_objective foreign key(fk_objective) references objectives(id),
+	constraint fk_item foreign key(fk_item) references items(id),
+	constraint fk_weapon foreign key(fk_weapon) references weapons(id),
+	constraint fk_person foreign key(fk_person) references people(id),
+	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
 
@@ -346,11 +387,16 @@ create table outcomes (
 
 create table outcomes_places_people_items_weapons (
 	id int generated always as identity,
-	constraint fk_outcome foreign key(id) references outcomes(id),
-	constraint fk_item foreign key(id) references items(id),
-	constraint fk_weapon foreign key(id) references weapons(id),
-	constraint fk_person foreign key(id) references people(id),
-	constraint fk_places foreign key(id) references places(id),
+	fk_outcome int,
+    fk_item int,
+    fk_weapon int,
+    fk_person int,
+    fk_place int,
+	constraint fk_outcome foreign key(fk_outcome) references outcomes(id),
+	constraint fk_item foreign key(fk_item) references items(id),
+	constraint fk_weapon foreign key(fk_weapon) references weapons(id),
+	constraint fk_person foreign key(fk_person) references people(id),
+	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
 
@@ -361,8 +407,10 @@ create table rewards (
 	goldValue numeric,
 	silverValue numeric,
 	copperValue numeric,
-	constraint fk_item foreign key(id) references items(id),
-	constraint fk_weapon foreign key(id) references weapons(id),
+	fk_item int,
+    fk_weapon int,
+	constraint fk_item foreign key(fk_item) references items(id),
+	constraint fk_weapon foreign key(fk_weapon) references weapons(id),
 	primary key(id)
 );
 
@@ -370,10 +418,13 @@ create table conditionals (
 	id int generated always as identity,
 	description varchar not null,
 	notes varchar,
-	constraint fk_objectives_places_people_items_weapons foreign key(id) references objectives_places_people_items_weapons(id),
 	wasObjectiveCompleted bool,
-	constraint fk_outcomes_places_people_items_weapons foreign key(id) references outcomes_places_people_items_weapons(id),
-	constraint fk_reward foreign key(id) references rewards(id),
+	fk_objectives_places_people_items_weapons int,
+    fk_outcomes_places_people_items_weapons int,
+    fk_reward int,
+	constraint fk_objectives_places_people_items_weapons foreign key(fk_objectives_places_people_items_weapons) references objectives_places_people_items_weapons(id),
+	constraint fk_outcomes_places_people_items_weapons foreign key(fk_outcomes_places_people_items_weapons) references outcomes_places_people_items_weapons(id),
+	constraint fk_reward foreign key(fk_reward) references rewards(id),
 	primary key(id)
 );
 
@@ -381,8 +432,11 @@ create table quests (
 	id int generated always as identity,
 	description varchar not null,
 	notes varchar,
-	constraint fk_hooks_places_people foreign key(id) references hooks_places_people(id),
-	constraint fk_conditional foreign key(id) references conditionals(id),
-	constraint fk_reward foreign key(id) references rewards(id),
+	fk_hooks_places_people int,
+    fk_conditional int,
+    fk_reward int,
+	constraint fk_hooks_places_people foreign key(fk_hooks_places_people) references hooks_places_people(id),
+	constraint fk_conditional foreign key(fk_conditional) references conditionals(id),
+	constraint fk_reward foreign key(fk_reward) references rewards(id),
 	primary key(id)
 );

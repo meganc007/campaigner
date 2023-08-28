@@ -1,6 +1,9 @@
 package com.mcommings.campaigner.services;
 
+import com.mcommings.campaigner.models.City;
 import com.mcommings.campaigner.models.Government;
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.repositories.ICityRepository;
 import com.mcommings.campaigner.models.repositories.IGovernmentRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,11 +11,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_GOVERNMENT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,9 @@ public class GovernmentTest {
 
     @Mock
     private IGovernmentRepository governmentRepository;
+
+    @Mock
+    ICityRepository cityRepository;
 
     @InjectMocks
     private GovernmentService governmentService;
@@ -94,7 +103,20 @@ public class GovernmentTest {
         assertThrows(IllegalArgumentException.class, () -> governmentService.deleteGovernment(governmentId));
     }
 
-    //TODO: test that deleteGovernment doesn't delete when id is a foreign key
+    @Test
+    public void whenGovernmentIdIsAForeignKey_deleteGovernment_ThrowsDataIntegrityViolationException() {
+        int governmentId = 1;
+        City city = new City(1, "City", "Description", 1, 1, 1, governmentId);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
+        List<City> cities = new ArrayList<>(Arrays.asList(city));
+
+        when(governmentRepository.existsById(governmentId)).thenReturn(true);
+        when(cityRepository.findByfk_government(governmentId)).thenReturn(cities);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_GOVERNMENT.columnName, governmentId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> governmentService.deleteGovernment(governmentId));
+    }
 
     @Test
     public void whenGovernmentIdIsFound_updateGovernment_UpdatesTheGovernment() {
