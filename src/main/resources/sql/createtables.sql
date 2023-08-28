@@ -174,11 +174,11 @@ create table places (
 	id int generated always as identity, 
 	name varchar not null,
 	description varchar,
-	fk_type int,
+	fk_place_type int,
     fk_terrain int,
     fk_country int,
     fk_city int,
-	constraint fk_type foreign key(fk_type) references place_types(id),
+	constraint fk_place_type foreign key(fk_place_type) references place_types(id),
 	constraint fk_terrain foreign key(fk_terrain) references terrains(id),
 	constraint fk_country foreign key(fk_country) references countries(id),
 	constraint fk_city foreign key(fk_city) references cities(id),
@@ -320,10 +320,10 @@ create table events_places_people (
 	id int generated always as identity,
 	fk_person int,
     fk_event int,
-    fk_places int,
+    fk_place int,
 	constraint fk_person foreign key(fk_person) references people(id),
 	constraint fk_event foreign key(fk_event) references events(id),
-	constraint fk_places foreign key(fk_places) references places(id),
+	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
 
@@ -349,10 +349,10 @@ create table hooks_places_people (
 	id int generated always as identity,
 	fk_hook int,
     fk_person int,
-    fk_places int,
+    fk_place int,
 	constraint fk_hook foreign key(fk_hook) references hooks(id),
 	constraint fk_person foreign key(fk_person) references people(id),
-	constraint fk_places foreign key(fk_places) references places(id),
+	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
 
@@ -369,12 +369,12 @@ create table objectives_places_people_items_weapons (
     fk_item int,
     fk_weapon int,
     fk_person int,
-    fk_places int,
+    fk_place int,
 	constraint fk_objective foreign key(fk_objective) references objectives(id),
 	constraint fk_item foreign key(fk_item) references items(id),
 	constraint fk_weapon foreign key(fk_weapon) references weapons(id),
 	constraint fk_person foreign key(fk_person) references people(id),
-	constraint fk_places foreign key(fk_places) references places(id),
+	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
 
@@ -391,12 +391,12 @@ create table outcomes_places_people_items_weapons (
     fk_item int,
     fk_weapon int,
     fk_person int,
-    fk_places int,
+    fk_place int,
 	constraint fk_outcome foreign key(fk_outcome) references outcomes(id),
 	constraint fk_item foreign key(fk_item) references items(id),
 	constraint fk_weapon foreign key(fk_weapon) references weapons(id),
 	constraint fk_person foreign key(fk_person) references people(id),
-	constraint fk_places foreign key(fk_places) references places(id),
+	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
 
