@@ -42,50 +42,57 @@ drop table if exists damage_types;
 create table months (
 	id int generated always as identity,
 	name varchar not null,
+	description varchar,
+	season varchar,
 	primary key(id)
+);
+
+create table weeks (
+    id int generated always as identity,
+    description varchar,
+    week_number int not null,
+    fk_month int not null,
+    constraint fk_month foreign key(fk_month) references months(id),
+    primary key(id)
 );
 
 create table days (
 	id int generated always as identity,
 	name varchar not null,
+	description varchar,
+	fk_week int not null,
+	constraint fk_week foreign key(fk_week) references weeks(id),
 	primary key(id)
 );
 
 create table moons (
 	id int generated always as identity,
 	name varchar not null,
+	description varchar,
 	primary key(id)
 );
 
 create table suns (
 	id int generated always as identity,
 	name varchar not null,
+	description varchar,
 	primary key(id)
 );
 
 create table celestial_events (
 	id int generated always as identity,
 	name varchar not null,
+	description varchar,
 	fk_moon int,
 	fk_sun int,
+	fk_month int,
+	fk_week int,
+	fk_day int,
 	constraint fk_moon foreign key(fk_moon) references moons(id),
 	constraint fk_sun foreign key(fk_sun) references suns(id),
-	primary key(id)
-);
-
-create table calendar (
-	id int generated always as identity,
-	year int not null,
-	daysInYear int,
-	daysInMonth int,
-	daysInWeek int,
-	fk_month int,
-	weekNum int,
-	fk_day int,
-	fk_celestial_events int,
 	constraint fk_month foreign key(fk_month) references months(id),
+	constraint fk_week foreign key(fk_week) references weeks(id),
 	constraint fk_day foreign key(fk_day) references days(id),
-	constraint fk_celestial_events foreign key(fk_celestial_events) references celestial_events(id),
 	primary key(id)
 );
 
@@ -188,12 +195,16 @@ create table places (
 create table events (
 	id int generated always as identity,
 	description varchar not null,
-	year int,
-	month varchar,
-	day int,
+	event_year int,
+	fk_month int,
+	fk_week int,
+	fk_day int,
 	fk_city int,
     fk_continent int,
     fk_country int,
+    constraint fk_month foreign key(fk_month) references months(id),
+    constraint fk_week foreign key(fk_week) references weeks(id),
+    constraint fk_day foreign key(fk_day) references days(id),
 	constraint fk_city foreign key(fk_city) references cities(id),
 	constraint fk_continent foreign key(fk_continent) references continents(id),
 	constraint fk_country foreign key(fk_country) references countries(id),
