@@ -1,6 +1,9 @@
 package com.mcommings.campaigner.services;
 
+import com.mcommings.campaigner.models.Place;
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Terrain;
+import com.mcommings.campaigner.models.repositories.IPlaceRepository;
 import com.mcommings.campaigner.models.repositories.ITerrainRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,11 +11,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_TERRAIN;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,8 @@ public class TerrainTest {
 
     @Mock
     private ITerrainRepository terrainRepository;
+    @Mock
+    private IPlaceRepository placeRepository;
 
     @InjectMocks
     private TerrainService terrainService;
@@ -94,7 +102,20 @@ public class TerrainTest {
         assertThrows(IllegalArgumentException.class, () -> terrainService.deleteTerrain(terrainId));
     }
 
-    //TODO: test that deleteTerrain doesn't delete when it's a foreign key
+    @Test
+    public void whenTerrainIdIsAForeignKey_deleteTerrain_ThrowsDataIntegrityViolationException() {
+        int terrainId = 1;
+        Place place = new Place(1, "Place", "Description", 1, terrainId, 1, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
+        List<Place> places = new ArrayList<>(Arrays.asList(place));
+
+        when(terrainRepository.existsById(terrainId)).thenReturn(true);
+        when(placeRepository.findByfk_terrain(terrainId)).thenReturn(places);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_TERRAIN.columnName, terrainId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> terrainService.deleteTerrain(terrainId));
+    }
 
     @Test
     public void whenTerrainIdIsFound_updateTerrain_UpdatesTheTerrain() {
