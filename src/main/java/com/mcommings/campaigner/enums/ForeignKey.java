@@ -10,7 +10,8 @@ public enum ForeignKey {
     FK_PLACE_TYPE("fk_place_type"),
     FK_SETTLEMENT("fk_settlement"),
     FK_TERRAIN("fk_terrain"),
-    FK_WEALTH("fk_wealth");
+    FK_WEALTH("fk_wealth"),
+    FK_WEEK("fk_week");
 
     public final String columnName;
 
