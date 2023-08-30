@@ -101,6 +101,20 @@ public class MonthTest {
     }
 
 //    TODO: test that deleteMonth doesn't delete when it's a foreign key
+//        @Test
+//    public void whenMonthIdIsAForeignKey_deleteCountry_ThrowsDataIntegrityViolationException() {
+//        int monthId = 1;
+//        Week week = new Week(1, "Description", 1, monthId);
+//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(monthRepository));
+//        List<Week> weeks = new ArrayList<>(Arrays.asList(week));
+//
+//        when(monthRepository.existsById(monthId)).thenReturn(true);
+//        when(weekRepository.findByfk_month(monthId)).thenReturn(months);
+//
+//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_MONTH.columnName, monthId);
+//        Assertions.assertTrue(actual);
+//        assertThrows(DataIntegrityViolationException.class, () -> countryService.deleteCountry(monthId));
+//    }
 
     @Test
     public void whenMonthIdIsFound_updateMonth_UpdatesTheMonth() {
