@@ -11,6 +11,7 @@ public class DayTest {
         Day day = new Day();
         Assertions.assertNotNull(day);
         Assertions.assertEquals(0, day.getId());
+        Assertions.assertNull(day.getName());
         Assertions.assertNull(day.getDescription());
         Assertions.assertNull(day.getFk_week());
     }
