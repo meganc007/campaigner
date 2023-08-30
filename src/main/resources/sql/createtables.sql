@@ -17,6 +17,7 @@ drop table if exists places;
 drop table if exists terrains;
 drop table if exists cities;
 drop table if exists settlement_types;
+drop table if exists landmarks;
 drop table if exists regions;
 drop table if exists countries;
 drop table if exists governments;
@@ -25,7 +26,6 @@ drop table if exists monsters;
 drop table if exists outcomes;
 drop table if exists rewards;
 drop table if exists objectives;
-drop table if exists landmarks;
 drop table if exists continents;
 drop table if exists place_types;
 drop table if exists people_jobs;
@@ -89,6 +89,7 @@ create table celestial_events (
 	fk_month int,
 	fk_week int,
 	fk_day int,
+	event_year int,
 	constraint fk_moon foreign key(fk_moon) references moons(id),
 	constraint fk_sun foreign key(fk_sun) references suns(id),
 	constraint fk_month foreign key(fk_month) references months(id),
