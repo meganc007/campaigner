@@ -1,6 +1,9 @@
 package com.mcommings.campaigner.services;
 
+import com.mcommings.campaigner.models.Day;
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Week;
+import com.mcommings.campaigner.models.repositories.IDayRepository;
 import com.mcommings.campaigner.models.repositories.IMonthRepository;
 import com.mcommings.campaigner.models.repositories.IWeekRepository;
 import org.junit.jupiter.api.Assertions;
@@ -16,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_WEEK;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -25,6 +29,8 @@ public class WeekTest {
 
     @Mock
     private IWeekRepository weekRepository;
+    @Mock
+    private IDayRepository dayRepository;
     @Mock
     private IMonthRepository monthRepository;
 
@@ -94,21 +100,20 @@ public class WeekTest {
         assertThrows(IllegalArgumentException.class, () -> weekService.deleteWeek(weekId));
     }
 
-//    TODO: uncomment out when Day is added
-//    @Test
-//    public void whenWeekIdIsAForeignKey_deleteWeek_ThrowsDataIntegrityViolationException() {
-//        int weekId = 1;
-//        Day day = new Day(1,);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
-//        List<Day> days = new ArrayList<>(Arrays.asList(day));
-//
-//        when(weekRepository.existsById(weekId)).thenReturn(true);
-//        when(dayRepository.findByfk_week(weekId)).thenReturn(days);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_WEEK.columnName, weekId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> weekService.deleteWeek(weekId));
-//    }
+    @Test
+    public void whenWeekIdIsAForeignKey_deleteWeek_ThrowsDataIntegrityViolationException() {
+        int weekId = 1;
+        Day day = new Day(1, "Day", "Description", weekId);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(dayRepository));
+        List<Day> days = new ArrayList<>(Arrays.asList(day));
+
+        when(weekRepository.existsById(weekId)).thenReturn(true);
+        when(dayRepository.findByfk_week(weekId)).thenReturn(days);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_WEEK.columnName, weekId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> weekService.deleteWeek(weekId));
+    }
     
     @Test
     public void whenWeekIdWithValidFKIsFound_updateWeek_UpdatesTheWeek() {

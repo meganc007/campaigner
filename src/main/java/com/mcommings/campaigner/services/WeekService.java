@@ -3,6 +3,7 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.interfaces.IWeek;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Week;
+import com.mcommings.campaigner.models.repositories.IDayRepository;
 import com.mcommings.campaigner.models.repositories.IMonthRepository;
 import com.mcommings.campaigner.models.repositories.IWeekRepository;
 import jakarta.transaction.Transactional;
@@ -16,16 +17,19 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_WEEK;
 
 @Service
 public class WeekService implements IWeek {
 
     private final IWeekRepository weekRepository;
+    private final IDayRepository dayRepository;
     private final IMonthRepository monthRepository;
 
     @Autowired
-    public WeekService(IWeekRepository weekRepository, IMonthRepository monthRepository) {
+    public WeekService(IWeekRepository weekRepository, IDayRepository dayRepository, IMonthRepository monthRepository) {
         this.weekRepository = weekRepository;
+        this.dayRepository = dayRepository;
         this.monthRepository = monthRepository;
     }
 
@@ -50,10 +54,9 @@ public class WeekService implements IWeek {
         if (RepositoryHelper.cannotFindId(weekRepository, weekId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//        TODO: when Day is added
-//        if (RepositoryHelper.isForeignKey()) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWhereWeekIsAForeignKey(), FK_WEEK.columnName, weekId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         weekRepository.deleteById(weekId);
     }
@@ -71,6 +74,11 @@ public class WeekService implements IWeek {
         weekToUpdate.setDescription(week.getDescription());
         weekToUpdate.setWeek_number(week.getWeek_number());
         weekToUpdate.setFk_month(week.getFk_month());
+    }
+
+    private List<CrudRepository> getReposWhereWeekIsAForeignKey() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(dayRepository));
+        return repositories;
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
