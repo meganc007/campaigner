@@ -70,7 +70,7 @@ public class MonthService implements IMonth {
         monthToUpdate.setSeason(month.getSeason());
     }
 
-//        TODO: uncomment out when Week, CelestialEvent, and Event is added
+//        TODO: uncomment out when CelestialEvent, and Event is added
 //    private List<CrudRepository> getReposWhereMonthIsAForeignKey() {
 //        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(
 //                weekRepository, celestialEventsRepository, eventsRepository
