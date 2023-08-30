@@ -1,10 +1,10 @@
-package com.mcommings.campaigner.services;
+package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.interfaces.IDay;
-import com.mcommings.campaigner.models.Day;
+import com.mcommings.campaigner.interfaces.calendar.IDay;
+import com.mcommings.campaigner.models.calendar.Day;
 import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.repositories.IDayRepository;
-import com.mcommings.campaigner.models.repositories.IWeekRepository;
+import com.mcommings.campaigner.models.repositories.calendar.IDayRepository;
+import com.mcommings.campaigner.models.repositories.calendar.IWeekRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

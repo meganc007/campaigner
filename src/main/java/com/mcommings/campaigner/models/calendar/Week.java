@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.models;
+package com.mcommings.campaigner.models.calendar;
 
 import jakarta.persistence.*;
 import lombok.Data;

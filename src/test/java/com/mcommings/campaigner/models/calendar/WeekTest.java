@@ -1,5 +1,6 @@
-package com.mcommings.campaigner.models;
+package com.mcommings.campaigner.models.calendar;
 
+import com.mcommings.campaigner.models.calendar.Week;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

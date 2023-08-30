@@ -1,7 +1,7 @@
-package com.mcommings.campaigner.controllers;
+package com.mcommings.campaigner.controllers.calendar;
 
-import com.mcommings.campaigner.models.Day;
-import com.mcommings.campaigner.services.DayService;
+import com.mcommings.campaigner.models.calendar.Day;
+import com.mcommings.campaigner.services.calendar.DayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

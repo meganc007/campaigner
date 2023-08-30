@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.interfaces;
+package com.mcommings.campaigner.interfaces.calendar;
 
-import com.mcommings.campaigner.models.Month;
+import com.mcommings.campaigner.models.calendar.Month;
 
 import java.util.List;
 

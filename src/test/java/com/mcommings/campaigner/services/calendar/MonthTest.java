@@ -1,7 +1,8 @@
-package com.mcommings.campaigner.services;
+package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.models.Month;
-import com.mcommings.campaigner.models.repositories.IMonthRepository;
+import com.mcommings.campaigner.models.calendar.Month;
+import com.mcommings.campaigner.models.repositories.calendar.IMonthRepository;
+import com.mcommings.campaigner.services.calendar.MonthService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
