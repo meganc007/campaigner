@@ -2,6 +2,7 @@ package com.mcommings.campaigner.enums;
 
 public enum ForeignKey {
 
+    FK_CLIMATE("fk_climate"),
     FK_CITY("fk_city"),
     FK_CONTINENT("fk_continent"),
     FK_COUNTRY("fk_country"),
@@ -10,6 +11,7 @@ public enum ForeignKey {
     FK_MONTH("fk_month"),
     FK_MOON("fk_moon"),
     FK_PLACE_TYPE("fk_place_type"),
+    FK_REGION("fk_region"),
     FK_SETTLEMENT("fk_settlement"),
     FK_SUN("fk_sun"),
     FK_TERRAIN("fk_terrain"),

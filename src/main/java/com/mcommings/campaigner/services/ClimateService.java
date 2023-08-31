@@ -3,23 +3,34 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.interfaces.IClimate;
 import com.mcommings.campaigner.models.Climate;
 import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.repositories.IClimateRepository;
+import com.mcommings.campaigner.repositories.IClimateRepository;
+import com.mcommings.campaigner.repositories.locations.IRegionRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_CITY;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_CLIMATE;
 
 @Service
 public class ClimateService implements IClimate {
 
     private final IClimateRepository climateRepository;
+    private final IRegionRepository regionRepository;
 
     @Autowired
-    public ClimateService (IClimateRepository climateRepository) {this.climateRepository = climateRepository;}
+    public ClimateService(IClimateRepository climateRepository, IRegionRepository regionRepository) {
+        this.climateRepository = climateRepository;
+        this.regionRepository = regionRepository;
+    }
+
     @Override
     public List<Climate> getClimates() {
         return climateRepository.findAll();
@@ -44,7 +55,9 @@ public class ClimateService implements IClimate {
         if (RepositoryHelper.cannotFindId(climateRepository, climateId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: check that Climate isn't a foreign key before deleting
+        if (RepositoryHelper.isForeignKey(getReposWhereClimateIsAForeignKey(), FK_CLIMATE.columnName, climateId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         climateRepository.deleteById(climateId);
     }
@@ -58,5 +71,10 @@ public class ClimateService implements IClimate {
         Climate climateToUpdate = RepositoryHelper.getById(climateRepository, climateId);
         climateToUpdate.setName(climate.getName());
         climateToUpdate.setDescription(climate.getDescription());
+    }
+
+    private List<CrudRepository> getReposWhereClimateIsAForeignKey() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
+        return repositories;
     }
 }

@@ -3,7 +3,7 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.interfaces.IJob;
 import com.mcommings.campaigner.models.Job;
 import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.repositories.IJobRepository;
+import com.mcommings.campaigner.repositories.IJobRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -44,7 +44,7 @@ public class JobService implements IJob {
         if (RepositoryHelper.cannotFindId(jobRepository, jobId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: check if foreign key
+        //TODO: when PeopleJob added, check if foreign key
 
         jobRepository.deleteById(jobId);
     }

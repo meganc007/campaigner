@@ -1,10 +1,11 @@
 package com.mcommings.campaigner.services.calendar;
 
 import com.mcommings.campaigner.interfaces.calendar.IDay;
-import com.mcommings.campaigner.models.calendar.Day;
 import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.repositories.calendar.IDayRepository;
-import com.mcommings.campaigner.models.repositories.calendar.IWeekRepository;
+import com.mcommings.campaigner.models.calendar.Day;
+import com.mcommings.campaigner.repositories.calendar.ICelestialEventRepository;
+import com.mcommings.campaigner.repositories.calendar.IDayRepository;
+import com.mcommings.campaigner.repositories.calendar.IWeekRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,11 +23,14 @@ public class DayService implements IDay {
 
     private final IDayRepository dayRepository;
     private final IWeekRepository weekRepository;
+    private final ICelestialEventRepository celestialEventRepository;
 
     @Autowired
-    public DayService(IDayRepository dayRepository, IWeekRepository weekRepository) {
+    public DayService(IDayRepository dayRepository, IWeekRepository weekRepository,
+                      ICelestialEventRepository celestialEventRepository) {
         this.dayRepository = dayRepository;
         this.weekRepository = weekRepository;
+        this.celestialEventRepository = celestialEventRepository;
     }
 
     @Override
@@ -53,7 +57,10 @@ public class DayService implements IDay {
         if (RepositoryHelper.cannotFindId(dayRepository, dayId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: check if Day is fk before deleting
+//        TODO: uncomment once Event has been added
+//        if (RepositoryHelper.isForeignKey(getReposWhereDayIsAForeignKey(), FK_DAY.columnName, dayId)) {
+//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+//        }
         dayRepository.deleteById(dayId);
     }
 
@@ -71,6 +78,12 @@ public class DayService implements IDay {
         dayToUpdate.setDescription(day.getDescription());
         dayToUpdate.setFk_week(day.getFk_week());
     }
+
+//    TODO: uncomment once Event has been added
+//    private List<CrudRepository> getReposWhereDayIsAForeignKey() {
+//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository, eventRepository));
+//        return repositories;
+//    }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weekRepository));

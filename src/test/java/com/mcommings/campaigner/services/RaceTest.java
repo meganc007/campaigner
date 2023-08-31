@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.models.Race;
-import com.mcommings.campaigner.models.repositories.IRaceRepository;
+import com.mcommings.campaigner.repositories.IRaceRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

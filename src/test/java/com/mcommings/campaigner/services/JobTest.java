@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.models.Job;
-import com.mcommings.campaigner.models.repositories.IJobRepository;
+import com.mcommings.campaigner.repositories.IJobRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -94,7 +94,7 @@ public class JobTest {
         assertThrows(IllegalArgumentException.class, () -> jobService.deleteJob(jobId));
     }
 
-    //TODO: test that deleteJob doesn't delete when it's a foreign key
+    //TODO: when PeopleJob added, test that deleteJob doesn't delete when it's a foreign key
 
     @Test
     public void whenJobIdIsFound_updateJob_UpdatesTheJob() {

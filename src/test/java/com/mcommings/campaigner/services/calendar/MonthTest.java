@@ -1,9 +1,9 @@
 package com.mcommings.campaigner.services.calendar;
 
 import com.mcommings.campaigner.models.calendar.Month;
-import com.mcommings.campaigner.models.repositories.calendar.ICelestialEventRepository;
-import com.mcommings.campaigner.models.repositories.calendar.IMonthRepository;
-import com.mcommings.campaigner.models.repositories.calendar.IWeekRepository;
+import com.mcommings.campaigner.repositories.calendar.ICelestialEventRepository;
+import com.mcommings.campaigner.repositories.calendar.IMonthRepository;
+import com.mcommings.campaigner.repositories.calendar.IWeekRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -106,7 +106,7 @@ public class MonthTest {
         assertThrows(IllegalArgumentException.class, () -> monthService.deleteMonth(monthId));
     }
 
-//    TODO: test that deleteMonth doesn't delete when it's a foreign key
+//    TODO: when Event is added, test that deleteMonth doesn't delete when it's a foreign key
 //        @Test
 //    public void whenMonthIdIsAForeignKey_deleteMonth_ThrowsDataIntegrityViolationException() {
 //        int monthId = 1;

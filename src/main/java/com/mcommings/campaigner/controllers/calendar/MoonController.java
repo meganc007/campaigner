@@ -24,7 +24,7 @@ public class MoonController {
     }
 
     @PostMapping
-    public void saveMoon(Moon moon) {
+    public void saveMoon(@RequestBody Moon moon) {
         moonService.saveMoon(moon);
     }
 

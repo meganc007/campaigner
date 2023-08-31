@@ -1,12 +1,11 @@
 package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.models.calendar.Day;
 import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.calendar.Day;
 import com.mcommings.campaigner.models.calendar.Week;
-import com.mcommings.campaigner.models.repositories.calendar.IDayRepository;
-import com.mcommings.campaigner.models.repositories.calendar.IMonthRepository;
-import com.mcommings.campaigner.models.repositories.calendar.IWeekRepository;
-import com.mcommings.campaigner.services.calendar.WeekService;
+import com.mcommings.campaigner.repositories.calendar.IDayRepository;
+import com.mcommings.campaigner.repositories.calendar.IMonthRepository;
+import com.mcommings.campaigner.repositories.calendar.IWeekRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

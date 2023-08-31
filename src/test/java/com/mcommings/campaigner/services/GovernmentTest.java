@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.services;
 
-import com.mcommings.campaigner.models.City;
 import com.mcommings.campaigner.models.Government;
 import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.repositories.ICityRepository;
-import com.mcommings.campaigner.models.repositories.IGovernmentRepository;
+import com.mcommings.campaigner.models.locations.City;
+import com.mcommings.campaigner.repositories.IGovernmentRepository;
+import com.mcommings.campaigner.repositories.locations.ICityRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -106,7 +106,7 @@ public class GovernmentTest {
     @Test
     public void whenGovernmentIdIsAForeignKey_deleteGovernment_ThrowsDataIntegrityViolationException() {
         int governmentId = 1;
-        City city = new City(1, "City", "Description", 1, 1, 1, governmentId);
+        City city = new City(1, "City", "Description", 1, 1, 1, governmentId, 1);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
         List<City> cities = new ArrayList<>(Arrays.asList(city));
 
