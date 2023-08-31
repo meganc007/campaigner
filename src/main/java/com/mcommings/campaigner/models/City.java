@@ -11,6 +11,9 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class City extends BaseEntity {
 
+    //TODO: add fk_region
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

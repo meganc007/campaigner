@@ -3,23 +3,33 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.interfaces.IPlaceType;
 import com.mcommings.campaigner.models.PlaceType;
 import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.repositories.IPlaceRepository;
 import com.mcommings.campaigner.models.repositories.IPlaceTypesRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_PLACE_TYPE;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_SETTLEMENT;
 
 @Service
 public class PlaceTypeService implements IPlaceType {
 
     private final IPlaceTypesRepository placeTypesRepository;
+    private final IPlaceRepository placeRepository;
 
     @Autowired
-    public PlaceTypeService(IPlaceTypesRepository placeTypesRepository) {this.placeTypesRepository = placeTypesRepository;}
+    public PlaceTypeService(IPlaceTypesRepository placeTypesRepository, IPlaceRepository placeRepository) {
+        this.placeTypesRepository = placeTypesRepository;
+        this.placeRepository = placeRepository;
+    }
 
     @Override
     public List<PlaceType> getPlaceTypes() {
@@ -44,7 +54,9 @@ public class PlaceTypeService implements IPlaceType {
         if (RepositoryHelper.cannotFindId(placeTypesRepository, placeTypeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: check if foreign key
+        if (RepositoryHelper.isForeignKey(getReposWherePlaceTypeIsAForeignKey(), FK_PLACE_TYPE.columnName, placeTypeId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         placeTypesRepository.deleteById(placeTypeId);
     }
@@ -58,5 +70,10 @@ public class PlaceTypeService implements IPlaceType {
         PlaceType placeTypeToUpdate = RepositoryHelper.getById(placeTypesRepository, placeTypeId);
         placeTypeToUpdate.setName(placeType.getName());
         placeTypeToUpdate.setDescription(placeType.getDescription());
+    }
+
+    private List<CrudRepository> getReposWherePlaceTypeIsAForeignKey() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
+        return repositories;
     }
 }

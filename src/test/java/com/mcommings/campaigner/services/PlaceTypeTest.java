@@ -1,6 +1,9 @@
 package com.mcommings.campaigner.services;
 
+import com.mcommings.campaigner.models.Place;
 import com.mcommings.campaigner.models.PlaceType;
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.repositories.IPlaceRepository;
 import com.mcommings.campaigner.models.repositories.IPlaceTypesRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,11 +11,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_PLACE_TYPE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,8 @@ public class PlaceTypeTest {
 
     @Mock
     private IPlaceTypesRepository placeTypeRepository;
+    @Mock
+    private IPlaceRepository placeRepository;
 
     @InjectMocks
     private PlaceTypeService placeTypeService;
@@ -94,8 +102,20 @@ public class PlaceTypeTest {
         assertThrows(IllegalArgumentException.class, () -> placeTypeService.deletePlaceType(placeTypeId));
     }
 
-    //TODO: test that deletePlaceType doesn't delete when it's a foreign key
+    @Test
+    public void whenPlaceTypeIdIsAForeignKey_deletePlaceType_ThrowsDataIntegrityViolationException() {
+        int placeTypeId = 1;
+        Place place = new Place(1, "Place", "Description", placeTypeId, 1, 1, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
+        List<Place> places = new ArrayList<>(Arrays.asList(place));
 
+        when(placeTypeRepository.existsById(placeTypeId)).thenReturn(true);
+        when(placeRepository.findByfk_place_type(placeTypeId)).thenReturn(places);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_PLACE_TYPE.columnName, placeTypeId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> placeTypeService.deletePlaceType(placeTypeId));
+    }
     @Test
     public void whenPlaceTypeIdIsFound_updatePlaceType_UpdatesThePlaceType() {
         int placeTypeId = 1;

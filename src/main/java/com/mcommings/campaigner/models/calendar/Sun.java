@@ -1,29 +1,28 @@
-package com.mcommings.campaigner.models;
+package com.mcommings.campaigner.models.calendar;
 
+import com.mcommings.campaigner.models.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
 
 @Data
 @Entity
-@Table(name = "landmarks")
+@Table(name = "suns")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @ToString(callSuper = true)
-public class Landmark extends BaseEntity {
-
-    //TODO: add fk_region
+public class Sun extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    public Landmark() {
+    public Sun() {
         super();
     }
 
-    public Landmark(int id, String name, String description) {
+    public Sun(int id, String name, String description) {
         this.id = id;
-        super.setName(name);
-        super.setDescription(description);
+        this.setName(name);
+        this.setDescription(description);
     }
 }
