@@ -5,12 +5,16 @@ import org.junit.jupiter.api.Test;
 
 public class PlaceTest {
     @Test
-    public void shouldCreateADefaultPlaceWithNoForeignKeys() {
+    public void shouldCreateADefaultPlace() {
         Place place = new Place();
         Assertions.assertNotNull(place);
         Assertions.assertEquals(0, place.getId());
         Assertions.assertNull(place.getName());
         Assertions.assertNull(place.getDescription());
+        Assertions.assertNull(place.getFk_place_type());
+        Assertions.assertNull(place.getFk_terrain());
+        Assertions.assertNull(place.getFk_country());
+        Assertions.assertNull(place.getFk_city());
     }
 
     @Test
@@ -36,19 +40,6 @@ public class PlaceTest {
         String expected = "Place(super=BaseEntity(name=Custom Place, description=This is a custom Place.), id=1, fk_place_type=null, fk_terrain=null, fk_country=null, fk_city=null, placeType=null, terrain=null, country=null, city=null)";
 
         Assertions.assertEquals(expected, place.toString());
-    }
-
-    @Test
-    public void shouldCreateADefaultPlaceWithForeignKeys() {
-        Place place = new Place();
-        Assertions.assertNotNull(place);
-        Assertions.assertEquals(0, place.getId());
-        Assertions.assertNull(place.getName());
-        Assertions.assertNull(place.getDescription());
-        Assertions.assertNull(place.getFk_place_type());
-        Assertions.assertNull(place.getFk_terrain());
-        Assertions.assertNull(place.getFk_country());
-        Assertions.assertNull(place.getFk_city());
     }
 
     @Test

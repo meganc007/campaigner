@@ -6,12 +6,16 @@ import org.junit.jupiter.api.Test;
 public class CityTest {
     
     @Test
-    public void shouldCreateADefaultCityWithNoForeignKeys() {
+    public void shouldCreateADefaultCity() {
         City city = new City();
         Assertions.assertNotNull(city);
         Assertions.assertEquals(0, city.getId());
         Assertions.assertNull(city.getName());
         Assertions.assertNull(city.getDescription());
+        Assertions.assertNull(city.getFk_wealth());
+        Assertions.assertNull(city.getFk_country());
+        Assertions.assertNull(city.getFk_settlement());
+        Assertions.assertNull(city.getFk_government());
     }
 
     @Test
@@ -36,19 +40,6 @@ public class CityTest {
         String expected = "City(super=BaseEntity(name=Custom City, description=This is a custom City.), id=1, fk_wealth=null, fk_country=null, fk_settlement=null, fk_government=null, wealth=null, country=null, settlementType=null, government=null)";
 
         Assertions.assertEquals(expected, city.toString());
-    }
-
-    @Test
-    public void shouldCreateADefaultCityWithForeignKeys() {
-        City city = new City();
-        Assertions.assertNotNull(city);
-        Assertions.assertEquals(0, city.getId());
-        Assertions.assertNull(city.getName());
-        Assertions.assertNull(city.getDescription());
-        Assertions.assertNull(city.getFk_wealth());
-        Assertions.assertNull(city.getFk_country());
-        Assertions.assertNull(city.getFk_settlement());
-        Assertions.assertNull(city.getFk_government());
     }
 
     @Test

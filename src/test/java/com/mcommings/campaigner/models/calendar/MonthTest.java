@@ -13,6 +13,7 @@ public class MonthTest {
         Assertions.assertEquals(0, month.getId());
         Assertions.assertNull(month.getName());
         Assertions.assertNull(month.getDescription());
+        Assertions.assertNull(month.getSeason());
     }
 
     @Test
