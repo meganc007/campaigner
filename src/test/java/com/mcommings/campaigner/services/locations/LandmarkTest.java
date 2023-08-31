@@ -2,14 +2,17 @@ package com.mcommings.campaigner.services.locations;
 
 import com.mcommings.campaigner.models.locations.Landmark;
 import com.mcommings.campaigner.repositories.locations.ILandmarkRepository;
+import com.mcommings.campaigner.repositories.locations.IRegionRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +24,8 @@ import static org.mockito.Mockito.*;
 public class LandmarkTest {
     @Mock
     private ILandmarkRepository landmarkRepository;
+    @Mock
+    private IRegionRepository regionRepository;
 
     @InjectMocks
     private LandmarkService landmarkService;
@@ -30,11 +35,12 @@ public class LandmarkTest {
         List<Landmark> landmarks = new ArrayList<>();
         landmarks.add(new Landmark(1, "Landmark 1", "Description 1"));
         landmarks.add(new Landmark(2, "Landmark 2", "Description 2"));
+        landmarks.add(new Landmark(3, "Landmark 3", "Description 3", 2));
         when(landmarkRepository.findAll()).thenReturn(landmarks);
 
         List<Landmark> result = landmarkService.getLandmarks();
 
-        Assertions.assertEquals(2, result.size());
+        Assertions.assertEquals(3, result.size());
         Assertions.assertEquals(landmarks, result);
     }
 
@@ -50,11 +56,24 @@ public class LandmarkTest {
     }
 
     @Test
-    public void whenLandmarkIsValid_saveLandmark_SavesTheLandmark() {
+    public void whenLandmarkWithNoForeignKeysIsValid_saveLandmark_SavesTheLandmark() {
         Landmark landmark = new Landmark(1, "Landmark 1", "Description 1");
         when(landmarkRepository.saveAndFlush(landmark)).thenReturn(landmark);
 
         assertDoesNotThrow(() -> landmarkService.saveLandmark(landmark));
+        verify(landmarkRepository, times(1)).saveAndFlush(landmark);
+    }
+
+    @Test
+    public void whenLandmarkWithForeignKeysIsValid_saveLandmark_SavesTheLandmark() {
+        Landmark landmark = new Landmark(1, "Landmark 1", "Description 1", 3);
+
+        when(landmarkRepository.existsById(1)).thenReturn(true);
+        when(regionRepository.existsById(3)).thenReturn(true);
+        when(landmarkRepository.saveAndFlush(landmark)).thenReturn(landmark);
+
+        assertDoesNotThrow(() -> landmarkService.saveLandmark(landmark));
+
         verify(landmarkRepository, times(1)).saveAndFlush(landmark);
     }
 
@@ -79,6 +98,17 @@ public class LandmarkTest {
     }
 
     @Test
+    public void whenLandmarkHasInvalidForeignKeys_saveLandmark_ThrowsDataIntegrityViolationException() {
+        Landmark landmark = new Landmark(1, "Landmark 1", "Description 1", 2);
+
+        when(landmarkRepository.existsById(1)).thenReturn(true);
+        when(regionRepository.existsById(2)).thenReturn(false);
+        when(landmarkRepository.saveAndFlush(landmark)).thenReturn(landmark);
+
+        assertThrows(DataIntegrityViolationException.class, () -> landmarkService.saveLandmark(landmark));
+    }
+
+    @Test
     public void whenLandmarkIdExists_deleteLandmark_DeletesTheLandmark() {
         int landmarkId = 1;
         when(landmarkRepository.existsById(landmarkId)).thenReturn(true);
@@ -93,10 +123,8 @@ public class LandmarkTest {
         assertThrows(IllegalArgumentException.class, () -> landmarkService.deleteLandmark(landmarkId));
     }
 
-    //TODO: test that deleteLandmark doesn't delete when it's a foreign key
-
     @Test
-    public void whenLandmarkIdIsFound_updateLandmark_UpdatesTheLandmark() {
+    public void whenLandmarkIdWithNoFKIsFound_updateLandmark_UpdatesTheLandmark() {
         int landmarkId = 1;
         Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description");
         Landmark landmarkToUpdate = new Landmark(landmarkId, "Updated Landmark Name", "Updated Description");
@@ -111,6 +139,40 @@ public class LandmarkTest {
         Landmark result = landmarkRepository.findById(landmarkId).get();
         Assertions.assertEquals(landmarkToUpdate.getName(), result.getName());
         Assertions.assertEquals(landmarkToUpdate.getDescription(), result.getDescription());
+    }
+    @Test
+    public void whenLandmarkIdWithValidFKIsFound_updateLandmark_UpdatesTheLandmark() {
+        int landmarkId = 1;
+        Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description");
+        Landmark landmarkToUpdate = new Landmark(landmarkId, "Updated Landmark Name", "Updated Description", 3);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
+
+        when(landmarkRepository.existsById(landmarkId)).thenReturn(true);
+        when(landmarkRepository.findById(landmarkId)).thenReturn(Optional.of(landmark));
+        when(regionRepository.existsById(3)).thenReturn(true);
+
+        landmarkService.updateLandmark(landmarkId, landmarkToUpdate);
+
+        verify(landmarkRepository).findById(landmarkId);
+
+        Landmark result = landmarkRepository.findById(landmarkId).get();
+        Assertions.assertEquals(landmarkToUpdate.getName(), result.getName());
+        Assertions.assertEquals(landmarkToUpdate.getDescription(), result.getDescription());
+        Assertions.assertEquals(landmarkToUpdate.getFk_region(), result.getFk_region());
+    }
+
+    @Test
+    public void whenLandmarkIdWithInvalidFKIsFound_updateLandmark_UpdatesTheLandmark() {
+        int landmarkId = 1;
+        Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description");
+        Landmark landmarkToUpdate = new Landmark(landmarkId, "Updated Landmark Name", "Updated Description", 3);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
+
+        when(landmarkRepository.existsById(landmarkId)).thenReturn(true);
+        when(landmarkRepository.findById(landmarkId)).thenReturn(Optional.of(landmark));
+        when(regionRepository.existsById(3)).thenReturn(false);
+
+        assertThrows(DataIntegrityViolationException.class, () -> landmarkService.updateLandmark(landmarkId, landmarkToUpdate));
     }
 
     @Test

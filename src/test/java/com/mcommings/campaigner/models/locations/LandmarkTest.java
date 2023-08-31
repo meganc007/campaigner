@@ -12,6 +12,7 @@ public class LandmarkTest {
         Assertions.assertEquals(0, landmark.getId());
         Assertions.assertNull(landmark.getName());
         Assertions.assertNull(landmark.getDescription());
+        Assertions.assertNull(landmark.getFk_region());
     }
 
     @Test
@@ -19,21 +20,25 @@ public class LandmarkTest {
         int id = 1;
         String name = "Custom Landmark";
         String description = "This is a custom Landmark.";
+        Integer fk_region = 3;
 
-        Landmark landmark = new Landmark(id, name, description);
+        Landmark landmark = new Landmark(id, name, description, fk_region);
 
         Assertions.assertEquals(id, landmark.getId());
         Assertions.assertEquals(name, landmark.getName());
         Assertions.assertEquals(description, landmark.getDescription());
+        Assertions.assertEquals(fk_region, landmark.getFk_region());
     }
     @Test
     public void shouldConvertLandmarkToString() {
         int id = 1;
         String name = "Custom Landmark";
         String description = "This is a custom Landmark.";
+        Integer fk_region = 3;
 
-        Landmark landmark = new Landmark(id, name, description);
-        String expected = "Landmark(super=BaseEntity(name=Custom Landmark, description=This is a custom Landmark.), id=1)";
+        Landmark landmark = new Landmark(id, name, description, fk_region);
+
+        String expected = "Landmark(super=BaseEntity(name=Custom Landmark, description=This is a custom Landmark.), id=1, fk_region=3)";
 
         Assertions.assertEquals(expected, landmark.toString());
     }

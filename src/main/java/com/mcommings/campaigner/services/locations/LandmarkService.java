@@ -4,11 +4,15 @@ import com.mcommings.campaigner.interfaces.locations.ILandmark;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.Landmark;
 import com.mcommings.campaigner.repositories.locations.ILandmarkRepository;
+import com.mcommings.campaigner.repositories.locations.IRegionRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
@@ -17,10 +21,12 @@ import static com.mcommings.campaigner.enums.ErrorMessage.*;
 public class LandmarkService implements ILandmark {
 
     private final ILandmarkRepository landmarkRepository;
+    private final IRegionRepository regionRepository;
 
     @Autowired
-    public LandmarkService(ILandmarkRepository landmarkRepository) {
+    public LandmarkService(ILandmarkRepository landmarkRepository, IRegionRepository regionRepository) {
         this.landmarkRepository = landmarkRepository;
+        this.regionRepository = regionRepository;
     }
 
     @Override
@@ -37,6 +43,10 @@ public class LandmarkService implements ILandmark {
         if (RepositoryHelper.nameAlreadyExists(landmarkRepository, landmark)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
+        if (hasForeignKeys(landmark) &&
+                RepositoryHelper.foreignKeyIsNotValid(landmarkRepository, getListOfForeignKeyRepositories(), landmark)) {
+            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
+        }
 
         landmarkRepository.saveAndFlush(landmark);
     }
@@ -47,7 +57,6 @@ public class LandmarkService implements ILandmark {
         if (RepositoryHelper.cannotFindId(landmarkRepository, landmarkId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: check if foreign key
 
         landmarkRepository.deleteById(landmarkId);
     }
@@ -59,8 +68,22 @@ public class LandmarkService implements ILandmark {
         if (RepositoryHelper.cannotFindId(landmarkRepository, landmarkId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
+        if (hasForeignKeys(landmark) &&
+                RepositoryHelper.foreignKeyIsNotValid(landmarkRepository, getListOfForeignKeyRepositories(), landmark)) {
+            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+        }
         Landmark landmarkToUpdate = RepositoryHelper.getById(landmarkRepository, landmarkId);
         landmarkToUpdate.setName(landmark.getName());
         landmarkToUpdate.setDescription(landmark.getDescription());
+        landmarkToUpdate.setFk_region(landmark.getFk_region());
+    }
+
+    private boolean hasForeignKeys(Landmark landmark) {
+        return landmark.getFk_region() != null;
+    }
+
+    private List<CrudRepository> getListOfForeignKeyRepositories() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
+        return repositories;
     }
 }

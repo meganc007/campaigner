@@ -18,6 +18,9 @@ public class Landmark extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "fk_region")
+    private Integer fk_region;
+
     public Landmark() {
         super();
     }
@@ -26,5 +29,12 @@ public class Landmark extends BaseEntity {
         this.id = id;
         super.setName(name);
         super.setDescription(description);
+    }
+
+    public Landmark(int id, String name, String description, Integer fk_region) {
+        this.id = id;
+        super.setName(name);
+        super.setDescription(description);
+        this.fk_region = fk_region;
     }
 }
