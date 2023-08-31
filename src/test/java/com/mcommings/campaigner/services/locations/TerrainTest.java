@@ -105,7 +105,7 @@ public class TerrainTest {
     @Test
     public void whenTerrainIdIsAForeignKey_deleteTerrain_ThrowsDataIntegrityViolationException() {
         int terrainId = 1;
-        Place place = new Place(1, "Place", "Description", 1, terrainId, 1, 1);
+        Place place = new Place(1, "Place", "Description", 1, terrainId, 1, 1, 1);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
         List<Place> places = new ArrayList<>(Arrays.asList(place));
 

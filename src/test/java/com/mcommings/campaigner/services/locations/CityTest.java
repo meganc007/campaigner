@@ -5,10 +5,7 @@ import com.mcommings.campaigner.models.locations.City;
 import com.mcommings.campaigner.models.locations.Place;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.IWealthRepository;
-import com.mcommings.campaigner.repositories.locations.ICityRepository;
-import com.mcommings.campaigner.repositories.locations.ICountryRepository;
-import com.mcommings.campaigner.repositories.locations.IPlaceRepository;
-import com.mcommings.campaigner.repositories.locations.ISettlementTypeRepository;
+import com.mcommings.campaigner.repositories.locations.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -41,6 +38,8 @@ public class CityTest {
     private IPlaceRepository placeRepository;
     @Mock
     private IGovernmentRepository governmentRepository;
+    @Mock
+    private IRegionRepository regionRepository;
 
     @InjectMocks
     private CityService cityService;
@@ -50,7 +49,7 @@ public class CityTest {
         List<City> cities = new ArrayList<>();
         cities.add(new City(1, "City 1", "Description 1"));
         cities.add(new City(2, "City 2", "Description 2"));
-        cities.add(new City(3, "City 3", "Description 3", 1, 2, 3, 4));
+        cities.add(new City(3, "City 3", "Description 3", 1, 2, 3, 4, 5));
         when(cityRepository.findAll()).thenReturn(cities);
 
         List<City> result = cityService.getCities();
@@ -82,12 +81,13 @@ public class CityTest {
 
     @Test
     public void whenCityWithForeignKeysIsValid_saveCity_SavesTheCity() {
-        City city = new City(1, "City 1", "Description 1", 1, 2, 3, 4);
+        City city = new City(1, "City 1", "Description 1", 1, 2, 3, 4, 5);
 
         when(wealthRepository.existsById(1)).thenReturn(true);
         when(countryRepository.existsById(2)).thenReturn(true);
         when(settlementTypeRepository.existsById(3)).thenReturn(true);
         when(governmentRepository.existsById(4)).thenReturn(true);
+        when(regionRepository.existsById(5)).thenReturn(true);
         when(cityRepository.saveAndFlush(city)).thenReturn(city);
 
         assertDoesNotThrow(() -> cityService.saveCity(city));
@@ -106,20 +106,22 @@ public class CityTest {
 
     @Test
     public void whenCityNameAlreadyExists_saveCity_ThrowsDataIntegrityViolationException() {
-        City city = new City(1, "City 1", "Description 1", 1, 2, 3, 4);
-        City cityWithDuplicatedName = new City(2, "City 1", "Description 2", 5, 6, 7, 8);
+        City city = new City(1, "City 1", "Description 1", 1, 2, 3, 4, 5);
+        City cityWithDuplicatedName = new City(2, "City 1", "Description 2", 5, 6, 7, 8, 9);
 
         when(cityRepository.existsById(1)).thenReturn(true);
         when(wealthRepository.existsById(1)).thenReturn(true);
         when(countryRepository.existsById(2)).thenReturn(true);
         when(settlementTypeRepository.existsById(3)).thenReturn(true);
         when(governmentRepository.existsById(4)).thenReturn(true);
+        when(regionRepository.existsById(5)).thenReturn(true);
 
         when(cityRepository.existsById(2)).thenReturn(true);
         when(wealthRepository.existsById(5)).thenReturn(true);
         when(countryRepository.existsById(6)).thenReturn(true);
         when(settlementTypeRepository.existsById(7)).thenReturn(true);
         when(governmentRepository.existsById(8)).thenReturn(true);
+        when(regionRepository.existsById(9)).thenReturn(true);
 
         when(cityRepository.saveAndFlush(city)).thenReturn(city);
         when(cityRepository.saveAndFlush(cityWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
@@ -130,12 +132,13 @@ public class CityTest {
 
     @Test
     public void whenCityHasInvalidForeignKeys_saveCity_ThrowsDataIntegrityViolationException() {
-        City city = new City(1, "City 1", "Description 1", 1, 2, 3, 4);
+        City city = new City(1, "City 1", "Description 1", 1, 2, 3, 4, 5);
 
         when(wealthRepository.existsById(1)).thenReturn(true);
         when(countryRepository.existsById(3)).thenReturn(false);
         when(settlementTypeRepository.existsById(3)).thenReturn(false);
         when(governmentRepository.existsById(3)).thenReturn(true);
+        when(regionRepository.existsById(3)).thenReturn(false);
         when(cityRepository.saveAndFlush(city)).thenReturn(city);
 
         assertThrows(DataIntegrityViolationException.class, () -> cityService.saveCity(city));
@@ -161,7 +164,7 @@ public class CityTest {
     @Test
     public void whenCityIdIsAForeignKey_deleteCity_ThrowsDataIntegrityViolationException() {
         int cityId = 1;
-        Place place = new Place(1, "Place", "Description", 1, cityId, 1, 1);
+        Place place = new Place(1, "Place", "Description", 1, cityId, 1, 1, 1);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
         List<Place> places = new ArrayList<>(Arrays.asList(place));
 
@@ -196,8 +199,9 @@ public class CityTest {
         int cityId = 2;
 
         City city = new City(cityId, "Test City Name", "Test Description");
-        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", 1, 2, 3, 4);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(wealthRepository, countryRepository, settlementTypeRepository, governmentRepository));
+        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", 1, 2, 3, 4, 5);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(wealthRepository, countryRepository,
+                settlementTypeRepository, governmentRepository, regionRepository));
 
         when(cityRepository.existsById(cityId)).thenReturn(true);
         when(cityRepository.findById(cityId)).thenReturn(Optional.of(city));
@@ -205,6 +209,7 @@ public class CityTest {
         when(countryRepository.existsById(2)).thenReturn(true);
         when(settlementTypeRepository.existsById(3)).thenReturn(true);
         when(governmentRepository.existsById(4)).thenReturn(true);
+        when(regionRepository.existsById(5)).thenReturn(true);
 
         cityService.updateCity(cityId, cityToUpdate);
 
@@ -217,6 +222,7 @@ public class CityTest {
         Assertions.assertEquals(cityToUpdate.getFk_country(), result.getFk_country());
         Assertions.assertEquals(cityToUpdate.getFk_settlement(), result.getFk_settlement());
         Assertions.assertEquals(cityToUpdate.getFk_government(), result.getFk_government());
+        Assertions.assertEquals(cityToUpdate.getFk_region(), result.getFk_region());
     }
 
     @Test
@@ -224,7 +230,7 @@ public class CityTest {
         int cityId = 2;
 
         City city = new City(cityId, "Test City Name", "Test Description");
-        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", 1, 2, 3, 4);
+        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", 1, 2, 3, 4, 5);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(wealthRepository, countryRepository, settlementTypeRepository, governmentRepository));
 
         when(cityRepository.existsById(cityId)).thenReturn(true);
@@ -233,6 +239,7 @@ public class CityTest {
         when(countryRepository.existsById(2)).thenReturn(false);
         when(settlementTypeRepository.existsById(3)).thenReturn(true);
         when(governmentRepository.existsById(4)).thenReturn(false);
+        when(governmentRepository.existsById(5)).thenReturn(false);
 
         assertThrows(DataIntegrityViolationException.class, () -> cityService.updateCity(cityId, cityToUpdate));
     }

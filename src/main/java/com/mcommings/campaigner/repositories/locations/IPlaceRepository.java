@@ -25,4 +25,7 @@ public interface IPlaceRepository extends JpaRepository<Place, Integer> {
 
     @Query("SELECT p FROM Place p WHERE p.fk_city = :id")
     List<Place> findByfk_city(@Param("id") Integer id);
+
+    @Query("SELECT p FROM Place p WHERE p.fk_region = :id")
+    List<Place> findByfk_region(@Param("id") Integer id);
 }

@@ -5,10 +5,7 @@ import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.City;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.IWealthRepository;
-import com.mcommings.campaigner.repositories.locations.ICityRepository;
-import com.mcommings.campaigner.repositories.locations.ICountryRepository;
-import com.mcommings.campaigner.repositories.locations.IPlaceRepository;
-import com.mcommings.campaigner.repositories.locations.ISettlementTypeRepository;
+import com.mcommings.campaigner.repositories.locations.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,17 +27,19 @@ public class CityService implements ICity {
     private final ICountryRepository countryRepository;
     private final ISettlementTypeRepository settlementTypeRepository;
     private final IGovernmentRepository governmentRepository;
+    private final IRegionRepository regionRepository;
     private final IPlaceRepository placeRepository;
 
     @Autowired
     public CityService(ICityRepository cityRepository, IWealthRepository wealthRepository,
                        ICountryRepository countryRepository, ISettlementTypeRepository settlementTypeRepository,
-                       IGovernmentRepository governmentRepository, IPlaceRepository placeRepository) {
+                       IGovernmentRepository governmentRepository, IRegionRepository regionRepository, IPlaceRepository placeRepository) {
         this.cityRepository = cityRepository;
         this.wealthRepository = wealthRepository;
         this.countryRepository = countryRepository;
         this.settlementTypeRepository = settlementTypeRepository;
         this.governmentRepository = governmentRepository;
+        this.regionRepository = regionRepository;
         this.placeRepository = placeRepository;
     }
 
@@ -95,6 +94,7 @@ public class CityService implements ICity {
         cityToUpdate.setFk_country(city.getFk_country());
         cityToUpdate.setFk_settlement(city.getFk_settlement());
         cityToUpdate.setFk_government(city.getFk_government());
+        cityToUpdate.setFk_region(city.getFk_region());
     }
 
     //TODO: add Event to this list once it's coded
@@ -107,12 +107,13 @@ public class CityService implements ICity {
         return city.getFk_wealth() != null ||
                 city.getFk_country() != null ||
                 city.getFk_settlement() != null ||
-                city.getFk_government() != null;
+                city.getFk_government() != null ||
+                city.getFk_region() != null;
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(wealthRepository, countryRepository,
-                settlementTypeRepository, governmentRepository));
+                settlementTypeRepository, governmentRepository, regionRepository));
         return repositories;
     }
 }

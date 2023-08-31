@@ -1,18 +1,24 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.models.Climate;
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.locations.Region;
 import com.mcommings.campaigner.repositories.IClimateRepository;
+import com.mcommings.campaigner.repositories.locations.IRegionRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_CLIMATE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,8 @@ public class ClimateTest {
 
     @Mock
     private IClimateRepository climateRepository;
+    @Mock
+    private IRegionRepository regionRepository;
 
     @InjectMocks
     private ClimateService climateService;
@@ -95,8 +103,20 @@ public class ClimateTest {
         assertThrows(IllegalArgumentException.class, () -> climateService.deleteClimate(climateId));
     }
 
-    //TODO: after this functionality is added, test that deleteClimate doesn't delete
-    // when id is a foreign key in another table
+    @Test
+    public void whenClimateIdIsAForeignKey_deleteClimate_ThrowsDataIntegrityViolationException() {
+        int climateId = 1;
+        Region region = new Region(1, "Region", "Description", 1, climateId);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
+        List<Region> regions = new ArrayList<>(Arrays.asList(region));
+
+        when(climateRepository.existsById(climateId)).thenReturn(true);
+        when(regionRepository.findByfk_climate(climateId)).thenReturn(regions);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_CLIMATE.columnName, climateId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> climateService.deleteClimate(climateId));
+    }
 
     @Test
     public void whenClimateIdIsFound_updateClimate_UpdatesTheClimate() {

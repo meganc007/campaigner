@@ -107,7 +107,7 @@ public class SettlementTypeTest {
     @Test
     public void whenSettlementTypeIdIsAForeignKey_deleteSettlementType_ThrowsDataIntegrityViolationException() {
         int settlementTypeId = 1;
-        City city = new City(1, "City", "Description", 1, 1, settlementTypeId, 1);
+        City city = new City(1, "City", "Description", 1, 1, settlementTypeId, 1,1);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
         List<City> cities = new ArrayList<>(Arrays.asList(city));
 

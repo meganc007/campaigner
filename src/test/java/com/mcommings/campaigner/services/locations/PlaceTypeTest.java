@@ -105,7 +105,7 @@ public class PlaceTypeTest {
     @Test
     public void whenPlaceTypeIdIsAForeignKey_deletePlaceType_ThrowsDataIntegrityViolationException() {
         int placeTypeId = 1;
-        Place place = new Place(1, "Place", "Description", placeTypeId, 1, 1, 1);
+        Place place = new Place(1, "Place", "Description", placeTypeId, 1, 1, 1, 1);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
         List<Place> places = new ArrayList<>(Arrays.asList(place));
 

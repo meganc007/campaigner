@@ -12,8 +12,6 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class Place extends BaseEntity {
 
-    //TODO: add fk_region
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -29,6 +27,9 @@ public class Place extends BaseEntity {
 
     @Column(name = "fk_city")
     private Integer fk_city;
+
+    @Column(name = "fk_region")
+    private Integer fk_region;
 
     @ManyToOne
     @JoinColumn(name = "fk_place_type", referencedColumnName = "id", updatable = false, insertable = false)
@@ -46,6 +47,10 @@ public class Place extends BaseEntity {
     @JoinColumn(name = "fk_city", referencedColumnName = "id", updatable = false, insertable = false)
     private City city;
 
+    @ManyToOne
+    @JoinColumn(name = "fk_region", referencedColumnName = "id", updatable = false, insertable = false)
+    private Region region;
+
     public Place() {
         super();
     }
@@ -58,7 +63,7 @@ public class Place extends BaseEntity {
 
     public Place(int id, String name, String description,
                  Integer fk_place_type, Integer fk_terrain,
-                 Integer fk_country, Integer fk_city) {
+                 Integer fk_country, Integer fk_city, Integer fk_region) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
@@ -66,6 +71,7 @@ public class Place extends BaseEntity {
         this.fk_terrain = fk_terrain;
         this.fk_country = fk_country;
         this.fk_city = fk_city;
+        this.fk_region = fk_region;
     }
 
 }

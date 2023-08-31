@@ -32,6 +32,8 @@ public class PlaceTest {
     private ICountryRepository countryRepository;
     @Mock
     private ICityRepository cityRepository;
+    @Mock
+    private IRegionRepository regionRepository;
 
     @InjectMocks
     private PlaceService placeService;
@@ -41,7 +43,7 @@ public class PlaceTest {
         List<Place> places = new ArrayList<>();
         places.add(new Place(1, "Place 1", "Description 1"));
         places.add(new Place(2, "Place 2", "Description 2"));
-        places.add(new Place(3, "Place 3", "Description 3", 1, 2, 3, 4));
+        places.add(new Place(3, "Place 3", "Description 3", 1, 2, 3, 4, 5));
         when(placeRepository.findAll()).thenReturn(places);
 
         List<Place> result = placeService.getPlaces();
@@ -73,12 +75,13 @@ public class PlaceTest {
 
     @Test
     public void whenPlaceWithForeignKeysIsValid_savePlace_SavesThePlace() {
-        Place place = new Place(1, "Place 1", "Description 1", 1, 2, 3, 4);
+        Place place = new Place(1, "Place 1", "Description 1", 1, 2, 3, 4, 5);
 
         when(placeTypesRepository.existsById(1)).thenReturn(true);
         when(terrainRepository.existsById(2)).thenReturn(true);
         when(countryRepository.existsById(3)).thenReturn(true);
         when(cityRepository.existsById(4)).thenReturn(true);
+        when(regionRepository.existsById(5)).thenReturn(true);
         when(placeRepository.saveAndFlush(place)).thenReturn(place);
 
         assertDoesNotThrow(() -> placeService.savePlace(place));
@@ -97,17 +100,20 @@ public class PlaceTest {
 
     @Test
     public void whenPlaceNameAlreadyExists_savePlace_ThrowsDataIntegrityViolationException() {
-        Place place = new Place(1, "Place 1", "Description 1", 1, 2, 3, 4);
-        Place placeWithDuplicatedName = new Place(2, "Place 1", "Description 2", 5, 6, 7, 8);
+        Place place = new Place(1, "Place 1", "Description 1", 1, 2, 3, 4, 5);
+        Place placeWithDuplicatedName = new Place(2, "Place 1", "Description 2", 5, 6, 7, 8, 9);
 
         when(placeTypesRepository.existsById(1)).thenReturn(true);
         when(terrainRepository.existsById(2)).thenReturn(true);
         when(countryRepository.existsById(3)).thenReturn(true);
         when(cityRepository.existsById(4)).thenReturn(true);
+        when(regionRepository.existsById(5)).thenReturn(true);
+
         when(placeTypesRepository.existsById(5)).thenReturn(true);
         when(terrainRepository.existsById(6)).thenReturn(true);
         when(countryRepository.existsById(7)).thenReturn(true);
         when(cityRepository.existsById(8)).thenReturn(true);
+        when(regionRepository.existsById(9)).thenReturn(true);
 
         when(placeRepository.saveAndFlush(place)).thenReturn(place);
         when(placeRepository.saveAndFlush(placeWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
@@ -118,7 +124,7 @@ public class PlaceTest {
 
     @Test
     public void whenPlaceHasInvalidForeignKeys_savePlace_ThrowsDataIntegrityViolationException() {
-        Place place = new Place(1, "Place 1", "Description 1", 1, 2, 3, 4);
+        Place place = new Place(1, "Place 1", "Description 1", 1, 2, 3, 4, 5);
 
         when(placeTypesRepository.existsById(1)).thenReturn(true);
         when(terrainRepository.existsById(2)).thenReturn(false);
@@ -183,8 +189,8 @@ public class PlaceTest {
         int placeId = 2;
 
         Place place = new Place(placeId, "Test Place Name", "Test Description");
-        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", 1, 2, 3, 4);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository, countryRepository, cityRepository));
+        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", 1, 2, 3, 4, 5);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository, countryRepository, cityRepository, regionRepository));
 
         when(placeRepository.existsById(placeId)).thenReturn(true);
         when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
@@ -192,6 +198,7 @@ public class PlaceTest {
         when(terrainRepository.existsById(2)).thenReturn(true);
         when(countryRepository.existsById(3)).thenReturn(true);
         when(cityRepository.existsById(4)).thenReturn(true);
+        when(regionRepository.existsById(5)).thenReturn(true);
 
         placeService.updatePlace(placeId, placeToUpdate);
 
@@ -204,6 +211,7 @@ public class PlaceTest {
         Assertions.assertEquals(placeToUpdate.getFk_terrain(), result.getFk_terrain());
         Assertions.assertEquals(placeToUpdate.getFk_country(), result.getFk_country());
         Assertions.assertEquals(placeToUpdate.getFk_city(), result.getFk_city());
+        Assertions.assertEquals(placeToUpdate.getFk_region(), result.getFk_region());
     }
 
     @Test
@@ -211,8 +219,8 @@ public class PlaceTest {
         int placeId = 1;
 
         Place place = new Place(placeId, "Test Place Name", "Test Description");
-        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", 1, 2, 3, 4);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository, countryRepository, cityRepository));
+        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", 1, 2, 3, 4, 5);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository, countryRepository, cityRepository, regionRepository));
         when(placeRepository.existsById(placeId)).thenReturn(true);
         when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
         when(placeTypesRepository.existsById(1)).thenReturn(true);

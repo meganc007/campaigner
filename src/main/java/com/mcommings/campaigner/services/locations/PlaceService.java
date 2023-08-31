@@ -24,17 +24,19 @@ public class PlaceService implements IPlace {
     private final ITerrainRepository terrainRepository;
     private final ICountryRepository countryRepository;
     private final ICityRepository cityRepository;
+    private final IRegionRepository regionRepository;
 
 
     @Autowired
     public PlaceService(IPlaceRepository placeRepository, IPlaceTypesRepository placeTypesRepository,
                         ITerrainRepository terrainRepository, ICountryRepository countryRepository,
-                        ICityRepository cityRepository) {
+                        ICityRepository cityRepository, IRegionRepository regionRepository) {
         this.placeRepository = placeRepository;
         this.placeTypesRepository = placeTypesRepository;
         this.terrainRepository = terrainRepository;
         this.countryRepository = countryRepository;
         this.cityRepository = cityRepository;
+        this.regionRepository = regionRepository;
     }
 
     @Override
@@ -90,6 +92,7 @@ public class PlaceService implements IPlace {
         placeToUpdate.setFk_terrain(place.getFk_terrain());
         placeToUpdate.setFk_country(place.getFk_country());
         placeToUpdate.setFk_city(place.getFk_city());
+        placeToUpdate.setFk_region(place.getFk_region());
     }
 
 //    TODO: add this when tables that use Place as fk are added
@@ -99,11 +102,12 @@ public class PlaceService implements IPlace {
 //    }
 
     private boolean hasForeignKeys(Place place) {
-        return place.getFk_place_type() != null || place.getFk_terrain() != null || place.getFk_country() != null || place.getFk_city() != null;
+        return place.getFk_place_type() != null || place.getFk_terrain() != null || place.getFk_country() != null || place.getFk_city() != null || place.getFk_region() != null;
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository, countryRepository, cityRepository));
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository,
+                countryRepository, cityRepository, regionRepository));
         return repositories;
     }
 

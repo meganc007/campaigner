@@ -67,7 +67,7 @@ public class RegionService implements IRegion {
         if (RepositoryHelper.cannotFindId(regionRepository, regionId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//        TODO: uncomment once Region is added to City, Landmark, & Place
+//        TODO: uncomment once Region is added to Landmark
 //        if (RepositoryHelper.isForeignKey(getReposWhereRegionIsAForeignKey(), FK_REGION.columnName, regionId)) {
 //            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
 //        }

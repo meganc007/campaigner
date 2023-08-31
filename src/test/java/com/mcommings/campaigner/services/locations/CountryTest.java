@@ -3,10 +3,12 @@ package com.mcommings.campaigner.services.locations;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.City;
 import com.mcommings.campaigner.models.locations.Country;
+import com.mcommings.campaigner.models.locations.Region;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
 import com.mcommings.campaigner.repositories.locations.IContinentRepository;
 import com.mcommings.campaigner.repositories.locations.ICountryRepository;
+import com.mcommings.campaigner.repositories.locations.IRegionRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -34,6 +36,8 @@ public class CountryTest {
     private IContinentRepository continentRepository;
     @Mock
     private IGovernmentRepository governmentRepository;
+    @Mock
+    private IRegionRepository regionRepository;
 
     @Mock
     private ICityRepository cityRepository;
@@ -144,12 +148,17 @@ public class CountryTest {
     @Test
     public void whenCountryIdIsAForeignKey_deleteCountry_ThrowsDataIntegrityViolationException() {
         int countryId = 1;
-        City city = new City(1, "City", "Description", 1, countryId, 1, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
+        City city = new City(1, "City", "Description", 1, countryId, 1, 1, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, regionRepository));
         List<City> cities = new ArrayList<>(Arrays.asList(city));
 
+        Region region = new Region(1, "Region","Description", countryId, 1);
+        List<Region> regions = new ArrayList<>(Arrays.asList(region));
+
         when(countryRepository.existsById(countryId)).thenReturn(true);
+        when(regionRepository.existsById(countryId)).thenReturn(true);
         when(cityRepository.findByfk_country(countryId)).thenReturn(cities);
+        when(regionRepository.findByfk_country(countryId)).thenReturn(regions);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_COUNTRY.columnName, countryId);
         Assertions.assertTrue(actual);

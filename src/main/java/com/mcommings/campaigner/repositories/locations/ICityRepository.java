@@ -25,4 +25,7 @@ public interface ICityRepository extends JpaRepository<City, Integer> {
 
     @Query("SELECT c FROM City c WHERE c.fk_government = :id")
     List<City> findByfk_government(@Param("id") Integer id);
+
+    @Query("SELECT c FROM City c WHERE c.fk_region = :id")
+    List<City> findByfk_region(@Param("id") Integer id);
 }
