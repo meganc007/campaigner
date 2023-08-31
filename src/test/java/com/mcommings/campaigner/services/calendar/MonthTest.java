@@ -106,7 +106,7 @@ public class MonthTest {
         assertThrows(IllegalArgumentException.class, () -> monthService.deleteMonth(monthId));
     }
 
-//    TODO: test that deleteMonth doesn't delete when it's a foreign key
+//    TODO: when Event is added, test that deleteMonth doesn't delete when it's a foreign key
 //        @Test
 //    public void whenMonthIdIsAForeignKey_deleteMonth_ThrowsDataIntegrityViolationException() {
 //        int monthId = 1;

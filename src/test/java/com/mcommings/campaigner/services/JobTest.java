@@ -94,7 +94,7 @@ public class JobTest {
         assertThrows(IllegalArgumentException.class, () -> jobService.deleteJob(jobId));
     }
 
-    //TODO: test that deleteJob doesn't delete when it's a foreign key
+    //TODO: when PeopleJob added, test that deleteJob doesn't delete when it's a foreign key
 
     @Test
     public void whenJobIdIsFound_updateJob_UpdatesTheJob() {

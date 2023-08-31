@@ -44,7 +44,7 @@ public class JobService implements IJob {
         if (RepositoryHelper.cannotFindId(jobRepository, jobId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: check if foreign key
+        //TODO: when PeopleJob added, check if foreign key
 
         jobRepository.deleteById(jobId);
     }
