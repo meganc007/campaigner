@@ -1,6 +1,7 @@
 package com.mcommings.campaigner.services.calendar;
 
 import com.mcommings.campaigner.models.calendar.Day;
+import com.mcommings.campaigner.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.repositories.calendar.IDayRepository;
 import com.mcommings.campaigner.repositories.calendar.IWeekRepository;
 import org.junit.jupiter.api.Assertions;
@@ -27,6 +28,8 @@ public class DayTest {
     private IDayRepository dayRepository;
     @Mock
     private IWeekRepository weekRepository;
+    @Mock
+    private ICelestialEventRepository celestialEventRepository;
 
     @InjectMocks
     private DayService dayService;
@@ -102,7 +105,23 @@ public class DayTest {
         assertThrows(IllegalArgumentException.class, () -> dayService.deleteDay(dayId));
     }
 
-    //TODO: test that deleteDay doesn't delete when it's a foreign key
+    //TODO: uncomment and update once Event has been added
+//        @Test
+//    public void whenDayIdIsAForeignKey_deleteDay_ThrowsDataIntegrityViolationException() {
+//        int dayId = 1;
+//        CelestialEvent celestialEvent = new CelestialEvent(1, "Celestial Event", "Description", 1, 1, 1, 1, dayId, 1);
+//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
+//        List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
+//
+//        when(dayRepository.existsById(dayId)).thenReturn(true);
+//        when(celestialEventRepository.existsById(dayId)).thenReturn(true);
+//        when(eventRepository.existsById(dayId)).thenReturn(true);
+//        when(celestialEventRepository.findByfk_day(dayId)).thenReturn(celestialEvents);
+//
+//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_DAY.columnName, dayId);
+//        Assertions.assertTrue(actual);
+//        assertThrows(DataIntegrityViolationException.class, () -> dayService.deleteDay(dayId));
+//    }
 
     @Test
     public void whenDayIdWithValidFKIsFound_updateDay_UpdatesTheDay() {
