@@ -3,7 +3,7 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.interfaces.IJob;
 import com.mcommings.campaigner.models.Job;
 import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.repositories.IJobRepository;
+import com.mcommings.campaigner.repositories.IJobRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

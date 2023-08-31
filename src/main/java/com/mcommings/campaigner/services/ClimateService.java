@@ -3,7 +3,7 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.interfaces.IClimate;
 import com.mcommings.campaigner.models.Climate;
 import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.repositories.IClimateRepository;
+import com.mcommings.campaigner.repositories.IClimateRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

@@ -3,7 +3,7 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.interfaces.IRace;
 import com.mcommings.campaigner.models.Race;
 import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.repositories.IRaceRepository;
+import com.mcommings.campaigner.repositories.IRaceRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.models.Climate;
-import com.mcommings.campaigner.models.repositories.IClimateRepository;
+import com.mcommings.campaigner.repositories.IClimateRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

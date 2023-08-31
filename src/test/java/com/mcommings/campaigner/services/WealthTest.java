@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.services;
 
-import com.mcommings.campaigner.models.City;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Wealth;
-import com.mcommings.campaigner.models.repositories.ICityRepository;
-import com.mcommings.campaigner.models.repositories.IWealthRepository;
+import com.mcommings.campaigner.models.locations.City;
+import com.mcommings.campaigner.repositories.IWealthRepository;
+import com.mcommings.campaigner.repositories.locations.ICityRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

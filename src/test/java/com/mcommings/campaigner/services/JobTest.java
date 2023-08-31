@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.models.Job;
-import com.mcommings.campaigner.models.repositories.IJobRepository;
+import com.mcommings.campaigner.repositories.IJobRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
