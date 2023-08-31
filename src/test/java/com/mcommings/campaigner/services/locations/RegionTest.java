@@ -1,11 +1,11 @@
 package com.mcommings.campaigner.services.locations;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.locations.Landmark;
+import com.mcommings.campaigner.models.locations.Place;
 import com.mcommings.campaigner.models.locations.Region;
 import com.mcommings.campaigner.repositories.IClimateRepository;
-import com.mcommings.campaigner.repositories.locations.ICountryRepository;
-import com.mcommings.campaigner.repositories.locations.ILandmarkRepository;
-import com.mcommings.campaigner.repositories.locations.IPlaceRepository;
-import com.mcommings.campaigner.repositories.locations.IRegionRepository;
+import com.mcommings.campaigner.repositories.locations.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_REGION;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -31,6 +32,8 @@ public class RegionTest {
     private ICountryRepository countryRepository;
     @Mock
     private IClimateRepository climateRepository;
+    @Mock
+    private ICityRepository cityRepository;
     @Mock
     private ILandmarkRepository landmarkRepository;
     @Mock
@@ -143,21 +146,26 @@ public class RegionTest {
         assertThrows(IllegalArgumentException.class, () -> regionService.deleteRegion(regionId));
     }
 
-    //TODO: finish this test once Region has been added to Place as a fk
-//    @Test
-//    public void whenRegionIdIsAForeignKey_deleteRegion_ThrowsDataIntegrityViolationException() {
-//        int regionId = 1;
-//        Place place = new Place(1, "Place", "Description", 1, 1, 1, 1, regionId);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
-//        List<Place> places = new ArrayList<>(Arrays.asList(place));
-//
-//        when(regionRepository.existsById(regionId)).thenReturn(true);
-//        when(placeRepository.findByfk_region(regionId)).thenReturn(places);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_REGION.columnName, regionId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> regionService.deleteRegion(regionId));
-//    }
+    @Test
+    public void whenRegionIdIsAForeignKey_deleteRegion_ThrowsDataIntegrityViolationException() {
+        int regionId = 1;
+        Place place = new Place(1, "Place", "Description", 1, 1, 1, 1, regionId);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, placeRepository, regionRepository));
+        List<Place> places = new ArrayList<>(Arrays.asList(place));
+
+        Landmark landmark = new Landmark(1, "Landmark", "Description", regionId);
+        List<Landmark> landmarks = new ArrayList<>(Arrays.asList(landmark));
+
+        when(regionRepository.existsById(regionId)).thenReturn(true);
+        when(placeRepository.existsById(regionId)).thenReturn(true);
+        when(landmarkRepository.existsById(regionId)).thenReturn(true);
+        when(placeRepository.findByfk_region(regionId)).thenReturn(places);
+        when(landmarkRepository.findByfk_region(regionId)).thenReturn(landmarks);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_REGION.columnName, regionId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> regionService.deleteRegion(regionId));
+    }
 
 
     @Test

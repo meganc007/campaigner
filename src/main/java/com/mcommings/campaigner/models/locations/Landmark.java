@@ -12,8 +12,6 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class Landmark extends BaseEntity {
 
-    //TODO: add fk_region
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

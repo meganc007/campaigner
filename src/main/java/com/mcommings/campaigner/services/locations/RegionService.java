@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_REGION;
 
 @Service
 public class RegionService implements IRegion {
@@ -67,10 +68,9 @@ public class RegionService implements IRegion {
         if (RepositoryHelper.cannotFindId(regionRepository, regionId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//        TODO: uncomment once Region is added to Landmark
-//        if (RepositoryHelper.isForeignKey(getReposWhereRegionIsAForeignKey(), FK_REGION.columnName, regionId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWhereRegionIsAForeignKey(), FK_REGION.columnName, regionId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
         regionRepository.deleteById(regionId);
     }
 
@@ -89,7 +89,6 @@ public class RegionService implements IRegion {
         regionToUpdate.setDescription(region.getDescription());
         regionToUpdate.setFk_country(region.getFk_country());
         regionToUpdate.setFk_climate(region.getFk_climate());
-
     }
 
     private List<CrudRepository> getReposWhereRegionIsAForeignKey() {
