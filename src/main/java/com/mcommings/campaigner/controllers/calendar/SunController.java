@@ -24,7 +24,7 @@ public class SunController {
     }
 
     @PostMapping
-    public void saveSun(Sun sun) {
+    public void saveSun(@RequestBody Sun sun) {
         sunService.saveSun(sun);
     }
 
