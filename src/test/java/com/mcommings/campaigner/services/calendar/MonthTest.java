@@ -1,8 +1,9 @@
 package com.mcommings.campaigner.services.calendar;
 
 import com.mcommings.campaigner.models.calendar.Month;
+import com.mcommings.campaigner.models.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.models.repositories.calendar.IMonthRepository;
-import com.mcommings.campaigner.services.calendar.MonthService;
+import com.mcommings.campaigner.models.repositories.calendar.IWeekRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,6 +24,10 @@ public class MonthTest {
 
     @Mock
     private IMonthRepository monthRepository;
+    @Mock
+    private IWeekRepository weekRepository;
+    @Mock
+    private ICelestialEventRepository celestialEventRepository;
 
     @InjectMocks
     private MonthService monthService;
@@ -103,10 +108,10 @@ public class MonthTest {
 
 //    TODO: test that deleteMonth doesn't delete when it's a foreign key
 //        @Test
-//    public void whenMonthIdIsAForeignKey_deleteCountry_ThrowsDataIntegrityViolationException() {
+//    public void whenMonthIdIsAForeignKey_deleteMonth_ThrowsDataIntegrityViolationException() {
 //        int monthId = 1;
 //        Week week = new Week(1, "Description", 1, monthId);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(monthRepository));
+//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weekRepository, celestialEventRepository));
 //        List<Week> weeks = new ArrayList<>(Arrays.asList(week));
 //
 //        when(monthRepository.existsById(monthId)).thenReturn(true);

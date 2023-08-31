@@ -1,8 +1,9 @@
 package com.mcommings.campaigner.services.calendar;
 
 import com.mcommings.campaigner.interfaces.calendar.IMonth;
-import com.mcommings.campaigner.models.calendar.Month;
 import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.calendar.Month;
+import com.mcommings.campaigner.models.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.models.repositories.calendar.IMonthRepository;
 import com.mcommings.campaigner.models.repositories.calendar.IWeekRepository;
 import jakarta.transaction.Transactional;
@@ -19,11 +20,13 @@ public class MonthService implements IMonth {
 
     private final IMonthRepository monthRepository;
     private final IWeekRepository weekRepository;
+    private final ICelestialEventRepository celestialEventRepository;
 
     @Autowired
-    public MonthService(IMonthRepository monthRepository, IWeekRepository weekRepository) {
+    public MonthService(IMonthRepository monthRepository, IWeekRepository weekRepository, ICelestialEventRepository celestialEventRepository) {
         this.monthRepository = monthRepository;
         this.weekRepository= weekRepository;
+        this.celestialEventRepository = celestialEventRepository;
     }
 
     @Override
@@ -50,7 +53,7 @@ public class MonthService implements IMonth {
         if (RepositoryHelper.cannotFindId(monthRepository, monthId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//        TODO: uncomment out when CelestialEvent and Event is added
+//        TODO: uncomment out when Event is added
 //        if (RepositoryHelper.isForeignKey(getReposWhereMonthIsAForeignKey(), FK_MONTH.columnName, monthId)) {
 //            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
 //        }
@@ -70,7 +73,7 @@ public class MonthService implements IMonth {
         monthToUpdate.setSeason(month.getSeason());
     }
 
-//        TODO: uncomment out when CelestialEvent, and Event is added
+//        TODO: uncomment out when Event is added
 //    private List<CrudRepository> getReposWhereMonthIsAForeignKey() {
 //        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(
 //                weekRepository, celestialEventsRepository, eventsRepository

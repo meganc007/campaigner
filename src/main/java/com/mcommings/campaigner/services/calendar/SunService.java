@@ -3,24 +3,31 @@ package com.mcommings.campaigner.services.calendar;
 import com.mcommings.campaigner.interfaces.calendar.ISun;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.calendar.Sun;
+import com.mcommings.campaigner.models.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.models.repositories.calendar.ISunRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_SUN;
 
 @Service
 public class SunService implements ISun {
     
     private final ISunRepository sunRepository;
+    private final ICelestialEventRepository celestialEventRepository;
 
     @Autowired
-    public SunService(ISunRepository sunRepository) {
+    public SunService(ISunRepository sunRepository, ICelestialEventRepository celestialEventRepository) {
         this.sunRepository = sunRepository;
+        this.celestialEventRepository = celestialEventRepository;
     }
 
     @Override
@@ -46,8 +53,9 @@ public class SunService implements ISun {
         if (RepositoryHelper.cannotFindId(sunRepository, sunId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: check if foreign key when Celestial Events added
-
+        if (RepositoryHelper.isForeignKey(getReposWhereSunIsAForeignKey(), FK_SUN.columnName, sunId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
         sunRepository.deleteById(sunId);
     }
 
@@ -60,5 +68,10 @@ public class SunService implements ISun {
         Sun sunToUpdate = RepositoryHelper.getById(sunRepository, sunId);
         sunToUpdate.setName(sun.getName());
         sunToUpdate.setDescription(sun.getDescription());
+    }
+
+    private List<CrudRepository> getReposWhereSunIsAForeignKey() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
+        return repositories;
     }
 }

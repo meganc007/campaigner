@@ -1,6 +1,9 @@
 package com.mcommings.campaigner.services.calendar;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.calendar.CelestialEvent;
 import com.mcommings.campaigner.models.calendar.Sun;
+import com.mcommings.campaigner.models.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.models.repositories.calendar.ISunRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,11 +11,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_SUN;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,8 @@ public class SunTest {
 
     @Mock
     private ISunRepository sunRepository;
+    @Mock
+    private ICelestialEventRepository celestialEventRepository;
 
     @InjectMocks
     private SunService sunService;
@@ -94,8 +102,20 @@ public class SunTest {
         assertThrows(IllegalArgumentException.class, () -> sunService.deleteSun(sunId));
     }
 
-    //TODO: test that deleteSun doesn't delete when it's a foreign key in Celestial Events
+    @Test
+    public void whenSunIdIsAForeignKey_deleteSun_ThrowsDataIntegrityViolationException() {
+        int sunId = 1;
+        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent", "Description", 1, sunId, 1, 1, 1, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
+        List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
 
+        when(sunRepository.existsById(sunId)).thenReturn(true);
+        when(celestialEventRepository.findByfk_sun(sunId)).thenReturn(celestialEvents);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_SUN.columnName, sunId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> sunService.deleteSun(sunId));
+    }
     @Test
     public void whenSunIdIsFound_updateSun_UpdatesTheSun() {
         int sunId = 1;

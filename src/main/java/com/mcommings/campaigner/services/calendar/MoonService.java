@@ -3,24 +3,31 @@ package com.mcommings.campaigner.services.calendar;
 import com.mcommings.campaigner.interfaces.calendar.IMoon;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.calendar.Moon;
+import com.mcommings.campaigner.models.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.models.repositories.calendar.IMoonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_MOON;
 
 @Service
 public class MoonService implements IMoon {
 
     private final IMoonRepository moonRepository;
+    private final ICelestialEventRepository celestialEventRepository;
 
     @Autowired
-    public MoonService(IMoonRepository moonRepository) {
+    public MoonService(IMoonRepository moonRepository, ICelestialEventRepository celestialEventRepository) {
         this.moonRepository = moonRepository;
+        this.celestialEventRepository = celestialEventRepository;
     }
 
     @Override
@@ -46,7 +53,9 @@ public class MoonService implements IMoon {
         if (RepositoryHelper.cannotFindId(moonRepository, moonId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: check if foreign key when Celestial Events added
+        if (RepositoryHelper.isForeignKey(getReposWhereMoonIsAForeignKey(), FK_MOON.columnName, moonId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         moonRepository.deleteById(moonId);
     }
@@ -60,5 +69,10 @@ public class MoonService implements IMoon {
         Moon moonToUpdate = RepositoryHelper.getById(moonRepository, moonId);
         moonToUpdate.setName(moon.getName());
         moonToUpdate.setDescription(moon.getDescription());
+    }
+
+    private List<CrudRepository> getReposWhereMoonIsAForeignKey() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
+        return repositories;
     }
 }
