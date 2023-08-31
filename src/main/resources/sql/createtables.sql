@@ -213,6 +213,7 @@ create table places (
 
 create table events (
 	id int generated always as identity,
+	name varchar not null,
 	description varchar not null,
 	event_year int,
 	fk_month int,
