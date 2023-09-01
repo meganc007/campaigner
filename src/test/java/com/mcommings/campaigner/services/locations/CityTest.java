@@ -1,8 +1,10 @@
 package com.mcommings.campaigner.services.locations;
 
+import com.mcommings.campaigner.models.Event;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.City;
 import com.mcommings.campaigner.models.locations.Place;
+import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.locations.*;
@@ -40,6 +42,8 @@ public class CityTest {
     private IGovernmentRepository governmentRepository;
     @Mock
     private IRegionRepository regionRepository;
+    @Mock
+    private IEventRepository eventRepository;
 
     @InjectMocks
     private CityService cityService;
@@ -160,16 +164,19 @@ public class CityTest {
         assertThrows(IllegalArgumentException.class, () -> cityService.deleteCity(cityId));
     }
 
-    //TODO: add Event to this test once it's coded
     @Test
     public void whenCityIdIsAForeignKey_deleteCity_ThrowsDataIntegrityViolationException() {
         int cityId = 1;
         Place place = new Place(1, "Place", "Description", 1, cityId, 1, 1, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository, eventRepository));
         List<Place> places = new ArrayList<>(Arrays.asList(place));
+
+        Event event = new Event(1, "Event", "Description", 1, 1, 1, 1, cityId, 1, 1);
+        List<Event> events = new ArrayList<>(Arrays.asList(event));
 
         when(cityRepository.existsById(cityId)).thenReturn(true);
         when(placeRepository.findByfk_city(cityId)).thenReturn(places);
+        when(eventRepository.findByfk_city(cityId)).thenReturn(events);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_CITY.columnName, cityId);
         Assertions.assertTrue(actual);

@@ -92,8 +92,7 @@ public class RegionService implements IRegion {
     }
 
     private List<CrudRepository> getReposWhereRegionIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, landmarkRepository, placeRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(cityRepository, landmarkRepository, placeRepository));
     }
 
     private boolean hasForeignKeys(Region region) {
@@ -102,7 +101,6 @@ public class RegionService implements IRegion {
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository, climateRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(countryRepository, climateRepository));
     }
 }

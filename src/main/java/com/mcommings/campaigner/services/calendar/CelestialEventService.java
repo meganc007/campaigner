@@ -97,7 +97,6 @@ public class CelestialEventService implements ICelestialEvent {
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(moonRepository, sunRepository, monthRepository, weekRepository, dayRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(moonRepository, sunRepository, monthRepository, weekRepository, dayRepository));
     }
 }

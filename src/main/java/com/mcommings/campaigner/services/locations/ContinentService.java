@@ -3,6 +3,7 @@ package com.mcommings.campaigner.services.locations;
 import com.mcommings.campaigner.interfaces.locations.IContinent;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.Continent;
+import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.locations.IContinentRepository;
 import com.mcommings.campaigner.repositories.locations.ICountryRepository;
 import jakarta.transaction.Transactional;
@@ -23,11 +24,14 @@ public class ContinentService implements IContinent {
 
     private final IContinentRepository continentRepository;
     private final ICountryRepository countryRepository;
+    private final IEventRepository eventRepository;
 
     @Autowired
-    public ContinentService(IContinentRepository continentRepository, ICountryRepository countryRepository) {
+    public ContinentService(IContinentRepository continentRepository, ICountryRepository countryRepository,
+                            IEventRepository eventRepository) {
         this.continentRepository = continentRepository;
         this.countryRepository = countryRepository;
+        this.eventRepository = eventRepository;
     }
 
     @Override
@@ -76,7 +80,6 @@ public class ContinentService implements IContinent {
     }
 
     private List<CrudRepository> getReposWhereContinentIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(countryRepository, eventRepository));
     }
 }

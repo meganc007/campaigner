@@ -3,6 +3,8 @@ package com.mcommings.campaigner.services.calendar;
 import com.mcommings.campaigner.interfaces.calendar.IWeek;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.calendar.Week;
+import com.mcommings.campaigner.repositories.IEventRepository;
+import com.mcommings.campaigner.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.repositories.calendar.IDayRepository;
 import com.mcommings.campaigner.repositories.calendar.IMonthRepository;
 import com.mcommings.campaigner.repositories.calendar.IWeekRepository;
@@ -25,12 +27,17 @@ public class WeekService implements IWeek {
     private final IWeekRepository weekRepository;
     private final IDayRepository dayRepository;
     private final IMonthRepository monthRepository;
+    private final ICelestialEventRepository celestialEventRepository;
+    private final IEventRepository eventRepository;
 
     @Autowired
-    public WeekService(IWeekRepository weekRepository, IDayRepository dayRepository, IMonthRepository monthRepository) {
+    public WeekService(IWeekRepository weekRepository, IDayRepository dayRepository, IMonthRepository monthRepository,
+                       ICelestialEventRepository celestialEventRepository, IEventRepository eventRepository) {
         this.weekRepository = weekRepository;
         this.dayRepository = dayRepository;
         this.monthRepository = monthRepository;
+        this.celestialEventRepository = celestialEventRepository;
+        this.eventRepository = eventRepository;
     }
 
     @Override
@@ -77,12 +84,10 @@ public class WeekService implements IWeek {
     }
 
     private List<CrudRepository> getReposWhereWeekIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(dayRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(dayRepository, celestialEventRepository, eventRepository));
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(monthRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(monthRepository));
     }
 }

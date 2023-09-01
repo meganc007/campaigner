@@ -72,7 +72,6 @@ public class PlaceTypeService implements IPlaceType {
     }
 
     private List<CrudRepository> getReposWherePlaceTypeIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(placeRepository));
     }
 }

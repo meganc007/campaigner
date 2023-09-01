@@ -97,8 +97,7 @@ public class PlaceService implements IPlace {
 
 //    TODO: add this when tables that use Place as fk are added
 //    private List<CrudRepository> getReposWherePlaceIsAForeignKey() {
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList());
-//        return repositories;
+//        return new ArrayList<>(Arrays.asList());
 //    }
 
     private boolean hasForeignKeys(Place place) {
@@ -106,9 +105,8 @@ public class PlaceService implements IPlace {
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository,
-                countryRepository, cityRepository, regionRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository, countryRepository, cityRepository,
+                regionRepository));
     }
 
 }

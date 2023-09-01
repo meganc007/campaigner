@@ -3,8 +3,10 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.models.Government;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.City;
+import com.mcommings.campaigner.models.locations.Country;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
+import com.mcommings.campaigner.repositories.locations.ICountryRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -28,7 +30,8 @@ public class GovernmentTest {
 
     @Mock
     private IGovernmentRepository governmentRepository;
-
+    @Mock
+    private ICountryRepository countryRepository;
     @Mock
     ICityRepository cityRepository;
 
@@ -107,11 +110,16 @@ public class GovernmentTest {
     public void whenGovernmentIdIsAForeignKey_deleteGovernment_ThrowsDataIntegrityViolationException() {
         int governmentId = 1;
         City city = new City(1, "City", "Description", 1, 1, 1, governmentId, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository, cityRepository));
         List<City> cities = new ArrayList<>(Arrays.asList(city));
+
+        Country country = new Country(1, "Country", "Description", 1, governmentId);
+        List<Country> countries = new ArrayList<>(Arrays.asList(country));
+
 
         when(governmentRepository.existsById(governmentId)).thenReturn(true);
         when(cityRepository.findByfk_government(governmentId)).thenReturn(cities);
+        when(countryRepository.findByfk_government(governmentId)).thenReturn(countries);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_GOVERNMENT.columnName, governmentId);
         Assertions.assertTrue(actual);

@@ -73,7 +73,6 @@ public class WealthService implements IWealth {
     }
 
     private List<CrudRepository> getReposWhereWealthIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(cityRepository));
     }
 }
