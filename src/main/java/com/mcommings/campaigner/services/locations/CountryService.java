@@ -5,10 +5,7 @@ import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.Country;
 import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
-import com.mcommings.campaigner.repositories.locations.ICityRepository;
-import com.mcommings.campaigner.repositories.locations.IContinentRepository;
-import com.mcommings.campaigner.repositories.locations.ICountryRepository;
-import com.mcommings.campaigner.repositories.locations.IRegionRepository;
+import com.mcommings.campaigner.repositories.locations.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -31,17 +28,19 @@ public class CountryService implements ICountry {
     private final IRegionRepository regionRepository;
     private final ICityRepository cityRepository;
     private final IEventRepository eventRepository;
+    private final IPlaceRepository placeRepository;
 
     @Autowired
     public CountryService(ICountryRepository countryRepository, IContinentRepository continentRepository,
                           IGovernmentRepository governmentRepository, ICityRepository cityRepository,
-                          IRegionRepository regionRepository, IEventRepository eventRepository) {
+                          IRegionRepository regionRepository, IEventRepository eventRepository, IPlaceRepository placeRepository) {
         this.countryRepository = countryRepository;
         this.continentRepository = continentRepository;
         this.governmentRepository = governmentRepository;
         this.cityRepository = cityRepository;
         this.regionRepository = regionRepository;
         this.eventRepository = eventRepository;
+        this.placeRepository = placeRepository;
     }
 
     @Override
@@ -98,7 +97,8 @@ public class CountryService implements ICountry {
     }
 
     private List<CrudRepository> getReposWhereCountryIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, regionRepository, eventRepository));
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, regionRepository,
+                eventRepository, placeRepository));
         return repositories;
     }
 

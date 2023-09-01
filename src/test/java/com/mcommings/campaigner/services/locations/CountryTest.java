@@ -4,13 +4,11 @@ import com.mcommings.campaigner.models.Event;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.City;
 import com.mcommings.campaigner.models.locations.Country;
+import com.mcommings.campaigner.models.locations.Place;
 import com.mcommings.campaigner.models.locations.Region;
 import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
-import com.mcommings.campaigner.repositories.locations.ICityRepository;
-import com.mcommings.campaigner.repositories.locations.IContinentRepository;
-import com.mcommings.campaigner.repositories.locations.ICountryRepository;
-import com.mcommings.campaigner.repositories.locations.IRegionRepository;
+import com.mcommings.campaigner.repositories.locations.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -42,9 +40,10 @@ public class CountryTest {
     private IRegionRepository regionRepository;
     @Mock
     private IEventRepository eventRepository;
-
     @Mock
     private ICityRepository cityRepository;
+    @Mock
+    private IPlaceRepository placeRepository;
 
     @InjectMocks
     private CountryService countryService;
@@ -153,7 +152,7 @@ public class CountryTest {
     public void whenCountryIdIsAForeignKey_deleteCountry_ThrowsDataIntegrityViolationException() {
         int countryId = 1;
         City city = new City(1, "City", "Description", 1, countryId, 1, 1, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, regionRepository));
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, regionRepository, eventRepository, placeRepository));
         List<City> cities = new ArrayList<>(Arrays.asList(city));
 
         Region region = new Region(1, "Region", "Description", countryId, 1);
@@ -163,11 +162,15 @@ public class CountryTest {
                 1, 1, countryId);
         List<Event> events = new ArrayList<>(Arrays.asList(event));
 
+        Place place = new Place(1, "Place", "Description", 1, 1, countryId, 1, 1);
+        List<Place> places = new ArrayList<>(Arrays.asList(place));
+
         when(countryRepository.existsById(countryId)).thenReturn(true);
         when(regionRepository.existsById(countryId)).thenReturn(true);
         when(cityRepository.findByfk_country(countryId)).thenReturn(cities);
         when(regionRepository.findByfk_country(countryId)).thenReturn(regions);
         when(eventRepository.findByfk_country(countryId)).thenReturn(events);
+        when(placeRepository.findByfk_country(countryId)).thenReturn(places);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_COUNTRY.columnName, countryId);
         Assertions.assertTrue(actual);
