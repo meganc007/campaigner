@@ -5,6 +5,7 @@ import com.mcommings.campaigner.models.Government;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
+import com.mcommings.campaigner.repositories.locations.ICountryRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,12 +23,15 @@ import static com.mcommings.campaigner.enums.ForeignKey.FK_GOVERNMENT;
 public class GovernmentService implements IGovernment {
 
     private final IGovernmentRepository governmentRepository;
+    private final ICountryRepository countryRepository;
 
     private final ICityRepository cityRepository;
 
     @Autowired
-    public GovernmentService(IGovernmentRepository governmentRepository, ICityRepository cityRepository) {
+    public GovernmentService(IGovernmentRepository governmentRepository, ICountryRepository countryRepository,
+                             ICityRepository cityRepository) {
         this.governmentRepository = governmentRepository;
+        this.countryRepository = countryRepository;
         this.cityRepository = cityRepository;
     }
 
@@ -75,7 +79,7 @@ public class GovernmentService implements IGovernment {
     }
 
     private List<CrudRepository> getReposWhereGovernmentIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository, cityRepository));
         return repositories;
     }
 }
