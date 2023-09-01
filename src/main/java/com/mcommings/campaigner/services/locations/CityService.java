@@ -3,6 +3,7 @@ package com.mcommings.campaigner.services.locations;
 import com.mcommings.campaigner.interfaces.locations.ICity;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.City;
+import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.locations.*;
@@ -29,11 +30,13 @@ public class CityService implements ICity {
     private final IGovernmentRepository governmentRepository;
     private final IRegionRepository regionRepository;
     private final IPlaceRepository placeRepository;
+    private final IEventRepository eventRepository;
 
     @Autowired
     public CityService(ICityRepository cityRepository, IWealthRepository wealthRepository,
                        ICountryRepository countryRepository, ISettlementTypeRepository settlementTypeRepository,
-                       IGovernmentRepository governmentRepository, IRegionRepository regionRepository, IPlaceRepository placeRepository) {
+                       IGovernmentRepository governmentRepository, IRegionRepository regionRepository,
+                       IPlaceRepository placeRepository, IEventRepository eventRepository) {
         this.cityRepository = cityRepository;
         this.wealthRepository = wealthRepository;
         this.countryRepository = countryRepository;
@@ -41,6 +44,7 @@ public class CityService implements ICity {
         this.governmentRepository = governmentRepository;
         this.regionRepository = regionRepository;
         this.placeRepository = placeRepository;
+        this.eventRepository = eventRepository;
     }
 
     @Override
@@ -97,9 +101,8 @@ public class CityService implements ICity {
         cityToUpdate.setFk_region(city.getFk_region());
     }
 
-    //TODO: add Event to this list once it's coded
     private List<CrudRepository> getReposWhereCityIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository, eventRepository));
         return repositories;
     }
 
