@@ -81,8 +81,6 @@ public class MonthService implements IMonth {
     }
 
     private List<CrudRepository> getReposWhereMonthIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weekRepository, celestialEventRepository,
-                eventRepository));
-        return repositories;
+       return new ArrayList<>(Arrays.asList(weekRepository, celestialEventRepository, eventRepository));
     }
 }

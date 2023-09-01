@@ -102,8 +102,7 @@ public class CityService implements ICity {
     }
 
     private List<CrudRepository> getReposWhereCityIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository, eventRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(placeRepository, eventRepository));
     }
 
     private boolean hasForeignKeys(City city) {
@@ -115,8 +114,7 @@ public class CityService implements ICity {
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(wealthRepository, countryRepository,
-                settlementTypeRepository, governmentRepository, regionRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(wealthRepository, countryRepository, settlementTypeRepository,
+                governmentRepository, regionRepository));
     }
 }

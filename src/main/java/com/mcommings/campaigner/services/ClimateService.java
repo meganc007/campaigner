@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_CITY;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_CLIMATE;
 
 @Service
@@ -74,7 +73,6 @@ public class ClimateService implements IClimate {
     }
 
     private List<CrudRepository> getReposWhereClimateIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(regionRepository));
     }
 }

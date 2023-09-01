@@ -88,7 +88,6 @@ public class DayService implements IDay {
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weekRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(weekRepository));
     }
 }

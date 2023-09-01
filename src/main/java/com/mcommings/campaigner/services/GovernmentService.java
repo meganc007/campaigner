@@ -79,7 +79,6 @@ public class GovernmentService implements IGovernment {
     }
 
     private List<CrudRepository> getReposWhereGovernmentIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository, cityRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(countryRepository, cityRepository));
     }
 }

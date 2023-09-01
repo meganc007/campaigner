@@ -73,7 +73,6 @@ public class SettlementTypeService implements ISettlementType {
     }
 
     private List<CrudRepository> getReposWhereSettlementTypeIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(cityRepository));
     }
 }

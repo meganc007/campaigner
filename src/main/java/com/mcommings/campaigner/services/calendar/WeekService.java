@@ -84,13 +84,10 @@ public class WeekService implements IWeek {
     }
 
     private List<CrudRepository> getReposWhereWeekIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(dayRepository, celestialEventRepository,
-                eventRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(dayRepository, celestialEventRepository, eventRepository));
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(monthRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(monthRepository));
     }
 }

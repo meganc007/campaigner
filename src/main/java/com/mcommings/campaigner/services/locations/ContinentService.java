@@ -80,7 +80,6 @@ public class ContinentService implements IContinent {
     }
 
     private List<CrudRepository> getReposWhereContinentIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository, eventRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(countryRepository, eventRepository));
     }
 }

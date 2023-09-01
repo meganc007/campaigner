@@ -3,7 +3,6 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.interfaces.IEvent;
 import com.mcommings.campaigner.models.Event;
 import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.locations.City;
 import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.calendar.IDayRepository;
 import com.mcommings.campaigner.repositories.calendar.IMonthRepository;
@@ -22,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_EVENT;
 
 @Service
 public class EventService implements IEvent {
@@ -107,8 +105,7 @@ public class EventService implements IEvent {
 
 //    TODO: finish this method once events_places_people class added
 //    private List<CrudRepository> getReposWhereEventIsAForeignKey() {
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList());
-//        return repositories;
+//        return new ArrayList<>(Arrays.asList());
 //    }
 
     private boolean hasForeignKeys(Event event) {
@@ -121,8 +118,7 @@ public class EventService implements IEvent {
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(monthRepository, weekRepository, dayRepository,
-                cityRepository, continentRepository, countryRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(monthRepository, weekRepository, dayRepository, cityRepository,
+                continentRepository, countryRepository));
     }
 }

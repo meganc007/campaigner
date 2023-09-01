@@ -97,9 +97,7 @@ public class CountryService implements ICountry {
     }
 
     private List<CrudRepository> getReposWhereCountryIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, regionRepository,
-                eventRepository, placeRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(cityRepository, regionRepository, eventRepository, placeRepository));
     }
 
     private boolean hasForeignKeys(Country country) {
@@ -107,8 +105,7 @@ public class CountryService implements ICountry {
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
     }
 
 }

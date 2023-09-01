@@ -74,7 +74,6 @@ public class TerrainService implements ITerrain {
     }
 
     private List<CrudRepository> getReposWhereTerrainIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(placeRepository));
     }
 }

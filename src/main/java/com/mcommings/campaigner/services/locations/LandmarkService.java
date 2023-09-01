@@ -83,7 +83,6 @@ public class LandmarkService implements ILandmark {
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(regionRepository));
     }
 }

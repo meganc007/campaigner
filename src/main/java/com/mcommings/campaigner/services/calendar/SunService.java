@@ -71,7 +71,6 @@ public class SunService implements ISun {
     }
 
     private List<CrudRepository> getReposWhereSunIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
-        return repositories;
+        return new ArrayList<>(Arrays.asList(celestialEventRepository));
     }
 }
