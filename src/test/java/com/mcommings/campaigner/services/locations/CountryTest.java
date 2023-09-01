@@ -201,7 +201,6 @@ public class CountryTest {
 
         Country country = new Country(countryId, "Test Country Name", "Test Description");
         Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description", 1, 2);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
 
         when(countryRepository.existsById(countryId)).thenReturn(true);
         when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));
@@ -224,7 +223,6 @@ public class CountryTest {
 
         Country country = new Country(countryId, "Test Country Name", "Test Description");
         Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description", 1, 2);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
 
         when(countryRepository.existsById(countryId)).thenReturn(true);
         when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));

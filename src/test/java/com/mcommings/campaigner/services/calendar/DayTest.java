@@ -127,6 +127,7 @@ public class DayTest {
         when(celestialEventRepository.existsById(dayId)).thenReturn(true);
         when(eventRepository.existsById(dayId)).thenReturn(true);
         when(celestialEventRepository.findByfk_day(dayId)).thenReturn(celestialEvents);
+        when(eventRepository.findByfk_day(dayId)).thenReturn(events);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_DAY.columnName, dayId);
         Assertions.assertTrue(actual);
@@ -139,7 +140,6 @@ public class DayTest {
 
         Day day = new Day(dayId, "Test Day Name", "Test Description", 1);
         Day dayToUpdate = new Day(dayId, "Updated Day Name", "Updated Description", 2);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weekRepository));
 
         when(dayRepository.existsById(dayId)).thenReturn(true);
         when(dayRepository.findById(dayId)).thenReturn(Optional.of(day));
@@ -162,7 +162,6 @@ public class DayTest {
 
         Day day = new Day(dayId, "Test Day Name", "Test Description", 1);
         Day dayToUpdate = new Day(dayId, "Updated Day Name", "Updated Description", 4);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weekRepository));
 
         when(dayRepository.existsById(dayId)).thenReturn(true);
         when(dayRepository.findById(dayId)).thenReturn(Optional.of(day));
