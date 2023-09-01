@@ -18,6 +18,7 @@ import java.util.List;
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_MOON;
 
+@SuppressWarnings("rawtypes")
 @Service
 public class MoonService implements IMoon {
 

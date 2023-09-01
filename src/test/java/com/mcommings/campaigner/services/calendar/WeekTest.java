@@ -139,7 +139,6 @@ public class WeekTest {
 
         Week week = new Week(weekId, "Test Description", 1, 1);
         Week weekToUpdate = new Week(weekId, "Updated Description", 2, 2);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(monthRepository));
 
         when(weekRepository.existsById(weekId)).thenReturn(true);
         when(weekRepository.findById(weekId)).thenReturn(Optional.of(week));
