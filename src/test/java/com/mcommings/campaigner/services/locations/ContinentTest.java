@@ -1,8 +1,10 @@
 package com.mcommings.campaigner.services.locations;
 
+import com.mcommings.campaigner.models.Event;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.Continent;
 import com.mcommings.campaigner.models.locations.Country;
+import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.locations.IContinentRepository;
 import com.mcommings.campaigner.repositories.locations.ICountryRepository;
 import org.junit.jupiter.api.Assertions;
@@ -27,9 +29,10 @@ import static org.mockito.Mockito.*;
 public class ContinentTest {
     @Mock
     private IContinentRepository continentRepository;
-
     @Mock
     private ICountryRepository countryRepository;
+    @Mock
+    private IEventRepository eventRepository;
 
     @InjectMocks
     private ContinentService continentService;
@@ -106,11 +109,16 @@ public class ContinentTest {
     public void whenContinentIdIsAForeignKey_deleteContinent_ThrowsDataIntegrityViolationException() {
         int continentId = 1;
         Country country = new Country(1, "Country", "Description", continentId, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository));
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository, eventRepository));
         List<Country> countries = new ArrayList<>(Arrays.asList(country));
+
+        Event event = new Event(1, "Name", "Description", 1, 1, 1, 1,
+                1, continentId, 1);
+        List<Event> events = new ArrayList<>(Arrays.asList(event));
 
         when(continentRepository.existsById(continentId)).thenReturn(true);
         when(countryRepository.findByfk_continent(continentId)).thenReturn(countries);
+        when(eventRepository.findByfk_continent(continentId)).thenReturn(events);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_CONTINENT.columnName, continentId);
         Assertions.assertTrue(actual);

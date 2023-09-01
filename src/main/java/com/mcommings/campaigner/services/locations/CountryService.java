@@ -3,6 +3,7 @@ package com.mcommings.campaigner.services.locations;
 import com.mcommings.campaigner.interfaces.locations.ICountry;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.Country;
+import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
 import com.mcommings.campaigner.repositories.locations.IContinentRepository;
@@ -28,18 +29,19 @@ public class CountryService implements ICountry {
     private final IContinentRepository continentRepository;
     private final IGovernmentRepository governmentRepository;
     private final IRegionRepository regionRepository;
-
     private final ICityRepository cityRepository;
+    private final IEventRepository eventRepository;
 
     @Autowired
     public CountryService(ICountryRepository countryRepository, IContinentRepository continentRepository,
                           IGovernmentRepository governmentRepository, ICityRepository cityRepository,
-                          IRegionRepository regionRepository) {
+                          IRegionRepository regionRepository, IEventRepository eventRepository) {
         this.countryRepository = countryRepository;
         this.continentRepository = continentRepository;
         this.governmentRepository = governmentRepository;
         this.cityRepository = cityRepository;
         this.regionRepository = regionRepository;
+        this.eventRepository = eventRepository;
     }
 
     @Override
@@ -96,7 +98,7 @@ public class CountryService implements ICountry {
     }
 
     private List<CrudRepository> getReposWhereCountryIsAForeignKey() {
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, regionRepository));
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, regionRepository, eventRepository));
         return repositories;
     }
 

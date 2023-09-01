@@ -1,9 +1,11 @@
 package com.mcommings.campaigner.services.locations;
 
+import com.mcommings.campaigner.models.Event;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.City;
 import com.mcommings.campaigner.models.locations.Country;
 import com.mcommings.campaigner.models.locations.Region;
+import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
 import com.mcommings.campaigner.repositories.locations.IContinentRepository;
@@ -29,7 +31,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class CountryTest {
-    
+
     @Mock
     private ICountryRepository countryRepository;
     @Mock
@@ -38,6 +40,8 @@ public class CountryTest {
     private IGovernmentRepository governmentRepository;
     @Mock
     private IRegionRepository regionRepository;
+    @Mock
+    private IEventRepository eventRepository;
 
     @Mock
     private ICityRepository cityRepository;
@@ -152,13 +156,18 @@ public class CountryTest {
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, regionRepository));
         List<City> cities = new ArrayList<>(Arrays.asList(city));
 
-        Region region = new Region(1, "Region","Description", countryId, 1);
+        Region region = new Region(1, "Region", "Description", countryId, 1);
         List<Region> regions = new ArrayList<>(Arrays.asList(region));
+
+        Event event = new Event(1, "Name", "Description", 1, 1, 1, 1,
+                1, 1, countryId);
+        List<Event> events = new ArrayList<>(Arrays.asList(event));
 
         when(countryRepository.existsById(countryId)).thenReturn(true);
         when(regionRepository.existsById(countryId)).thenReturn(true);
         when(cityRepository.findByfk_country(countryId)).thenReturn(cities);
         when(regionRepository.findByfk_country(countryId)).thenReturn(regions);
+        when(eventRepository.findByfk_country(countryId)).thenReturn(events);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_COUNTRY.columnName, countryId);
         Assertions.assertTrue(actual);
