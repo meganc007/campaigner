@@ -1,6 +1,11 @@
 package com.mcommings.campaigner.services.calendar;
 
+import com.mcommings.campaigner.models.Event;
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.calendar.CelestialEvent;
 import com.mcommings.campaigner.models.calendar.Month;
+import com.mcommings.campaigner.models.calendar.Week;
+import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.repositories.calendar.IMonthRepository;
 import com.mcommings.campaigner.repositories.calendar.IWeekRepository;
@@ -10,11 +15,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_MONTH;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -28,6 +36,8 @@ public class MonthTest {
     private IWeekRepository weekRepository;
     @Mock
     private ICelestialEventRepository celestialEventRepository;
+    @Mock
+    private IEventRepository eventRepository;
 
     @InjectMocks
     private MonthService monthService;
@@ -106,21 +116,30 @@ public class MonthTest {
         assertThrows(IllegalArgumentException.class, () -> monthService.deleteMonth(monthId));
     }
 
-//    TODO: when Event is added, test that deleteMonth doesn't delete when it's a foreign key
-//        @Test
-//    public void whenMonthIdIsAForeignKey_deleteMonth_ThrowsDataIntegrityViolationException() {
-//        int monthId = 1;
-//        Week week = new Week(1, "Description", 1, monthId);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weekRepository, celestialEventRepository));
-//        List<Week> weeks = new ArrayList<>(Arrays.asList(week));
-//
-//        when(monthRepository.existsById(monthId)).thenReturn(true);
-//        when(weekRepository.findByfk_month(monthId)).thenReturn(months);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_MONTH.columnName, monthId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> countryService.deleteCountry(monthId));
-//    }
+    @Test
+    public void whenMonthIdIsAForeignKey_deleteMonth_ThrowsDataIntegrityViolationException() {
+        int monthId = 1;
+        Week week = new Week(1, "Description", 1, monthId);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weekRepository, celestialEventRepository));
+        List<Week> weeks = new ArrayList<>(Arrays.asList(week));
+
+        CelestialEvent celestialEvent = new CelestialEvent(1, "Name", "Description", 1, 1,
+                monthId, 1, 1, 1);
+        List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
+
+        Event event = new Event(1, "Name", "Description", 1, monthId, 1, 1,
+                1, 1, 1);
+        List<Event> events = new ArrayList<>(Arrays.asList(event));
+
+        when(monthRepository.existsById(monthId)).thenReturn(true);
+        when(weekRepository.findByfk_month(monthId)).thenReturn(weeks);
+        when(celestialEventRepository.findByfk_month(monthId)).thenReturn(celestialEvents);
+        when(eventRepository.findByfk_month(monthId)).thenReturn(events);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_MONTH.columnName, monthId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> monthService.deleteMonth(monthId));
+    }
 
     @Test
     public void whenMonthIdIsFound_updateMonth_UpdatesTheMonth() {

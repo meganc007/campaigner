@@ -1,6 +1,10 @@
 package com.mcommings.campaigner.services.calendar;
 
+import com.mcommings.campaigner.models.Event;
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.calendar.CelestialEvent;
 import com.mcommings.campaigner.models.calendar.Day;
+import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.repositories.calendar.IDayRepository;
 import com.mcommings.campaigner.repositories.calendar.IWeekRepository;
@@ -17,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_DAY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -30,6 +35,8 @@ public class DayTest {
     private IWeekRepository weekRepository;
     @Mock
     private ICelestialEventRepository celestialEventRepository;
+    @Mock
+    private IEventRepository eventRepository;
 
     @InjectMocks
     private DayService dayService;
@@ -105,23 +112,26 @@ public class DayTest {
         assertThrows(IllegalArgumentException.class, () -> dayService.deleteDay(dayId));
     }
 
-    //TODO: uncomment and update once Event has been added
-//        @Test
-//    public void whenDayIdIsAForeignKey_deleteDay_ThrowsDataIntegrityViolationException() {
-//        int dayId = 1;
-//        CelestialEvent celestialEvent = new CelestialEvent(1, "Celestial Event", "Description", 1, 1, 1, 1, dayId, 1);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
-//        List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
-//
-//        when(dayRepository.existsById(dayId)).thenReturn(true);
-//        when(celestialEventRepository.existsById(dayId)).thenReturn(true);
-//        when(eventRepository.existsById(dayId)).thenReturn(true);
-//        when(celestialEventRepository.findByfk_day(dayId)).thenReturn(celestialEvents);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_DAY.columnName, dayId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> dayService.deleteDay(dayId));
-//    }
+    @Test
+    public void whenDayIdIsAForeignKey_deleteDay_ThrowsDataIntegrityViolationException() {
+        int dayId = 1;
+        CelestialEvent celestialEvent = new CelestialEvent(1, "Celestial Event", "Description", 1, 1, 1, 1, dayId, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
+        List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
+
+        Event event = new Event(1, "Name", "Description", 1, 1, 1, dayId,
+                1, 1, 1);
+        List<Event> events = new ArrayList<>(Arrays.asList(event));
+
+        when(dayRepository.existsById(dayId)).thenReturn(true);
+        when(celestialEventRepository.existsById(dayId)).thenReturn(true);
+        when(eventRepository.existsById(dayId)).thenReturn(true);
+        when(celestialEventRepository.findByfk_day(dayId)).thenReturn(celestialEvents);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_DAY.columnName, dayId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> dayService.deleteDay(dayId));
+    }
 
     @Test
     public void whenDayIdWithValidFKIsFound_updateDay_UpdatesTheDay() {

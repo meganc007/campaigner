@@ -3,17 +3,22 @@ package com.mcommings.campaigner.services.calendar;
 import com.mcommings.campaigner.interfaces.calendar.IMonth;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.calendar.Month;
+import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.repositories.calendar.IMonthRepository;
 import com.mcommings.campaigner.repositories.calendar.IWeekRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_MONTH;
 
 @Service
 public class MonthService implements IMonth {
@@ -21,12 +26,15 @@ public class MonthService implements IMonth {
     private final IMonthRepository monthRepository;
     private final IWeekRepository weekRepository;
     private final ICelestialEventRepository celestialEventRepository;
+    private final IEventRepository eventRepository;
 
     @Autowired
-    public MonthService(IMonthRepository monthRepository, IWeekRepository weekRepository, ICelestialEventRepository celestialEventRepository) {
+    public MonthService(IMonthRepository monthRepository, IWeekRepository weekRepository,
+                        ICelestialEventRepository celestialEventRepository, IEventRepository eventRepository) {
         this.monthRepository = monthRepository;
-        this.weekRepository= weekRepository;
+        this.weekRepository = weekRepository;
         this.celestialEventRepository = celestialEventRepository;
+        this.eventRepository = eventRepository;
     }
 
     @Override
@@ -53,10 +61,9 @@ public class MonthService implements IMonth {
         if (RepositoryHelper.cannotFindId(monthRepository, monthId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//        TODO: uncomment out when Event is added
-//        if (RepositoryHelper.isForeignKey(getReposWhereMonthIsAForeignKey(), FK_MONTH.columnName, monthId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWhereMonthIsAForeignKey(), FK_MONTH.columnName, monthId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         monthRepository.deleteById(monthId);
     }
@@ -73,11 +80,9 @@ public class MonthService implements IMonth {
         monthToUpdate.setSeason(month.getSeason());
     }
 
-//        TODO: uncomment out when Event is added
-//    private List<CrudRepository> getReposWhereMonthIsAForeignKey() {
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(
-//                weekRepository, celestialEventsRepository, eventsRepository
-//        ));
-//        return repositories;
-//    }
+    private List<CrudRepository> getReposWhereMonthIsAForeignKey() {
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weekRepository, celestialEventRepository,
+                eventRepository));
+        return repositories;
+    }
 }
