@@ -9,8 +9,9 @@ public enum ErrorMessage {
     UPDATE_FOREIGN_KEY("Unable to update; There is a problem with the foreign key(s) provided."),
     DELETE_FOREIGN_KEY("Unable to delete; This item is referenced in another table."),
     UPDATE_NOT_FOUND("Unable to update; This item was not found."),
-    RH_FOREIGN_KEY_NOT_FOUND("Unable to find the foreign key in the table provided. Please check that the given id exists."),
-    RH_UNABLE_TO_PROCESS_FOREIGN_KEY_LOOKUP("There was an error when attempting to find the foreign keys. Please check that the correct number of repositories was given.");
+    RH_UNABLE_TO_PROCESS_FOREIGN_KEY_LOOKUP("There was an error when attempting to find the foreign keys. Please check that the correct number of repositories was given."),
+    CANNOT_BE_ZERO("Ability scores cannot be zero."),
+    SCORE_EXISTS("That combination of ability scores already exists.");
 
     public final String message;
 
