@@ -376,10 +376,12 @@ create table monsters (
 	id int generated always as identity,
 	name varchar not null,
 	title varchar,
+	fk_ability_score int,
 	isEnemy bool not null,
 	personality varchar,
 	description varchar,
 	notes varchar,
+	constraint fk_ability_score foreign key(fk_ability_score) references ability_scores(id),
 	primary key(id)
 );
 
