@@ -1,31 +1,39 @@
 package com.mcommings.campaigner.services.people;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.people.AbilityScore;
+import com.mcommings.campaigner.models.people.Person;
 import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
+import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_ABILITY_SCORE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class AbilityScoreTest {
-    
+
     @Mock
     private IAbilityScoreRepository abilityScoreRepository;
-    
+    @Mock
+    private IPersonRepository personRepository;
+
     @InjectMocks
     private AbilityScoreService abilityScoreService;
-    
+
     @Test
     public void whenThereAreAbilityScores_getAbilityScores_ReturnsAbilityScores() {
         List<AbilityScore> abilityScores = new ArrayList<>();
@@ -71,7 +79,7 @@ public class AbilityScoreTest {
         when(abilityScoreRepository.abilityScoreExists(abilityScore)).thenReturn(Optional.of(abilityScore));
         assertThrows(DataIntegrityViolationException.class, () -> abilityScoreService.saveAbilityScore(abilityScore));
     }
-    
+
     @Test
     public void whenAbilityScoreIdExists_deleteAbilityScore_DeletesTheAbilityScore() {
         int abilityScoreId = 1;
@@ -86,9 +94,23 @@ public class AbilityScoreTest {
         when(abilityScoreRepository.existsById(abilityScoreId)).thenReturn(false);
         assertThrows(IllegalArgumentException.class, () -> abilityScoreService.deleteAbilityScore(abilityScoreId));
     }
-    
-//    TODO: when People is added, test fk lookup on delete
-    
+
+    @Test
+    public void whenAbilityScoreIdIsAForeignKey_deleteAbilityScore_ThrowsDataIntegrityViolationException() {
+        int abilityScoreId = 1;
+        Person person = new Person(1, "Jane", "Doe", 33, "The Nameless One",
+                2, 2, abilityScoreId, true, false, "Personality", "Description", "Notes");
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(personRepository));
+        List<Person> people = new ArrayList<>(Arrays.asList(person));
+
+        when(abilityScoreRepository.existsById(abilityScoreId)).thenReturn(true);
+        when(personRepository.findByfk_ability_score(abilityScoreId)).thenReturn(people);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_ABILITY_SCORE.columnName, abilityScoreId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> abilityScoreService.deleteAbilityScore(abilityScoreId));
+    }
+
     @Test
     public void whenAbilityScoreIdIsFound_updateAbilityScore_UpdatesTheAbilityScore() {
         int abilityScoreId = 1;

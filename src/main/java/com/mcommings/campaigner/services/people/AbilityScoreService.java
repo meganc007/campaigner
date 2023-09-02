@@ -4,6 +4,7 @@ import com.mcommings.campaigner.interfaces.people.IAbilityScore;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.people.AbilityScore;
 import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
+import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,10 +22,12 @@ import static com.mcommings.campaigner.enums.ForeignKey.FK_ABILITY_SCORE;
 public class AbilityScoreService implements IAbilityScore {
 
     private final IAbilityScoreRepository abilityScoreRepository;
+    private final IPersonRepository personRepository;
 
     @Autowired
-    public AbilityScoreService(IAbilityScoreRepository abilityScoreRepository) {
+    public AbilityScoreService(IAbilityScoreRepository abilityScoreRepository, IPersonRepository personRepository) {
         this.abilityScoreRepository = abilityScoreRepository;
+        this.personRepository = personRepository;
     }
 
     @Override
@@ -51,10 +54,9 @@ public class AbilityScoreService implements IAbilityScore {
         if (RepositoryHelper.cannotFindId(abilityScoreRepository, id)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //    TODO: uncomment once People has been added
-//        if (RepositoryHelper.isForeignKey(getReposWhereAbilityScoreIsAForeignKey(), FK_ABILITY_SCORE.columnName, id)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWhereAbilityScoreIsAForeignKey(), FK_ABILITY_SCORE.columnName, id)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         abilityScoreRepository.deleteById(id);
     }
@@ -87,8 +89,7 @@ public class AbilityScoreService implements IAbilityScore {
         return abilityScoreRepository.abilityScoreExists(abilityScore).isPresent();
     }
 
-//    TODO: uncomment once People has been added
-//    private List<CrudRepository> getReposWhereAbilityScoreIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList(peopleRepository));
-//    }
+    private List<CrudRepository> getReposWhereAbilityScoreIsAForeignKey() {
+        return new ArrayList<>(Arrays.asList(personRepository));
+    }
 }
