@@ -1,6 +1,9 @@
 package com.mcommings.campaigner.services.people;
 
+import com.mcommings.campaigner.models.people.Person;
 import com.mcommings.campaigner.models.people.Race;
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import com.mcommings.campaigner.repositories.people.IRaceRepository;
 import com.mcommings.campaigner.services.people.RaceService;
 import org.junit.jupiter.api.Assertions;
@@ -9,11 +12,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_RACE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -23,6 +29,8 @@ public class RaceTest {
 
     @Mock
     private IRaceRepository raceRepository;
+    @Mock
+    private IPersonRepository personRepository;
 
     @InjectMocks
     private RaceService raceService;
@@ -95,8 +103,21 @@ public class RaceTest {
         assertThrows(IllegalArgumentException.class, () -> raceService.deleteRace(raceId));
     }
 
-    //TODO: after this functionality is added, test that deleteRace doesn't delete
-    // when id is a foreign key in another table
+    @Test
+    public void whenRaceIdIsAForeignKey_deleteRace_ThrowsDataIntegrityViolationException() {
+        int raceId = 1;
+        Person person = new Person(1, "Jane", "Doe", 33, "The Nameless One",
+                raceId, 2, 2, true, false, "Personality", "Description", "Notes");
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(personRepository));
+        List<Person> people = new ArrayList<>(Arrays.asList(person));
+
+        when(raceRepository.existsById(raceId)).thenReturn(true);
+        when(personRepository.findByfk_race(raceId)).thenReturn(people);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_RACE.columnName, raceId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> raceService.deleteRace(raceId));
+    }
 
     @Test
     public void whenRaceIdIsFound_updateRace_UpdatesTheRace() {

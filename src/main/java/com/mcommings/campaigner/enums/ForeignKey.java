@@ -13,6 +13,7 @@ public enum ForeignKey {
     FK_MONTH("fk_month"),
     FK_MOON("fk_moon"),
     FK_PLACE_TYPE("fk_place_type"),
+    FK_RACE("fk_race"),
     FK_REGION("fk_region"),
     FK_SETTLEMENT("fk_settlement"),
     FK_SUN("fk_sun"),

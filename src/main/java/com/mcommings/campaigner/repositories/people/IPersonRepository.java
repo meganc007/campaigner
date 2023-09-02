@@ -23,12 +23,12 @@ public interface IPersonRepository extends JpaRepository<Person, Integer> {
     Optional<Person> personExists(@Param("person") Person person);
 
     @Query("SELECT p FROM Person p WHERE p.fk_race = :id")
-    List<Person> findByfk_race(int id);
+    List<Person> findByfk_race(Integer id);
 
     @Query("SELECT p FROM Person p WHERE p.fk_wealth = :id")
-    List<Person> findByfk_wealth(int id);
+    List<Person> findByfk_wealth(Integer id);
 
     @Query("SELECT p FROM Person p WHERE p.fk_ability_score = :id")
-    List<Person> findByfk_ability_score(int id);
+    List<Person> findByfk_ability_score(Integer id);
 
 }
