@@ -1,9 +1,9 @@
 package com.mcommings.campaigner.models.locations;
 
-import com.mcommings.campaigner.models.Race;
+import com.mcommings.campaigner.models.people.Race;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
-import com.mcommings.campaigner.repositories.IRaceRepository;
+import com.mcommings.campaigner.repositories.people.IRaceRepository;
 import com.mcommings.campaigner.repositories.locations.IContinentRepository;
 import com.mcommings.campaigner.repositories.locations.ICountryRepository;
 import org.junit.jupiter.api.Assertions;

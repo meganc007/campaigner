@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.interfaces;
+package com.mcommings.campaigner.interfaces.people;
 
-import com.mcommings.campaigner.models.Job;
+import com.mcommings.campaigner.models.people.Job;
 
 import java.util.List;
 

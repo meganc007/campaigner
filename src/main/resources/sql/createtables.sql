@@ -30,6 +30,7 @@ drop table if exists continents;
 drop table if exists place_types;
 drop table if exists people_jobs;
 drop table if exists people;
+drop table if exists ability_scores;
 drop table if exists wealth;
 drop table if exists races;
 drop table if exists jobs;
@@ -246,6 +247,17 @@ create table jobs (
 	primary key(id)
 );
 
+create table ability_scores (
+    id int generated always as identity,
+    strength int not null,
+    dexterity int not null,
+    constitution int not null,
+    intelligence int not null,
+    wisdom int not null,
+    charisma int not null,
+    primary key(id)
+);
+
 create table people (
 	id int generated always as identity,
 	firstName varchar not null,
@@ -254,13 +266,15 @@ create table people (
 	title varchar,
 	fk_race int,
     fk_wealth int,
-	constraint fk_race foreign key(fk_race) references races(id),
-	constraint fk_wealth foreign key(fk_wealth) references wealth(id),
+    fk_ability_score int,
 	isNPC bool not null,
 	isEnemy bool not null,
 	personality varchar,
 	description varchar,
 	notes varchar,
+	constraint fk_race foreign key(fk_race) references races(id),
+    constraint fk_wealth foreign key(fk_wealth) references wealth(id),
+    constraint fk_ability_score foreign key(fk_ability_score) references ability_scores(id),
 	primary key(id)
 );
 

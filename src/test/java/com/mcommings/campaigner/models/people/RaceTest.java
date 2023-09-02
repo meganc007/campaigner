@@ -1,5 +1,6 @@
-package com.mcommings.campaigner.models;
+package com.mcommings.campaigner.models.people;
 
+import com.mcommings.campaigner.models.people.Race;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

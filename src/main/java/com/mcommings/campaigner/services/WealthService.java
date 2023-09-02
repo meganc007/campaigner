@@ -5,6 +5,7 @@ import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Wealth;
 import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
+import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,11 +24,14 @@ public class WealthService implements IWealth {
 
     private final IWealthRepository wealthRepository;
     private final ICityRepository cityRepository;
+    private final IPersonRepository personRepository;
 
     @Autowired
-    public WealthService(IWealthRepository wealthRepository, ICityRepository cityRepository) {
+    public WealthService(IWealthRepository wealthRepository, ICityRepository cityRepository,
+                         IPersonRepository personRepository) {
         this.wealthRepository = wealthRepository;
         this.cityRepository = cityRepository;
+        this.personRepository = personRepository;
     }
 
     @Override
@@ -73,6 +77,6 @@ public class WealthService implements IWealth {
     }
 
     private List<CrudRepository> getReposWhereWealthIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(cityRepository));
+        return new ArrayList<>(Arrays.asList(cityRepository, personRepository));
     }
 }

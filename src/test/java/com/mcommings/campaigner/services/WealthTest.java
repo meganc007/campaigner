@@ -3,8 +3,10 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Wealth;
 import com.mcommings.campaigner.models.locations.City;
+import com.mcommings.campaigner.models.people.Person;
 import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
+import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -28,9 +30,10 @@ public class WealthTest {
 
     @Mock
     private IWealthRepository wealthRepository;
-
     @Mock
     private ICityRepository cityRepository;
+    @Mock
+    private IPersonRepository personRepository;
 
     @InjectMocks
     private WealthService wealthService;
@@ -107,11 +110,16 @@ public class WealthTest {
     public void whenWealthIdIsAForeignKey_deleteWealth_ThrowsDataIntegrityViolationException() {
         int wealthId = 1;
         City city = new City(1, "City", "Description", wealthId, 1, 1, 1, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, personRepository));
         List<City> cities = new ArrayList<>(Arrays.asList(city));
+
+        Person person = new Person(1, "Jane", "Doe", 33, "The Nameless One",
+                3, wealthId, 2, true, false, "Personality", "Description", "Notes");
+        List<Person> people = new ArrayList<>(Arrays.asList(person));
 
         when(wealthRepository.existsById(wealthId)).thenReturn(true);
         when(cityRepository.findByfk_wealth(wealthId)).thenReturn(cities);
+        when(personRepository.findByfk_wealth(wealthId)).thenReturn(people);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_WEALTH.columnName, wealthId);
         Assertions.assertTrue(actual);

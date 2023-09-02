@@ -1,26 +1,33 @@
-package com.mcommings.campaigner.services;
+package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.interfaces.IRace;
-import com.mcommings.campaigner.models.Race;
+import com.mcommings.campaigner.interfaces.people.IRace;
+import com.mcommings.campaigner.models.people.Race;
 import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.repositories.IRaceRepository;
+import com.mcommings.campaigner.repositories.people.IPersonRepository;
+import com.mcommings.campaigner.repositories.people.IRaceRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_RACE;
 
 @Service
 public class RaceService implements IRace {
 
     private final IRaceRepository raceRepository;
+    private final IPersonRepository personRepository;
 
     @Autowired
-    public RaceService(IRaceRepository raceRepository) {
+    public RaceService(IRaceRepository raceRepository, IPersonRepository personRepository) {
         this.raceRepository = raceRepository;
+        this.personRepository = personRepository;
     }
 
     @Override
@@ -49,10 +56,9 @@ public class RaceService implements IRace {
         if (RepositoryHelper.cannotFindId(raceRepository, raceId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-// TODO: after adding the People table/repo, check that Race id isn't a foreign key before deleting
-//        if (raceUsedAsForeignKey) {
-//            throw new DataIntegrityViolationException("Unable to delete; This race is used in another table.");
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWhereRaceIsAForeignKey(), FK_RACE.columnName, raceId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         raceRepository.deleteById(raceId);
     }
@@ -68,6 +74,10 @@ public class RaceService implements IRace {
         raceToUpdate.setName(race.getName());
         raceToUpdate.setDescription(race.getDescription());
         raceToUpdate.set_exotic(race.is_exotic());
+    }
+
+    private List<CrudRepository> getReposWhereRaceIsAForeignKey() {
+        return new ArrayList<>(Arrays.asList(personRepository));
     }
 
 }
