@@ -223,7 +223,7 @@ public class PersonTest {
         when(wealthRepository.existsById(5)).thenReturn(true);
         when(abilityScoreRepository.existsById(6)).thenReturn(false);
 
-        assertThrows(DataIntegrityViolationException.class, () -> personService.updatePerson(personId, person));
+        assertThrows(DataIntegrityViolationException.class, () -> personService.updatePerson(personId, personToUpdate));
     }
 
     @Test
