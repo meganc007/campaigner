@@ -1,5 +1,6 @@
-package com.mcommings.campaigner.models;
+package com.mcommings.campaigner.models.people;
 
+import com.mcommings.campaigner.models.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;

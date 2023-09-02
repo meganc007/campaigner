@@ -1,9 +1,9 @@
-package com.mcommings.campaigner.services;
+package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.interfaces.IJob;
-import com.mcommings.campaigner.models.Job;
+import com.mcommings.campaigner.interfaces.people.IJob;
+import com.mcommings.campaigner.models.people.Job;
 import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.repositories.IJobRepository;
+import com.mcommings.campaigner.repositories.people.IJobRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
