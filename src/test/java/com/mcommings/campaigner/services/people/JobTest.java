@@ -1,6 +1,9 @@
 package com.mcommings.campaigner.services.people;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.people.Job;
+import com.mcommings.campaigner.models.people.JobAssignment;
+import com.mcommings.campaigner.repositories.people.IJobAssignmentRepository;
 import com.mcommings.campaigner.repositories.people.IJobRepository;
 import com.mcommings.campaigner.services.people.JobService;
 import org.junit.jupiter.api.Assertions;
@@ -9,13 +12,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_JOB;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -23,6 +28,8 @@ public class JobTest {
 
     @Mock
     private IJobRepository jobRepository;
+    @Mock
+    private IJobAssignmentRepository jobAssignmentRepository;
 
     @InjectMocks
     private JobService jobService;
@@ -95,7 +102,20 @@ public class JobTest {
         assertThrows(IllegalArgumentException.class, () -> jobService.deleteJob(jobId));
     }
 
-    //TODO: when PeopleJob added, test that deleteJob doesn't delete when it's a foreign key
+    @Test
+    public void whenJobIdIsAForeignKey_deleteJob_ThrowsDataIntegrityViolationException() {
+        int jobId = 1;
+        JobAssignment jobAssignment = new JobAssignment(1, 1, jobId);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(jobAssignmentRepository));
+        List<JobAssignment> jobAssignments = new ArrayList<>(Arrays.asList(jobAssignment));
+
+        when(jobRepository.existsById(jobId)).thenReturn(true);
+        when(jobAssignmentRepository.findByfk_job(jobId)).thenReturn(jobAssignments);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_JOB.columnName, jobId);
+        assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> jobService.deleteJob(jobId));
+    }
 
     @Test
     public void whenJobIdIsFound_updateJob_UpdatesTheJob() {
