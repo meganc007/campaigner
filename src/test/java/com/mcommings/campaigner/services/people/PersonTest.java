@@ -147,10 +147,7 @@ public class PersonTest {
     @Test
     public void whenPersonIdIsAForeignKey_deletePerson_ThrowsDataIntegrityViolationException() {
         int personId = 1;
-        Person person = new Person(personId, "First Name", "Last Name", 1, "Title",
-                true, false, "Personality", "Description", "Notes");
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(jobAssignmentRepository));
-        List<Person> people = new ArrayList<>(Arrays.asList(person));
 
         JobAssignment jobAssignment = new JobAssignment(1, personId, 1);
         List<JobAssignment> jobAssignments = new ArrayList<>(Arrays.asList(jobAssignment));

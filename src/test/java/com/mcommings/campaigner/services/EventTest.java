@@ -216,8 +216,6 @@ public class EventTest {
         Event event = new Event(eventId, "Test Event Name", "Test Description", 1);
         Event eventToUpdate = new Event(eventId, "Updated Event Name", "Updated Description",
                 1, 2, 3, 4, 5, 6, 7);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(monthRepository, weekRepository, dayRepository,
-                cityRepository, continentRepository, countryRepository));
 
         when(eventRepository.existsById(eventId)).thenReturn(true);
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
@@ -251,8 +249,6 @@ public class EventTest {
         Event event = new Event(eventId, "Test Event Name", "Test Description", 1);
         Event eventToUpdate = new Event(eventId, "Updated Event Name", "Updated Description",
                 1, 2, 3, 4, 5, 6, 7);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(monthRepository, weekRepository, dayRepository,
-                cityRepository, continentRepository, countryRepository));
 
         when(eventRepository.existsById(eventId)).thenReturn(true);
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));

@@ -195,7 +195,6 @@ public class PlaceTest {
 
         Place place = new Place(placeId, "Test Place Name", "Test Description");
         Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", 1, 2, 3, 4, 5);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository, countryRepository, cityRepository, regionRepository));
 
         when(placeRepository.existsById(placeId)).thenReturn(true);
         when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
@@ -225,7 +224,6 @@ public class PlaceTest {
 
         Place place = new Place(placeId, "Test Place Name", "Test Description");
         Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", 1, 2, 3, 4, 5);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository, countryRepository, cityRepository, regionRepository));
         when(placeRepository.existsById(placeId)).thenReturn(true);
         when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
         when(placeTypesRepository.existsById(1)).thenReturn(true);
