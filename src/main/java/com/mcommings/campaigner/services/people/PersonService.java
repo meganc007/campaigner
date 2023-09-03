@@ -49,7 +49,7 @@ public class PersonService implements IPerson {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
         if (personAlreadyExists(person)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+            throw new DataIntegrityViolationException(PERSON_EXISTS.message);
         }
         if (hasForeignKeys(person) &&
                 RepositoryHelper.foreignKeyIsNotValid(personRepository, getListOfForeignKeyRepositories(), person)) {

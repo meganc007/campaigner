@@ -11,7 +11,9 @@ public enum ErrorMessage {
     UPDATE_NOT_FOUND("Unable to update; This item was not found."),
     RH_UNABLE_TO_PROCESS_FOREIGN_KEY_LOOKUP("There was an error when attempting to find the foreign keys. Please check that the correct number of repositories was given."),
     CANNOT_BE_ZERO("Ability scores cannot be zero."),
-    SCORE_EXISTS("That combination of ability scores already exists.");
+    SCORE_EXISTS("That combination of ability scores already exists."),
+    PERSON_EXISTS("That person already exists."),
+    JOB_ASSIGNMENT_EXISTS("That job assignment already exists");
 
     public final String message;
 
