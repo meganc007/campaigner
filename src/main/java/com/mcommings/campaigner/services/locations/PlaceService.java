@@ -4,6 +4,7 @@ import com.mcommings.campaigner.interfaces.locations.IPlace;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.Place;
 import com.mcommings.campaigner.repositories.locations.*;
+import com.mcommings.campaigner.repositories.people.IEventPlacePersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_PLACE;
 
 @Service
 public class PlaceService implements IPlace {
@@ -25,18 +27,21 @@ public class PlaceService implements IPlace {
     private final ICountryRepository countryRepository;
     private final ICityRepository cityRepository;
     private final IRegionRepository regionRepository;
+    private final IEventPlacePersonRepository eventPlacePersonRepository;
 
 
     @Autowired
     public PlaceService(IPlaceRepository placeRepository, IPlaceTypesRepository placeTypesRepository,
                         ITerrainRepository terrainRepository, ICountryRepository countryRepository,
-                        ICityRepository cityRepository, IRegionRepository regionRepository) {
+                        ICityRepository cityRepository, IRegionRepository regionRepository,
+                        IEventPlacePersonRepository eventPlacePersonRepository) {
         this.placeRepository = placeRepository;
         this.placeTypesRepository = placeTypesRepository;
         this.terrainRepository = terrainRepository;
         this.countryRepository = countryRepository;
         this.cityRepository = cityRepository;
         this.regionRepository = regionRepository;
+        this.eventPlacePersonRepository = eventPlacePersonRepository;
     }
 
     @Override
@@ -67,10 +72,9 @@ public class PlaceService implements IPlace {
         if (RepositoryHelper.cannotFindId(placeRepository, placeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//        TODO: add this check when tables that use Place as a fk are added
-//        if (RepositoryHelper.isForeignKey(getReposWherePlaceIsAForeignKey(), FK_PLACE.columnName, placeId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWherePlaceIsAForeignKey(), FK_PLACE.columnName, placeId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         placeRepository.deleteById(placeId);
     }
@@ -95,10 +99,9 @@ public class PlaceService implements IPlace {
         placeToUpdate.setFk_region(place.getFk_region());
     }
 
-//    TODO: add this when tables that use Place as fk are added
-//    private List<CrudRepository> getReposWherePlaceIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList());
-//    }
+    private List<CrudRepository> getReposWherePlaceIsAForeignKey() {
+        return new ArrayList<>(Arrays.asList(eventPlacePersonRepository));
+    }
 
     private boolean hasForeignKeys(Place place) {
         return place.getFk_place_type() != null || place.getFk_terrain() != null || place.getFk_country() != null || place.getFk_city() != null || place.getFk_region() != null;

@@ -1,13 +1,11 @@
 package com.mcommings.campaigner.services.people;
 
 import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.people.EventPlacePerson;
 import com.mcommings.campaigner.models.people.JobAssignment;
 import com.mcommings.campaigner.models.people.Person;
 import com.mcommings.campaigner.repositories.IWealthRepository;
-import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
-import com.mcommings.campaigner.repositories.people.IJobAssignmentRepository;
-import com.mcommings.campaigner.repositories.people.IPersonRepository;
-import com.mcommings.campaigner.repositories.people.IRaceRepository;
+import com.mcommings.campaigner.repositories.people.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -39,6 +37,8 @@ public class PersonTest {
     private IAbilityScoreRepository abilityScoreRepository;
     @Mock
     private IJobAssignmentRepository jobAssignmentRepository;
+    @Mock
+    private IEventPlacePersonRepository eventPlacePersonRepository;
 
     @InjectMocks
     private PersonService personService;
@@ -155,8 +155,13 @@ public class PersonTest {
         JobAssignment jobAssignment = new JobAssignment(1, personId, 1);
         List<JobAssignment> jobAssignments = new ArrayList<>(Arrays.asList(jobAssignment));
 
+        EventPlacePerson epp = new EventPlacePerson(1, 1, 1, personId);
+        List<EventPlacePerson> epps = new ArrayList<>(Arrays.asList(epp));
+
+
         when(personRepository.existsById(personId)).thenReturn(true);
         when(jobAssignmentRepository.findByfk_person(personId)).thenReturn(jobAssignments);
+        when(eventPlacePersonRepository.findByfk_person(personId)).thenReturn(epps);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_PERSON.columnName, personId);
         Assertions.assertTrue(actual);

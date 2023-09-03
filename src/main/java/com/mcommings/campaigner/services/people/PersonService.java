@@ -4,10 +4,7 @@ import com.mcommings.campaigner.interfaces.people.IPerson;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.people.Person;
 import com.mcommings.campaigner.repositories.IWealthRepository;
-import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
-import com.mcommings.campaigner.repositories.people.IJobAssignmentRepository;
-import com.mcommings.campaigner.repositories.people.IPersonRepository;
-import com.mcommings.campaigner.repositories.people.IRaceRepository;
+import com.mcommings.campaigner.repositories.people.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,16 +27,18 @@ public class PersonService implements IPerson {
     private final IWealthRepository wealthRepository;
     private final IAbilityScoreRepository abilityScoreRepository;
     private final IJobAssignmentRepository jobAssignmentRepository;
+    private final IEventPlacePersonRepository eventPlacePersonRepository;
 
     @Autowired
     public PersonService(IPersonRepository personRepository, IRaceRepository raceRepository,
                          IWealthRepository wealthRepository, IAbilityScoreRepository abilityScoreRepository,
-                         IJobAssignmentRepository jobAssignmentRepository) {
+                         IJobAssignmentRepository jobAssignmentRepository, IEventPlacePersonRepository eventPlacePersonRepository) {
         this.personRepository = personRepository;
         this.raceRepository = raceRepository;
         this.wealthRepository = wealthRepository;
         this.abilityScoreRepository = abilityScoreRepository;
         this.jobAssignmentRepository = jobAssignmentRepository;
+        this.eventPlacePersonRepository = eventPlacePersonRepository;
     }
 
     @Override
@@ -110,7 +109,7 @@ public class PersonService implements IPerson {
     }
 
     private List<CrudRepository> getReposWherePersonIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(jobAssignmentRepository));
+        return new ArrayList<>(Arrays.asList(jobAssignmentRepository, eventPlacePersonRepository));
     }
 
     private boolean hasForeignKeys(Person person) {
