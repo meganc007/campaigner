@@ -13,7 +13,8 @@ public enum ErrorMessage {
     CANNOT_BE_ZERO("Ability scores cannot be zero."),
     SCORE_EXISTS("That combination of ability scores already exists."),
     PERSON_EXISTS("That person already exists."),
-    JOB_ASSIGNMENT_EXISTS("That job assignment already exists");
+    JOB_ASSIGNMENT_EXISTS("That job assignment already exists."),
+    EVENT_PLACE_PERSON_EXISTS("This event-place-person assignment already exists.");
 
     public final String message;
 
