@@ -17,8 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.EVENT_PLACE_PERSON_EXISTS;
-import static com.mcommings.campaigner.enums.ErrorMessage.INSERT_FOREIGN_KEY;
+import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 public class EventPlacePersonService implements IEventPlacePerson {
@@ -60,13 +59,28 @@ public class EventPlacePersonService implements IEventPlacePerson {
     @Override
     @Transactional
     public void deleteEventPlacePerson(int id) throws IllegalArgumentException, DataIntegrityViolationException {
+        if (RepositoryHelper.cannotFindId(eventPlacePersonRepository, id)) {
+            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
+        }
+        //TODO: fk check when EventPlacePerson is a fk
 
+        eventPlacePersonRepository.deleteById(id);
     }
 
     @Override
     @Transactional
     public void updateEventPlacePerson(int id, EventPlacePerson eventPlacePerson) throws IllegalArgumentException, DataIntegrityViolationException {
-
+        if (RepositoryHelper.cannotFindId(eventPlacePersonRepository, id)) {
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
+        }
+        if (hasForeignKeys(eventPlacePerson) &&
+                RepositoryHelper.foreignKeyIsNotValid(eventPlacePersonRepository, getListOfForeignKeyRepositories(), eventPlacePerson)) {
+            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+        }
+        EventPlacePerson eppToUpdate = RepositoryHelper.getById(eventPlacePersonRepository, id);
+        eppToUpdate.setFk_event(eventPlacePerson.getFk_event());
+        eppToUpdate.setFk_place(eventPlacePerson.getFk_place());
+        eppToUpdate.setFk_person(eventPlacePerson.getFk_person());
     }
 
     private boolean eventPlacePersonAlreadyExists(EventPlacePerson eventPlacePerson) {
