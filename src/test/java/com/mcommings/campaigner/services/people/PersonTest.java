@@ -1,8 +1,11 @@
 package com.mcommings.campaigner.services.people;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.people.JobAssignment;
 import com.mcommings.campaigner.models.people.Person;
 import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
+import com.mcommings.campaigner.repositories.people.IJobAssignmentRepository;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import com.mcommings.campaigner.repositories.people.IRaceRepository;
 import org.junit.jupiter.api.Assertions;
@@ -11,11 +14,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_PERSON;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -31,6 +37,8 @@ public class PersonTest {
     private IWealthRepository wealthRepository;
     @Mock
     private IAbilityScoreRepository abilityScoreRepository;
+    @Mock
+    private IJobAssignmentRepository jobAssignmentRepository;
 
     @InjectMocks
     private PersonService personService;
@@ -136,7 +144,24 @@ public class PersonTest {
         assertThrows(IllegalArgumentException.class, () -> personService.deletePerson(personId));
     }
 
-    //TODO: test delete when Person is a fk
+    @Test
+    public void whenPersonIdIsAForeignKey_deletePerson_ThrowsDataIntegrityViolationException() {
+        int personId = 1;
+        Person person = new Person(personId, "First Name", "Last Name", 1, "Title",
+                true, false, "Personality", "Description", "Notes");
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(jobAssignmentRepository));
+        List<Person> people = new ArrayList<>(Arrays.asList(person));
+
+        JobAssignment jobAssignment = new JobAssignment(1, personId, 1);
+        List<JobAssignment> jobAssignments = new ArrayList<>(Arrays.asList(jobAssignment));
+
+        when(personRepository.existsById(personId)).thenReturn(true);
+        when(jobAssignmentRepository.findByfk_person(personId)).thenReturn(jobAssignments);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_PERSON.columnName, personId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> personService.deletePerson(personId));
+    }
 
     @Test
     public void whenPersonIdWithNoFKIsFound_updatePerson_UpdatesThePerson() {
