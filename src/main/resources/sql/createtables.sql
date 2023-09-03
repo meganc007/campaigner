@@ -278,7 +278,7 @@ create table people (
 	primary key(id)
 );
 
-create table people_jobs (
+create table job_assignment (
 	id int generated always as identity,
 	fk_person int,
     fk_job int,
