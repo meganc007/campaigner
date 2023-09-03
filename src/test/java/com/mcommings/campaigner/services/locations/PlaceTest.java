@@ -1,7 +1,10 @@
 package com.mcommings.campaigner.services.locations;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.Place;
+import com.mcommings.campaigner.models.people.EventPlacePerson;
 import com.mcommings.campaigner.repositories.locations.*;
+import com.mcommings.campaigner.repositories.people.IEventPlacePersonRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_PLACE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -34,10 +38,12 @@ public class PlaceTest {
     private ICityRepository cityRepository;
     @Mock
     private IRegionRepository regionRepository;
+    @Mock
+    private IEventPlacePersonRepository eventPlacePersonRepository;
 
     @InjectMocks
     private PlaceService placeService;
-    
+
     @Test
     public void whenThereArePlaces_getPlaces_ReturnsPlaces() {
         List<Place> places = new ArrayList<>();
@@ -149,21 +155,20 @@ public class PlaceTest {
         assertThrows(IllegalArgumentException.class, () -> placeService.deletePlace(placeId));
     }
 
-//    TODO: add this when tables that use Place as fk are added
-//    @Test
-//    public void whenPlaceIdIsAForeignKey_deletePlace_ThrowsDataIntegrityViolationException() {
-//        int placeId = 1;
-//        Inventory inventory = new Inventory(1, "Inventory", "Description", 1, placeId, 1, 1);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository));
-//        List<Inventory> inventories = new ArrayList<>(Arrays.asList(inventory));
-//
-//        when(placeRepository.existsById(placeId)).thenReturn(true);
-//        when(inventoryRepository.findByfk_place(placeId)).thenReturn(inventories);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_PLACE.columnName, placeId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> placeService.deletePlace(placeId));
-//    }
+    @Test
+    public void whenPlaceIdIsAForeignKey_deletePlace_ThrowsDataIntegrityViolationException() {
+        int placeId = 1;
+        EventPlacePerson epp = new EventPlacePerson(1, 1, placeId, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(eventPlacePersonRepository));
+        List<EventPlacePerson> epps = new ArrayList<>(Arrays.asList(epp));
+
+        when(placeRepository.existsById(placeId)).thenReturn(true);
+        when(eventPlacePersonRepository.findByfk_place(placeId)).thenReturn(epps);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_PLACE.columnName, placeId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> placeService.deletePlace(placeId));
+    }
 
     @Test
     public void whenPlaceIdWithNoFKIsFound_updatePlace_UpdatesThePlace() {
@@ -190,7 +195,6 @@ public class PlaceTest {
 
         Place place = new Place(placeId, "Test Place Name", "Test Description");
         Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", 1, 2, 3, 4, 5);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository, countryRepository, cityRepository, regionRepository));
 
         when(placeRepository.existsById(placeId)).thenReturn(true);
         when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
@@ -220,7 +224,6 @@ public class PlaceTest {
 
         Place place = new Place(placeId, "Test Place Name", "Test Description");
         Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", 1, 2, 3, 4, 5);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository, countryRepository, cityRepository, regionRepository));
         when(placeRepository.existsById(placeId)).thenReturn(true);
         when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
         when(placeTypesRepository.existsById(1)).thenReturn(true);

@@ -1,6 +1,8 @@
 package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.models.Event;
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.people.EventPlacePerson;
 import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.calendar.IDayRepository;
 import com.mcommings.campaigner.repositories.calendar.IMonthRepository;
@@ -8,6 +10,7 @@ import com.mcommings.campaigner.repositories.calendar.IWeekRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
 import com.mcommings.campaigner.repositories.locations.IContinentRepository;
 import com.mcommings.campaigner.repositories.locations.ICountryRepository;
+import com.mcommings.campaigner.repositories.people.IEventPlacePersonRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_EVENT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -42,10 +46,12 @@ public class EventTest {
     private IContinentRepository continentRepository;
     @Mock
     private ICountryRepository countryRepository;
-    
+    @Mock
+    private IEventPlacePersonRepository eventPlacePersonRepository;
+
     @InjectMocks
     private EventService eventService;
-    
+
     @Test
     public void whenThereAreEvents_getEvents_ReturnsEvents() {
         List<Event> events = new ArrayList<>();
@@ -168,21 +174,20 @@ public class EventTest {
         assertThrows(IllegalArgumentException.class, () -> eventService.deleteEvent(eventId));
     }
 
-    //TODO: add events_places_people class to test once it's coded
-//    @Test
-//    public void whenEventIdIsAForeignKey_deleteEvent_ThrowsDataIntegrityViolationException() {
-//        int eventId = 1;
-//        Place place = new Place(1, "Place", "Description", 1, eventId, 1, 1, 1);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
-//        List<Place> places = new ArrayList<>(Arrays.asList(place));
-//
-//        when(eventRepository.existsById(eventId)).thenReturn(true);
-//        when(placeRepository.findByfk_event(eventId)).thenReturn(places);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_EVENT.columnName, eventId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> eventService.deleteEvent(eventId));
-//    }
+    @Test
+    public void whenEventIdIsAForeignKey_deleteEvent_ThrowsDataIntegrityViolationException() {
+        int eventId = 1;
+        EventPlacePerson epp = new EventPlacePerson(1, eventId, 1, 1);
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(eventPlacePersonRepository));
+        List<EventPlacePerson> epps = new ArrayList<>(Arrays.asList(epp));
+
+        when(eventRepository.existsById(eventId)).thenReturn(true);
+        when(eventPlacePersonRepository.findByfk_event(eventId)).thenReturn(epps);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_EVENT.columnName, eventId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> eventService.deleteEvent(eventId));
+    }
 
     @Test
     public void whenEventIdWithNoFKIsFound_updateEvent_UpdatesTheEvent() {
@@ -211,8 +216,6 @@ public class EventTest {
         Event event = new Event(eventId, "Test Event Name", "Test Description", 1);
         Event eventToUpdate = new Event(eventId, "Updated Event Name", "Updated Description",
                 1, 2, 3, 4, 5, 6, 7);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(monthRepository, weekRepository, dayRepository,
-                cityRepository, continentRepository, countryRepository));
 
         when(eventRepository.existsById(eventId)).thenReturn(true);
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
@@ -246,8 +249,6 @@ public class EventTest {
         Event event = new Event(eventId, "Test Event Name", "Test Description", 1);
         Event eventToUpdate = new Event(eventId, "Updated Event Name", "Updated Description",
                 1, 2, 3, 4, 5, 6, 7);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(monthRepository, weekRepository, dayRepository,
-                cityRepository, continentRepository, countryRepository));
 
         when(eventRepository.existsById(eventId)).thenReturn(true);
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));

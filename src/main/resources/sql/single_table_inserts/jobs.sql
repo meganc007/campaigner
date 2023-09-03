@@ -191,4 +191,7 @@ INSERT INTO public.jobs(name, description)
 VALUES ('Slaver', 'A person dealing in or owning slaves.');
 
 INSERT INTO public.jobs(name, description)
+VALUES ('Unemployed', E'This person doesn\'t have a job.');
+
+INSERT INTO public.jobs(name, description)
 VALUES ('Other', 'Something not listed.');

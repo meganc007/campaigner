@@ -10,6 +10,7 @@ import com.mcommings.campaigner.repositories.calendar.IWeekRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
 import com.mcommings.campaigner.repositories.locations.IContinentRepository;
 import com.mcommings.campaigner.repositories.locations.ICountryRepository;
+import com.mcommings.campaigner.repositories.people.IEventPlacePersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_EVENT;
 
 @Service
 public class EventService implements IEvent {
@@ -32,11 +34,13 @@ public class EventService implements IEvent {
     private final ICityRepository cityRepository;
     private final IContinentRepository continentRepository;
     private final ICountryRepository countryRepository;
+    private final IEventPlacePersonRepository eventPlacePersonRepository;
 
     @Autowired
     public EventService(IEventRepository eventRepository, IMonthRepository monthRepository,
                         IWeekRepository weekRepository, IDayRepository dayRepository, ICityRepository cityRepository,
-                        IContinentRepository continentRepository, ICountryRepository countryRepository) {
+                        IContinentRepository continentRepository, ICountryRepository countryRepository,
+                        IEventPlacePersonRepository eventPlacePersonRepository) {
         this.eventRepository = eventRepository;
         this.monthRepository = monthRepository;
         this.weekRepository = weekRepository;
@@ -44,6 +48,7 @@ public class EventService implements IEvent {
         this.cityRepository = cityRepository;
         this.continentRepository = continentRepository;
         this.countryRepository = countryRepository;
+        this.eventPlacePersonRepository = eventPlacePersonRepository;
     }
 
     @Override
@@ -74,10 +79,9 @@ public class EventService implements IEvent {
         if (RepositoryHelper.cannotFindId(eventRepository, eventId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//      TODO: uncomment once events_places_people class added
-//        if (RepositoryHelper.isForeignKey(getReposWhereEventIsAForeignKey(), FK_EVENT.columnName, eventId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWhereEventIsAForeignKey(), FK_EVENT.columnName, eventId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
         eventRepository.deleteById(eventId);
     }
 
@@ -103,10 +107,9 @@ public class EventService implements IEvent {
         eventToUpdate.setFk_country(event.getFk_country());
     }
 
-//    TODO: finish this method once events_places_people class added
-//    private List<CrudRepository> getReposWhereEventIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList());
-//    }
+    private List<CrudRepository> getReposWhereEventIsAForeignKey() {
+        return new ArrayList<>(Arrays.asList(eventPlacePersonRepository));
+    }
 
     private boolean hasForeignKeys(Event event) {
         return event.getFk_month() != null ||
