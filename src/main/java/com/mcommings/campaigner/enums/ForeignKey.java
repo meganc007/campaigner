@@ -7,6 +7,7 @@ public enum ForeignKey {
     FK_CITY("fk_city"),
     FK_CONTINENT("fk_continent"),
     FK_COUNTRY("fk_country"),
+    FK_DAMAGE_TYPE("fk_damage_type"),
     FK_DAY("fk_day"),
     FK_EVENT("fk_event"),
     FK_GOVERNMENT("fk_government"),
