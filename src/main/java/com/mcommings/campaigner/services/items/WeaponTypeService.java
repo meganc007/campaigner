@@ -3,24 +3,31 @@ package com.mcommings.campaigner.services.items;
 import com.mcommings.campaigner.interfaces.items.IWeaponType;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.items.WeaponType;
+import com.mcommings.campaigner.repositories.items.IWeaponRepository;
 import com.mcommings.campaigner.repositories.items.IWeaponTypeRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_WEAPON_TYPE;
 
 @Service
 public class WeaponTypeService implements IWeaponType {
 
     private final IWeaponTypeRepository weaponTypeRepository;
+    private final IWeaponRepository weaponRepository;
 
     @Autowired
-    public WeaponTypeService(IWeaponTypeRepository weaponTypeRepository) {
+    public WeaponTypeService(IWeaponTypeRepository weaponTypeRepository, IWeaponRepository weaponRepository) {
         this.weaponTypeRepository = weaponTypeRepository;
+        this.weaponRepository = weaponRepository;
     }
 
     @Override
@@ -47,10 +54,9 @@ public class WeaponTypeService implements IWeaponType {
         if (RepositoryHelper.cannotFindId(weaponTypeRepository, weaponTypeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-// TODO: uncomment when class that uses WeaponType as a fk is added
-//        if (RepositoryHelper.isForeignKey(getReposWhereWeaponTypeIsAForeignKey(), FK_WEAPON_TYPE.columnName, weaponTypeId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWhereWeaponTypeIsAForeignKey(), FK_WEAPON_TYPE.columnName, weaponTypeId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         weaponTypeRepository.deleteById(weaponTypeId);
     }
@@ -66,8 +72,7 @@ public class WeaponTypeService implements IWeaponType {
         weaponTypeToUpdate.setDescription(weaponType.getDescription());
     }
 
-// TODO: uncomment when class that uses WeaponType as a fk is added
-//    private List<CrudRepository> getReposWhereWeaponTypeIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList());
-//    }
+    private List<CrudRepository> getReposWhereWeaponTypeIsAForeignKey() {
+        return new ArrayList<>(Arrays.asList(weaponRepository));
+    }
 }

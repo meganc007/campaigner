@@ -1,6 +1,9 @@
 package com.mcommings.campaigner.services.items;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.items.Weapon;
 import com.mcommings.campaigner.models.items.WeaponType;
+import com.mcommings.campaigner.repositories.items.IWeaponRepository;
 import com.mcommings.campaigner.repositories.items.IWeaponTypeRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,11 +11,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_WEAPON_TYPE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,8 @@ public class WeaponTypeTest {
 
     @Mock
     private IWeaponTypeRepository weaponTypeRepository;
+    @Mock
+    private IWeaponRepository weaponRepository;
 
     @InjectMocks
     private WeaponTypeService weaponTypeService;
@@ -95,21 +103,22 @@ public class WeaponTypeTest {
         assertThrows(IllegalArgumentException.class, () -> weaponTypeService.deleteWeaponType(weaponTypeId));
     }
 
-//    TODO: fix this test when classes that use WeaponType as a fk are added
-//    @Test
-//    public void whenWeaponTypeIdIsAForeignKey_deleteWeaponType_ThrowsDataIntegrityViolationException() {
-//        int weaponTypeId = 1;
-//        Region region = new Region(1, "Region", "Description", 1, weaponTypeId);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
-//        List<Region> regions = new ArrayList<>(Arrays.asList(region));
-//
-//        when(weaponTypeRepository.existsById(weaponTypeId)).thenReturn(true);
-//        when(regionRepository.findByfk_weaponType(weaponTypeId)).thenReturn(regions);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_WEAPONTYPE.columnName, weaponTypeId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> weaponTypeService.deleteWeaponType(weaponTypeId));
-//    }
+    @Test
+    public void whenWeaponTypeIdIsAForeignKey_deleteWeaponType_ThrowsDataIntegrityViolationException() {
+        int weaponTypeId = 1;
+        Weapon weapon = new Weapon(1, "Weapon", "Description", "Rare", 32, 20,
+                12, 20.0f, weaponTypeId, 2, 2, 6, 0,
+                true, false, "Notes");
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weaponRepository));
+        List<Weapon> weapons = new ArrayList<>(Arrays.asList(weapon));
+
+        when(weaponTypeRepository.existsById(weaponTypeId)).thenReturn(true);
+        when(weaponRepository.findByfk_weapon_type(weaponTypeId)).thenReturn(weapons);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_WEAPON_TYPE.columnName, weaponTypeId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> weaponTypeService.deleteWeaponType(weaponTypeId));
+    }
 
     @Test
     public void whenWeaponTypeIdIsFound_updateWeaponType_UpdatesTheWeaponType() {
