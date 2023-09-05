@@ -11,10 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -199,7 +197,6 @@ public class WeaponTest {
         Weapon update = new Weapon(weaponId, "Weapon", "Description", "Rare", 3200, 2000,
                 12, 10.0f, 2, 2, 2, 12, 5,
                 true, false, "Notes");
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weaponTypeRepository, damageTypeRepository, diceTypeRepository));
 
         when(weaponRepository.existsById(weaponId)).thenReturn(true);
         when(weaponRepository.findById(weaponId)).thenReturn(Optional.of(weapon));
@@ -239,8 +236,6 @@ public class WeaponTest {
         Weapon update = new Weapon(weaponId, "Weapon", "Description", "Rare", 3200, 2000,
                 12, 10.0f, 2, 2, 2, 12, 5,
                 true, false, "Notes");
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weaponTypeRepository, damageTypeRepository, diceTypeRepository));
-
 
         when(weaponRepository.existsById(weaponId)).thenReturn(true);
         when(weaponRepository.findById(weaponId)).thenReturn(Optional.of(weapon));

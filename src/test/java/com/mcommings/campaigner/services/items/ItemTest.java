@@ -9,10 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -180,7 +178,6 @@ public class ItemTest {
                 12, 20.0f, 2, true, false, "Notes");
         Item update = new Item(itemId, "Updated Item Name", "Updated Description", "Rare", 132, 120,
                 112, 450.0f, 2, true, true, "Notes");
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(itemTypeRepository));
 
         when(itemRepository.existsById(itemId)).thenReturn(true);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
@@ -211,7 +208,6 @@ public class ItemTest {
         Item item = new Item(itemId, "Test Item Name", "Test Description");
         Item update = new Item(itemId, "Test Item Name", "Test Description", "Rare", 32, 20,
                 12, 20.0f, 2, true, false, "Notes");
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(itemTypeRepository));
 
         when(itemRepository.existsById(itemId)).thenReturn(true);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
