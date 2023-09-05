@@ -1,18 +1,24 @@
 package com.mcommings.campaigner.services.items;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.items.DamageType;
+import com.mcommings.campaigner.models.items.Weapon;
 import com.mcommings.campaigner.repositories.items.IDamageTypeRepository;
+import com.mcommings.campaigner.repositories.items.IWeaponRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_DAMAGE_TYPE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,8 @@ public class DamageTypeTest {
 
     @Mock
     private IDamageTypeRepository damageTypeRepository;
+    @Mock
+    private IWeaponRepository weaponRepository;
 
     @InjectMocks
     private DamageTypeService damageTypeService;
@@ -95,21 +103,22 @@ public class DamageTypeTest {
         assertThrows(IllegalArgumentException.class, () -> damageTypeService.deleteDamageType(damageTypeId));
     }
 
-//    TODO: fix this test when classes that use DamageType as a fk are added
-//    @Test
-//    public void whenDamageTypeIdIsAForeignKey_deleteDamageType_ThrowsDataIntegrityViolationException() {
-//        int damageTypeId = 1;
-//        Region region = new Region(1, "Region", "Description", 1, damageTypeId);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
-//        List<Region> regions = new ArrayList<>(Arrays.asList(region));
-//
-//        when(damageTypeRepository.existsById(damageTypeId)).thenReturn(true);
-//        when(regionRepository.findByfk_damageType(damageTypeId)).thenReturn(regions);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_DAMAGETYPE.columnName, damageTypeId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> damageTypeService.deleteDamageType(damageTypeId));
-//    }
+    @Test
+    public void whenDamageTypeIdIsAForeignKey_deleteDamageType_ThrowsDataIntegrityViolationException() {
+        int damageTypeId = 1;
+        Weapon weapon = new Weapon(1, "Weapon", "Description", "Rare", 32, 20,
+                12, 20.0f, 2, damageTypeId, 2, 6, 0,
+                true, false, "Notes");
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weaponRepository));
+        List<Weapon> weapons = new ArrayList<>(Arrays.asList(weapon));
+
+        when(damageTypeRepository.existsById(damageTypeId)).thenReturn(true);
+        when(weaponRepository.findByfk_damage_type(damageTypeId)).thenReturn(weapons);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_DAMAGE_TYPE.columnName, damageTypeId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> damageTypeService.deleteDamageType(damageTypeId));
+    }
 
     @Test
     public void whenDamageTypeIdIsFound_updateDamageType_UpdatesTheDamageType() {

@@ -4,23 +4,30 @@ import com.mcommings.campaigner.interfaces.items.IDamageType;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.items.DamageType;
 import com.mcommings.campaigner.repositories.items.IDamageTypeRepository;
+import com.mcommings.campaigner.repositories.items.IWeaponRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_DAMAGE_TYPE;
 
 @Service
 public class DamageTypeService implements IDamageType {
 
     private final IDamageTypeRepository damageTypeRepository;
+    private final IWeaponRepository weaponRepository;
 
     @Autowired
-    public DamageTypeService(IDamageTypeRepository damageTypeRepository) {
+    public DamageTypeService(IDamageTypeRepository damageTypeRepository, IWeaponRepository weaponRepository) {
         this.damageTypeRepository = damageTypeRepository;
+        this.weaponRepository = weaponRepository;
     }
 
     @Override
@@ -47,10 +54,9 @@ public class DamageTypeService implements IDamageType {
         if (RepositoryHelper.cannotFindId(damageTypeRepository, damageTypeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-// TODO: uncomment when class that uses DamageType as a fk is added
-//        if (RepositoryHelper.isForeignKey(getReposWhereDamageTypeIsAForeignKey(), FK_DAMAGE_TYPE.columnName, damageTypeId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWhereDamageTypeIsAForeignKey(), FK_DAMAGE_TYPE.columnName, damageTypeId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         damageTypeRepository.deleteById(damageTypeId);
     }
@@ -66,8 +72,7 @@ public class DamageTypeService implements IDamageType {
         damageTypeToUpdate.setDescription(damageType.getDescription());
     }
 
-// TODO: uncomment when class that uses DamageType as a fk is added
-//    private List<CrudRepository> getReposWhereDamageTypeIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList());
-//    }
+    private List<CrudRepository> getReposWhereDamageTypeIsAForeignKey() {
+        return new ArrayList<>(Arrays.asList(weaponRepository));
+    }
 }
