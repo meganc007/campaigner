@@ -23,6 +23,7 @@ public enum ForeignKey {
     FK_SUN("fk_sun"),
     FK_TERRAIN("fk_terrain"),
     FK_WEALTH("fk_wealth"),
+    FK_WEAPON_TYPE("fk_weapon_type"),
     FK_WEEK("fk_week");
 
     public final String columnName;
