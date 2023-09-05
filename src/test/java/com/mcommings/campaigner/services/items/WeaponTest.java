@@ -1,0 +1,256 @@
+package com.mcommings.campaigner.services.items;
+
+import com.mcommings.campaigner.models.items.Weapon;
+import com.mcommings.campaigner.repositories.items.IDamageTypeRepository;
+import com.mcommings.campaigner.repositories.items.IDiceTypeRepository;
+import com.mcommings.campaigner.repositories.items.IWeaponRepository;
+import com.mcommings.campaigner.repositories.items.IWeaponTypeRepository;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
+
+@SpringBootTest
+public class WeaponTest {
+
+    @Mock
+    private IWeaponRepository weaponRepository;
+    @Mock
+    private IWeaponTypeRepository weaponTypeRepository;
+    @Mock
+    private IDamageTypeRepository damageTypeRepository;
+    @Mock
+    private IDiceTypeRepository diceTypeRepository;
+
+    @InjectMocks
+    private WeaponService weaponService;
+
+    @Test
+    public void whenThereAreWeapons_getWeapons_ReturnsWeapons() {
+        List<Weapon> weapons = new ArrayList<>();
+        weapons.add(new Weapon(1, "Weapon 1", "Description 1"));
+        weapons.add(new Weapon(2, "Weapon 2", "Description 2"));
+        weapons.add(new Weapon(3, "Weapon 3", "Description 3", "Rare", 32, 20,
+                12, 20.0f, 2, 2, 2, 6, 0,
+                true, false, "Notes"));
+        when(weaponRepository.findAll()).thenReturn(weapons);
+
+        List<Weapon> result = weaponService.getWeapons();
+
+        Assertions.assertEquals(3, result.size());
+        Assertions.assertEquals(weapons, result);
+    }
+
+    @Test
+    public void whenThereAreNoWeapons_getWeapons_ReturnsNothing() {
+        List<Weapon> weapons = new ArrayList<>();
+        when(weaponRepository.findAll()).thenReturn(weapons);
+
+        List<Weapon> result = weaponService.getWeapons();
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(weapons, result);
+    }
+
+    @Test
+    public void whenWeaponWithNoForeignKeysIsValid_saveWeapon_SavesTheWeapon() {
+        Weapon weapon = new Weapon(1, "Weapon 1", "Description 1");
+        when(weaponRepository.saveAndFlush(weapon)).thenReturn(weapon);
+
+        assertDoesNotThrow(() -> weaponService.saveWeapon(weapon));
+
+        verify(weaponRepository, times(1)).saveAndFlush(weapon);
+    }
+
+    @Test
+    public void whenWeaponWithForeignKeysIsValid_saveWeapon_SavesTheWeapon() {
+        Weapon weapon = new Weapon(1, "Weapon", "Description", "Rare", 32, 20,
+                12, 20.0f, 2, 2, 2, 6, 0,
+                true, false, "Notes");
+
+        when(weaponTypeRepository.existsById(2)).thenReturn(true);
+        when(damageTypeRepository.existsById(2)).thenReturn(true);
+        when(diceTypeRepository.existsById(2)).thenReturn(true);
+        when(weaponRepository.saveAndFlush(weapon)).thenReturn(weapon);
+
+        assertDoesNotThrow(() -> weaponService.saveWeapon(weapon));
+
+        verify(weaponRepository, times(1)).saveAndFlush(weapon);
+    }
+
+    @Test
+    public void whenWeaponNameIsInvalid_saveWeapon_ThrowsIllegalArgumentException() {
+        Weapon weaponWithEmptyName = new Weapon(1, "", "Description 1");
+        Weapon weaponWithNullName = new Weapon(2, null, "Description 2");
+
+        assertThrows(IllegalArgumentException.class, () -> weaponService.saveWeapon(weaponWithEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> weaponService.saveWeapon(weaponWithNullName));
+    }
+
+    @Test
+    public void whenWeaponNameAlreadyExists_saveWeapon_ThrowsDataIntegrityViolationException() {
+        Weapon weapon = new Weapon(1, "Weapon", "Description", "Rare", 32, 20,
+                12, 20.0f, 2, 2, 2, 6, 0,
+                true, false, "Notes");
+        Weapon weaponWithDuplicatedName = new Weapon(2, "Weapon", "Description", "Rare", 32, 20,
+                12, 20.0f, 2, 2, 2, 6, 0,
+                true, false, "Notes");
+
+        when(weaponRepository.existsById(1)).thenReturn(true);
+        when(weaponTypeRepository.existsById(2)).thenReturn(true);
+        when(damageTypeRepository.existsById(2)).thenReturn(true);
+        when(diceTypeRepository.existsById(2)).thenReturn(true);
+
+        when(weaponRepository.saveAndFlush(weapon)).thenReturn(weapon);
+        when(weaponRepository.saveAndFlush(weaponWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
+
+        assertDoesNotThrow(() -> weaponService.saveWeapon(weapon));
+        assertThrows(DataIntegrityViolationException.class, () -> weaponService.saveWeapon(weaponWithDuplicatedName));
+    }
+
+    @Test
+    public void whenWeaponHasInvalidForeignKeys_saveWeapon_ThrowsDataIntegrityViolationException() {
+        Weapon weapon = new Weapon(1, "Weapon", "Description", "Rare", 32, 20,
+                12, 20.0f, 2, 2, 2, 6, 0,
+                true, false, "Notes");
+
+
+        when(weaponTypeRepository.existsById(2)).thenReturn(false);
+        when(damageTypeRepository.existsById(2)).thenReturn(true);
+        when(diceTypeRepository.existsById(2)).thenReturn(false);
+        when(weaponRepository.saveAndFlush(weapon)).thenReturn(weapon);
+
+        assertThrows(DataIntegrityViolationException.class, () -> weaponService.saveWeapon(weapon));
+    }
+
+    @Test
+    public void whenWeaponIdExists_deleteWeapon_DeletesTheWeapon() {
+        int weaponId = 1;
+        when(weaponRepository.existsById(weaponId)).thenReturn(true);
+        assertDoesNotThrow(() -> weaponService.deleteWeapon(weaponId));
+        verify(weaponRepository, times(1)).deleteById(weaponId);
+    }
+
+    @Test
+    public void whenWeaponIdDoesNotExist_deleteWeapon_ThrowsIllegalArgumentException() {
+        int weaponId = 9000;
+        when(weaponRepository.existsById(weaponId)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> weaponService.deleteWeapon(weaponId));
+    }
+
+    //    TODO: uncomment / fix test when classes that use Weapon as a fk are added
+//    @Test
+//    public void whenWeaponIdIsAForeignKey_deleteWeapon_ThrowsDataIntegrityViolationException() {
+//        int weaponId = 1;
+//        Place place = new Place(1, "Place", "Description", 1, weaponId, 1, 1, 1);
+//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository, eventRepository));
+//        List<Place> places = new ArrayList<>(Arrays.asList(place));
+//
+//        Event event = new Event(1, "Event", "Description", 1, 1, 1, 1, weaponId, 1, 1);
+//        List<Event> events = new ArrayList<>(Arrays.asList(event));
+//
+//        when(weaponRepository.existsById(weaponId)).thenReturn(true);
+//        when(placeRepository.findByfk_weapon(weaponId)).thenReturn(places);
+//        when(eventRepository.findByfk_weapon(weaponId)).thenReturn(events);
+//
+//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_WEAPON.columnName, weaponId);
+//        Assertions.assertTrue(actual);
+//        assertThrows(DataIntegrityViolationException.class, () -> weaponService.deleteWeapon(weaponId));
+//    }
+
+    @Test
+    public void whenWeaponIdWithNoFKIsFound_updateWeapon_UpdatesTheWeapon() {
+        int weaponId = 1;
+
+        Weapon weapon = new Weapon(weaponId, "Old Weapon Name", "Old Description");
+        Weapon updateNoFK = new Weapon(weaponId, "Updated Weapon Name", "Updated Description");
+
+        when(weaponRepository.existsById(weaponId)).thenReturn(true);
+        when(weaponRepository.findById(weaponId)).thenReturn(Optional.of(weapon));
+
+        weaponService.updateWeapon(weaponId, updateNoFK);
+
+        verify(weaponRepository).findById(weaponId);
+
+        Weapon result1 = weaponRepository.findById(weaponId).get();
+        Assertions.assertEquals(updateNoFK.getName(), result1.getName());
+        Assertions.assertEquals(updateNoFK.getDescription(), result1.getDescription());
+    }
+
+    @Test
+    public void whenWeaponIdWithValidFKIsFound_updateWeapon_UpdatesTheWeapon() {
+        int weaponId = 2;
+
+        Weapon weapon = new Weapon(weaponId, "Weapon", "Description", "Rare", 32, 20,
+                12, 20.0f, 2, 2, 2, 6, 0,
+                true, false, "Notes");
+        Weapon update = new Weapon(weaponId, "Weapon", "Description", "Rare", 3200, 2000,
+                12, 10.0f, 2, 2, 2, 12, 5,
+                true, false, "Notes");
+
+        when(weaponRepository.existsById(weaponId)).thenReturn(true);
+        when(weaponRepository.findById(weaponId)).thenReturn(Optional.of(weapon));
+        when(weaponTypeRepository.existsById(2)).thenReturn(true);
+        when(damageTypeRepository.existsById(2)).thenReturn(true);
+        when(diceTypeRepository.existsById(2)).thenReturn(true);
+
+        weaponService.updateWeapon(weaponId, update);
+
+        verify(weaponRepository).findById(weaponId);
+
+        Weapon result = weaponRepository.findById(weaponId).get();
+        Assertions.assertEquals(update.getName(), result.getName());
+        Assertions.assertEquals(update.getDescription(), result.getDescription());
+        Assertions.assertEquals(update.getRarity(), weapon.getRarity());
+        Assertions.assertEquals(update.getGold_value(), weapon.getGold_value());
+        Assertions.assertEquals(update.getSilver_value(), weapon.getSilver_value());
+        Assertions.assertEquals(update.getCopper_value(), weapon.getCopper_value());
+        Assertions.assertEquals(update.getWeight(), weapon.getWeight());
+        Assertions.assertEquals(update.getFk_weapon_type(), weapon.getFk_weapon_type());
+        Assertions.assertEquals(update.getFk_damage_type(), weapon.getFk_damage_type());
+        Assertions.assertEquals(update.getFk_dice_type(), weapon.getFk_dice_type());
+        Assertions.assertEquals(update.getNumber_of_dice(), weapon.getNumber_of_dice());
+        Assertions.assertEquals(update.getDamage_modifier(), weapon.getDamage_modifier());
+        Assertions.assertEquals(update.isMagical(), weapon.isMagical());
+        Assertions.assertEquals(update.isCursed(), weapon.isCursed());
+        Assertions.assertEquals(update.getNotes(), weapon.getNotes());
+    }
+
+    @Test
+    public void whenWeaponIdWithInvalidFKIsFound_updateWeapon_ThrowsDataIntegrityViolationException() {
+        int weaponId = 2;
+
+        Weapon weapon = new Weapon(weaponId, "Weapon", "Description", "Rare", 32, 20,
+                12, 20.0f, 2, 2, 2, 6, 0,
+                true, false, "Notes");
+        Weapon update = new Weapon(weaponId, "Weapon", "Description", "Rare", 3200, 2000,
+                12, 10.0f, 2, 2, 2, 12, 5,
+                true, false, "Notes");
+
+        when(weaponRepository.existsById(weaponId)).thenReturn(true);
+        when(weaponRepository.findById(weaponId)).thenReturn(Optional.of(weapon));
+        when(weaponTypeRepository.existsById(2)).thenReturn(false);
+
+        assertThrows(DataIntegrityViolationException.class, () -> weaponService.updateWeapon(weaponId, update));
+    }
+
+    @Test
+    public void whenWeaponIdIsNotFound_updateWeapon_ThrowsIllegalArgumentException() {
+        int weaponId = 1;
+        Weapon weapon = new Weapon(weaponId, "Old Weapon Name", "Old Description");
+
+        when(weaponRepository.existsById(weaponId)).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class, () -> weaponService.updateWeapon(weaponId, weapon));
+    }
+}

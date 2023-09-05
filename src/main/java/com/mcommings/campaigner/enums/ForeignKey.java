@@ -7,9 +7,13 @@ public enum ForeignKey {
     FK_CITY("fk_city"),
     FK_CONTINENT("fk_continent"),
     FK_COUNTRY("fk_country"),
+    FK_DAMAGE_TYPE("fk_damage_type"),
+    FK_DICE_TYPE("fk_dice_type"),
     FK_DAY("fk_day"),
     FK_EVENT("fk_event"),
     FK_GOVERNMENT("fk_government"),
+    FK_ITEM("fk_item"),
+    FK_ITEM_TYPE("fk_item_type"),
     FK_JOB("fk_job"),
     FK_MONTH("fk_month"),
     FK_MOON("fk_moon"),
@@ -22,6 +26,8 @@ public enum ForeignKey {
     FK_SUN("fk_sun"),
     FK_TERRAIN("fk_terrain"),
     FK_WEALTH("fk_wealth"),
+    FK_WEAPON("fk_weapon"),
+    FK_WEAPON_TYPE("fk_weapon_type"),
     FK_WEEK("fk_week");
 
     public final String columnName;

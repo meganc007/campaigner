@@ -28,7 +28,7 @@ drop table if exists rewards;
 drop table if exists objectives;
 drop table if exists continents;
 drop table if exists place_types;
-drop table if exists people_jobs;
+drop table if exists job_assignment;
 drop table if exists people;
 drop table if exists ability_scores;
 drop table if exists wealth;
@@ -38,7 +38,7 @@ drop table if exists items;
 drop table if exists item_types;
 drop table if exists weapons;
 drop table if exists weapon_types;
-drop table if exists weapon_damages;
+drop table if exists dice_types;
 drop table if exists damage_types;
 
 create table months (
@@ -298,15 +298,16 @@ create table items (
 	id int generated always as identity,
 	name varchar not null,
 	description varchar,
-	goldValue numeric,
-	silverValue numeric,
-	copperValue numeric,
-	weight numeric,
-	fk_type int,
-	constraint fk_type foreign key(fk_type) references item_types(id),
+	rarity varchar,
+	gold_value numeric,
+	silver_value numeric,
+	copper_value numeric,
+	weight numeric(6, 2),
+	fk_item_type int,
 	isMagical bool,
 	isCursed bool,
 	notes varchar,
+	constraint fk_item_type foreign key(fk_item_type) references item_types(id),
 	primary key(id)
 );
 
@@ -324,27 +325,34 @@ create table damage_types (
 	primary key(id)
 );
 
+create table dice_types (
+	id int generated always as identity,
+	name varchar,
+	description varchar,
+	max_Roll int,
+	primary key(id)
+);
+
 create table weapons (
 	id int generated always as identity,
 	name varchar not null,
 	description varchar,
-	goldValue numeric,
-	silverValue numeric,
-	copperValue numeric,
-	weight numeric,
-	fk_type int,
-	constraint fk_type foreign key(fk_type) references weapon_types(id),
+	rarity varchar,
+	gold_value numeric,
+	silver_value numeric,
+	copper_value numeric,
+	weight numeric(6, 2),
+	fk_weapon_type int,
+	fk_damage_type int,
+	fk_dice_type int,
+	number_of_dice int,
+	damage_modifier int,
 	isMagical bool,
 	isCursed bool,
 	notes varchar,
-	primary key(id)
-);
-
-create table weapon_damages (
-	id int generated always as identity,
-	amount int,
-	fk_type int,
-	constraint fk_type foreign key(fk_type) references damage_types(id),
+	constraint fk_weapon_type foreign key(fk_weapon_type) references weapon_types(id),
+	constraint fk_damage_type foreign key(fk_damage_type) references damage_types(id),
+	constraint fk_dice_type foreign key(fk_dice_type) references dice_types(id),
 	primary key(id)
 );
 
@@ -451,9 +459,9 @@ create table rewards (
 	id int generated always as identity,
 	description varchar not null,
 	notes varchar,
-	goldValue numeric,
-	silverValue numeric,
-	copperValue numeric,
+	gold_value numeric,
+	silver_value numeric,
+	copper_value numeric,
 	fk_item int,
     fk_weapon int,
 	constraint fk_item foreign key(fk_item) references items(id),
@@ -463,9 +471,10 @@ create table rewards (
 
 create table conditionals (
 	id int generated always as identity,
+	name varchar,
 	description varchar not null,
 	notes varchar,
-	wasObjectiveCompleted bool,
+	was_objective_completed bool,
 	fk_objectives_places_people_items_weapons int,
     fk_outcomes_places_people_items_weapons int,
     fk_reward int,
@@ -477,6 +486,7 @@ create table conditionals (
 
 create table quests (
 	id int generated always as identity,
+	name varchar,
 	description varchar not null,
 	notes varchar,
 	fk_hooks_places_people int,

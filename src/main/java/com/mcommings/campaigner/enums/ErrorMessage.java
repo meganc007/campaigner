@@ -12,6 +12,7 @@ public enum ErrorMessage {
     RH_UNABLE_TO_PROCESS_FOREIGN_KEY_LOOKUP("There was an error when attempting to find the foreign keys. Please check that the correct number of repositories was given."),
     CANNOT_BE_ZERO("Ability scores cannot be zero."),
     SCORE_EXISTS("That combination of ability scores already exists."),
+    INVENTORY_EXISTS("That inventory already exists."),
     PERSON_EXISTS("That person already exists."),
     JOB_ASSIGNMENT_EXISTS("That job assignment already exists."),
     EVENT_PLACE_PERSON_EXISTS("This event-place-person assignment already exists.");
