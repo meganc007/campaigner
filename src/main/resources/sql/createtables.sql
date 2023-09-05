@@ -28,7 +28,7 @@ drop table if exists rewards;
 drop table if exists objectives;
 drop table if exists continents;
 drop table if exists place_types;
-drop table if exists people_jobs;
+drop table if exists job_assignment;
 drop table if exists people;
 drop table if exists ability_scores;
 drop table if exists wealth;
@@ -302,8 +302,8 @@ create table items (
 	silverValue numeric,
 	copperValue numeric,
 	weight numeric,
-	fk_type int,
-	constraint fk_type foreign key(fk_type) references item_types(id),
+	fk_item_type int,
+	constraint fk_item_type foreign key(fk_item_type) references item_types(id),
 	isMagical bool,
 	isCursed bool,
 	notes varchar,
@@ -332,8 +332,8 @@ create table weapons (
 	silverValue numeric,
 	copperValue numeric,
 	weight numeric,
-	fk_type int,
-	constraint fk_type foreign key(fk_type) references weapon_types(id),
+	fk_weapon_type int,
+	constraint fk_weapon_type foreign key(fk_weapon_type) references weapon_types(id),
 	isMagical bool,
 	isCursed bool,
 	notes varchar,
@@ -343,8 +343,8 @@ create table weapons (
 create table weapon_damages (
 	id int generated always as identity,
 	amount int,
-	fk_type int,
-	constraint fk_type foreign key(fk_type) references damage_types(id),
+	fk_damage_type int,
+	constraint fk_damage_type foreign key(fk_damage_type) references damage_types(id),
 	primary key(id)
 );
 
