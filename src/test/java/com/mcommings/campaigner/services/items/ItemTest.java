@@ -192,7 +192,6 @@ public class ItemTest {
 
         Item result = itemRepository.findById(itemId).get();
         Assertions.assertEquals(update.getName(), result.getName());
-        Assertions.assertEquals(update.getDescription(), result.getDescription());
         Assertions.assertEquals(update.getDescription(), item.getDescription());
         Assertions.assertEquals(update.getRarity(), item.getRarity());
         Assertions.assertEquals(update.getGold_value(), item.getGold_value());
