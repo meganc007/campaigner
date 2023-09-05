@@ -337,6 +337,7 @@ create table weapons (
 	id int generated always as identity,
 	name varchar not null,
 	description varchar,
+	rarity varchar,
 	goldValue numeric,
 	silverValue numeric,
 	copperValue numeric,
