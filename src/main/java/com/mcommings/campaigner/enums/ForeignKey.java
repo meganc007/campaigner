@@ -10,6 +10,7 @@ public enum ForeignKey {
     FK_DAY("fk_day"),
     FK_EVENT("fk_event"),
     FK_GOVERNMENT("fk_government"),
+    FK_ITEM_TYPE("fk_item_type"),
     FK_JOB("fk_job"),
     FK_MONTH("fk_month"),
     FK_MOON("fk_moon"),
