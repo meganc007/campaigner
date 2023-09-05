@@ -341,10 +341,10 @@ create table weapons (
 	gold_value numeric,
 	silver_value numeric,
 	copper_value numeric,
-	weight numeric,
+	weight numeric(6, 2),
 	fk_weapon_type int,
 	fk_damage_type int,
-	fk_die_type int,
+	fk_dice_type int,
 	number_of_dice int,
 	damage_modifier int,
 	isMagical bool,
@@ -352,7 +352,7 @@ create table weapons (
 	notes varchar,
 	constraint fk_weapon_type foreign key(fk_weapon_type) references weapon_types(id),
 	constraint fk_damage_type foreign key(fk_damage_type) references damage_types(id),
-	constraint fk_die_type foreign key(fk_die_type) references dice_types(id),
+	constraint fk_dice_type foreign key(fk_dice_type) references dice_types(id),
 	primary key(id)
 );
 
