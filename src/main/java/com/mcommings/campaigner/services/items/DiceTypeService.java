@@ -4,23 +4,30 @@ import com.mcommings.campaigner.interfaces.items.IDiceType;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.items.DiceType;
 import com.mcommings.campaigner.repositories.items.IDiceTypeRepository;
+import com.mcommings.campaigner.repositories.items.IWeaponRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_DICE_TYPE;
 
 @Service
 public class DiceTypeService implements IDiceType {
 
     private final IDiceTypeRepository diceTypeRepository;
+    private final IWeaponRepository weaponRepository;
 
     @Autowired
-    public DiceTypeService(IDiceTypeRepository diceTypeRepository) {
+    public DiceTypeService(IDiceTypeRepository diceTypeRepository, IWeaponRepository weaponRepository) {
         this.diceTypeRepository = diceTypeRepository;
+        this.weaponRepository = weaponRepository;
     }
 
     @Override
@@ -47,10 +54,9 @@ public class DiceTypeService implements IDiceType {
         if (RepositoryHelper.cannotFindId(diceTypeRepository, diceTypeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-// TODO: uncomment when class that uses DiceType as a fk is added
-//        if (RepositoryHelper.isForeignKey(getReposWhereDiceTypeIsAForeignKey(), FK_DICE_TYPE.columnName, diceTypeId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWhereDiceTypeIsAForeignKey(), FK_DICE_TYPE.columnName, diceTypeId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         diceTypeRepository.deleteById(diceTypeId);
     }
@@ -67,8 +73,7 @@ public class DiceTypeService implements IDiceType {
         diceTypeToUpdate.setMax_roll(diceType.getMax_roll());
     }
 
-// TODO: uncomment when class that uses DiceType as a fk is added
-//    private List<CrudRepository> getReposWhereDiceTypeIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList());
-//    }
+    private List<CrudRepository> getReposWhereDiceTypeIsAForeignKey() {
+        return new ArrayList<>(Arrays.asList(weaponRepository));
+    }
 }

@@ -1,18 +1,24 @@
 package com.mcommings.campaigner.services.items;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.items.DiceType;
+import com.mcommings.campaigner.models.items.Weapon;
 import com.mcommings.campaigner.repositories.items.IDiceTypeRepository;
+import com.mcommings.campaigner.repositories.items.IWeaponRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_DICE_TYPE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,8 @@ public class DiceTypeTest {
 
     @Mock
     private IDiceTypeRepository diceTypeRepository;
+    @Mock
+    private IWeaponRepository weaponRepository;
 
     @InjectMocks
     private DiceTypeService diceTypeService;
@@ -95,21 +103,23 @@ public class DiceTypeTest {
         assertThrows(IllegalArgumentException.class, () -> diceTypeService.deleteDiceType(diceTypeId));
     }
 
-//    TODO: fix this test when classes that use DiceType as a fk are added
-//    @Test
-//    public void whenDiceTypeIdIsAForeignKey_deleteDiceType_ThrowsDataIntegrityViolationException() {
-//        int diceTypeId = 1;
-//        Region region = new Region(1, "Region", "Description", 1, diceTypeId);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
-//        List<Region> regions = new ArrayList<>(Arrays.asList(region));
-//
-//        when(diceTypeRepository.existsById(diceTypeId)).thenReturn(true);
-//        when(regionRepository.findByfk_diceType(diceTypeId)).thenReturn(regions);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_DICETYPE.columnName, diceTypeId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> diceTypeService.deleteDiceType(diceTypeId));
-//    }
+    @Test
+    public void whenDiceTypeIdIsAForeignKey_deleteDiceType_ThrowsDataIntegrityViolationException() {
+        int diceTypeId = 1;
+
+        Weapon weapon = new Weapon(1, "Weapon", "Description", "Rare", 32, 20,
+                12, 20.0f, 2, 2, diceTypeId, 6, 0,
+                true, false, "Notes");
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weaponRepository));
+        List<Weapon> weapons = new ArrayList<>(Arrays.asList(weapon));
+
+        when(diceTypeRepository.existsById(diceTypeId)).thenReturn(true);
+        when(weaponRepository.findByfk_dice_type(diceTypeId)).thenReturn(weapons);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_DICE_TYPE.columnName, diceTypeId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> diceTypeService.deleteDiceType(diceTypeId));
+    }
 
     @Test
     public void whenDiceTypeIdIsFound_updateDiceType_UpdatesTheDiceType() {
