@@ -22,7 +22,8 @@ drop table if exists regions;
 drop table if exists countries;
 drop table if exists governments;
 drop table if exists climates;
-drop table if exists monsters;
+drop table if exists named_monsters;
+drop table if exists generic_monsters;
 drop table if exists outcomes;
 drop table if exists rewards;
 drop table if exists objectives;
@@ -380,16 +381,30 @@ create table events_places_people (
 	primary key(id)
 );
 
-create table monsters (
+create table generic_monsters (
 	id int generated always as identity,
 	name varchar not null,
+	fk_ability_score int,
+	traits varchar,
+	description varchar,
+	notes varchar,
+	constraint fk_ability_score foreign key(fk_ability_score) references ability_scores(id),
+	primary key(id)
+);
+
+create table named_monsters (
+	id int generated always as identity,
+	firstName varchar not null,
+	lastName varchar,
 	title varchar,
 	fk_ability_score int,
+	fk_generic_monster int,
 	isEnemy bool not null,
 	personality varchar,
 	description varchar,
 	notes varchar,
 	constraint fk_ability_score foreign key(fk_ability_score) references ability_scores(id),
+	constraint fk_generic_monster foreign key(fk_generic_monster) references generic_monsters(id),
 	primary key(id)
 );
 
