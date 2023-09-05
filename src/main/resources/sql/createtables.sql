@@ -38,7 +38,7 @@ drop table if exists items;
 drop table if exists item_types;
 drop table if exists weapons;
 drop table if exists weapon_types;
-drop table if exists weapon_damages;
+drop table if exists dice_types;
 drop table if exists damage_types;
 
 create table months (
@@ -324,6 +324,14 @@ create table damage_types (
 	primary key(id)
 );
 
+create table dice_types (
+	id int generated always as identity,
+	name varchar,
+	description varchar,
+	maxRoll int,
+	primary key(id)
+);
+
 create table weapons (
 	id int generated always as identity,
 	name varchar not null,
@@ -333,18 +341,16 @@ create table weapons (
 	copperValue numeric,
 	weight numeric,
 	fk_weapon_type int,
-	constraint fk_weapon_type foreign key(fk_weapon_type) references weapon_types(id),
+	fk_damage_type int,
+	fk_die_type int,
+	numberOfDice int,
+	damageModifier int,
 	isMagical bool,
 	isCursed bool,
 	notes varchar,
-	primary key(id)
-);
-
-create table weapon_damages (
-	id int generated always as identity,
-	amount int,
-	fk_damage_type int,
+	constraint fk_weapon_type foreign key(fk_weapon_type) references weapon_types(id),
 	constraint fk_damage_type foreign key(fk_damage_type) references damage_types(id),
+	constraint fk_die_type foreign key(fk_die_type) references dice_types(id),
 	primary key(id)
 );
 
