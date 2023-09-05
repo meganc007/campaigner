@@ -302,7 +302,7 @@ create table items (
 	gold_value numeric,
 	silver_value numeric,
 	copper_value numeric,
-	weight numeric,
+	weight numeric(6, 2),
 	fk_item_type int,
 	isMagical bool,
 	isCursed bool,
