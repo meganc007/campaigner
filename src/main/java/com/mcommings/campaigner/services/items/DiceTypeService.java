@@ -64,7 +64,7 @@ public class DiceTypeService implements IDiceType {
         DiceType diceTypeToUpdate = RepositoryHelper.getById(diceTypeRepository, diceTypeId);
         diceTypeToUpdate.setName(diceType.getName());
         diceTypeToUpdate.setDescription(diceType.getDescription());
-        diceTypeToUpdate.setMaxRoll(diceType.getMaxRoll());
+        diceTypeToUpdate.setMax_roll(diceType.getMax_roll());
     }
 
 // TODO: uncomment when class that uses DiceType as a fk is added

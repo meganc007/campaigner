@@ -16,17 +16,17 @@ public class DiceType extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "maxRoll")
-    private int maxRoll;
+    @Column(name = "max_roll")
+    private int max_roll;
 
     public DiceType() {
         super();
     }
 
-    public DiceType(int id, String name, String description, int maxRoll) {
+    public DiceType(int id, String name, String description, int max_roll) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
-        this.maxRoll = maxRoll;
+        this.max_roll = max_roll;
     }
 }

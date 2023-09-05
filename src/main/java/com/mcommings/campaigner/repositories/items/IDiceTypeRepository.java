@@ -10,6 +10,4 @@ import java.util.Optional;
 public interface IDiceTypeRepository extends JpaRepository<DiceType, Integer> {
 
     Optional<DiceType> findByName(String name);
-
-    Optional<DiceType> findByMaxRoll(int maxRoll);
 }

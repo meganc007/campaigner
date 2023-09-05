@@ -127,7 +127,7 @@ public class DiceTypeTest {
         DiceType result = diceTypeRepository.findById(diceTypeId).get();
         Assertions.assertEquals(diceTypeToUpdate.getName(), result.getName());
         Assertions.assertEquals(diceTypeToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(diceTypeToUpdate.getMaxRoll(), result.getMaxRoll());
+        Assertions.assertEquals(diceTypeToUpdate.getMax_roll(), result.getMax_roll());
     }
 
     @Test
