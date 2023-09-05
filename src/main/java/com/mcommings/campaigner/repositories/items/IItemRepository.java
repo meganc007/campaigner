@@ -13,5 +13,5 @@ public interface IItemRepository extends JpaRepository<Item, Integer> {
     Optional<Item> findByName(String name);
 
     @Query("SELECT i FROM Item i WHERE i.fk_item_type = :id")
-    List<Item> findByfk_item_type(@Param("id") int id);
+    List<Item> findByfk_item_type(@Param("id") Integer id);
 }

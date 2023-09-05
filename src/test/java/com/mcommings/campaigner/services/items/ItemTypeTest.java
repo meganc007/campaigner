@@ -1,6 +1,9 @@
 package com.mcommings.campaigner.services.items;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.items.Item;
 import com.mcommings.campaigner.models.items.ItemType;
+import com.mcommings.campaigner.repositories.items.IItemRepository;
 import com.mcommings.campaigner.repositories.items.IItemTypeRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,11 +11,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_ITEM_TYPE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,6 +28,8 @@ public class ItemTypeTest {
 
     @Mock
     private IItemTypeRepository itemTypeRepository;
+    @Mock
+    private IItemRepository itemRepository;
 
     @InjectMocks
     private ItemTypeService itemTypeService;
@@ -95,21 +103,21 @@ public class ItemTypeTest {
         assertThrows(IllegalArgumentException.class, () -> itemTypeService.deleteItemType(itemTypeId));
     }
 
-//    TODO: fix this test when classes that use ItemType as a fk are added
-//    @Test
-//    public void whenItemTypeIdIsAForeignKey_deleteItemType_ThrowsDataIntegrityViolationException() {
-//        int itemTypeId = 1;
-//        Region region = new Region(1, "Region", "Description", 1, itemTypeId);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
-//        List<Region> regions = new ArrayList<>(Arrays.asList(region));
-//
-//        when(itemTypeRepository.existsById(itemTypeId)).thenReturn(true);
-//        when(regionRepository.findByfk_itemType(itemTypeId)).thenReturn(regions);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_ITEMTYPE.columnName, itemTypeId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> itemTypeService.deleteItemType(itemTypeId));
-//    }
+    @Test
+    public void whenItemTypeIdIsAForeignKey_deleteItemType_ThrowsDataIntegrityViolationException() {
+        int itemTypeId = 1;
+        Item item = new Item(1, "Item 1", "Description 1", "Rare", 32, 20,
+                12, 20.0f, 2, true, false, "Notes");
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(itemRepository));
+        List<Item> items = new ArrayList<>(Arrays.asList(item));
+
+        when(itemTypeRepository.existsById(itemTypeId)).thenReturn(true);
+        when(itemRepository.findByfk_item_type(itemTypeId)).thenReturn(items);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_ITEM_TYPE.columnName, itemTypeId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> itemTypeService.deleteItemType(itemTypeId));
+    }
 
     @Test
     public void whenItemTypeIdIsFound_updateItemType_UpdatesTheItemType() {
