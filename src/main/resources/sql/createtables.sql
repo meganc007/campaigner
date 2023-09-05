@@ -298,15 +298,16 @@ create table items (
 	id int generated always as identity,
 	name varchar not null,
 	description varchar,
+	rarity varchar,
 	goldValue numeric,
 	silverValue numeric,
 	copperValue numeric,
 	weight numeric,
 	fk_item_type int,
-	constraint fk_item_type foreign key(fk_item_type) references item_types(id),
 	isMagical bool,
 	isCursed bool,
 	notes varchar,
+	constraint fk_item_type foreign key(fk_item_type) references item_types(id),
 	primary key(id)
 );
 
