@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.controllers.inventorys;
+package com.mcommings.campaigner.controllers.items;
 
 import com.mcommings.campaigner.models.items.Inventory;
 import com.mcommings.campaigner.services.items.InventoryService;
@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "api/inventorys/inventory")
+@RequestMapping(path = "api/items/inventory")
 public class InventoryController {
 
     private final InventoryService inventoryService;
