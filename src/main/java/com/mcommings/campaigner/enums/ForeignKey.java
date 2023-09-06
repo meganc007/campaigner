@@ -11,6 +11,7 @@ public enum ForeignKey {
     FK_DICE_TYPE("fk_dice_type"),
     FK_DAY("fk_day"),
     FK_EVENT("fk_event"),
+    FK_GENERIC_MONSTER("fk_generic_monster"),
     FK_GOVERNMENT("fk_government"),
     FK_ITEM("fk_item"),
     FK_ITEM_TYPE("fk_item_type"),
