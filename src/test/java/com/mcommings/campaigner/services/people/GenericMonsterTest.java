@@ -1,19 +1,25 @@
 package com.mcommings.campaigner.services.people;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.people.GenericMonster;
+import com.mcommings.campaigner.models.people.NamedMonster;
 import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
 import com.mcommings.campaigner.repositories.people.IGenericMonsterRepository;
+import com.mcommings.campaigner.repositories.people.INamedMonsterRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_GENERIC_MONSTER;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -25,6 +31,8 @@ public class GenericMonsterTest {
     private IGenericMonsterRepository genericMonsterRepository;
     @Mock
     private IAbilityScoreRepository abilityScoreRepository;
+    @Mock
+    private INamedMonsterRepository namedMonsterRepository;
 
     @InjectMocks
     private GenericMonsterService genericMonsterService;
@@ -125,25 +133,21 @@ public class GenericMonsterTest {
         assertThrows(IllegalArgumentException.class, () -> genericMonsterService.deleteGenericMonster(genericMonsterId));
     }
 
-//    TODO: uncomment / fix test when classes that use GenericMonster as a fk are added
-//    @Test
-//    public void whenGenericMonsterIdIsAForeignKey_deleteGenericMonster_ThrowsDataIntegrityViolationException() {
-//        int genericMonsterId = 1;
-//        Place place = new Place(1, "Place", "Description", 1, genericMonsterId, 1, 1, 1);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository, eventRepository));
-//        List<Place> places = new ArrayList<>(Arrays.asList(place));
-//
-//        Event event = new Event(1, "Event", "Description", 1, 1, 1, 1, genericMonsterId, 1, 1);
-//        List<Event> events = new ArrayList<>(Arrays.asList(event));
-//
-//        when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
-//        when(placeRepository.findByfk_genericMonster(genericMonsterId)).thenReturn(places);
-//        when(eventRepository.findByfk_genericMonster(genericMonsterId)).thenReturn(events);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_GENERIC_MONSTER.columnName, genericMonsterId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> genericMonsterService.deleteGenericMonster(genericMonsterId));
-//    }
+    @Test
+    public void whenGenericMonsterIdIsAForeignKey_deleteGenericMonster_ThrowsDataIntegrityViolationException() {
+        int genericMonsterId = 1;
+        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title",
+                1, 2, genericMonsterId, false, "Personality", "Description", "Notes");
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(namedMonsterRepository));
+        List<NamedMonster> namedMonsters = new ArrayList<>(Arrays.asList(namedMonster));
+
+        when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
+        when(namedMonsterRepository.findByfk_generic_monster(genericMonsterId)).thenReturn(namedMonsters);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_GENERIC_MONSTER.columnName, genericMonsterId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> genericMonsterService.deleteGenericMonster(genericMonsterId));
+    }
 
     @Test
     public void whenGenericMonsterIdWithNoFKIsFound_updateGenericMonster_UpdatesTheGenericMonster() {

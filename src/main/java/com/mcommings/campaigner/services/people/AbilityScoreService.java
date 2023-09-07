@@ -4,6 +4,8 @@ import com.mcommings.campaigner.interfaces.people.IAbilityScore;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.people.AbilityScore;
 import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
+import com.mcommings.campaigner.repositories.people.IGenericMonsterRepository;
+import com.mcommings.campaigner.repositories.people.INamedMonsterRepository;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +25,16 @@ public class AbilityScoreService implements IAbilityScore {
 
     private final IAbilityScoreRepository abilityScoreRepository;
     private final IPersonRepository personRepository;
+    private final IGenericMonsterRepository genericMonsterRepository;
+    private final INamedMonsterRepository namedMonsterRepository;
 
     @Autowired
-    public AbilityScoreService(IAbilityScoreRepository abilityScoreRepository, IPersonRepository personRepository) {
+    public AbilityScoreService(IAbilityScoreRepository abilityScoreRepository, IPersonRepository personRepository,
+                               IGenericMonsterRepository genericMonsterRepository, INamedMonsterRepository namedMonsterRepository) {
         this.abilityScoreRepository = abilityScoreRepository;
         this.personRepository = personRepository;
+        this.genericMonsterRepository = genericMonsterRepository;
+        this.namedMonsterRepository = namedMonsterRepository;
     }
 
     @Override
@@ -90,6 +97,6 @@ public class AbilityScoreService implements IAbilityScore {
     }
 
     private List<CrudRepository> getReposWhereAbilityScoreIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(personRepository));
+        return new ArrayList<>(Arrays.asList(personRepository, genericMonsterRepository, namedMonsterRepository));
     }
 }

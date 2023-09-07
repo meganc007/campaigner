@@ -5,6 +5,7 @@ import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Wealth;
 import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
+import com.mcommings.campaigner.repositories.people.INamedMonsterRepository;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +26,15 @@ public class WealthService implements IWealth {
     private final IWealthRepository wealthRepository;
     private final ICityRepository cityRepository;
     private final IPersonRepository personRepository;
+    private final INamedMonsterRepository namedMonsterRepository;
 
     @Autowired
     public WealthService(IWealthRepository wealthRepository, ICityRepository cityRepository,
-                         IPersonRepository personRepository) {
+                         IPersonRepository personRepository, INamedMonsterRepository namedMonsterRepository) {
         this.wealthRepository = wealthRepository;
         this.cityRepository = cityRepository;
         this.personRepository = personRepository;
+        this.namedMonsterRepository = namedMonsterRepository;
     }
 
     @Override
@@ -77,6 +80,6 @@ public class WealthService implements IWealth {
     }
 
     private List<CrudRepository> getReposWhereWealthIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(cityRepository, personRepository));
+        return new ArrayList<>(Arrays.asList(cityRepository, personRepository, namedMonsterRepository));
     }
 }

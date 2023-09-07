@@ -5,6 +5,7 @@ import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.people.GenericMonster;
 import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
 import com.mcommings.campaigner.repositories.people.IGenericMonsterRepository;
+import com.mcommings.campaigner.repositories.people.INamedMonsterRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,17 +17,21 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_GENERIC_MONSTER;
 
 @Service
 public class GenericMonsterService implements IGenericMonster {
 
     private final IGenericMonsterRepository genericMonsterRepository;
     private final IAbilityScoreRepository abilityScoreRepository;
+    private final INamedMonsterRepository namedMonsterRepository;
 
     @Autowired
-    public GenericMonsterService(IGenericMonsterRepository genericMonsterRepository, IAbilityScoreRepository abilityScoreRepository) {
+    public GenericMonsterService(IGenericMonsterRepository genericMonsterRepository,
+                                 IAbilityScoreRepository abilityScoreRepository, INamedMonsterRepository namedMonsterRepository) {
         this.genericMonsterRepository = genericMonsterRepository;
         this.abilityScoreRepository = abilityScoreRepository;
+        this.namedMonsterRepository = namedMonsterRepository;
     }
 
     @Override
@@ -57,10 +62,9 @@ public class GenericMonsterService implements IGenericMonster {
         if (RepositoryHelper.cannotFindId(genericMonsterRepository, genericMonsterId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-// TODO: uncomment when class that uses GenericMonster as a fk is added
-//        if (RepositoryHelper.isForeignKey(getReposWhereGenericMonsterIsAForeignKey(), FK_GENERIC_MONSTER.columnName, genericMonsterId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
+        if (RepositoryHelper.isForeignKey(getReposWhereGenericMonsterIsAForeignKey(), FK_GENERIC_MONSTER.columnName, genericMonsterId)) {
+            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
+        }
 
         genericMonsterRepository.deleteById(genericMonsterId);
     }
@@ -83,10 +87,9 @@ public class GenericMonsterService implements IGenericMonster {
         genericMonsterToUpdate.setNotes(genericMonster.getNotes());
     }
 
-// TODO: uncomment when class that uses GenericMonster as a fk is added
-//    private List<CrudRepository> getReposWhereGenericMonsterIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList());
-//    }
+    private List<CrudRepository> getReposWhereGenericMonsterIsAForeignKey() {
+        return new ArrayList<>(Arrays.asList(namedMonsterRepository));
+    }
 
     private boolean hasForeignKeys(GenericMonster genericMonster) {
         return genericMonster.getFk_ability_score() != null;
