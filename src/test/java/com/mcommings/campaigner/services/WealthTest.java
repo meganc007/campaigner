@@ -3,9 +3,11 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.Wealth;
 import com.mcommings.campaigner.models.locations.City;
+import com.mcommings.campaigner.models.people.NamedMonster;
 import com.mcommings.campaigner.models.people.Person;
 import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
+import com.mcommings.campaigner.repositories.people.INamedMonsterRepository;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,6 +36,8 @@ public class WealthTest {
     private ICityRepository cityRepository;
     @Mock
     private IPersonRepository personRepository;
+    @Mock
+    private INamedMonsterRepository namedMonsterRepository;
 
     @InjectMocks
     private WealthService wealthService;
@@ -117,9 +121,14 @@ public class WealthTest {
                 3, wealthId, 2, true, false, "Personality", "Description", "Notes");
         List<Person> people = new ArrayList<>(Arrays.asList(person));
 
+        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title",
+                wealthId, 2, 1, false, "Personality", "Description", "Notes");
+        List<NamedMonster> namedMonsters = new ArrayList<>(Arrays.asList(namedMonster));
+
         when(wealthRepository.existsById(wealthId)).thenReturn(true);
         when(cityRepository.findByfk_wealth(wealthId)).thenReturn(cities);
         when(personRepository.findByfk_wealth(wealthId)).thenReturn(people);
+        when(namedMonsterRepository.findByfk_wealth(wealthId)).thenReturn(namedMonsters);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_WEALTH.columnName, wealthId);
         Assertions.assertTrue(actual);

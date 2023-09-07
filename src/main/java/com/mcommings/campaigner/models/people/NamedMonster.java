@@ -7,20 +7,14 @@ import lombok.ToString;
 
 @Data
 @Entity
-@Table(name = "people")
+@Table(name = "named_monsters")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @ToString(callSuper = true)
-public class Person extends SentientBeingEntity {
+public class NamedMonster extends SentientBeingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    @Column(name = "age")
-    private int age;
-
-    @Column(name = "fk_race")
-    private Integer fk_race;
 
     @Column(name = "fk_wealth")
     private Integer fk_wealth;
@@ -28,12 +22,8 @@ public class Person extends SentientBeingEntity {
     @Column(name = "fk_ability_score")
     private Integer fk_ability_score;
 
-    @Column(name = "isNPC")
-    private Boolean isNPC;
-
-    @ManyToOne
-    @JoinColumn(name = "fk_race", referencedColumnName = "id", updatable = false, insertable = false)
-    private Race race;
+    @Column(name = "fk_generic_monster")
+    private Integer fk_generic_monster;
 
     @ManyToOne
     @JoinColumn(name = "fk_wealth", referencedColumnName = "id", updatable = false, insertable = false)
@@ -43,36 +33,35 @@ public class Person extends SentientBeingEntity {
     @JoinColumn(name = "fk_ability_score", referencedColumnName = "id", updatable = false, insertable = false)
     private AbilityScore abilityScore;
 
-    public Person() {
+    @ManyToOne
+    @JoinColumn(name = "fk_generic_monster", referencedColumnName = "id", updatable = false, insertable = false)
+    private GenericMonster genericMonster;
+
+    public NamedMonster() {
         super();
     }
 
-    public Person(int id, String firstName, String lastName, int age, String title, Boolean isNPC, Boolean isEnemy,
-                  String personality, String description, String notes) {
+    public NamedMonster(int id, String firstName, String lastName, String title, Boolean isEnemy, String personality,
+                        String description, String notes) {
         this.id = id;
         this.setFirstName(firstName);
         this.setLastName(lastName);
-        this.age = age;
         this.setTitle(title);
-        this.isNPC = isNPC;
         this.setIsEnemy(isEnemy);
         this.setPersonality(personality);
         this.setDescription(description);
         this.setNotes(notes);
     }
 
-    public Person(int id, String firstName, String lastName, int age, String title, Integer fk_race, Integer fk_wealth,
-                  Integer fk_ability_score, Boolean isNPC, Boolean isEnemy, String personality, String description,
-                  String notes) {
+    public NamedMonster(int id, String firstName, String lastName, String title, Integer fk_wealth, Integer fk_ability_score,
+                        Integer fk_generic_monster, Boolean isEnemy, String personality, String description, String notes) {
         this.id = id;
         this.setFirstName(firstName);
         this.setLastName(lastName);
-        this.age = age;
         this.setTitle(title);
-        this.fk_race = fk_race;
         this.setFk_wealth(fk_wealth);
         this.setFk_ability_score(fk_ability_score);
-        this.isNPC = isNPC;
+        this.setFk_generic_monster(fk_generic_monster);
         this.setIsEnemy(isEnemy);
         this.setPersonality(personality);
         this.setDescription(description);

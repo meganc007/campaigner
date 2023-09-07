@@ -2,8 +2,12 @@ package com.mcommings.campaigner.services.people;
 
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.people.AbilityScore;
+import com.mcommings.campaigner.models.people.GenericMonster;
+import com.mcommings.campaigner.models.people.NamedMonster;
 import com.mcommings.campaigner.models.people.Person;
 import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
+import com.mcommings.campaigner.repositories.people.IGenericMonsterRepository;
+import com.mcommings.campaigner.repositories.people.INamedMonsterRepository;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,6 +34,10 @@ public class AbilityScoreTest {
     private IAbilityScoreRepository abilityScoreRepository;
     @Mock
     private IPersonRepository personRepository;
+    @Mock
+    private IGenericMonsterRepository genericMonsterRepository;
+    @Mock
+    private INamedMonsterRepository namedMonsterRepository;
 
     @InjectMocks
     private AbilityScoreService abilityScoreService;
@@ -103,8 +111,16 @@ public class AbilityScoreTest {
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(personRepository));
         List<Person> people = new ArrayList<>(Arrays.asList(person));
 
+        GenericMonster genericMonster = new GenericMonster(1, "name", "desc", abilityScoreId, "traits", "notes");
+        List<GenericMonster> genericMonsters = new ArrayList<>(Arrays.asList(genericMonster));
+
+        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title", 1, 1, abilityScoreId, false, "description", "personality", "notes");
+        List<NamedMonster> namedMonsters = new ArrayList<>(Arrays.asList(namedMonster));
+
         when(abilityScoreRepository.existsById(abilityScoreId)).thenReturn(true);
         when(personRepository.findByfk_ability_score(abilityScoreId)).thenReturn(people);
+        when(genericMonsterRepository.findByfk_ability_score(abilityScoreId)).thenReturn(genericMonsters);
+        when(namedMonsterRepository.findByfk_ability_score(abilityScoreId)).thenReturn(namedMonsters);
 
         boolean actual = RepositoryHelper.isForeignKey(repositories, FK_ABILITY_SCORE.columnName, abilityScoreId);
         Assertions.assertTrue(actual);
