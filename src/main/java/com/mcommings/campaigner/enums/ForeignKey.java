@@ -18,6 +18,7 @@ public enum ForeignKey {
     FK_JOB("fk_job"),
     FK_MONTH("fk_month"),
     FK_MOON("fk_moon"),
+    FK_NAMED_MONSTER("fk_named_monster"),
     FK_PERSON("fk_person"),
     FK_PLACE("fk_place"),
     FK_PLACE_TYPE("fk_place_type"),
