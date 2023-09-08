@@ -13,6 +13,7 @@ public enum ForeignKey {
     FK_EVENT("fk_event"),
     FK_GENERIC_MONSTER("fk_generic_monster"),
     FK_GOVERNMENT("fk_government"),
+    FK_HOOK("fk_hook"),
     FK_ITEM("fk_item"),
     FK_ITEM_TYPE("fk_item_type"),
     FK_JOB("fk_job"),
