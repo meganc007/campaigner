@@ -34,10 +34,10 @@ public class Item extends BaseEntity {
     @Column(name = "fk_item_type")
     private Integer fk_item_type;
 
-    @Column(name = "isMagical")
+    @Column(name = "is_magical")
     private boolean isMagical;
 
-    @Column(name = "isCursed")
+    @Column(name = "is_cursed")
     private boolean isCursed;
 
     @Column(name = "notes")
