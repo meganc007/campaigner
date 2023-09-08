@@ -136,7 +136,7 @@ public class EventPlacePersonTest {
     }
 
     @Test
-    public void whenEventPlacePersonIdWithInvalidFKIsFound_updateEventPlacePerson_UpdatesTheEventPlacePerson() {
+    public void whenEventPlacePersonIdWithInvalidFKIsFound_updateEventPlacePerson_ThrowsDataIntegrityViolationException() {
         int eppId = 1;
 
         EventPlacePerson eventPlacePerson = new EventPlacePerson(eppId, 2, 3, 4);
@@ -157,11 +157,11 @@ public class EventPlacePersonTest {
 
     @Test
     public void whenEventPlacePersonIdIsNotFound_updateEventPlacePerson_ThrowsIllegalArgumentException() {
-        int jaId = 1;
-        EventPlacePerson eventPlacePerson = new EventPlacePerson(jaId, 2, 3, 4);
+        int eppId = 1;
+        EventPlacePerson eventPlacePerson = new EventPlacePerson(eppId, 2, 3, 4);
 
-        when(eventPlacePersonRepository.existsById(jaId)).thenReturn(false);
+        when(eventPlacePersonRepository.existsById(eppId)).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> eventPlacePersonService.updateEventPlacePerson(jaId, eventPlacePerson));
+        assertThrows(IllegalArgumentException.class, () -> eventPlacePersonService.updateEventPlacePerson(eppId, eventPlacePerson));
     }
 }

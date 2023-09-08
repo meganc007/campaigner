@@ -26,6 +26,7 @@ public enum ForeignKey {
     FK_PLACE("fk_place"),
     FK_PLACE_TYPE("fk_place_type"),
     FK_RACE("fk_race"),
+    FK_REWARD("fk_reward"),
     FK_REGION("fk_region"),
     FK_SETTLEMENT("fk_settlement"),
     FK_SUN("fk_sun"),
