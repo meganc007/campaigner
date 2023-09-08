@@ -9,7 +9,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+import static com.mcommings.campaigner.enums.ErrorMessage.RH_UNABLE_TO_PROCESS_FOREIGN_KEY_LOOKUP;
 import static java.util.Objects.isNull;
 
 public class RepositoryHelper {
@@ -55,6 +56,13 @@ public class RepositoryHelper {
         List<String> names = getListOfForeignKeyColumnNames(requestItem);
         HashMap<CrudRepository, String> reposAndColumns = createReposAndColumnsHashMap(repositories, names);
 
+        return !reposAndColumns.entrySet().stream().allMatch(entry -> {
+            String getterName = retrieveNameOfForeignKeyGetterMethod(requestItem, entry);
+            return isTheRecordAForeignKeyForThisRepo(entry, getterName, requestItem);
+        });
+    }
+
+    public static <T> boolean foreignKeyIsNotValid(HashMap<CrudRepository, String> reposAndColumns, Object requestItem) {
         return !reposAndColumns.entrySet().stream().allMatch(entry -> {
             String getterName = retrieveNameOfForeignKeyGetterMethod(requestItem, entry);
             return isTheRecordAForeignKeyForThisRepo(entry, getterName, requestItem);

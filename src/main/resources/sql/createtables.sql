@@ -305,8 +305,8 @@ create table items (
 	copper_value numeric,
 	weight numeric(6, 2),
 	fk_item_type int,
-	isMagical bool,
-	isCursed bool,
+	is_magical bool,
+	is_cursed bool,
 	notes varchar,
 	constraint fk_item_type foreign key(fk_item_type) references item_types(id),
 	primary key(id)
