@@ -421,9 +421,11 @@ create table hooks_places_people (
 	id int generated always as identity,
 	fk_hook int,
     fk_person int,
+    fk_named_monster int,
     fk_place int,
 	constraint fk_hook foreign key(fk_hook) references hooks(id),
 	constraint fk_person foreign key(fk_person) references people(id),
+	constraint fk_named_monster foreign key(fk_named_monster) references named_monsters(id),
 	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
@@ -441,11 +443,13 @@ create table objectives_places_people_items_weapons (
     fk_item int,
     fk_weapon int,
     fk_person int,
+    fk_named_monster int,
     fk_place int,
 	constraint fk_objective foreign key(fk_objective) references objectives(id),
 	constraint fk_item foreign key(fk_item) references items(id),
 	constraint fk_weapon foreign key(fk_weapon) references weapons(id),
 	constraint fk_person foreign key(fk_person) references people(id),
+	constraint fk_named_monster foreign key(fk_named_monster) references named_monsters(id),
 	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
@@ -463,11 +467,13 @@ create table outcomes_places_people_items_weapons (
     fk_item int,
     fk_weapon int,
     fk_person int,
+    fk_named_monster int,
     fk_place int,
 	constraint fk_outcome foreign key(fk_outcome) references outcomes(id),
 	constraint fk_item foreign key(fk_item) references items(id),
 	constraint fk_weapon foreign key(fk_weapon) references weapons(id),
 	constraint fk_person foreign key(fk_person) references people(id),
+	constraint fk_named_monster foreign key(fk_named_monster) references named_monsters(id),
 	constraint fk_place foreign key(fk_place) references places(id),
 	primary key(id)
 );
