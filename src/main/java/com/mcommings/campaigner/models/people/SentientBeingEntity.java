@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @MappedSuperclass
-public class SentientBeingEntity {
+public abstract class SentientBeingEntity {
 
     @Column(name = "firstName", nullable = false)
     private String firstName;

@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @MappedSuperclass
-public class CommonQuestEntity {
+public abstract class CommonQuestEntity {
 
     @Column(name = "description")
     private String description;
