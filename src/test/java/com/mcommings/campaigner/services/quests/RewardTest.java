@@ -37,7 +37,11 @@ public class RewardTest {
         List<Reward> rewards = new ArrayList<>();
         rewards.add(new Reward(1, "Description", "Notes"));
         rewards.add(new Reward(2, "Description", "Notes", 200, 100, 50));
-        rewards.add(new Reward(3, "Description", "Notes", 200, 100, 50, 1, 1));
+
+        Reward reward3 = new Reward(3, "Description", "Notes", 200, 100, 50);
+        reward3.setFk_item(1);
+        reward3.setFk_item(2);
+        rewards.add(reward3);
         when(rewardRepository.findAll()).thenReturn(rewards);
 
         List<Reward> result = rewardService.getRewards();
@@ -59,8 +63,9 @@ public class RewardTest {
 
     @Test
     public void whenRewardIsValid_saveReward_SavesTheReward() {
-        Reward reward = new Reward(3, "Description", "Notes", 200, 100,
-                50, 1, 1);
+        Reward reward = new Reward(3, "Description", "Notes", 200, 100, 50);
+        reward.setFk_item(1);
+        reward.setFk_weapon(1);
 
         when(itemRepository.existsById(1)).thenReturn(true);
         when(weaponRepository.existsById(1)).thenReturn(true);
@@ -72,11 +77,25 @@ public class RewardTest {
     }
 
     @Test
+    public void whenRewardHasOneFk_saveReward_SavesTheReward() {
+        Reward reward = new Reward(3, "Description", "Notes", 200, 100, 50);
+        reward.setFk_item(1);
+
+        when(itemRepository.existsById(1)).thenReturn(true);
+        when(rewardRepository.saveAndFlush(reward)).thenReturn(reward);
+
+        assertDoesNotThrow(() -> rewardService.saveReward(reward));
+        verify(rewardRepository, times(1)).saveAndFlush(reward);
+    }
+
+    @Test
     public void whenRewardAlreadyExists_saveReward_ThrowsDataIntegrityViolationException() {
-        Reward reward = new Reward(1, "Description", "Notes", 200, 100,
-                50, 1, 1);
-        Reward copy = new Reward(2, "Description", "Notes", 200, 100,
-                50, 1, 1);
+        Reward reward = new Reward(1, "Description", "Notes", 200, 100, 50);
+        reward.setFk_item(1);
+        reward.setFk_weapon(1);
+        Reward copy = new Reward(2, "Description", "Notes", 200, 100, 50);
+        copy.setFk_item(1);
+        copy.setFk_weapon(1);
 
         when(itemRepository.existsById(1)).thenReturn(true);
         when(weaponRepository.existsById(1)).thenReturn(true);
@@ -109,10 +128,12 @@ public class RewardTest {
     public void whenRewardIdWithValidFKIsFound_updateReward_UpdatesTheReward() {
         int rewardId = 1;
 
-        Reward reward = new Reward(rewardId, "Description", "Notes", 200, 100,
-                50, rewardId, 1);
-        Reward update = new Reward(1, "Description", "Notes", 200, 100,
-                50, 2, 2);
+        Reward reward = new Reward(rewardId, "Description", "Notes", 200, 100, 50);
+        reward.setFk_item(1);
+        reward.setFk_weapon(1);
+        Reward update = new Reward(rewardId, "Description", "Notes", 200, 100, 50);
+        update.setFk_item(2);
+        update.setFk_weapon(2);
 
         when(rewardRepository.existsById(rewardId)).thenReturn(true);
         when(rewardRepository.findById(rewardId)).thenReturn(Optional.of(reward));
@@ -140,10 +161,12 @@ public class RewardTest {
     public void whenRewardIdWithInvalidFKIsFound_updateReward_ThrowsDataIntegrityViolationException() {
         int rewardId = 1;
 
-        Reward reward = new Reward(rewardId, "Description", "Notes", 200, 100,
-                50, 1, 1);
-        Reward update = new Reward(rewardId, "Description", "Notes", 200, 100,
-                50, 2, 2);
+        Reward reward = new Reward(rewardId, "Description", "Notes", 200, 100, 50);
+        reward.setFk_item(1);
+        reward.setFk_weapon(1);
+        Reward update = new Reward(rewardId, "Description", "Notes", 200, 100, 50);
+        update.setFk_item(2);
+        update.setFk_weapon(2);
 
         when(rewardRepository.existsById(rewardId)).thenReturn(true);
         when(rewardRepository.findById(rewardId)).thenReturn(Optional.of(reward));

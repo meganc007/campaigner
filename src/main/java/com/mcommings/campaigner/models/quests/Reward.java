@@ -59,15 +59,4 @@ public class Reward extends CommonQuestEntity {
         this.copper_value = copper_value;
     }
 
-    public Reward(int id, String description, String notes, int gold_value, int silver_value, int copper_value,
-                  Integer fk_item, Integer fk_weapon) {
-        this.id = id;
-        this.setDescription(description);
-        this.setNotes(notes);
-        this.gold_value = gold_value;
-        this.silver_value = silver_value;
-        this.copper_value = copper_value;
-        this.fk_item = fk_item;
-        this.fk_weapon = fk_weapon;
-    }
 }

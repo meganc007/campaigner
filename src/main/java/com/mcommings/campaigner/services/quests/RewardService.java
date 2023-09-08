@@ -12,11 +12,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_ITEM;
+import static com.mcommings.campaigner.enums.ForeignKey.FK_WEAPON;
 import static java.util.Objects.isNull;
 
 @Service
@@ -49,7 +50,7 @@ public class RewardService implements IReward {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         if (hasForeignKeys(reward) &&
-                RepositoryHelper.foreignKeyIsNotValid(rewardRepository, getListOfForeignKeyRepositories(), reward)) {
+                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(reward), reward)) {
             throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
         }
 
@@ -77,7 +78,7 @@ public class RewardService implements IReward {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         if (hasForeignKeys(reward) &&
-                RepositoryHelper.foreignKeyIsNotValid(rewardRepository, getListOfForeignKeyRepositories(), reward)) {
+                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(reward), reward)) {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }
         Reward rewardToUpdate = RepositoryHelper.getById(rewardRepository, rewardId);
@@ -108,7 +109,14 @@ public class RewardService implements IReward {
                 reward.getFk_weapon() != null;
     }
 
-    private List<CrudRepository> getListOfForeignKeyRepositories() {
-        return new ArrayList<>(Arrays.asList(itemRepository, weaponRepository));
+    private HashMap<CrudRepository, String> buildReposAndColumnsHashMap(Reward reward) {
+        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
+        if (reward.getFk_item() != null) {
+            reposAndColumns.put(itemRepository, FK_ITEM.columnName);
+        }
+        if (reward.getFk_weapon() != null) {
+            reposAndColumns.put(weaponRepository, FK_WEAPON.columnName);
+        }
+        return reposAndColumns;
     }
 }
