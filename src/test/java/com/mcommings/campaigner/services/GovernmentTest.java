@@ -153,4 +153,23 @@ public class GovernmentTest {
 
         assertThrows(IllegalArgumentException.class, () -> governmentService.updateGovernment(governmentId, government));
     }
+
+    @Test
+    public void whenSomeGovernmentFieldsChanged_updateGovernment_OnlyUpdatesChangedFields() {
+        int governmentId = 1;
+        Government government = new Government(governmentId, "Old Government Name", "Old Description");
+        Government governmentToUpdate = new Government();
+        governmentToUpdate.setDescription("New government description");
+
+        when(governmentRepository.existsById(governmentId)).thenReturn(true);
+        when(governmentRepository.findById(governmentId)).thenReturn(Optional.of(government));
+
+        governmentService.updateGovernment(governmentId, governmentToUpdate);
+
+        verify(governmentRepository).findById(governmentId);
+
+        Government result = governmentRepository.findById(governmentId).get();
+        Assertions.assertEquals("Old Government Name", result.getName());
+        Assertions.assertEquals(governmentToUpdate.getDescription(), result.getDescription());
+    }
 }

@@ -68,8 +68,8 @@ public class ClimateService implements IClimate {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Climate climateToUpdate = RepositoryHelper.getById(climateRepository, climateId);
-        climateToUpdate.setName(climate.getName());
-        climateToUpdate.setDescription(climate.getDescription());
+        if (climate.getName() != null) climateToUpdate.setName(climate.getName());
+        if (climate.getDescription() != null) climateToUpdate.setDescription(climate.getDescription());
     }
 
     private List<CrudRepository> getReposWhereClimateIsAForeignKey() {

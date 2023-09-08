@@ -145,4 +145,23 @@ public class ClimateTest {
 
         assertThrows(IllegalArgumentException.class, () -> climateService.updateClimate(climateId, climate));
     }
+    
+    @Test
+    public void whenSomeClimateFieldsChanged_updateClimate_OnlyUpdatesChangedFields() {
+        int climateId = 1;
+        Climate climate = new Climate(climateId, "Old Climate Name", "Old Description");
+        Climate climateToUpdate = new Climate();
+        climateToUpdate.setDescription("New climate description");
+
+        when(climateRepository.existsById(climateId)).thenReturn(true);
+        when(climateRepository.findById(climateId)).thenReturn(Optional.of(climate));
+
+        climateService.updateClimate(climateId, climateToUpdate);
+
+        verify(climateRepository).findById(climateId);
+
+        Climate result = climateRepository.findById(climateId).get();
+        Assertions.assertEquals("Old Climate Name", result.getName());
+        Assertions.assertEquals(climateToUpdate.getDescription(), result.getDescription());
+    }
 }

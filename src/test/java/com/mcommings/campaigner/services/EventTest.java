@@ -272,4 +272,24 @@ public class EventTest {
 
         assertThrows(IllegalArgumentException.class, () -> eventService.updateEvent(eventId, event));
     }
+    
+    @Test
+    public void whenSomeEventFieldsChanged_updateEvent_OnlyUpdatesChangedFields() {
+        int eventId = 1;
+        Event event = new Event(eventId, "Old Event Name", "Old Description", 120);
+        Event eventToUpdate = new Event();
+        eventToUpdate.setDescription("New event description");
+
+        when(eventRepository.existsById(eventId)).thenReturn(true);
+        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+
+        eventService.updateEvent(eventId, eventToUpdate);
+
+        verify(eventRepository).findById(eventId);
+
+        Event result = eventRepository.findById(eventId).get();
+        Assertions.assertEquals("Old Event Name", result.getName());
+        Assertions.assertEquals(eventToUpdate.getDescription(), result.getDescription());
+        Assertions.assertEquals(120, result.getEvent_year());
+    }
 }

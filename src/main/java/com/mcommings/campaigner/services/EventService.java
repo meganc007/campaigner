@@ -96,15 +96,15 @@ public class EventService implements IEvent {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }
         Event eventToUpdate = RepositoryHelper.getById(eventRepository, eventId);
-        eventToUpdate.setName(event.getName());
-        eventToUpdate.setDescription(event.getDescription());
-        eventToUpdate.setEvent_year(event.getEvent_year());
-        eventToUpdate.setFk_month(event.getFk_month());
-        eventToUpdate.setFk_week(event.getFk_week());
-        eventToUpdate.setFk_day(event.getFk_day());
-        eventToUpdate.setFk_city(event.getFk_city());
-        eventToUpdate.setFk_continent(event.getFk_continent());
-        eventToUpdate.setFk_country(event.getFk_country());
+        if (event.getName() != null) eventToUpdate.setName(event.getName());
+        if (event.getDescription() != null) eventToUpdate.setDescription(event.getDescription());
+        if (event.getEvent_year() != 0) eventToUpdate.setEvent_year(event.getEvent_year());
+        if (event.getFk_month() != null) eventToUpdate.setFk_month(event.getFk_month());
+        if (event.getFk_week() != null) eventToUpdate.setFk_week(event.getFk_week());
+        if (event.getFk_day() != null) eventToUpdate.setFk_day(event.getFk_day());
+        if (event.getFk_city() != null) eventToUpdate.setFk_city(event.getFk_city());
+        if (event.getFk_continent() != null) eventToUpdate.setFk_continent(event.getFk_continent());
+        if (event.getFk_country() != null) eventToUpdate.setFk_country(event.getFk_country());
     }
 
     private List<CrudRepository> getReposWhereEventIsAForeignKey() {
