@@ -68,8 +68,8 @@ public class DamageTypeService implements IDamageType {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         DamageType damageTypeToUpdate = RepositoryHelper.getById(damageTypeRepository, damageTypeId);
-        damageTypeToUpdate.setName(damageType.getName());
-        damageTypeToUpdate.setDescription(damageType.getDescription());
+        if (damageType.getName() != null) damageTypeToUpdate.setName(damageType.getName());
+        if (damageType.getDescription() != null) damageTypeToUpdate.setDescription(damageType.getDescription());
     }
 
     private List<CrudRepository> getReposWhereDamageTypeIsAForeignKey() {

@@ -14,11 +14,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.*;
 
 @Service
 public class InventoryService implements IInventory {
@@ -51,7 +51,7 @@ public class InventoryService implements IInventory {
             throw new DataIntegrityViolationException(INVENTORY_EXISTS.message);
         }
         if (hasForeignKeys(inventory) &&
-                RepositoryHelper.foreignKeyIsNotValid(inventoryRepository, getListOfForeignKeyRepositories(), inventory)) {
+                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(inventory), inventory)) {
             throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
         }
 
@@ -76,14 +76,14 @@ public class InventoryService implements IInventory {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         if (hasForeignKeys(inventory) &&
-                RepositoryHelper.foreignKeyIsNotValid(inventoryRepository, getListOfForeignKeyRepositories(), inventory)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(inventory), inventory)) {
+            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
         }
         Inventory inventoryToUpdate = RepositoryHelper.getById(inventoryRepository, inventoryId);
-        inventoryToUpdate.setFk_person(inventory.getFk_person());
-        inventoryToUpdate.setFk_item(inventory.getFk_item());
-        inventoryToUpdate.setFk_weapon(inventory.getFk_weapon());
-        inventoryToUpdate.setFk_place(inventory.getFk_place());
+        if (inventory.getFk_person() != null) inventoryToUpdate.setFk_person(inventory.getFk_person());
+        if (inventory.getFk_item() != null) inventoryToUpdate.setFk_item(inventory.getFk_item());
+        if (inventory.getFk_weapon() != null) inventoryToUpdate.setFk_weapon(inventory.getFk_weapon());
+        if (inventory.getFk_place() != null) inventoryToUpdate.setFk_place(inventory.getFk_place());
     }
 
     private boolean inventoryAlreadyExists(Inventory inventory) {
@@ -97,7 +97,18 @@ public class InventoryService implements IInventory {
                 inventory.getFk_place() != null;
     }
 
-    private List<CrudRepository> getListOfForeignKeyRepositories() {
-        return new ArrayList<>(Arrays.asList(personRepository, itemRepository, weaponRepository, placeRepository));
+    private HashMap<CrudRepository, String> buildReposAndColumnsHashMap(Inventory inventory) {
+        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
+
+        reposAndColumns.put(personRepository, FK_PERSON.columnName);
+        reposAndColumns.put(itemRepository, FK_ITEM.columnName);
+
+        if (inventory.getFk_weapon() != null) {
+            reposAndColumns.put(weaponRepository, FK_WEAPON.columnName);
+        }
+        if (inventory.getFk_place() != null) {
+            reposAndColumns.put(placeRepository, FK_PLACE.columnName);
+        }
+        return reposAndColumns;
     }
 }

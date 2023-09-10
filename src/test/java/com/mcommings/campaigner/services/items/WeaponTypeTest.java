@@ -147,4 +147,26 @@ public class WeaponTypeTest {
 
         assertThrows(IllegalArgumentException.class, () -> weaponTypeService.updateWeaponType(weaponTypeId, weaponType));
     }
+
+    @Test
+    public void whenSomeWeaponTypeFieldsChanged_updateWeaponType_OnlyUpdatesChangedFields() {
+        int weaponTypeId = 1;
+        WeaponType weaponType = new WeaponType(weaponTypeId, "Old Weapon Type Name", "Description");
+
+        String newDescription = "New WeaponType description";
+
+        WeaponType weaponTypeToUpdate = new WeaponType();
+        weaponTypeToUpdate.setDescription(newDescription);
+
+        when(weaponTypeRepository.existsById(weaponTypeId)).thenReturn(true);
+        when(weaponTypeRepository.findById(weaponTypeId)).thenReturn(Optional.of(weaponType));
+
+        weaponTypeService.updateWeaponType(weaponTypeId, weaponTypeToUpdate);
+
+        verify(weaponTypeRepository).findById(weaponTypeId);
+
+        WeaponType result = weaponTypeRepository.findById(weaponTypeId).get();
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(weaponType.getName(), result.getName());
+    }
 }

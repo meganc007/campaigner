@@ -15,10 +15,10 @@ public class Inventory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "fk_person")
+    @Column(name = "fk_person", nullable = false)
     private Integer fk_person;
 
-    @Column(name = "fk_item")
+    @Column(name = "fk_item", nullable = false)
     private Integer fk_item;
 
     @Column(name = "fk_weapon")
@@ -43,6 +43,9 @@ public class Inventory {
     @ManyToOne
     @JoinColumn(name = "fk_place", referencedColumnName = "id", updatable = false, insertable = false)
     private Place place;
+
+    public Inventory() {
+    }
 
     public Inventory(int id, Integer fk_person, Integer fk_item, Integer fk_weapon, Integer fk_place) {
         this.id = id;

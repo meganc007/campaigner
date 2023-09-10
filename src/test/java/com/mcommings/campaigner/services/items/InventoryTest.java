@@ -175,4 +175,34 @@ public class InventoryTest {
         assertThrows(IllegalArgumentException.class, () -> inventoryService.updateInventory(id, inventory));
     }
 
+    @Test
+    public void whenSomeInventoryFieldsChanged_updateInventory_OnlyUpdatesChangedFields() {
+        int inventoryId = 1;
+        Inventory inventory = new Inventory(inventoryId, 1, 1, 2, 3);
+
+        int newPerson = 3;
+
+        Inventory inventoryToUpdate = new Inventory();
+        inventoryToUpdate.setFk_person(newPerson);
+        inventoryToUpdate.setFk_item(1);
+
+        when(inventoryRepository.existsById(inventoryId)).thenReturn(true);
+        when(personRepository.existsById(1)).thenReturn(true);
+        when(personRepository.existsById(3)).thenReturn(true);
+        when(itemRepository.existsById(1)).thenReturn(true);
+        when(weaponRepository.existsById(2)).thenReturn(true);
+        when(placeRepository.existsById(3)).thenReturn(true);
+        when(inventoryRepository.findById(inventoryId)).thenReturn(Optional.of(inventory));
+
+        inventoryService.updateInventory(inventoryId, inventoryToUpdate);
+
+        verify(inventoryRepository).findById(inventoryId);
+
+        Inventory result = inventoryRepository.findById(inventoryId).get();
+        Assertions.assertEquals(newPerson, result.getFk_person());
+        Assertions.assertEquals(inventory.getFk_item(), result.getFk_item());
+        Assertions.assertEquals(inventory.getFk_weapon(), result.getFk_weapon());
+        Assertions.assertEquals(inventory.getFk_place(), result.getFk_place());
+    }
+
 }

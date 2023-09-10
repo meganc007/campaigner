@@ -149,4 +149,29 @@ public class DiceTypeTest {
 
         assertThrows(IllegalArgumentException.class, () -> diceTypeService.updateDiceType(diceTypeId, diceType));
     }
+
+    @Test
+    public void whenSomeDiceTypeFieldsChanged_updateDiceType_OnlyUpdatesChangedFields() {
+        int diceTypeId = 1;
+        DiceType diceType = new DiceType(diceTypeId, "Name", "Description", 2);
+
+        String newDescription = "New description";
+        int newMaxRoll = -1;
+
+        DiceType diceTypeToUpdate = new DiceType();
+        diceTypeToUpdate.setDescription(newDescription);
+        diceTypeToUpdate.setMax_roll(newMaxRoll);
+
+        when(diceTypeRepository.existsById(diceTypeId)).thenReturn(true);
+        when(diceTypeRepository.findById(diceTypeId)).thenReturn(Optional.of(diceType));
+
+        diceTypeService.updateDiceType(diceTypeId, diceTypeToUpdate);
+
+        verify(diceTypeRepository).findById(diceTypeId);
+
+        DiceType result = diceTypeRepository.findById(diceTypeId).get();
+        Assertions.assertEquals(diceType.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(diceType.getMax_roll(), result.getMax_roll());
+    }
 }

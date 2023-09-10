@@ -68,8 +68,8 @@ public class WeaponTypeService implements IWeaponType {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         WeaponType weaponTypeToUpdate = RepositoryHelper.getById(weaponTypeRepository, weaponTypeId);
-        weaponTypeToUpdate.setName(weaponType.getName());
-        weaponTypeToUpdate.setDescription(weaponType.getDescription());
+        if (weaponType.getName() != null) weaponTypeToUpdate.setName(weaponType.getName());
+        if (weaponType.getDescription() != null) weaponTypeToUpdate.setDescription(weaponType.getDescription());
     }
 
     private List<CrudRepository> getReposWhereWeaponTypeIsAForeignKey() {

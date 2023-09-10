@@ -146,4 +146,27 @@ public class ItemTypeTest {
 
         assertThrows(IllegalArgumentException.class, () -> itemTypeService.updateItemType(itemTypeId, itemType));
     }
+
+    @Test
+    public void whenSomeItemTypeFieldsChanged_updateItemType_OnlyUpdatesChangedFields() {
+        int itemTypeId = 1;
+        ItemType itemType = new ItemType(itemTypeId, "Name", "Old ItemType Description");
+
+        String newDescription = "New ItemType description";
+        int newMonth = 3;
+
+        ItemType itemTypeToUpdate = new ItemType();
+        itemTypeToUpdate.setDescription(newDescription);
+
+        when(itemTypeRepository.existsById(itemTypeId)).thenReturn(true);
+        when(itemTypeRepository.findById(itemTypeId)).thenReturn(Optional.of(itemType));
+
+        itemTypeService.updateItemType(itemTypeId, itemTypeToUpdate);
+
+        verify(itemTypeRepository).findById(itemTypeId);
+
+        ItemType result = itemTypeRepository.findById(itemTypeId).get();
+        Assertions.assertEquals(itemType.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+    }
 }

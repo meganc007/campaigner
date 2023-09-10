@@ -68,9 +68,9 @@ public class DiceTypeService implements IDiceType {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         DiceType diceTypeToUpdate = RepositoryHelper.getById(diceTypeRepository, diceTypeId);
-        diceTypeToUpdate.setName(diceType.getName());
-        diceTypeToUpdate.setDescription(diceType.getDescription());
-        diceTypeToUpdate.setMax_roll(diceType.getMax_roll());
+        if (diceType.getName() != null) diceTypeToUpdate.setName(diceType.getName());
+        if (diceType.getDescription() != null) diceTypeToUpdate.setDescription(diceType.getDescription());
+        if (diceType.getMax_roll() >= 0) diceTypeToUpdate.setMax_roll(diceType.getMax_roll());
     }
 
     private List<CrudRepository> getReposWhereDiceTypeIsAForeignKey() {

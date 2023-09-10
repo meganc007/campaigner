@@ -68,8 +68,8 @@ public class ItemTypeService implements IItemType {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         ItemType itemTypeToUpdate = RepositoryHelper.getById(itemTypeRepository, itemTypeId);
-        itemTypeToUpdate.setName(itemType.getName());
-        itemTypeToUpdate.setDescription(itemType.getDescription());
+        if (itemType.getName() != null) itemTypeToUpdate.setName(itemType.getName());
+        if (itemType.getDescription() != null) itemTypeToUpdate.setDescription(itemType.getDescription());
     }
 
     private List<CrudRepository> getReposWhereItemTypeIsAForeignKey() {

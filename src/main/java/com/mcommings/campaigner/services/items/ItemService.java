@@ -76,17 +76,17 @@ public class ItemService implements IItem {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }
         Item itemToUpdate = RepositoryHelper.getById(itemRepository, itemId);
-        itemToUpdate.setName(item.getName());
-        itemToUpdate.setDescription(item.getDescription());
-        itemToUpdate.setRarity(item.getRarity());
-        itemToUpdate.setGold_value(item.getGold_value());
-        itemToUpdate.setSilver_value(item.getSilver_value());
-        itemToUpdate.setCopper_value(item.getCopper_value());
-        itemToUpdate.setWeight(item.getWeight());
-        itemToUpdate.setFk_item_type(item.getFk_item_type());
-        itemToUpdate.setMagical(item.isMagical());
-        itemToUpdate.setCursed(item.isCursed());
-        itemToUpdate.setNotes(item.getNotes());
+        if (item.getName() != null) itemToUpdate.setName(item.getName());
+        if (item.getDescription() != null) itemToUpdate.setDescription(item.getDescription());
+        if (item.getRarity() != null) itemToUpdate.setRarity(item.getRarity());
+        if (item.getGold_value() >= 0) itemToUpdate.setGold_value(item.getGold_value());
+        if (item.getSilver_value() >= 0) itemToUpdate.setSilver_value(item.getSilver_value());
+        if (item.getCopper_value() >= 0) itemToUpdate.setCopper_value(item.getCopper_value());
+        if (item.getWeight() >= 0) itemToUpdate.setWeight(item.getWeight());
+        if (item.getFk_item_type() != null) itemToUpdate.setFk_item_type(item.getFk_item_type());
+        if (item.getIsMagical() != null) itemToUpdate.setIsMagical(item.getIsMagical());
+        if (item.getIsCursed() != null) itemToUpdate.setIsCursed(item.getIsCursed());
+        if (item.getNotes() != null) itemToUpdate.setNotes(item.getNotes());
     }
 
 // TODO: uncomment when class that uses Item as a fk is added
