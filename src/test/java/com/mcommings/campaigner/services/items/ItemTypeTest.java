@@ -153,7 +153,6 @@ public class ItemTypeTest {
         ItemType itemType = new ItemType(itemTypeId, "Name", "Old ItemType Description");
 
         String newDescription = "New ItemType description";
-        int newMonth = 3;
 
         ItemType itemTypeToUpdate = new ItemType();
         itemTypeToUpdate.setDescription(newDescription);
