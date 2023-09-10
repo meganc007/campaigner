@@ -75,9 +75,9 @@ public class MonthService implements IMonth {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Month monthToUpdate = RepositoryHelper.getById(monthRepository, monthId);
-        monthToUpdate.setName(month.getName());
-        monthToUpdate.setDescription(month.getDescription());
-        monthToUpdate.setSeason(month.getSeason());
+        if (month.getName() != null) monthToUpdate.setName(month.getName());
+        if (month.getDescription() != null) monthToUpdate.setDescription(month.getDescription());
+        if (month.getSeason() != null) monthToUpdate.setSeason(month.getSeason());
     }
 
     private List<CrudRepository> getReposWhereMonthIsAForeignKey() {

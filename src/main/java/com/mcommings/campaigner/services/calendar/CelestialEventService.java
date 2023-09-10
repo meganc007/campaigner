@@ -76,16 +76,17 @@ public class CelestialEventService implements ICelestialEvent {
                 RepositoryHelper.foreignKeyIsNotValid(celestialEventRepository, getListOfForeignKeyRepositories(), celestialEvent)) {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }
-        
+
         CelestialEvent celestialEventToUpdate = RepositoryHelper.getById(celestialEventRepository, celestialEventId);
-        celestialEventToUpdate.setName(celestialEvent.getName());
-        celestialEventToUpdate.setDescription(celestialEvent.getDescription());
-        celestialEventToUpdate.setFk_moon(celestialEvent.getFk_moon());
-        celestialEventToUpdate.setFk_sun(celestialEvent.getFk_sun());
-        celestialEventToUpdate.setFk_month(celestialEvent.getFk_month());
-        celestialEventToUpdate.setFk_week(celestialEvent.getFk_week());
-        celestialEventToUpdate.setFk_day(celestialEvent.getFk_day());
-        celestialEventToUpdate.setEvent_year(celestialEvent.getEvent_year());
+        if (celestialEvent.getName() != null) celestialEventToUpdate.setName(celestialEvent.getName());
+        if (celestialEvent.getDescription() != null)
+            celestialEventToUpdate.setDescription(celestialEvent.getDescription());
+        if (celestialEvent.getFk_moon() != null) celestialEventToUpdate.setFk_moon(celestialEvent.getFk_moon());
+        if (celestialEvent.getFk_sun() != null) celestialEventToUpdate.setFk_sun(celestialEvent.getFk_sun());
+        if (celestialEvent.getFk_month() != null) celestialEventToUpdate.setFk_month(celestialEvent.getFk_month());
+        if (celestialEvent.getFk_week() != null) celestialEventToUpdate.setFk_week(celestialEvent.getFk_week());
+        if (celestialEvent.getFk_day() != null) celestialEventToUpdate.setFk_day(celestialEvent.getFk_day());
+        if (celestialEvent.getEvent_year() != 0) celestialEventToUpdate.setEvent_year(celestialEvent.getEvent_year());
     }
 
     private boolean hasForeignKeys(CelestialEvent celestialEvent) {

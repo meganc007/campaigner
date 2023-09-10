@@ -208,4 +208,29 @@ public class CelestialEventTest {
 
         assertThrows(IllegalArgumentException.class, () -> celestialEventService.updateCelestialEvent(celestialEventId, celestialEvent));
     }
+
+    @Test
+    public void whenSomeCelestialEventFieldsChanged_updateCelestialEvent_OnlyUpdatesChangedFields() {
+        int celestialEventId = 1;
+        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test Celestial Event Name", "Test Description", 1);
+
+        String newName = "Solar Eclipse";
+        int newYear = 122;
+
+        CelestialEvent celestialEventToUpdate = new CelestialEvent();
+        celestialEventToUpdate.setName(newName);
+        celestialEventToUpdate.setEvent_year(newYear);
+
+        when(celestialEventRepository.existsById(celestialEventId)).thenReturn(true);
+        when(celestialEventRepository.findById(celestialEventId)).thenReturn(Optional.of(celestialEvent));
+
+        celestialEventService.updateCelestialEvent(celestialEventId, celestialEventToUpdate);
+
+        verify(celestialEventRepository).findById(celestialEventId);
+
+        CelestialEvent result = celestialEventRepository.findById(celestialEventId).get();
+        Assertions.assertEquals(newName, result.getName());
+        Assertions.assertEquals(celestialEvent.getDescription(), result.getDescription());
+        Assertions.assertEquals(newYear, result.getEvent_year());
+    }
 }

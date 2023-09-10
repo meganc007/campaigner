@@ -179,4 +179,31 @@ public class DayTest {
 
         assertThrows(IllegalArgumentException.class, () -> dayService.updateDay(dayId, day));
     }
+
+    @Test
+    public void whenSomeDayFieldsChanged_updateDay_OnlyUpdatesChangedFields() {
+        int dayId = 1;
+        Day day = new Day(dayId, "Old Day Name", "Old Description", 1);
+
+        String newName = "Pizza Day";
+        int newWeek = 12;
+
+        Day dayToUpdate = new Day();
+        dayToUpdate.setName(newName);
+        dayToUpdate.setFk_week(newWeek);
+
+        when(dayRepository.existsById(dayId)).thenReturn(true);
+        when(weekRepository.existsById(1)).thenReturn(true);
+        when(weekRepository.existsById(newWeek)).thenReturn(true);
+        when(dayRepository.findById(dayId)).thenReturn(Optional.of(day));
+
+        dayService.updateDay(dayId, dayToUpdate);
+
+        verify(dayRepository).findById(dayId);
+
+        Day result = dayRepository.findById(dayId).get();
+        Assertions.assertEquals(newName, result.getName());
+        Assertions.assertEquals(day.getDescription(), result.getDescription());
+        Assertions.assertEquals(newWeek, result.getFk_week());
+    }
 }

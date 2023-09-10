@@ -168,4 +168,27 @@ public class MonthTest {
 
         assertThrows(IllegalArgumentException.class, () -> monthService.updateMonth(monthId, month));
     }
+
+    @Test
+    public void whenSomeMonthFieldsChanged_updateMonth_OnlyUpdatesChangedFields() {
+        int monthId = 1;
+        Month month = new Month(monthId, "Old Month Name", "Old Description", "SUMMER");
+
+        String fall = "FALL";
+
+        Month monthToUpdate = new Month();
+        monthToUpdate.setSeason(fall);
+
+        when(monthRepository.existsById(monthId)).thenReturn(true);
+        when(monthRepository.findById(monthId)).thenReturn(Optional.of(month));
+
+        monthService.updateMonth(monthId, monthToUpdate);
+
+        verify(monthRepository).findById(monthId);
+
+        Month result = monthRepository.findById(monthId).get();
+        Assertions.assertEquals(month.getName(), result.getName());
+        Assertions.assertEquals(month.getDescription(), result.getDescription());
+        Assertions.assertEquals(fall, result.getSeason());
+    }
 }

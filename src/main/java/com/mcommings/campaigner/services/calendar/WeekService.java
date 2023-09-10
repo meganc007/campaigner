@@ -78,9 +78,9 @@ public class WeekService implements IWeek {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }
         Week weekToUpdate = RepositoryHelper.getById(weekRepository, weekId);
-        weekToUpdate.setDescription(week.getDescription());
-        weekToUpdate.setWeek_number(week.getWeek_number());
-        weekToUpdate.setFk_month(week.getFk_month());
+        if (week.getDescription() != null) weekToUpdate.setDescription(week.getDescription());
+        if (week.getWeek_number() != null) weekToUpdate.setWeek_number(week.getWeek_number());
+        if (week.getFk_month() != null) weekToUpdate.setFk_month(week.getFk_month());
     }
 
     private List<CrudRepository> getReposWhereWeekIsAForeignKey() {
