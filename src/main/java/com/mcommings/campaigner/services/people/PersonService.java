@@ -13,10 +13,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_PERSON;
+import static com.mcommings.campaigner.enums.ForeignKey.*;
 import static java.util.Objects.isNull;
 
 @Service
@@ -82,22 +83,22 @@ public class PersonService implements IPerson {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         if (hasForeignKeys(person) &&
-                RepositoryHelper.foreignKeyIsNotValid(personRepository, getListOfForeignKeyRepositories(), person)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(person), person)) {
+            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
         }
         Person personToUpdate = RepositoryHelper.getById(personRepository, personId);
-        personToUpdate.setFirstName(person.getFirstName());
-        personToUpdate.setLastName(person.getLastName());
-        personToUpdate.setAge(person.getAge());
-        personToUpdate.setTitle(person.getTitle());
-        personToUpdate.setFk_race(person.getFk_race());
-        personToUpdate.setFk_wealth(person.getFk_wealth());
-        personToUpdate.setFk_ability_score(person.getFk_ability_score());
-        personToUpdate.setIsNPC(person.getIsNPC());
-        personToUpdate.setIsEnemy(person.getIsEnemy());
-        personToUpdate.setPersonality(person.getPersonality());
-        personToUpdate.setDescription(person.getDescription());
-        personToUpdate.setNotes(person.getNotes());
+        if (person.getFirstName() != null) personToUpdate.setFirstName(person.getFirstName());
+        if (person.getLastName() != null) personToUpdate.setLastName(person.getLastName());
+        if (person.getAge() >= 0) personToUpdate.setAge(person.getAge());
+        if (person.getTitle() != null) personToUpdate.setTitle(person.getTitle());
+        if (person.getFk_race() != null) personToUpdate.setFk_race(person.getFk_race());
+        if (person.getFk_wealth() != null) personToUpdate.setFk_wealth(person.getFk_wealth());
+        if (person.getFk_ability_score() != null) personToUpdate.setFk_ability_score(person.getFk_ability_score());
+        if (person.getIsNPC() != null) personToUpdate.setIsNPC(person.getIsNPC());
+        if (person.getIsEnemy() != null) personToUpdate.setIsEnemy(person.getIsEnemy());
+        if (person.getPersonality() != null) personToUpdate.setPersonality(person.getPersonality());
+        if (person.getDescription() != null) personToUpdate.setDescription(person.getDescription());
+        if (person.getNotes() != null) personToUpdate.setNotes(person.getNotes());
     }
 
     private boolean nameIsNullOrEmpty(String name) {
@@ -120,5 +121,20 @@ public class PersonService implements IPerson {
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
         return new ArrayList<>(Arrays.asList(raceRepository, wealthRepository, abilityScoreRepository));
+    }
+
+    private HashMap<CrudRepository, String> buildReposAndColumnsHashMap(Person person) {
+        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
+
+        if (person.getFk_race() != null) {
+            reposAndColumns.put(raceRepository, FK_RACE.columnName);
+        }
+        if (person.getFk_wealth() != null) {
+            reposAndColumns.put(wealthRepository, FK_WEALTH.columnName);
+        }
+        if (person.getFk_ability_score() != null) {
+            reposAndColumns.put(abilityScoreRepository, FK_ABILITY_SCORE.columnName);
+        }
+        return reposAndColumns;
     }
 }
