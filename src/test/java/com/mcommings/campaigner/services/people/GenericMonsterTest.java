@@ -216,4 +216,30 @@ public class GenericMonsterTest {
 
         assertThrows(IllegalArgumentException.class, () -> genericMonsterService.updateGenericMonster(genericMonsterId, genericMonster));
     }
+
+    @Test
+    public void whenSomeGenericMonsterFieldsChanged_updateGenericMonster_OnlyUpdatesChangedFields() {
+        int genericMonsterId = 1;
+        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description",
+                1, "Traits", "Notes");
+        String newDescription = "New GenericMonster description";
+
+        GenericMonster genericMonsterToUpdate = new GenericMonster();
+        genericMonsterToUpdate.setDescription(newDescription);
+
+        when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
+        when(abilityScoreRepository.existsById(1)).thenReturn(true);
+        when(genericMonsterRepository.findById(genericMonsterId)).thenReturn(Optional.of(genericMonster));
+
+        genericMonsterService.updateGenericMonster(genericMonsterId, genericMonsterToUpdate);
+
+        verify(genericMonsterRepository).findById(genericMonsterId);
+
+        GenericMonster result = genericMonsterRepository.findById(genericMonsterId).get();
+        Assertions.assertEquals(genericMonster.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(genericMonster.getFk_ability_score(), result.getFk_ability_score());
+        Assertions.assertEquals(genericMonster.getTraits(), result.getTraits());
+        Assertions.assertEquals(genericMonster.getNotes(), result.getNotes());
+    }
 }

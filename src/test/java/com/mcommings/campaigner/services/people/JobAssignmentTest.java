@@ -151,4 +151,27 @@ public class JobAssignmentTest {
 
         assertThrows(IllegalArgumentException.class, () -> jobAssignmentService.updateJobAssignment(jaId, jobAssignment));
     }
+
+    @Test
+    public void whenSomeJobAssignmentFieldsChanged_updateJobAssignment_OnlyUpdatesChangedFields() {
+        int jaId = 1;
+        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3);
+        int newJob = 9;
+
+        JobAssignment jobAssignmentToUpdate = new JobAssignment();
+        jobAssignmentToUpdate.setFk_job(newJob);
+
+        when(jobAssignmentRepository.existsById(jaId)).thenReturn(true);
+        when(personRepository.existsById(2)).thenReturn(true);
+        when(jobRepository.existsById(newJob)).thenReturn(true);
+        when(jobAssignmentRepository.findById(jaId)).thenReturn(Optional.of(jobAssignment));
+
+        jobAssignmentService.updateJobAssignment(jaId, jobAssignmentToUpdate);
+
+        verify(jobAssignmentRepository).findById(jaId);
+
+        JobAssignment result = jobAssignmentRepository.findById(jaId).get();
+        Assertions.assertEquals(jobAssignment.getFk_person(), result.getFk_person());
+        Assertions.assertEquals(newJob, result.getFk_job());
+    }
 }

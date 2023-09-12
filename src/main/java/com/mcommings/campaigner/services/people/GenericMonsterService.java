@@ -80,11 +80,13 @@ public class GenericMonsterService implements IGenericMonster {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }
         GenericMonster genericMonsterToUpdate = RepositoryHelper.getById(genericMonsterRepository, genericMonsterId);
-        genericMonsterToUpdate.setName(genericMonster.getName());
-        genericMonsterToUpdate.setFk_ability_score(genericMonster.getFk_ability_score());
-        genericMonsterToUpdate.setTraits(genericMonster.getTraits());
-        genericMonsterToUpdate.setDescription(genericMonster.getDescription());
-        genericMonsterToUpdate.setNotes(genericMonster.getNotes());
+        if (genericMonster.getName() != null) genericMonsterToUpdate.setName(genericMonster.getName());
+        if (genericMonster.getFk_ability_score() != null)
+            genericMonsterToUpdate.setFk_ability_score(genericMonster.getFk_ability_score());
+        if (genericMonster.getTraits() != null) genericMonsterToUpdate.setTraits(genericMonster.getTraits());
+        if (genericMonster.getDescription() != null)
+            genericMonsterToUpdate.setDescription(genericMonster.getDescription());
+        if (genericMonster.getNotes() != null) genericMonsterToUpdate.setNotes(genericMonster.getNotes());
     }
 
     private List<CrudRepository> getReposWhereGenericMonsterIsAForeignKey() {

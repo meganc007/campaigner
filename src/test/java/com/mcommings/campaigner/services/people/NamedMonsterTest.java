@@ -253,4 +253,40 @@ public class NamedMonsterTest {
 
         assertThrows(IllegalArgumentException.class, () -> namedMonsterService.updateNamedMonster(namedMonsterId, namedMonster));
     }
+
+    @Test
+    public void whenSomeNamedMonsterFieldsChanged_updateNamedMonster_OnlyUpdatesChangedFields() {
+        int namedMonsterId = 1;
+        NamedMonster namedMonster = new NamedMonster(namedMonsterId, "First Name", "Last Name", "Title",
+                1, 2, 3, false, "Personality", "Description", "Notes");
+
+        String newDescription = "New NamedMonster description";
+        int newAbilityScore = 3;
+
+        NamedMonster namedMonsterToUpdate = new NamedMonster();
+        namedMonsterToUpdate.setDescription(newDescription);
+        namedMonsterToUpdate.setFk_ability_score(newAbilityScore);
+
+        when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(true);
+        when(wealthRepository.existsById(1)).thenReturn(true);
+        when(abilityScoreRepository.existsById(newAbilityScore)).thenReturn(true);
+        when(genericMonsterRepository.existsById(3)).thenReturn(true);
+        when(namedMonsterRepository.findById(namedMonsterId)).thenReturn(Optional.of(namedMonster));
+
+        namedMonsterService.updateNamedMonster(namedMonsterId, namedMonsterToUpdate);
+
+        verify(namedMonsterRepository).findById(namedMonsterId);
+
+        NamedMonster result = namedMonsterRepository.findById(namedMonsterId).get();
+        Assertions.assertEquals(namedMonster.getFirstName(), result.getFirstName());
+        Assertions.assertEquals(namedMonster.getLastName(), result.getLastName());
+        Assertions.assertEquals(namedMonster.getTitle(), result.getTitle());
+        Assertions.assertEquals(namedMonster.getFk_wealth(), result.getFk_wealth());
+        Assertions.assertEquals(newAbilityScore, result.getFk_ability_score());
+        Assertions.assertEquals(namedMonster.getFk_generic_monster(), result.getFk_generic_monster());
+        Assertions.assertEquals(namedMonster.getIsEnemy(), result.getIsEnemy());
+        Assertions.assertEquals(namedMonster.getPersonality(), result.getPersonality());
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(namedMonster.getNotes(), result.getNotes());
+    }
 }
