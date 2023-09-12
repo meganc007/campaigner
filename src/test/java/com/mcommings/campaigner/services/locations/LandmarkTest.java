@@ -9,10 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -145,7 +143,6 @@ public class LandmarkTest {
         int landmarkId = 1;
         Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description");
         Landmark landmarkToUpdate = new Landmark(landmarkId, "Updated Landmark Name", "Updated Description", 3);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
 
         when(landmarkRepository.existsById(landmarkId)).thenReturn(true);
         when(landmarkRepository.findById(landmarkId)).thenReturn(Optional.of(landmark));
@@ -166,7 +163,6 @@ public class LandmarkTest {
         int landmarkId = 1;
         Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description");
         Landmark landmarkToUpdate = new Landmark(landmarkId, "Updated Landmark Name", "Updated Description", 3);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
 
         when(landmarkRepository.existsById(landmarkId)).thenReturn(true);
         when(landmarkRepository.findById(landmarkId)).thenReturn(Optional.of(landmark));

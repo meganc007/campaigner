@@ -193,7 +193,6 @@ public class RegionTest {
 
         Region region = new Region(regionId, "Test Region Name", "Test Description");
         Region regionToUpdate = new Region(regionId, "Updated Region Name", "Updated Description", 1, 2);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository, climateRepository));
 
         when(regionRepository.existsById(regionId)).thenReturn(true);
         when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
@@ -217,7 +216,6 @@ public class RegionTest {
 
         Region region = new Region(regionId, "Test Region Name", "Test Description");
         Region regionToUpdate = new Region(regionId, "Updated Region Name", "Updated Description", 1, 2);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository, climateRepository));
 
         when(regionRepository.existsById(regionId)).thenReturn(true);
         when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
