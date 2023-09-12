@@ -75,12 +75,12 @@ public class AbilityScoreService implements IAbilityScore {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         AbilityScore abilityScoreToUpdate = RepositoryHelper.getById(abilityScoreRepository, id);
-        abilityScoreToUpdate.setStrength(abilityScore.getStrength());
-        abilityScoreToUpdate.setDexterity(abilityScore.getDexterity());
-        abilityScoreToUpdate.setConstitution(abilityScore.getConstitution());
-        abilityScoreToUpdate.setIntelligence(abilityScore.getIntelligence());
-        abilityScoreToUpdate.setWisdom(abilityScore.getWisdom());
-        abilityScoreToUpdate.setCharisma(abilityScore.getCharisma());
+        if (abilityScore.getStrength() >= 0) abilityScoreToUpdate.setStrength(abilityScore.getStrength());
+        if (abilityScore.getDexterity() >= 0) abilityScoreToUpdate.setDexterity(abilityScore.getDexterity());
+        if (abilityScore.getConstitution() >= 0) abilityScoreToUpdate.setConstitution(abilityScore.getConstitution());
+        if (abilityScore.getIntelligence() >= 0) abilityScoreToUpdate.setIntelligence(abilityScore.getIntelligence());
+        if (abilityScore.getWisdom() >= 0) abilityScoreToUpdate.setWisdom(abilityScore.getWisdom());
+        if (abilityScore.getCharisma() >= 0) abilityScoreToUpdate.setCharisma(abilityScore.getCharisma());
     }
 
     private boolean abilityScoreEqualsZero(AbilityScore abilityScore) {

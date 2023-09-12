@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.people;
 
 import com.mcommings.campaigner.interfaces.people.IJob;
-import com.mcommings.campaigner.models.people.Job;
 import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.people.Job;
 import com.mcommings.campaigner.repositories.people.IJobAssignmentRepository;
 import com.mcommings.campaigner.repositories.people.IJobRepository;
 import jakarta.transaction.Transactional;
@@ -67,8 +67,8 @@ public class JobService implements IJob {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Job jobToUpdate = RepositoryHelper.getById(jobRepository, jobId);
-        jobToUpdate.setName(job.getName());
-        jobToUpdate.setDescription(job.getDescription());
+        if (job.getName() != null) jobToUpdate.setName(job.getName());
+        if (job.getDescription() != null) jobToUpdate.setDescription(job.getDescription());
     }
 
     private List<CrudRepository> getReposWhereJobIsAForeignKey() {

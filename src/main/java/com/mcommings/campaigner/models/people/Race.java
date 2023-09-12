@@ -15,7 +15,7 @@ public class Race extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private boolean is_exotic;
+    private Boolean is_exotic;
 
     public Race() {
         super();

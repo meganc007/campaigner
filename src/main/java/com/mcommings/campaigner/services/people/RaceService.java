@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.people;
 
 import com.mcommings.campaigner.interfaces.people.IRace;
-import com.mcommings.campaigner.models.people.Race;
 import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.people.Race;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import com.mcommings.campaigner.repositories.people.IRaceRepository;
 import jakarta.transaction.Transactional;
@@ -71,9 +71,9 @@ public class RaceService implements IRace {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Race raceToUpdate = RepositoryHelper.getById(raceRepository, raceId);
-        raceToUpdate.setName(race.getName());
-        raceToUpdate.setDescription(race.getDescription());
-        raceToUpdate.set_exotic(race.is_exotic());
+        if (race.getName() != null) raceToUpdate.setName(race.getName());
+        if (race.getDescription() != null) raceToUpdate.setDescription(race.getDescription());
+        if (race.getIs_exotic() != null) raceToUpdate.setIs_exotic(race.getIs_exotic());
     }
 
     private List<CrudRepository> getReposWhereRaceIsAForeignKey() {

@@ -158,4 +158,33 @@ public class AbilityScoreTest {
 
         assertThrows(IllegalArgumentException.class, () -> abilityScoreService.updateAbilityScore(abilityScoreId, abilityScore));
     }
+
+    @Test
+    public void whenSomeAbilityScoreFieldsChanged_updateAbilityScore_OnlyUpdatesChangedFields() {
+        int abilityScoreId = 1;
+        AbilityScore abilityScore = new AbilityScore(abilityScoreId, 10, 10, 19, 10,
+                10, 13);
+
+        int newCon = 17;
+        int newInt = -1;
+
+        AbilityScore abilityScoreToUpdate = new AbilityScore();
+        abilityScoreToUpdate.setConstitution(newCon);
+        abilityScoreToUpdate.setIntelligence(newInt);
+
+        when(abilityScoreRepository.existsById(abilityScoreId)).thenReturn(true);
+        when(abilityScoreRepository.findById(abilityScoreId)).thenReturn(Optional.of(abilityScore));
+
+        abilityScoreService.updateAbilityScore(abilityScoreId, abilityScoreToUpdate);
+
+        verify(abilityScoreRepository).findById(abilityScoreId);
+
+        AbilityScore result = abilityScoreRepository.findById(abilityScoreId).get();
+        Assertions.assertEquals(abilityScore.getStrength(), result.getStrength());
+        Assertions.assertEquals(abilityScore.getDexterity(), result.getDexterity());
+        Assertions.assertEquals(newCon, result.getConstitution());
+        Assertions.assertEquals(abilityScore.getIntelligence(), result.getIntelligence());
+        Assertions.assertEquals(abilityScore.getWisdom(), result.getWisdom());
+        Assertions.assertEquals(abilityScore.getCharisma(), result.getCharisma());
+    }
 }
