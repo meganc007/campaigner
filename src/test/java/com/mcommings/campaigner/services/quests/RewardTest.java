@@ -187,4 +187,38 @@ public class RewardTest {
 
         assertThrows(IllegalArgumentException.class, () -> rewardService.updateReward(rewardId, reward));
     }
+
+    @Test
+    public void whenSomeRewardFieldsChanged_updateReward_OnlyUpdatesChangedFields() {
+        int rewardId = 1;
+        Reward reward = new Reward(rewardId, "Description", "Notes",
+                200, 100, 50, 1, 1);
+
+        String newDescription = "New Reward description";
+        int newGoldValue = 3000;
+        int newWeapon = 4;
+
+        Reward rewardToUpdate = new Reward();
+        rewardToUpdate.setDescription(newDescription);
+        rewardToUpdate.setGold_value(newGoldValue);
+        rewardToUpdate.setFk_weapon(newWeapon);
+
+        when(rewardRepository.existsById(rewardId)).thenReturn(true);
+        when(itemRepository.existsById(1)).thenReturn(true);
+        when(weaponRepository.existsById(newWeapon)).thenReturn(true);
+        when(rewardRepository.findById(rewardId)).thenReturn(Optional.of(reward));
+
+        rewardService.updateReward(rewardId, rewardToUpdate);
+
+        verify(rewardRepository).findById(rewardId);
+
+        Reward result = rewardRepository.findById(rewardId).get();
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(reward.getNotes(), result.getNotes());
+        Assertions.assertEquals(newGoldValue, result.getGold_value());
+        Assertions.assertEquals(reward.getSilver_value(), result.getSilver_value());
+        Assertions.assertEquals(reward.getCopper_value(), result.getCopper_value());
+        Assertions.assertEquals(reward.getFk_item(), result.getFk_item());
+        Assertions.assertEquals(newWeapon, result.getFk_weapon());
+    }
 }
