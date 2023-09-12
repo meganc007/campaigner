@@ -241,4 +241,32 @@ public class CountryTest {
 
         assertThrows(IllegalArgumentException.class, () -> countryService.updateCountry(countryId, country));
     }
+
+    @Test
+    public void whenSomeCountryFieldsChanged_updateCountry_OnlyUpdatesChangedFields() {
+        int countryId = 1;
+        Country country = new Country(countryId, "Country 1", "Description 1", 1, 2);
+
+        String newDescription = "New Country description";
+        int newContinent = 3;
+
+        Country countryToUpdate = new Country();
+        countryToUpdate.setDescription(newDescription);
+        countryToUpdate.setFk_continent(newContinent);
+
+        when(countryRepository.existsById(countryId)).thenReturn(true);
+        when(continentRepository.existsById(newContinent)).thenReturn(true);
+        when(governmentRepository.existsById(2)).thenReturn(true);
+        when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));
+
+        countryService.updateCountry(countryId, countryToUpdate);
+
+        verify(countryRepository).findById(countryId);
+
+        Country result = countryRepository.findById(countryId).get();
+        Assertions.assertEquals(country.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(newContinent, result.getFk_continent());
+        Assertions.assertEquals(country.getFk_government(), result.getFk_government());
+    }
 }

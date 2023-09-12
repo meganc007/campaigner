@@ -14,10 +14,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_COUNTRY;
+import static com.mcommings.campaigner.enums.ForeignKey.*;
 
 @Service
 public class CountryService implements ICountry {
@@ -86,14 +87,14 @@ public class CountryService implements ICountry {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         if (hasForeignKeys(country) &&
-                RepositoryHelper.foreignKeyIsNotValid(countryRepository, getListOfForeignKeyRepositories(), country)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(country), country)) {
+            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
         }
         Country countryToUpdate = RepositoryHelper.getById(countryRepository, countryId);
-        countryToUpdate.setName(country.getName());
-        countryToUpdate.setDescription(country.getDescription());
-        countryToUpdate.setFk_continent(country.getFk_continent());
-        countryToUpdate.setFk_government(country.getFk_government());
+        if (country.getName() != null) countryToUpdate.setName(country.getName());
+        if (country.getDescription() != null) countryToUpdate.setDescription(country.getDescription());
+        if (country.getFk_continent() != null) countryToUpdate.setFk_continent(country.getFk_continent());
+        if (country.getFk_government() != null) countryToUpdate.setFk_government(country.getFk_government());
     }
 
     private List<CrudRepository> getReposWhereCountryIsAForeignKey() {
@@ -106,6 +107,18 @@ public class CountryService implements ICountry {
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
         return new ArrayList<>(Arrays.asList(continentRepository, governmentRepository));
+    }
+
+    private HashMap<CrudRepository, String> buildReposAndColumnsHashMap(Country country) {
+        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
+
+        if (country.getFk_continent() != null) {
+            reposAndColumns.put(continentRepository, FK_CONTINENT.columnName);
+        }
+        if (country.getFk_government() != null) {
+            reposAndColumns.put(governmentRepository, FK_GOVERNMENT.columnName);
+        }
+        return reposAndColumns;
     }
 
 }
