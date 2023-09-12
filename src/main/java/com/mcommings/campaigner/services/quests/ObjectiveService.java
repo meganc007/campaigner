@@ -63,8 +63,8 @@ public class ObjectiveService implements IObjective {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Objective objectiveToUpdate = RepositoryHelper.getById(objectiveRepository, objectiveId);
-        objectiveToUpdate.setDescription(objective.getDescription());
-        objectiveToUpdate.setNotes(objective.getNotes());
+        if (objective.getDescription() != null) objectiveToUpdate.setDescription(objective.getDescription());
+        if (objective.getNotes() != null) objectiveToUpdate.setNotes(objective.getNotes());
     }
 
     private boolean descriptionIsNullOrEmpty(String description) {

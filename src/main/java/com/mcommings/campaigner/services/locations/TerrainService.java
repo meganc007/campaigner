@@ -69,8 +69,8 @@ public class TerrainService implements ITerrain {
         }
 
         Terrain terrainToUpdate = RepositoryHelper.getById(terrainRepository, terrainId);
-        terrainToUpdate.setName(terrain.getName());
-        terrainToUpdate.setDescription(terrain.getDescription());
+        if (terrain.getName() != null) terrainToUpdate.setName(terrain.getName());
+        if (terrain.getDescription() != null) terrainToUpdate.setDescription(terrain.getDescription());
     }
 
     private List<CrudRepository> getReposWhereTerrainIsAForeignKey() {

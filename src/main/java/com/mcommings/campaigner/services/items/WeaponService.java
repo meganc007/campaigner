@@ -83,21 +83,21 @@ public class WeaponService implements IWeapon {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }
         Weapon weaponToUpdate = RepositoryHelper.getById(weaponRepository, weaponId);
-        weaponToUpdate.setName(weapon.getName());
-        weaponToUpdate.setDescription(weapon.getDescription());
-        weaponToUpdate.setRarity(weapon.getRarity());
-        weaponToUpdate.setGold_value(weapon.getGold_value());
-        weaponToUpdate.setSilver_value(weapon.getSilver_value());
-        weaponToUpdate.setCopper_value(weapon.getCopper_value());
-        weaponToUpdate.setWeight(weapon.getWeight());
-        weaponToUpdate.setFk_weapon_type(weapon.getFk_weapon_type());
-        weaponToUpdate.setFk_damage_type(weapon.getFk_damage_type());
-        weaponToUpdate.setFk_dice_type(weapon.getFk_dice_type());
-        weaponToUpdate.setNumber_of_dice(weapon.getNumber_of_dice());
-        weaponToUpdate.setDamage_modifier(weapon.getDamage_modifier());
-        weaponToUpdate.setMagical(weapon.isMagical());
-        weaponToUpdate.setCursed(weapon.isCursed());
-        weaponToUpdate.setNotes(weapon.getNotes());
+        if (weapon.getName() != null) weaponToUpdate.setName(weapon.getName());
+        if (weapon.getDescription() != null) weaponToUpdate.setDescription(weapon.getDescription());
+        if (weapon.getRarity() != null) weaponToUpdate.setRarity(weapon.getRarity());
+        if (weapon.getGold_value() >= 0) weaponToUpdate.setGold_value(weapon.getGold_value());
+        if (weapon.getSilver_value() >= 0) weaponToUpdate.setSilver_value(weapon.getSilver_value());
+        if (weapon.getCopper_value() >= 0) weaponToUpdate.setCopper_value(weapon.getCopper_value());
+        if (weapon.getWeight() >= 0) weaponToUpdate.setWeight(weapon.getWeight());
+        if (weapon.getFk_weapon_type() != null) weaponToUpdate.setFk_weapon_type(weapon.getFk_weapon_type());
+        if (weapon.getFk_damage_type() != null) weaponToUpdate.setFk_damage_type(weapon.getFk_damage_type());
+        if (weapon.getFk_dice_type() != null) weaponToUpdate.setFk_dice_type(weapon.getFk_dice_type());
+        if (weapon.getNumber_of_dice() >= 1) weaponToUpdate.setNumber_of_dice(weapon.getNumber_of_dice());
+        if (weapon.getDamage_modifier() >= 0) weaponToUpdate.setDamage_modifier(weapon.getDamage_modifier());
+        if (weapon.getIsMagical() != null) weaponToUpdate.setIsMagical(weapon.getIsMagical());
+        if (weapon.getIsCursed() != null) weaponToUpdate.setIsCursed(weapon.getIsCursed());
+        if (weapon.getNotes() != null) weaponToUpdate.setNotes(weapon.getNotes());
     }
 
 // TODO: uncomment when class that uses Weapon as a fk is added

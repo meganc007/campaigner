@@ -63,8 +63,8 @@ public class HookService implements IHook {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Hook hookToUpdate = RepositoryHelper.getById(hookRepository, hookId);
-        hookToUpdate.setDescription(hook.getDescription());
-        hookToUpdate.setNotes(hook.getNotes());
+        if (hook.getDescription() != null) hookToUpdate.setDescription(hook.getDescription());
+        if (hook.getNotes() != null) hookToUpdate.setNotes(hook.getNotes());
     }
 
     private boolean descriptionIsNullOrEmpty(String description) {

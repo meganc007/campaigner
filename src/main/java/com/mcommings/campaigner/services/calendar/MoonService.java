@@ -68,8 +68,8 @@ public class MoonService implements IMoon {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Moon moonToUpdate = RepositoryHelper.getById(moonRepository, moonId);
-        moonToUpdate.setName(moon.getName());
-        moonToUpdate.setDescription(moon.getDescription());
+        if (moon.getName() != null) moonToUpdate.setName(moon.getName());
+        if (moon.getDescription() != null) moonToUpdate.setDescription(moon.getDescription());
     }
 
     private List<CrudRepository> getReposWhereMoonIsAForeignKey() {

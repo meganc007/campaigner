@@ -74,8 +74,8 @@ public class GovernmentService implements IGovernment {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Government governmentToUpdate = RepositoryHelper.getById(governmentRepository, governmentId);
-        governmentToUpdate.setName(government.getName());
-        governmentToUpdate.setDescription(government.getDescription());
+        if(government.getName() != null) governmentToUpdate.setName(government.getName());
+        if(government.getDescription() != null) governmentToUpdate.setDescription(government.getDescription());
     }
 
     private List<CrudRepository> getReposWhereGovernmentIsAForeignKey() {

@@ -5,7 +5,6 @@ import com.mcommings.campaigner.models.people.Job;
 import com.mcommings.campaigner.models.people.JobAssignment;
 import com.mcommings.campaigner.repositories.people.IJobAssignmentRepository;
 import com.mcommings.campaigner.repositories.people.IJobRepository;
-import com.mcommings.campaigner.services.people.JobService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -143,5 +142,27 @@ public class JobTest {
         when(jobRepository.existsById(jobId)).thenReturn(false);
 
         assertThrows(IllegalArgumentException.class, () -> jobService.updateJob(jobId, job));
+    }
+
+    @Test
+    public void whenSomeJobFieldsChanged_updateJob_OnlyUpdatesChangedFields() {
+        int jobId = 1;
+        Job job = new Job(jobId, "Name", "Description");
+
+        String newDescription = "New Job description";
+
+        Job jobToUpdate = new Job();
+        jobToUpdate.setDescription(newDescription);
+
+        when(jobRepository.existsById(jobId)).thenReturn(true);
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
+
+        jobService.updateJob(jobId, jobToUpdate);
+
+        verify(jobRepository).findById(jobId);
+
+        Job result = jobRepository.findById(jobId).get();
+        Assertions.assertEquals(job.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
     }
 }

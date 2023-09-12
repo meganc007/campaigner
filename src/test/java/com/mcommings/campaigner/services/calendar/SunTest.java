@@ -143,4 +143,26 @@ public class SunTest {
 
         assertThrows(IllegalArgumentException.class, () -> sunService.updateSun(sunId, sun));
     }
+
+    @Test
+    public void whenSomeSunFieldsChanged_updateSun_OnlyUpdatesChangedFields() {
+        int sunId = 1;
+        Sun sun = new Sun(sunId, "Old Sun Name", "Old Description");
+
+        String newName = "New Sun";
+
+        Sun sunToUpdate = new Sun();
+        sunToUpdate.setName(newName);
+
+        when(sunRepository.existsById(sunId)).thenReturn(true);
+        when(sunRepository.findById(sunId)).thenReturn(Optional.of(sun));
+
+        sunService.updateSun(sunId, sunToUpdate);
+
+        verify(sunRepository).findById(sunId);
+
+        Sun result = sunRepository.findById(sunId).get();
+        Assertions.assertEquals(sun.getDescription(), result.getDescription());
+        Assertions.assertEquals(newName, result.getName());
+    }
 }

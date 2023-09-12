@@ -146,4 +146,26 @@ public class SettlementTypeTest {
 
         assertThrows(IllegalArgumentException.class, () -> settlementTypeService.updateSettlementType(settlementTypeId, settlementType));
     }
+
+    @Test
+    public void whenSomeSettlementTypeFieldsChanged_updateSettlementType_OnlyUpdatesChangedFields() {
+        int settlementTypeId = 1;
+        SettlementType settlementType = new SettlementType(settlementTypeId, "Name", "Description");
+
+        String newDescription = "New description";
+
+        SettlementType settlementTypeToUpdate = new SettlementType();
+        settlementTypeToUpdate.setDescription(newDescription);
+
+        when(settlementTypeRepository.existsById(settlementTypeId)).thenReturn(true);
+        when(settlementTypeRepository.findById(settlementTypeId)).thenReturn(Optional.of(settlementType));
+
+        settlementTypeService.updateSettlementType(settlementTypeId, settlementTypeToUpdate);
+
+        verify(settlementTypeRepository).findById(settlementTypeId);
+
+        SettlementType result = settlementTypeRepository.findById(settlementTypeId).get();
+        Assertions.assertEquals(settlementType.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+    }
 }

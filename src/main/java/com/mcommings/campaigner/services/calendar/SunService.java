@@ -66,8 +66,8 @@ public class SunService implements ISun {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Sun sunToUpdate = RepositoryHelper.getById(sunRepository, sunId);
-        sunToUpdate.setName(sun.getName());
-        sunToUpdate.setDescription(sun.getDescription());
+        if (sun.getName() != null) sunToUpdate.setName(sun.getName());
+        if (sun.getDescription() != null) sunToUpdate.setDescription(sun.getDescription());
     }
 
     private List<CrudRepository> getReposWhereSunIsAForeignKey() {

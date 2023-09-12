@@ -144,4 +144,26 @@ public class MoonTest {
 
         assertThrows(IllegalArgumentException.class, () -> moonService.updateMoon(moonId, moon));
     }
+
+    @Test
+    public void whenSomeMoonFieldsChanged_updateMoon_OnlyUpdatesChangedFields() {
+        int moonId = 1;
+        Moon moon = new Moon(moonId, "Old Moon Name", "Old Description");
+
+        String newName = "New Moon";
+
+        Moon moonToUpdate = new Moon();
+        moonToUpdate.setName(newName);
+
+        when(moonRepository.existsById(moonId)).thenReturn(true);
+        when(moonRepository.findById(moonId)).thenReturn(Optional.of(moon));
+
+        moonService.updateMoon(moonId, moonToUpdate);
+
+        verify(moonRepository).findById(moonId);
+
+        Moon result = moonRepository.findById(moonId).get();
+        Assertions.assertEquals(newName, result.getName());
+        Assertions.assertEquals(moon.getDescription(), result.getDescription());
+    }
 }

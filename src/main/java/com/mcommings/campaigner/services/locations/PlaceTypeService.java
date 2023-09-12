@@ -67,8 +67,8 @@ public class PlaceTypeService implements IPlaceType {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         PlaceType placeTypeToUpdate = RepositoryHelper.getById(placeTypesRepository, placeTypeId);
-        placeTypeToUpdate.setName(placeType.getName());
-        placeTypeToUpdate.setDescription(placeType.getDescription());
+        if (placeType.getName() != null) placeTypeToUpdate.setName(placeType.getName());
+        if (placeType.getDescription() != null) placeTypeToUpdate.setDescription(placeType.getDescription());
     }
 
     private List<CrudRepository> getReposWherePlaceTypeIsAForeignKey() {

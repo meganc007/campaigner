@@ -139,4 +139,26 @@ public class HookTest {
 
         assertThrows(IllegalArgumentException.class, () -> hookService.updateHook(hookId, hook));
     }
+
+    @Test
+    public void whenSomeHookFieldsChanged_updateHook_OnlyUpdatesChangedFields() {
+        int hookId = 1;
+        Hook hook = new Hook(hookId, "Name", "Description");
+
+        String newDescription = "New Hook description";
+
+        Hook hookToUpdate = new Hook();
+        hookToUpdate.setDescription(newDescription);
+
+        when(hookRepository.existsById(hookId)).thenReturn(true);
+        when(hookRepository.findById(hookId)).thenReturn(Optional.of(hook));
+
+        hookService.updateHook(hookId, hookToUpdate);
+
+        verify(hookRepository).findById(hookId);
+
+        Hook result = hookRepository.findById(hookId).get();
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(hook.getNotes(), result.getNotes());
+    }
 }

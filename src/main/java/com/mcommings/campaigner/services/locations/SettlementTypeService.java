@@ -68,8 +68,9 @@ public class SettlementTypeService implements ISettlementType {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         SettlementType settlementTypeToUpdate = RepositoryHelper.getById(settlementTypeRepository, settlementTypeId);
-        settlementTypeToUpdate.setName(settlementType.getName());
-        settlementTypeToUpdate.setDescription(settlementType.getDescription());
+        if (settlementType.getName() != null) settlementTypeToUpdate.setName(settlementType.getName());
+        if (settlementType.getDescription() != null)
+            settlementTypeToUpdate.setDescription(settlementType.getDescription());
     }
 
     private List<CrudRepository> getReposWhereSettlementTypeIsAForeignKey() {

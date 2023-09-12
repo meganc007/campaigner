@@ -77,9 +77,9 @@ public class DayService implements IDay {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }
         Day dayToUpdate = RepositoryHelper.getById(dayRepository, dayId);
-        dayToUpdate.setName(day.getName());
-        dayToUpdate.setDescription(day.getDescription());
-        dayToUpdate.setFk_week(day.getFk_week());
+        if (day.getName() != null) dayToUpdate.setName(day.getName());
+        if (day.getDescription() != null) dayToUpdate.setDescription(day.getDescription());
+        if (day.getFk_week() != null) dayToUpdate.setFk_week(day.getFk_week());
     }
 
     private List<CrudRepository> getReposWhereDayIsAForeignKey() {

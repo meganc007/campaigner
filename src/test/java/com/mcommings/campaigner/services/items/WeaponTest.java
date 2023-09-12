@@ -211,19 +211,19 @@ public class WeaponTest {
         Weapon result = weaponRepository.findById(weaponId).get();
         Assertions.assertEquals(update.getName(), result.getName());
         Assertions.assertEquals(update.getDescription(), result.getDescription());
-        Assertions.assertEquals(update.getRarity(), weapon.getRarity());
-        Assertions.assertEquals(update.getGold_value(), weapon.getGold_value());
-        Assertions.assertEquals(update.getSilver_value(), weapon.getSilver_value());
-        Assertions.assertEquals(update.getCopper_value(), weapon.getCopper_value());
-        Assertions.assertEquals(update.getWeight(), weapon.getWeight());
-        Assertions.assertEquals(update.getFk_weapon_type(), weapon.getFk_weapon_type());
-        Assertions.assertEquals(update.getFk_damage_type(), weapon.getFk_damage_type());
-        Assertions.assertEquals(update.getFk_dice_type(), weapon.getFk_dice_type());
-        Assertions.assertEquals(update.getNumber_of_dice(), weapon.getNumber_of_dice());
-        Assertions.assertEquals(update.getDamage_modifier(), weapon.getDamage_modifier());
-        Assertions.assertEquals(update.isMagical(), weapon.isMagical());
-        Assertions.assertEquals(update.isCursed(), weapon.isCursed());
-        Assertions.assertEquals(update.getNotes(), weapon.getNotes());
+        Assertions.assertEquals(update.getRarity(), result.getRarity());
+        Assertions.assertEquals(update.getGold_value(), result.getGold_value());
+        Assertions.assertEquals(update.getSilver_value(), result.getSilver_value());
+        Assertions.assertEquals(update.getCopper_value(), result.getCopper_value());
+        Assertions.assertEquals(update.getWeight(), result.getWeight());
+        Assertions.assertEquals(update.getFk_weapon_type(), result.getFk_weapon_type());
+        Assertions.assertEquals(update.getFk_damage_type(), result.getFk_damage_type());
+        Assertions.assertEquals(update.getFk_dice_type(), result.getFk_dice_type());
+        Assertions.assertEquals(update.getNumber_of_dice(), result.getNumber_of_dice());
+        Assertions.assertEquals(update.getDamage_modifier(), result.getDamage_modifier());
+        Assertions.assertEquals(update.getIsMagical(), result.getIsMagical());
+        Assertions.assertEquals(update.getIsCursed(), result.getIsCursed());
+        Assertions.assertEquals(update.getNotes(), result.getNotes());
     }
 
     @Test
@@ -252,5 +252,50 @@ public class WeaponTest {
         when(weaponRepository.existsById(weaponId)).thenReturn(false);
 
         assertThrows(IllegalArgumentException.class, () -> weaponService.updateWeapon(weaponId, weapon));
+    }
+
+    @Test
+    public void whenSomeWeaponFieldsChanged_updateWeapon_OnlyUpdatesChangedFields() {
+        int weaponId = 1;
+        Weapon weapon = new Weapon(weaponId, "Weapon", "Description", "Rare", 32, 20,
+                12, 20.0f, 2, 2, 2, 6, 0,
+                true, false, "Notes");
+
+        int newSilverValue = 0;
+        Boolean newIsMagical = false;
+        String newNotes = "This weapon was found at the base of a mountain.";
+
+        Weapon update = new Weapon();
+        update.setSilver_value(newSilverValue);
+        update.setIsMagical(newIsMagical);
+        update.setNotes(newNotes);
+
+        when(weaponRepository.existsById(weaponId)).thenReturn(true);
+        when(weaponTypeRepository.existsById(2)).thenReturn(true);
+        when(damageTypeRepository.existsById(2)).thenReturn(true);
+        when(diceTypeRepository.existsById(2)).thenReturn(true);
+        when(weaponRepository.findById(weaponId)).thenReturn(Optional.of(weapon));
+
+        weaponService.updateWeapon(weaponId, update);
+
+        verify(weaponRepository).findById(weaponId);
+
+        Weapon result = weaponRepository.findById(weaponId).get();
+
+        Assertions.assertEquals(weapon.getName(), result.getName());
+        Assertions.assertEquals(weapon.getDescription(), result.getDescription());
+        Assertions.assertEquals(weapon.getRarity(), result.getRarity());
+        Assertions.assertEquals(weapon.getGold_value(), result.getGold_value());
+        Assertions.assertEquals(newSilverValue, result.getSilver_value());
+        Assertions.assertEquals(weapon.getCopper_value(), result.getCopper_value());
+        Assertions.assertEquals(weapon.getWeight(), result.getWeight());
+        Assertions.assertEquals(weapon.getFk_weapon_type(), result.getFk_weapon_type());
+        Assertions.assertEquals(weapon.getFk_damage_type(), result.getFk_damage_type());
+        Assertions.assertEquals(weapon.getFk_dice_type(), result.getFk_dice_type());
+        Assertions.assertEquals(weapon.getNumber_of_dice(), result.getNumber_of_dice());
+        Assertions.assertEquals(weapon.getDamage_modifier(), result.getDamage_modifier());
+        Assertions.assertEquals(newIsMagical, result.getIsMagical());
+        Assertions.assertEquals(weapon.getIsCursed(), result.getIsCursed());
+        Assertions.assertEquals(newNotes, result.getNotes());
     }
 }

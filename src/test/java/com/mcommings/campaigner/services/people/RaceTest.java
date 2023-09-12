@@ -1,11 +1,10 @@
 package com.mcommings.campaigner.services.people;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.people.Person;
 import com.mcommings.campaigner.models.people.Race;
-import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import com.mcommings.campaigner.repositories.people.IRaceRepository;
-import com.mcommings.campaigner.services.people.RaceService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -135,7 +134,7 @@ public class RaceTest {
         Race result = raceRepository.findById(raceId).get();
         Assertions.assertEquals(raceToUpdate.getName(), result.getName());
         Assertions.assertEquals(raceToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(raceToUpdate.is_exotic(), result.is_exotic());
+        Assertions.assertEquals(raceToUpdate.getIs_exotic(), result.getIs_exotic());
     }
 
     @Test
@@ -146,6 +145,29 @@ public class RaceTest {
         when(raceRepository.existsById(raceId)).thenReturn(false);
 
         assertThrows(IllegalArgumentException.class, () -> raceService.updateRace(raceId, race));
+    }
+
+    @Test
+    public void whenSomeRaceFieldsChanged_updateRace_OnlyUpdatesChangedFields() {
+        int raceId = 1;
+        Race race = new Race(raceId, "Name", "Description", false);
+
+        String newDescription = "New Race description";
+
+        Race raceToUpdate = new Race();
+        raceToUpdate.setDescription(newDescription);
+
+        when(raceRepository.existsById(raceId)).thenReturn(true);
+        when(raceRepository.findById(raceId)).thenReturn(Optional.of(race));
+
+        raceService.updateRace(raceId, raceToUpdate);
+
+        verify(raceRepository).findById(raceId);
+
+        Race result = raceRepository.findById(raceId).get();
+        Assertions.assertEquals(race.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(race.getIs_exotic(), result.getIs_exotic());
     }
 
 }

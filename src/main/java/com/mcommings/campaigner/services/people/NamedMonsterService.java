@@ -15,9 +15,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ForeignKey.*;
 import static java.util.Objects.isNull;
 
 @Service
@@ -79,20 +81,22 @@ public class NamedMonsterService implements INamedMonster {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         if (hasForeignKeys(namedMonster) &&
-                RepositoryHelper.foreignKeyIsNotValid(namedMonsterRepository, getListOfForeignKeyRepositories(), namedMonster)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(namedMonster), namedMonster)) {
+            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
         }
         NamedMonster namedMonsterToUpdate = RepositoryHelper.getById(namedMonsterRepository, namedMonsterId);
-        namedMonsterToUpdate.setFirstName(namedMonster.getFirstName());
-        namedMonsterToUpdate.setLastName(namedMonster.getLastName());
-        namedMonsterToUpdate.setTitle(namedMonster.getTitle());
-        namedMonsterToUpdate.setFk_wealth(namedMonster.getFk_wealth());
-        namedMonsterToUpdate.setFk_ability_score(namedMonster.getFk_ability_score());
-        namedMonsterToUpdate.setFk_generic_monster(namedMonster.getFk_generic_monster());
-        namedMonsterToUpdate.setIsEnemy(namedMonster.getIsEnemy());
-        namedMonsterToUpdate.setPersonality(namedMonster.getPersonality());
-        namedMonsterToUpdate.setDescription(namedMonster.getDescription());
-        namedMonsterToUpdate.setNotes(namedMonster.getNotes());
+        if (namedMonster.getFirstName() != null) namedMonsterToUpdate.setFirstName(namedMonster.getFirstName());
+        if (namedMonster.getLastName() != null) namedMonsterToUpdate.setLastName(namedMonster.getLastName());
+        if (namedMonster.getTitle() != null) namedMonsterToUpdate.setTitle(namedMonster.getTitle());
+        if (namedMonster.getFk_wealth() != null) namedMonsterToUpdate.setFk_wealth(namedMonster.getFk_wealth());
+        if (namedMonster.getFk_ability_score() != null)
+            namedMonsterToUpdate.setFk_ability_score(namedMonster.getFk_ability_score());
+        if (namedMonster.getFk_generic_monster() != null)
+            namedMonsterToUpdate.setFk_generic_monster(namedMonster.getFk_generic_monster());
+        if (namedMonster.getIsEnemy() != null) namedMonsterToUpdate.setIsEnemy(namedMonster.getIsEnemy());
+        if (namedMonster.getPersonality() != null) namedMonsterToUpdate.setPersonality(namedMonster.getPersonality());
+        if (namedMonster.getDescription() != null) namedMonsterToUpdate.setDescription(namedMonster.getDescription());
+        if (namedMonster.getNotes() != null) namedMonsterToUpdate.setNotes(namedMonster.getNotes());
     }
 
     private boolean nameIsNullOrEmpty(String name) {
@@ -116,6 +120,21 @@ public class NamedMonsterService implements INamedMonster {
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
         return new ArrayList<>(Arrays.asList(wealthRepository, abilityScoreRepository, genericMonsterRepository));
+    }
+
+    private HashMap<CrudRepository, String> buildReposAndColumnsHashMap(NamedMonster namedMonster) {
+        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
+
+        if (namedMonster.getFk_wealth() != null) {
+            reposAndColumns.put(wealthRepository, FK_WEALTH.columnName);
+        }
+        if (namedMonster.getFk_ability_score() != null) {
+            reposAndColumns.put(abilityScoreRepository, FK_ABILITY_SCORE.columnName);
+        }
+        if (namedMonster.getFk_generic_monster() != null) {
+            reposAndColumns.put(genericMonsterRepository, FK_GENERIC_MONSTER.columnName);
+        }
+        return reposAndColumns;
     }
 
 }

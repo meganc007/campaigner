@@ -73,9 +73,9 @@ public class LandmarkService implements ILandmark {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }
         Landmark landmarkToUpdate = RepositoryHelper.getById(landmarkRepository, landmarkId);
-        landmarkToUpdate.setName(landmark.getName());
-        landmarkToUpdate.setDescription(landmark.getDescription());
-        landmarkToUpdate.setFk_region(landmark.getFk_region());
+        if (landmark.getName() != null) landmarkToUpdate.setName(landmark.getName());
+        if (landmark.getDescription() != null) landmarkToUpdate.setDescription(landmark.getDescription());
+        if (landmark.getFk_region() != null) landmarkToUpdate.setFk_region(landmark.getFk_region());
     }
 
     private boolean hasForeignKeys(Landmark landmark) {

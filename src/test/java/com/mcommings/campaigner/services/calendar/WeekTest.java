@@ -178,4 +178,31 @@ public class WeekTest {
 
         assertThrows(IllegalArgumentException.class, () -> weekService.updateWeek(weekId, week));
     }
+
+    @Test
+    public void whenSomeWeekFieldsChanged_updateWeek_OnlyUpdatesChangedFields() {
+        int weekId = 1;
+        Week week = new Week(weekId, "Old Week Description", 1, 2);
+
+        String newDescription = "New Week description";
+        int newMonth = 3;
+
+        Week weekToUpdate = new Week();
+        weekToUpdate.setDescription(newDescription);
+        weekToUpdate.setFk_month(newMonth);
+
+        when(weekRepository.existsById(weekId)).thenReturn(true);
+        when(monthRepository.existsById(2)).thenReturn(true);
+        when(monthRepository.existsById(newMonth)).thenReturn(true);
+        when(weekRepository.findById(weekId)).thenReturn(Optional.of(week));
+
+        weekService.updateWeek(weekId, weekToUpdate);
+
+        verify(weekRepository).findById(weekId);
+
+        Week result = weekRepository.findById(weekId).get();
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(week.getWeek_number(), result.getWeek_number());
+        Assertions.assertEquals(newMonth, result.getFk_month());
+    }
 }

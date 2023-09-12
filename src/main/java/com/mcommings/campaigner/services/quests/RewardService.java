@@ -82,13 +82,13 @@ public class RewardService implements IReward {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }
         Reward rewardToUpdate = RepositoryHelper.getById(rewardRepository, rewardId);
-        rewardToUpdate.setDescription(reward.getDescription());
-        rewardToUpdate.setNotes(reward.getNotes());
-        rewardToUpdate.setGold_value(reward.getGold_value());
-        rewardToUpdate.setSilver_value(reward.getSilver_value());
-        rewardToUpdate.setCopper_value(reward.getCopper_value());
-        rewardToUpdate.setFk_item(reward.getFk_item());
-        rewardToUpdate.setFk_weapon(reward.getFk_weapon());
+        if (reward.getDescription() != null) rewardToUpdate.setDescription(reward.getDescription());
+        if (reward.getNotes() != null) rewardToUpdate.setNotes(reward.getNotes());
+        if (reward.getGold_value() >= 0) rewardToUpdate.setGold_value(reward.getGold_value());
+        if (reward.getSilver_value() >= 0) rewardToUpdate.setSilver_value(reward.getSilver_value());
+        if (reward.getCopper_value() >= 0) rewardToUpdate.setCopper_value(reward.getCopper_value());
+        if (reward.getFk_item() != null) rewardToUpdate.setFk_item(reward.getFk_item());
+        if (reward.getFk_weapon() != null) rewardToUpdate.setFk_weapon(reward.getFk_weapon());
     }
 
     private boolean descriptionIsNullOrEmpty(String description) {

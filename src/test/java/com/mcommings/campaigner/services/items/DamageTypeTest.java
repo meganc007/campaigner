@@ -147,4 +147,26 @@ public class DamageTypeTest {
 
         assertThrows(IllegalArgumentException.class, () -> damageTypeService.updateDamageType(damageTypeId, damageType));
     }
+
+    @Test
+    public void whenSomeDamageTypeFieldsChanged_updateDamageType_OnlyUpdatesChangedFields() {
+        int damageTypeId = 1;
+        DamageType damageType = new DamageType(damageTypeId, "Name", "Description");
+
+        String newDescription = "New description";
+
+        DamageType damageTypeToUpdate = new DamageType();
+        damageTypeToUpdate.setDescription(newDescription);
+
+        when(damageTypeRepository.existsById(damageTypeId)).thenReturn(true);
+        when(damageTypeRepository.findById(damageTypeId)).thenReturn(Optional.of(damageType));
+
+        damageTypeService.updateDamageType(damageTypeId, damageTypeToUpdate);
+
+        verify(damageTypeRepository).findById(damageTypeId);
+
+        DamageType result = damageTypeRepository.findById(damageTypeId).get();
+        Assertions.assertEquals(damageType.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+    }
 }

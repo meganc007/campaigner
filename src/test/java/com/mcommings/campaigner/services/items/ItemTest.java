@@ -196,8 +196,8 @@ public class ItemTest {
         Assertions.assertEquals(update.getCopper_value(), item.getCopper_value());
         Assertions.assertEquals(update.getWeight(), item.getWeight());
         Assertions.assertEquals(update.getFk_item_type(), item.getFk_item_type());
-        Assertions.assertEquals(update.isMagical(), item.isMagical());
-        Assertions.assertEquals(update.isCursed(), item.isCursed());
+        Assertions.assertEquals(update.getIsMagical(), item.getIsMagical());
+        Assertions.assertEquals(update.getIsCursed(), item.getIsCursed());
         Assertions.assertEquals(update.getNotes(), item.getNotes());
     }
 
@@ -224,5 +224,43 @@ public class ItemTest {
         when(itemRepository.existsById(itemId)).thenReturn(false);
 
         assertThrows(IllegalArgumentException.class, () -> itemService.updateItem(itemId, item));
+    }
+
+    @Test
+    public void whenSomeItemFieldsChanged_updateItem_OnlyUpdatesChangedFields() {
+        int itemId = 1;
+        Item item = new Item(itemId, "Test Item Name", "Test Description", "Rare", 32, 20,
+                12, 20.0f, 2, true, false, "Notes");
+
+        int newSilverValue = 0;
+        Boolean newIsMagical = false;
+        String newNotes = "This item was found at the base of a mountain.";
+
+        Item update = new Item();
+        update.setSilver_value(newSilverValue);
+        update.setIsMagical(newIsMagical);
+        update.setNotes(newNotes);
+
+        when(itemRepository.existsById(itemId)).thenReturn(true);
+        when(itemTypeRepository.existsById(2)).thenReturn(true);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        itemService.updateItem(itemId, update);
+
+        verify(itemRepository).findById(itemId);
+
+        Item result = itemRepository.findById(itemId).get();
+
+        Assertions.assertEquals(item.getName(), result.getName());
+        Assertions.assertEquals(item.getDescription(), result.getDescription());
+        Assertions.assertEquals(item.getRarity(), result.getRarity());
+        Assertions.assertEquals(item.getGold_value(), result.getGold_value());
+        Assertions.assertEquals(newSilverValue, result.getSilver_value());
+        Assertions.assertEquals(item.getCopper_value(), result.getCopper_value());
+        Assertions.assertEquals(item.getWeight(), result.getWeight());
+        Assertions.assertEquals(item.getFk_item_type(), result.getFk_item_type());
+        Assertions.assertEquals(newIsMagical, result.getIsMagical());
+        Assertions.assertEquals(item.getIsCursed(), result.getIsCursed());
+        Assertions.assertEquals(newNotes, result.getNotes());
     }
 }

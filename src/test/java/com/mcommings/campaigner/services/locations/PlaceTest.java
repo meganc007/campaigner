@@ -241,4 +241,40 @@ public class PlaceTest {
 
         assertThrows(IllegalArgumentException.class, () -> placeService.updatePlace(placeId, place));
     }
+
+    @Test
+    public void whenSomePlaceFieldsChanged_updatePlace_OnlyUpdatesChangedFields() {
+        int placeId = 1;
+        Place place = new Place(1, "Place 1", "Description 1",
+                1, 2, 3, 4, 5);
+
+        String newDescription = "New description";
+        int newTerrain = 3;
+
+        Place placeToUpdate = new Place();
+        placeToUpdate.setDescription(newDescription);
+        placeToUpdate.setFk_terrain(newTerrain);
+
+        when(placeRepository.existsById(placeId)).thenReturn(true);
+        when(placeTypesRepository.existsById(1)).thenReturn(true);
+        when(terrainRepository.existsById(2)).thenReturn(true);
+        when(terrainRepository.existsById(newTerrain)).thenReturn(true);
+        when(countryRepository.existsById(3)).thenReturn(true);
+        when(cityRepository.existsById(4)).thenReturn(true);
+        when(regionRepository.existsById(5)).thenReturn(true);
+        when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
+
+        placeService.updatePlace(placeId, placeToUpdate);
+
+        verify(placeRepository).findById(placeId);
+
+        Place result = placeRepository.findById(placeId).get();
+        Assertions.assertEquals(place.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(place.getFk_place_type(), result.getFk_place_type());
+        Assertions.assertEquals(newTerrain, result.getFk_terrain());
+        Assertions.assertEquals(place.getFk_country(), result.getFk_country());
+        Assertions.assertEquals(place.getFk_city(), result.getFk_city());
+        Assertions.assertEquals(place.getFk_region(), result.getFk_region());
+    }
 }

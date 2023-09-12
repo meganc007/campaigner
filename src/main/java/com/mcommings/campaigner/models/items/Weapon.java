@@ -47,10 +47,10 @@ public class Weapon extends BaseEntity {
     private int damage_modifier;
 
     @Column(name = "isMagical")
-    private boolean isMagical;
+    private Boolean isMagical;
 
     @Column(name = "isCursed")
-    private boolean isCursed;
+    private Boolean isCursed;
 
     @Column(name = "notes")
     private String notes;

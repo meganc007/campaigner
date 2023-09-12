@@ -265,4 +265,43 @@ public class PersonTest {
         assertThrows(IllegalArgumentException.class, () -> personService.updatePerson(personId, person));
     }
 
+    @Test
+    public void whenSomePersonFieldsChanged_updatePerson_OnlyUpdatesChangedFields() {
+        int personId = 1;
+        Person person = new Person(personId, "First Name", "Last Name", 1, "Title",
+                1, 2, 3, true, false, "Personality",
+                "Description", "Notes");
+        String newDescription = "New Person description";
+        int newRace = 3;
+
+        Person personToUpdate = new Person();
+        personToUpdate.setDescription(newDescription);
+        personToUpdate.setFk_race(newRace);
+
+        when(personRepository.existsById(personId)).thenReturn(true);
+        when(raceRepository.existsById(newRace)).thenReturn(true);
+        when(wealthRepository.existsById(2)).thenReturn(true);
+        when(abilityScoreRepository.existsById(3)).thenReturn(true);
+        when(personRepository.findById(personId)).thenReturn(Optional.of(person));
+
+        personService.updatePerson(personId, personToUpdate);
+
+        verify(personRepository).findById(personId);
+
+        Person result = personRepository.findById(personId).get();
+        Assertions.assertEquals(person.getFirstName(), result.getFirstName());
+        Assertions.assertEquals(person.getLastName(), result.getLastName());
+        Assertions.assertEquals(person.getAge(), result.getAge());
+        Assertions.assertEquals(person.getTitle(), result.getTitle());
+        Assertions.assertEquals(newRace, result.getFk_race());
+        Assertions.assertEquals(person.getFk_race(), result.getFk_race());
+        Assertions.assertEquals(person.getFk_wealth(), result.getFk_wealth());
+        Assertions.assertEquals(person.getFk_ability_score(), result.getFk_ability_score());
+        Assertions.assertEquals(person.getIsNPC(), result.getIsNPC());
+        Assertions.assertEquals(person.getIsEnemy(), result.getIsEnemy());
+        Assertions.assertEquals(person.getPersonality(), result.getPersonality());
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(person.getNotes(), result.getNotes());
+    }
+
 }

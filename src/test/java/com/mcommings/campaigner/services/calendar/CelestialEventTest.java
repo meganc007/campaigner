@@ -8,10 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -155,7 +153,6 @@ public class CelestialEventTest {
         CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test CelestialEvent Name", "Test Description", 1);
         CelestialEvent celestialEventToUpdate = new CelestialEvent(celestialEventId, "Updated CelestialEvent Name", "Updated Description",
                 1, 2, 3, 4, 5, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(moonRepository, sunRepository, monthRepository, weekRepository, dayRepository));
 
         when(celestialEventRepository.existsById(celestialEventId)).thenReturn(true);
         when(celestialEventRepository.findById(celestialEventId)).thenReturn(Optional.of(celestialEvent));
@@ -186,7 +183,6 @@ public class CelestialEventTest {
 
         CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test CelestialEvent Name", "Test Description", 1);
         CelestialEvent celestialEventToUpdate = new CelestialEvent(celestialEventId, "Updated CelestialEvent Name", "Updated Description", 1, 2, 3, 4, 5, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(moonRepository, sunRepository, monthRepository, weekRepository, dayRepository));
 
         when(celestialEventRepository.existsById(celestialEventId)).thenReturn(true);
         when(celestialEventRepository.findById(celestialEventId)).thenReturn(Optional.of(celestialEvent));
@@ -207,5 +203,30 @@ public class CelestialEventTest {
         when(celestialEventRepository.existsById(celestialEventId)).thenReturn(false);
 
         assertThrows(IllegalArgumentException.class, () -> celestialEventService.updateCelestialEvent(celestialEventId, celestialEvent));
+    }
+
+    @Test
+    public void whenSomeCelestialEventFieldsChanged_updateCelestialEvent_OnlyUpdatesChangedFields() {
+        int celestialEventId = 1;
+        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test Celestial Event Name", "Test Description", 1);
+
+        String newName = "Solar Eclipse";
+        int newYear = 122;
+
+        CelestialEvent celestialEventToUpdate = new CelestialEvent();
+        celestialEventToUpdate.setName(newName);
+        celestialEventToUpdate.setEvent_year(newYear);
+
+        when(celestialEventRepository.existsById(celestialEventId)).thenReturn(true);
+        when(celestialEventRepository.findById(celestialEventId)).thenReturn(Optional.of(celestialEvent));
+
+        celestialEventService.updateCelestialEvent(celestialEventId, celestialEventToUpdate);
+
+        verify(celestialEventRepository).findById(celestialEventId);
+
+        CelestialEvent result = celestialEventRepository.findById(celestialEventId).get();
+        Assertions.assertEquals(newName, result.getName());
+        Assertions.assertEquals(celestialEvent.getDescription(), result.getDescription());
+        Assertions.assertEquals(newYear, result.getEvent_year());
     }
 }
