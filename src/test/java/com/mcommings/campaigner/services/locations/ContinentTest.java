@@ -152,4 +152,26 @@ public class ContinentTest {
 
         assertThrows(IllegalArgumentException.class, () -> continentService.updateContinent(continentId, continent));
     }
+
+    @Test
+    public void whenSomeContinentFieldsChanged_updateContinent_OnlyUpdatesChangedFields() {
+        int continentId = 1;
+        Continent continent = new Continent(continentId, "Name", "Old Continent Description");
+
+        String newDescription = "New Continent description";
+
+        Continent continentToUpdate = new Continent();
+        continentToUpdate.setDescription(newDescription);
+
+        when(continentRepository.existsById(continentId)).thenReturn(true);
+        when(continentRepository.findById(continentId)).thenReturn(Optional.of(continent));
+
+        continentService.updateContinent(continentId, continentToUpdate);
+
+        verify(continentRepository).findById(continentId);
+
+        Continent result = continentRepository.findById(continentId).get();
+        Assertions.assertEquals(continent.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+    }
 }

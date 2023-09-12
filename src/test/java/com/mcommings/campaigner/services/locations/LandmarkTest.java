@@ -184,4 +184,30 @@ public class LandmarkTest {
 
         assertThrows(IllegalArgumentException.class, () -> landmarkService.updateLandmark(landmarkId, landmark));
     }
+
+    @Test
+    public void whenSomeLandmarkFieldsChanged_updateLandmark_OnlyUpdatesChangedFields() {
+        int landmarkId = 1;
+        Landmark landmark = new Landmark(landmarkId, "Name", "Description", 1);
+
+        String newDescription = "New Landmark description";
+        int newMonth = 3;
+
+        Landmark landmarkToUpdate = new Landmark();
+        landmarkToUpdate.setDescription(newDescription);
+        landmarkToUpdate.setFk_region(newMonth);
+
+        when(landmarkRepository.existsById(landmarkId)).thenReturn(true);
+        when(regionRepository.existsById(newMonth)).thenReturn(true);
+        when(landmarkRepository.findById(landmarkId)).thenReturn(Optional.of(landmark));
+
+        landmarkService.updateLandmark(landmarkId, landmarkToUpdate);
+
+        verify(landmarkRepository).findById(landmarkId);
+
+        Landmark result = landmarkRepository.findById(landmarkId).get();
+        Assertions.assertEquals(landmark.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(newMonth, result.getFk_region());
+    }
 }

@@ -75,8 +75,8 @@ public class ContinentService implements IContinent {
         }
 
         Continent continentToUpdate = RepositoryHelper.getById(continentRepository, continentId);
-        continentToUpdate.setName(continent.getName());
-        continentToUpdate.setDescription(continent.getDescription());
+        if (continent.getName() != null) continentToUpdate.setName(continent.getName());
+        if (continent.getDescription() != null) continentToUpdate.setDescription(continent.getDescription());
     }
 
     private List<CrudRepository> getReposWhereContinentIsAForeignKey() {
