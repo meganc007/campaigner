@@ -143,4 +143,26 @@ public class PlaceTypeTest {
 
         assertThrows(IllegalArgumentException.class, () -> placeTypeService.updatePlaceType(placeTypeId, placeType));
     }
+
+    @Test
+    public void whenSomePlaceTypeFieldsChanged_updatePlaceType_OnlyUpdatesChangedFields() {
+        int placeTypeId = 1;
+        PlaceType placeType = new PlaceType(placeTypeId, "Name", "Description");
+
+        String newDescription = "New description";
+
+        PlaceType placeTypeToUpdate = new PlaceType();
+        placeTypeToUpdate.setDescription(newDescription);
+
+        when(placeTypeRepository.existsById(placeTypeId)).thenReturn(true);
+        when(placeTypeRepository.findById(placeTypeId)).thenReturn(Optional.of(placeType));
+
+        placeTypeService.updatePlaceType(placeTypeId, placeTypeToUpdate);
+
+        verify(placeTypeRepository).findById(placeTypeId);
+
+        PlaceType result = placeTypeRepository.findById(placeTypeId).get();
+        Assertions.assertEquals(placeType.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+    }
 }

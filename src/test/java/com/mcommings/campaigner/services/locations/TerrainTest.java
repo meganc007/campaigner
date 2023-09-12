@@ -144,4 +144,26 @@ public class TerrainTest {
 
         assertThrows(IllegalArgumentException.class, () -> terrainService.updateTerrain(terrainId, terrain));
     }
+
+    @Test
+    public void whenSomeTerrainFieldsChanged_updateTerrain_OnlyUpdatesChangedFields() {
+        int terrainId = 1;
+        Terrain terrain = new Terrain(terrainId, "Name", "Old Terrain Description");
+
+        String newDescription = "New Terrain description";
+
+        Terrain terrainToUpdate = new Terrain();
+        terrainToUpdate.setDescription(newDescription);
+
+        when(terrainRepository.existsById(terrainId)).thenReturn(true);
+        when(terrainRepository.findById(terrainId)).thenReturn(Optional.of(terrain));
+
+        terrainService.updateTerrain(terrainId, terrainToUpdate);
+
+        verify(terrainRepository).findById(terrainId);
+
+        Terrain result = terrainRepository.findById(terrainId).get();
+        Assertions.assertEquals(terrain.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+    }
 }
