@@ -139,4 +139,26 @@ public class OutcomeTest {
 
         assertThrows(IllegalArgumentException.class, () -> outcomeService.updateOutcome(outcomeId, outcome));
     }
+
+    @Test
+    public void whenSomeOutcomeFieldsChanged_updateOutcome_OnlyUpdatesChangedFields() {
+        int outcomeId = 1;
+        Outcome outcome = new Outcome(outcomeId, "Name", "Description");
+
+        String newDescription = "New Outcome description";
+
+        Outcome outcomeToUpdate = new Outcome();
+        outcomeToUpdate.setDescription(newDescription);
+
+        when(outcomeRepository.existsById(outcomeId)).thenReturn(true);
+        when(outcomeRepository.findById(outcomeId)).thenReturn(Optional.of(outcome));
+
+        outcomeService.updateOutcome(outcomeId, outcomeToUpdate);
+
+        verify(outcomeRepository).findById(outcomeId);
+
+        Outcome result = outcomeRepository.findById(outcomeId).get();
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(outcome.getNotes(), result.getNotes());
+    }
 }

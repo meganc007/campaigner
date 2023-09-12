@@ -139,4 +139,26 @@ public class ObjectiveTest {
 
         assertThrows(IllegalArgumentException.class, () -> objectiveService.updateObjective(objectiveId, objective));
     }
+
+    @Test
+    public void whenSomeObjectiveFieldsChanged_updateObjective_OnlyUpdatesChangedFields() {
+        int objectiveId = 1;
+        Objective objective = new Objective(objectiveId, "Name", "Description");
+
+        String newDescription = "New Objective description";
+
+        Objective objectiveToUpdate = new Objective();
+        objectiveToUpdate.setDescription(newDescription);
+
+        when(objectiveRepository.existsById(objectiveId)).thenReturn(true);
+        when(objectiveRepository.findById(objectiveId)).thenReturn(Optional.of(objective));
+
+        objectiveService.updateObjective(objectiveId, objectiveToUpdate);
+
+        verify(objectiveRepository).findById(objectiveId);
+
+        Objective result = objectiveRepository.findById(objectiveId).get();
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(objective.getNotes(), result.getNotes());
+    }
 }

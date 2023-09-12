@@ -63,8 +63,8 @@ public class OutcomeService implements IOutcome {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         Outcome outcomeToUpdate = RepositoryHelper.getById(outcomeRepository, outcomeId);
-        outcomeToUpdate.setDescription(outcome.getDescription());
-        outcomeToUpdate.setNotes(outcome.getNotes());
+        if (outcome.getDescription() != null) outcomeToUpdate.setDescription(outcome.getDescription());
+        if (outcome.getNotes() != null) outcomeToUpdate.setNotes(outcome.getNotes());
     }
 
     private boolean descriptionIsNullOrEmpty(String description) {
