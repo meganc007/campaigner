@@ -236,4 +236,32 @@ public class RegionTest {
 
         assertThrows(IllegalArgumentException.class, () -> regionService.updateRegion(regionId, region));
     }
+
+    @Test
+    public void whenSomeRegionFieldsChanged_updateRegion_OnlyUpdatesChangedFields() {
+        int regionId = 1;
+        Region region = new Region(regionId, "Name", "Old Region Description", 1, 2);
+
+        String newDescription = "New Region description";
+        int newClimate = 3;
+
+        Region regionToUpdate = new Region();
+        regionToUpdate.setDescription(newDescription);
+        regionToUpdate.setFk_climate(newClimate);
+
+        when(regionRepository.existsById(regionId)).thenReturn(true);
+        when(countryRepository.existsById(1)).thenReturn(true);
+        when(climateRepository.existsById(newClimate)).thenReturn(true);
+        when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
+
+        regionService.updateRegion(regionId, regionToUpdate);
+
+        verify(regionRepository).findById(regionId);
+
+        Region result = regionRepository.findById(regionId).get();
+        Assertions.assertEquals(region.getName(), result.getName());
+        Assertions.assertEquals(newDescription, result.getDescription());
+        Assertions.assertEquals(region.getFk_country(), result.getFk_country());
+        Assertions.assertEquals(newClimate, result.getFk_climate());
+    }
 }

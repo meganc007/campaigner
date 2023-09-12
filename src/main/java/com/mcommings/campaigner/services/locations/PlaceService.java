@@ -13,10 +13,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_PLACE;
+import static com.mcommings.campaigner.enums.ForeignKey.*;
 
 @Service
 public class PlaceService implements IPlace {
@@ -86,17 +87,17 @@ public class PlaceService implements IPlace {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         if (hasForeignKeys(place) &&
-                RepositoryHelper.foreignKeyIsNotValid(placeRepository, getListOfForeignKeyRepositories(), place)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(place), place)) {
+            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
         }
         Place placeToUpdate = RepositoryHelper.getById(placeRepository, placeId);
-        placeToUpdate.setName(place.getName());
-        placeToUpdate.setDescription(place.getDescription());
-        placeToUpdate.setFk_place_type(place.getFk_place_type());
-        placeToUpdate.setFk_terrain(place.getFk_terrain());
-        placeToUpdate.setFk_country(place.getFk_country());
-        placeToUpdate.setFk_city(place.getFk_city());
-        placeToUpdate.setFk_region(place.getFk_region());
+        if (place.getName() != null) placeToUpdate.setName(place.getName());
+        if (place.getDescription() != null) placeToUpdate.setDescription(place.getDescription());
+        if (place.getFk_place_type() != null) placeToUpdate.setFk_place_type(place.getFk_place_type());
+        if (place.getFk_terrain() != null) placeToUpdate.setFk_terrain(place.getFk_terrain());
+        if (place.getFk_country() != null) placeToUpdate.setFk_country(place.getFk_country());
+        if (place.getFk_city() != null) placeToUpdate.setFk_city(place.getFk_city());
+        if (place.getFk_region() != null) placeToUpdate.setFk_region(place.getFk_region());
     }
 
     private List<CrudRepository> getReposWherePlaceIsAForeignKey() {
@@ -110,6 +111,27 @@ public class PlaceService implements IPlace {
     private List<CrudRepository> getListOfForeignKeyRepositories() {
         return new ArrayList<>(Arrays.asList(placeTypesRepository, terrainRepository, countryRepository, cityRepository,
                 regionRepository));
+    }
+
+    private HashMap<CrudRepository, String> buildReposAndColumnsHashMap(Place place) {
+        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
+
+        if (place.getFk_place_type() != null) {
+            reposAndColumns.put(placeTypesRepository, FK_PLACE_TYPE.columnName);
+        }
+        if (place.getFk_terrain() != null) {
+            reposAndColumns.put(terrainRepository, FK_TERRAIN.columnName);
+        }
+        if (place.getFk_country() != null) {
+            reposAndColumns.put(countryRepository, FK_COUNTRY.columnName);
+        }
+        if (place.getFk_city() != null) {
+            reposAndColumns.put(cityRepository, FK_CITY.columnName);
+        }
+        if (place.getFk_region() != null) {
+            reposAndColumns.put(regionRepository, FK_REGION.columnName);
+        }
+        return reposAndColumns;
     }
 
 }

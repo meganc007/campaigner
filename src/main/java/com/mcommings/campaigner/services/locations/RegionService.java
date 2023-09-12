@@ -13,10 +13,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_REGION;
+import static com.mcommings.campaigner.enums.ForeignKey.*;
 
 @Service
 public class RegionService implements IRegion {
@@ -81,14 +82,14 @@ public class RegionService implements IRegion {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
         if (hasForeignKeys(region) &&
-                RepositoryHelper.foreignKeyIsNotValid(regionRepository, getListOfForeignKeyRepositories(), region)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(region), region)) {
+            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
         }
         Region regionToUpdate = RepositoryHelper.getById(regionRepository, regionId);
-        regionToUpdate.setName(region.getName());
-        regionToUpdate.setDescription(region.getDescription());
-        regionToUpdate.setFk_country(region.getFk_country());
-        regionToUpdate.setFk_climate(region.getFk_climate());
+        if (region.getName() != null) regionToUpdate.setName(region.getName());
+        if (region.getDescription() != null) regionToUpdate.setDescription(region.getDescription());
+        if (region.getFk_country() != null) regionToUpdate.setFk_country(region.getFk_country());
+        if (region.getFk_climate() != null) regionToUpdate.setFk_climate(region.getFk_climate());
     }
 
     private List<CrudRepository> getReposWhereRegionIsAForeignKey() {
@@ -102,5 +103,17 @@ public class RegionService implements IRegion {
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {
         return new ArrayList<>(Arrays.asList(countryRepository, climateRepository));
+    }
+
+    private HashMap<CrudRepository, String> buildReposAndColumnsHashMap(Region region) {
+        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
+
+        if (region.getFk_country() != null) {
+            reposAndColumns.put(countryRepository, FK_COUNTRY.columnName);
+        }
+        if (region.getFk_climate() != null) {
+            reposAndColumns.put(climateRepository, FK_CLIMATE.columnName);
+        }
+        return reposAndColumns;
     }
 }
