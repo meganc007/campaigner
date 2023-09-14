@@ -47,10 +47,9 @@ drop table if exists users;
 
 create table campaigns (
 	id int generated always as identity,
+	campaign_uuid varchar(36) primary key default gen_random_uuid(),
 	name varchar,
-	description varchar,
-	campaign_uuid varchar(36) not null unique,
-	primary key(id)
+	description varchar
 );
 
 create table months (
