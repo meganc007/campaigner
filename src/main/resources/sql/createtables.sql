@@ -597,13 +597,12 @@ create table quests (
 );
 
 create table users (
-	user_uuid uuid primary key default gen_random_uuid()
+	user_uuid uuid primary key default gen_random_uuid(),
 	username varchar not null,
 	email varchar,
 	first_name varchar,
 	last_name varchar,
-    role varchar,
-	primary key(id)
+    role varchar
 );
 
 create table permissions (
