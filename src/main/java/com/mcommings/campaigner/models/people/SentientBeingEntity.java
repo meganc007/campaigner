@@ -8,10 +8,10 @@ import lombok.Data;
 @MappedSuperclass
 public abstract class SentientBeingEntity {
 
-    @Column(name = "firstName", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "lastName")
+    @Column(name = "last_name")
     private String lastName;
 
     @Column(name = "title")

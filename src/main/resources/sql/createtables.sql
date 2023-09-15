@@ -46,7 +46,6 @@ drop table if exists campaigns;
 drop table if exists users;
 
 create table campaigns (
-	id int generated always as identity,
 	campaign_uuid varchar(36) primary key default gen_random_uuid(),
 	name varchar,
 	description varchar
@@ -301,8 +300,8 @@ create table ability_scores (
 
 create table people (
 	id int generated always as identity,
-	firstName varchar not null,
-	lastName varchar,
+	first_name varchar not null,
+	last_name varchar,
 	age int,
 	title varchar,
 	fk_race int,
@@ -448,8 +447,8 @@ create table generic_monsters (
 
 create table named_monsters (
 	id int generated always as identity,
-	firstName varchar not null,
-	lastName varchar,
+	first_name varchar not null,
+	last_name varchar,
 	title varchar,
 	fk_wealth int,
 	fk_ability_score int,
@@ -599,8 +598,8 @@ create table users (
 	id int generated always as identity,
 	username varchar not null,
 	email varchar,
-	firstName varchar,
-	lastName varchar,
+	first_name varchar,
+	last_name varchar,
 	user_uuid varchar(36) not null unique,
     role varchar,
 	primary key(id)
