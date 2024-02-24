@@ -28,13 +28,13 @@ public class PermissionTypeController {
         permissionTypeService.savePermissionType(permissionType);
     }
 
-    @DeleteMapping(path = "{id}")
-    public void deletePermissionType(@PathVariable("id") int id) {
-        permissionTypeService.deletePermissionType(id);
+    @DeleteMapping(path = "{permissionTypeId}")
+    public void deletePermissionType(@PathVariable("permissionTypeId") int permissionTypeId) {
+        permissionTypeService.deletePermissionType(permissionTypeId);
     }
 
-    @PutMapping(path = "{id}")
-    public void updatePermissionType(@PathVariable("id") int id, @RequestBody PermissionType permissionType) {
-        permissionTypeService.updatePermissionType(id, permissionType);
+    @PutMapping(path = "{permissionTypeId}")
+    public void updatePermissionType(@PathVariable("permissionTypeId") int permissionTypeId, @RequestBody PermissionType permissionType) {
+        permissionTypeService.updatePermissionType(permissionTypeId, permissionType);
     }
 }

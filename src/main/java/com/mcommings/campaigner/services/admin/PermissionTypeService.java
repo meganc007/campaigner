@@ -50,14 +50,14 @@ public class PermissionTypeService implements IPermissionType {
 
     @Override
     @Transactional
-    public void deletePermissionType(int id) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(permissionTypeRepository, id)) {
+    public void deletePermissionType(int permissionTypeId) throws IllegalArgumentException, DataIntegrityViolationException {
+        if (RepositoryHelper.cannotFindId(permissionTypeRepository, permissionTypeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.isForeignKey(getReposWherePermissionTypeIsAForeignKey(), FK_PERMISSION_TYPE.columnName, id)) {
+        if (RepositoryHelper.isForeignKey(getReposWherePermissionTypeIsAForeignKey(), FK_PERMISSION_TYPE.columnName, permissionTypeId)) {
             throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
-        permissionTypeRepository.deleteById(id);
+        permissionTypeRepository.deleteById(permissionTypeId);
     }
 
     @Override
