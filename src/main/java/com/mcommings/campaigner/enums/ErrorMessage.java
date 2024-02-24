@@ -14,6 +14,9 @@ public enum ErrorMessage {
     SCORE_EXISTS("That combination of ability scores already exists."),
     INVENTORY_EXISTS("That inventory already exists."),
     PERSON_EXISTS("That person already exists."),
+    USER_EXISTS("That user already exists."),
+    CAMPAIGN_EXISTS("That campaign already exists."),
+    PERMISSION_EXISTS("That permission already exists."),
     NAMED_MONSTER_EXISTS("That named monster already exists."),
     JOB_ASSIGNMENT_EXISTS("That job assignment already exists."),
     EVENT_PLACE_PERSON_EXISTS("This event-place-person assignment already exists.");
