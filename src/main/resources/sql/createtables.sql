@@ -44,6 +44,8 @@ drop table if exists damage_types;
 drop table if exists permissions;
 drop table if exists campaigns;
 drop table if exists users;
+drop table if exists roles;
+drop table if exists permission_types;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -127,8 +129,6 @@ create table terrains (
 	id int generated always as identity, 
 	name varchar not null,
 	description varchar not null,
-	fk_campaign_uuid uuid not null,
-    constraint fk_campaign_uuid foreign key(fk_campaign_uuid) references campaigns(campaign_uuid),
 	primary key(id)
 );
 
@@ -596,6 +596,12 @@ create table quests (
 	primary key(id)
 );
 
+create table roles (
+    id int generated always as identity,
+    name varchar,
+    description varchar not null
+);
+
 create table users (
 	user_uuid uuid primary key default gen_random_uuid(),
 	username varchar not null,
@@ -604,6 +610,13 @@ create table users (
 	last_name varchar,
     role varchar
 );
+
+create table permission_types (
+    id int generated always as identity,
+    name varchar,
+    description varchar not null
+);
+
 
 create table permissions (
 	id int generated always as identity,
