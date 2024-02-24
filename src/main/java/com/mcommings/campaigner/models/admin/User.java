@@ -12,7 +12,7 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @Column(name = "campaign_uuid", nullable = false, unique = true, columnDefinition = "varchar(36) default gen_random_uuid()")
+    @Column(name = "user_uuid", nullable = false, unique = true, columnDefinition = "varchar(36) default gen_random_uuid()")
     private UUID uuid;
 
     @Column(name = "username")

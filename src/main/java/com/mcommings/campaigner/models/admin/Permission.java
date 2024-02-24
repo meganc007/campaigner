@@ -30,7 +30,7 @@ public class Permission {
     private Campaign campaign;
 
     @ManyToOne
-    @JoinColumn(name = "fk_user_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
+    @JoinColumn(name = "fk_user_uuid", referencedColumnName = "user_uuid", updatable = false, insertable = false)
     private User user;
 
     public Permission() {
