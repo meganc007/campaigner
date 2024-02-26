@@ -1,5 +1,7 @@
 package com.mcommings.campaigner.services.admin;
 
+import com.mcommings.campaigner.models.RepositoryHelper;
+import com.mcommings.campaigner.models.admin.Permission;
 import com.mcommings.campaigner.models.admin.PermissionType;
 import com.mcommings.campaigner.repositories.admin.IPermissionRepository;
 import com.mcommings.campaigner.repositories.admin.IPermissionTypeRepository;
@@ -9,10 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+import static com.mcommings.campaigner.enums.ForeignKey.FK_PERMISSION_TYPE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -101,5 +104,49 @@ public class PermissionTypeTest {
         int permissionTypeId = 9000;
         when(permissionTypeRepository.existsById(permissionTypeId)).thenReturn(false);
         assertThrows(IllegalArgumentException.class, () -> permissionTypeService.deletePermissionType(permissionTypeId));
+    }
+
+    @Test
+    public void whenPermissionTypeIdIsAForeignKey_deletePermissionType_ThrowsDataIntegrityViolationException() {
+        int permissionTypeId = 1;
+        Permission permission = new Permission(1, 1, UUID.randomUUID(), UUID.randomUUID());
+        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(permissionRepository));
+        List<Permission> permissions = new ArrayList<>(Arrays.asList(permission));
+
+        when(permissionTypeRepository.existsById(permissionTypeId)).thenReturn(true);
+        when(permissionRepository.findByfk_permission_type(permissionTypeId)).thenReturn(permissions);
+
+        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_PERMISSION_TYPE.columnName, permissionTypeId);
+        Assertions.assertTrue(actual);
+        assertThrows(DataIntegrityViolationException.class, () -> permissionTypeService.deletePermissionType(permissionTypeId));
+    }
+
+    @Test
+    public void whenPermissionTypeIdIsFound_updatePermissionType_UpdatesThePermissionType() {
+        int permissionTypeId = 1;
+
+        PermissionType permissionType = new PermissionType(permissionTypeId, "Old PermissionType Name", "Old Description");
+        PermissionType permissionTypeToUpdate = new PermissionType(permissionTypeId, "Updated PermissionType Name", "Updated Description");
+
+        when(permissionTypeRepository.existsById(permissionTypeId)).thenReturn(true);
+        when(permissionTypeRepository.findById(permissionTypeId)).thenReturn(Optional.of(permissionType));
+
+        permissionTypeService.updatePermissionType(permissionTypeId, permissionTypeToUpdate);
+
+        verify(permissionTypeRepository).findById(permissionTypeId);
+
+        PermissionType result1 = permissionTypeRepository.findById(permissionTypeId).get();
+        Assertions.assertEquals(permissionTypeToUpdate.getName(), result1.getName());
+        Assertions.assertEquals(permissionTypeToUpdate.getDescription(), result1.getDescription());
+    }
+
+    @Test
+    public void whenPermissionTypeIdIsNotFound_updatePermissionType_ThrowsIllegalArgumentException() {
+        int permissionTypeId = 1;
+        PermissionType permissionType = new PermissionType(permissionTypeId, "Old PermissionType Name", "Old Description");
+
+        when(permissionTypeRepository.existsById(permissionTypeId)).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class, () -> permissionTypeService.updatePermissionType(permissionTypeId, permissionType));
     }
 }
