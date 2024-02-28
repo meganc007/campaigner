@@ -38,9 +38,9 @@ public class PermissionTest {
         List<Permission> permissions = new ArrayList<>();
         UUID campaignUuid = UUID.randomUUID();
         UUID userUuid = UUID.randomUUID();
-        permissions.add(new Permission(1, "CREATE", campaignUuid, userUuid));
-        permissions.add(new Permission(2, "READ", campaignUuid, userUuid));
-        permissions.add(new Permission(3, "DESTROY", campaignUuid, userUuid));
+        permissions.add(new Permission(1, 1, campaignUuid, userUuid));
+        permissions.add(new Permission(2, 2, campaignUuid, userUuid));
+        permissions.add(new Permission(3, 3, campaignUuid, userUuid));
         when(permissionRepository.findAll()).thenReturn(permissions);
 
         List<Permission> result = permissionService.getPermissions();
@@ -64,7 +64,7 @@ public class PermissionTest {
     public void whenPermissionIsValid_savePermission_SavesThePermission() {
         UUID campaignUuid = UUID.randomUUID();
         UUID userUuid = UUID.randomUUID();
-        Permission permission = new Permission(1, "CREATE", campaignUuid, userUuid);
+        Permission permission = new Permission(1, 1, campaignUuid, userUuid);
 
         when(campaignRepository.existsByUuid(campaignUuid)).thenReturn(true);
         when(userRepository.existsByUuid(userUuid)).thenReturn(true);
@@ -80,8 +80,8 @@ public class PermissionTest {
         UUID campaignUuid = UUID.randomUUID();
         UUID userUuid = UUID.randomUUID();
 
-        Permission permission = new Permission(1, "CREATE", campaignUuid, userUuid);
-        Permission permissionCopy = new Permission(2, "CREATE", campaignUuid, userUuid);
+        Permission permission = new Permission(1, 1, campaignUuid, userUuid);
+        Permission permissionCopy = new Permission(2, 1, campaignUuid, userUuid);
 
         when(campaignRepository.existsByUuid(campaignUuid)).thenReturn(true);
         when(userRepository.existsByUuid(userUuid)).thenReturn(true);
@@ -117,8 +117,8 @@ public class PermissionTest {
         UUID updateCampaignUuid = UUID.randomUUID();
         UUID updateUserUuid = UUID.randomUUID();
 
-        Permission permission = new Permission(permissionId, "CREATE", campaignUuid, userUuid);
-        Permission update = new Permission(permissionId, "CREATE", updateCampaignUuid, updateUserUuid);
+        Permission permission = new Permission(permissionId, 1, campaignUuid, userUuid);
+        Permission update = new Permission(permissionId, 1, updateCampaignUuid, updateUserUuid);
 
         when(permissionRepository.existsById(permissionId)).thenReturn(true);
         when(permissionRepository.findById(permissionId)).thenReturn(Optional.of(permission));
@@ -148,8 +148,8 @@ public class PermissionTest {
         UUID updateCampaignUuid = UUID.randomUUID();
         UUID updateUserUuid = UUID.randomUUID();
 
-        Permission permission = new Permission(permissionId, "CREATE", campaignUuid, userUuid);
-        Permission update = new Permission(permissionId, "CREATE", updateCampaignUuid, updateUserUuid);
+        Permission permission = new Permission(permissionId, 1, campaignUuid, userUuid);
+        Permission update = new Permission(permissionId, 1, updateCampaignUuid, updateUserUuid);
 
         when(permissionRepository.existsById(permissionId)).thenReturn(true);
         when(permissionRepository.findById(permissionId)).thenReturn(Optional.of(permission));
@@ -167,7 +167,7 @@ public class PermissionTest {
         int permissionId = 1;
         UUID campaignUuid = UUID.randomUUID();
         UUID userUuid = UUID.randomUUID();
-        Permission permission = new Permission(permissionId, "CREATE", campaignUuid, userUuid);
+        Permission permission = new Permission(permissionId, 1, campaignUuid, userUuid);
 
         when(permissionRepository.existsById(permissionId)).thenReturn(false);
 
@@ -179,7 +179,7 @@ public class PermissionTest {
         int permissionId = 1;
         UUID campaignUuid = UUID.randomUUID();
         UUID userUuid = UUID.randomUUID();
-        Permission permission = new Permission(permissionId, "CREATE", campaignUuid, userUuid);
+        Permission permission = new Permission(permissionId, 1, campaignUuid, userUuid);
 
         UUID newCampaignUuid = UUID.randomUUID();
         Permission permissionToUpdate = new Permission();

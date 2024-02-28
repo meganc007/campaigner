@@ -69,14 +69,15 @@ public class PermissionService implements IPermission {
             throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
         }
         Permission permissionToUpdate = RepositoryHelper.getById(permissionRepository, permissionId);
-        if (permission.getPermission() != null) permissionToUpdate.setPermission(permission.getPermission());
+        if (permission.getFk_permission_type() != null)
+            permissionToUpdate.setFk_permission_type(permission.getFk_permission_type());
         if (permission.getFk_campaign_uuid() != null)
             permissionToUpdate.setFk_campaign_uuid(permission.getFk_campaign_uuid());
         if (permission.getFk_user_uuid() != null) permissionToUpdate.setFk_user_uuid(permission.getFk_user_uuid());
     }
 
     private boolean hasForeignKeys(Permission permission) {
-        return permission.getPermission() != null ||
+        return permission.getFk_permission_type() != null ||
                 permission.getFk_campaign_uuid() != null ||
                 permission.getFk_user_uuid() != null;
     }
