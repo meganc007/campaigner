@@ -16,14 +16,18 @@ public class Permission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "permission")
-    private String permission;
+    @Column(name = "fk_permission_type")
+    private Integer fk_permission_type;
 
     @Column(name = "fk_campaign_uuid")
     private UUID fk_campaign_uuid;
 
     @Column(name = "fk_user_uuid")
     private UUID fk_user_uuid;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_permission_type", referencedColumnName = "id", updatable = false, insertable = false)
+    private PermissionType permissionType;
 
     @ManyToOne
     @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
@@ -34,11 +38,12 @@ public class Permission {
     private User user;
 
     public Permission() {
+        super();
     }
 
-    public Permission(int id, String permission, UUID fk_campaign_uuid, UUID fk_user_uuid) {
+    public Permission(int id, Integer fk_permission_type, UUID fk_campaign_uuid, UUID fk_user_uuid) {
         this.id = id;
-        this.permission = permission;
+        this.fk_permission_type = fk_permission_type;
         this.fk_campaign_uuid = fk_campaign_uuid;
         this.fk_user_uuid = fk_user_uuid;
     }

@@ -30,8 +30,8 @@ public class UserTest {
     @Test
     public void whenThereAreUsers_getUsers_ReturnsUsers() {
         List<User> users = new ArrayList<>();
-        users.add(new User("yoozername", "name@email.com", "Jane", "Doe", "DM"));
-        users.add(new User("uzernom", "name@email.com", "Jack", "Doe", "DM"));
+        users.add(new User("yoozername", "name@email.com", "Jane", "Doe", 1));
+        users.add(new User("uzernom", "name@email.com", "Jack", "Doe", 1));
 
         when(userRepository.findAll()).thenReturn(users);
 
@@ -54,7 +54,7 @@ public class UserTest {
 
     @Test
     public void whenUserIsValid_saveUser_SavesTheUser() {
-        User user = new User("yoozername", "name@email.com", "Jane", "Doe", "DM");
+        User user = new User("yoozername", "name@email.com", "Jane", "Doe", 1);
         when(userRepository.saveAndFlush(user)).thenReturn(user);
 
         assertDoesNotThrow(() -> userService.saveUser(user));
@@ -63,11 +63,11 @@ public class UserTest {
 
     @Test
     public void whenUserNamesInvalid_saveUser_ThrowsIllegalArgumentException() {
-        User userWithEmptyFirstName = new User("yoozername", "name@email.com", "", "Doe", "DM");
-        User userWithEmptyLastName = new User("yoozername", "name@email.com", "Jane", "", "DM");
+        User userWithEmptyFirstName = new User("yoozername", "name@email.com", "", "Doe", 1);
+        User userWithEmptyLastName = new User("yoozername", "name@email.com", "Jane", "", 1);
 
-        User userWithNullLastName = new User("yoozername", "name@email.com", null, "Doe", "DM");
-        User userWithNullFirstName = new User("yoozername", "name@email.com", "Jane", null, "DM");
+        User userWithNullLastName = new User("yoozername", "name@email.com", null, "Doe", 1);
+        User userWithNullFirstName = new User("yoozername", "name@email.com", "Jane", null, 1);
 
         assertThrows(IllegalArgumentException.class, () -> userService.saveUser(userWithEmptyFirstName));
         assertThrows(IllegalArgumentException.class, () -> userService.saveUser(userWithEmptyLastName));
@@ -77,8 +77,8 @@ public class UserTest {
 
     @Test
     public void whenUserNameAlreadyExists_saveUser_ThrowsDataIntegrityViolationException() {
-        User user = new User("yoozername", "name@email.com", "Jane", "Doe", "DM");
-        User userWithDuplicatedName = new User("yoozername", "name@email.com", "Jane", "Doe", "DM");
+        User user = new User("yoozername", "name@email.com", "Jane", "Doe", 1);
+        User userWithDuplicatedName = new User("yoozername", "name@email.com", "Jane", "Doe", 1);
         when(userRepository.saveAndFlush(user)).thenReturn(user);
         when(userRepository.saveAndFlush(userWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
 
@@ -89,7 +89,7 @@ public class UserTest {
     @Test
     public void whenUserIdExists_deleteUser_DeletesTheUser() {
         UUID uuid = UUID.randomUUID();
-        User user = new User("yoozername", "name@email.com", "Jane", "Doe", "DM");
+        User user = new User("yoozername", "name@email.com", "Jane", "Doe", 1);
         user.setUuid(uuid);
 
         when(userRepository.existsByUuid(uuid)).thenReturn(true);
@@ -109,13 +109,13 @@ public class UserTest {
     @Test
     public void whenUserIdIsFound_updateUser_UpdatesTheUser() {
         UUID uuid = UUID.randomUUID();
-        User user = new User("yoozername", "name@email.com", "Jane", "Doe", "DM");
+        User user = new User("yoozername", "name@email.com", "Jane", "Doe", 1);
         user.setUuid(uuid);
 
         String newFirstName = "Jack";
         String newLastName = "Deer";
 
-        User userToUpdate = new User("yoozername", "name@email.com", newFirstName, newLastName, "DM");
+        User userToUpdate = new User("yoozername", "name@email.com", newFirstName, newLastName, 1);
 
         when(userRepository.existsByUuid(uuid)).thenReturn(true);
         when(userRepository.findByUuid(uuid)).thenReturn(Optional.of(user));
@@ -129,14 +129,14 @@ public class UserTest {
         Assertions.assertEquals(userToUpdate.getEmail(), result.getEmail());
         Assertions.assertEquals(newFirstName, result.getFirstName());
         Assertions.assertEquals(newLastName, result.getLastName());
-        Assertions.assertEquals(userToUpdate.getRole(), result.getRole());
+        Assertions.assertEquals(userToUpdate.getFk_role(), result.getFk_role());
 
     }
 
     @Test
     public void whenUserIdIsNotFound_updateUser_ThrowsIllegalArgumentException() {
         UUID uuid = UUID.randomUUID();
-        User user = new User("yoozername", "name@email.com", "Jane", "Doe", "DM");
+        User user = new User("yoozername", "name@email.com", "Jane", "Doe", 2);
         user.setUuid(uuid);
 
         when(userRepository.existsByUuid(uuid)).thenReturn(false);
@@ -147,7 +147,7 @@ public class UserTest {
     @Test
     public void whenSomeUserFieldsChanged_updateUser_OnlyUpdatesChangedFields() {
         UUID uuid = UUID.randomUUID();
-        User user = new User("yoozername", "name@email.com", "Jane", "Doe", "DM");
+        User user = new User("yoozername", "name@email.com", "Jane", "Doe", 1);
         user.setUuid(uuid);
         User userToUpdate = new User();
         userToUpdate.setUsername("asdfjkl;");
@@ -164,6 +164,6 @@ public class UserTest {
         Assertions.assertEquals(user.getEmail(), result.getEmail());
         Assertions.assertEquals(user.getFirstName(), result.getFirstName());
         Assertions.assertEquals(user.getLastName(), result.getLastName());
-        Assertions.assertEquals(user.getRole(), result.getRole());
+        Assertions.assertEquals(user.getFk_role(), result.getFk_role());
     }
 }

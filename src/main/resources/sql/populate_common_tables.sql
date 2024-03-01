@@ -651,3 +651,12 @@ INSERT INTO public.item_types(name) VALUES ('Tool');
 INSERT INTO public.item_types(name) VALUES ('Vehicle');
 INSERT INTO public.item_types(name) VALUES ('Wand');
 INSERT INTO public.item_types(name) VALUES ('Wondrous Item');
+
+INSERT INTO public.permission_types(name, description) VALUES ('CREATE', 'Permission to create new records related to the campaign.');
+INSERT INTO public.permission_types(name, description) VALUES ('READ', 'Permission to view records related to the campaign.');
+INSERT INTO public.permission_types(name, description) VALUES ('UPDATE', 'Permission to modify records related to the campaign.');
+INSERT INTO public.permission_types(name, description) VALUES ('DESTROY', 'Permission to delete records related to the campaign.');
+
+INSERT INTO public.roles(name, description) VALUES ('SUPERUSER', 'Can modify public and private records.');
+INSERT INTO public.roles(name, description) VALUES ('GAMEMASTER', 'Can view and modify private records related to a campaign.');
+INSERT INTO public.roles(name, description) VALUES ('PLAYER', 'Can view public and private records.');
