@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,6 +20,9 @@ public interface IUserRepository extends JpaRepository<User, Integer> {
     void deleteByUuid(UUID uuid);
 
     Boolean existsByUuid(UUID uuid);
+
+    @Query("SELECT u FROM User u WHERE u.fk_role = :id")
+    List<User> findByfk_role(@Param("id") Integer id);
 
     @Query("SELECT u FROM User u WHERE " +
             "u.firstName = :#{#user.firstName} AND " +
