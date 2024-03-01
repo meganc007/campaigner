@@ -27,20 +27,24 @@ public class User {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "role")
-    private String role;
+    @Column(name = "fk_role")
+    private Integer fk_role;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_role", referencedColumnName = "id", updatable = false, insertable = false)
+    private Role role;
 
     public User() {
         this.uuid = UUID.randomUUID();
     }
 
-    public User(String username, String email, String firstName, String lastName, String role) {
+    public User(String username, String email, String firstName, String lastName, Integer fk_role) {
         this();
         this.username = username;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.role = role;
+        this.fk_role = fk_role;
     }
 
 }

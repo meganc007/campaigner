@@ -62,7 +62,7 @@ public class UserService implements IUser {
         if (user.getEmail() != null) userToUpdate.setEmail(user.getEmail());
         if (user.getFirstName() != null) userToUpdate.setFirstName(user.getFirstName());
         if (user.getLastName() != null) userToUpdate.setLastName(user.getLastName());
-        if (user.getRole() != null) userToUpdate.setRole(user.getRole());
+        if (user.getFk_role() != null) userToUpdate.setFk_role(user.getFk_role());
     }
 
     private boolean nameIsNullOrEmpty(String name) {
