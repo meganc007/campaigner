@@ -105,7 +105,7 @@ public class ContinentTest {
     @Test
     public void whenContinentIdIsAForeignKey_deleteContinent_ThrowsDataIntegrityViolationException() {
         int continentId = 1;
-        Country country = new Country(1, "Country", "Description", continentId, 1);
+        Country country = new Country(1, "Country", "Description", UUID.randomUUID(), continentId, 1);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository, eventRepository));
         List<Country> countries = new ArrayList<>(Arrays.asList(country));
 
