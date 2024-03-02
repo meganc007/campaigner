@@ -23,6 +23,11 @@ public class RegionController {
         return regionService.getRegions();
     }
 
+    @GetMapping(path = "{regionId}")
+    public Region getRegion(@PathVariable("regionId") int regionId) {
+        return regionService.getRegion(regionId);
+    }
+
     @PostMapping
     public void saveRegion(@RequestBody Region region) {
         regionService.saveRegion(region);

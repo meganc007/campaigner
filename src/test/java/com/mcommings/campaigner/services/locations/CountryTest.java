@@ -153,7 +153,7 @@ public class CountryTest {
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, regionRepository, eventRepository, placeRepository));
         List<City> cities = new ArrayList<>(Arrays.asList(city));
 
-        Region region = new Region(1, "Region", "Description", countryId, 1);
+        Region region = new Region(1, "Region", "Description", UUID.randomUUID(), countryId, 1);
         List<Region> regions = new ArrayList<>(Arrays.asList(region));
 
         Event event = new Event(1, "Name", "Description", 1, 1, 1, 1,

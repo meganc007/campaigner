@@ -14,10 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_REGION;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -44,10 +41,11 @@ public class RegionTest {
 
     @Test
     public void whenThereAreRegions_getRegions_ReturnsRegions() {
+        UUID campaign_uuid = UUID.randomUUID();
         List<Region> regions = new ArrayList<>();
-        regions.add(new Region(1, "Region 1", "Description 1"));
-        regions.add(new Region(2, "Region 2", "Description 2"));
-        regions.add(new Region(3, "Region 3", "Description 3", 1, 2));
+        regions.add(new Region(1, "Region 1", "Description 1", campaign_uuid));
+        regions.add(new Region(2, "Region 2", "Description 2", campaign_uuid));
+        regions.add(new Region(3, "Region 3", "Description 3", campaign_uuid, 1, 2));
         when(regionRepository.findAll()).thenReturn(regions);
 
         List<Region> result = regionService.getRegions();
@@ -69,7 +67,7 @@ public class RegionTest {
 
     @Test
     public void whenRegionWithNoForeignKeysIsValid_saveRegion_SavesTheRegion() {
-        Region region = new Region(1, "Region 1", "Description 1");
+        Region region = new Region(1, "Region 1", "Description 1", UUID.randomUUID());
         when(regionRepository.saveAndFlush(region)).thenReturn(region);
 
         assertDoesNotThrow(() -> regionService.saveRegion(region));
@@ -79,7 +77,7 @@ public class RegionTest {
 
     @Test
     public void whenRegionWithForeignKeysIsValid_saveRegion_SavesTheRegion() {
-        Region region = new Region(1, "Region 1", "Description 1", 1, 2);
+        Region region = new Region(1, "Region 1", "Description 1", UUID.randomUUID(), 1, 2);
 
         when(countryRepository.existsById(1)).thenReturn(true);
         when(climateRepository.existsById(2)).thenReturn(true);
@@ -92,8 +90,8 @@ public class RegionTest {
 
     @Test
     public void whenRegionNameIsInvalid_saveRegion_ThrowsIllegalArgumentException() {
-        Region regionWithEmptyName = new Region(1, "", "Description 1");
-        Region regionWithNullName = new Region(2, null, "Description 2");
+        Region regionWithEmptyName = new Region(1, "", "Description 1", UUID.randomUUID());
+        Region regionWithNullName = new Region(2, null, "Description 2", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> regionService.saveRegion(regionWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> regionService.saveRegion(regionWithNullName));
@@ -101,8 +99,8 @@ public class RegionTest {
 
     @Test
     public void whenRegionNameAlreadyExists_saveRegion_ThrowsDataIntegrityViolationException() {
-        Region region = new Region(1, "Region 1", "Description 1", 1, 2);
-        Region regionWithDuplicatedName = new Region(2, "Region 1", "Description 2", 3, 4);
+        Region region = new Region(1, "Region 1", "Description 1", UUID.randomUUID(), 1, 2);
+        Region regionWithDuplicatedName = new Region(2, "Region 1", "Description 2", UUID.randomUUID(), 3, 4);
 
         when(regionRepository.existsById(1)).thenReturn(true);
         when(countryRepository.existsById(1)).thenReturn(true);
@@ -121,7 +119,7 @@ public class RegionTest {
 
     @Test
     public void whenRegionHasInvalidForeignKeys_saveRegion_ThrowsDataIntegrityViolationException() {
-        Region region = new Region(1, "Region 1", "Description 1", 1, 2);
+        Region region = new Region(1, "Region 1", "Description 1", UUID.randomUUID(), 1, 2);
 
         when(countryRepository.existsById(1)).thenReturn(false);
         when(climateRepository.existsById(3)).thenReturn(false);
@@ -172,8 +170,8 @@ public class RegionTest {
     public void whenRegionIdWithNoFKIsFound_updateRegion_UpdatesTheRegion() {
         int regionId1 = 1;
 
-        Region region = new Region(regionId1, "Old Region Name", "Old Description");
-        Region regionToUpdateNoFK = new Region(regionId1, "Updated Region Name", "Updated Description");
+        Region region = new Region(regionId1, "Old Region Name", "Old Description", UUID.randomUUID());
+        Region regionToUpdateNoFK = new Region(regionId1, "Updated Region Name", "Updated Description", UUID.randomUUID());
 
         when(regionRepository.existsById(regionId1)).thenReturn(true);
         when(regionRepository.findById(regionId1)).thenReturn(Optional.of(region));
@@ -191,8 +189,8 @@ public class RegionTest {
     public void whenRegionIdWithValidFKIsFound_updateRegion_UpdatesTheRegion() {
         int regionId = 2;
 
-        Region region = new Region(regionId, "Test Region Name", "Test Description");
-        Region regionToUpdate = new Region(regionId, "Updated Region Name", "Updated Description", 1, 2);
+        Region region = new Region(regionId, "Test Region Name", "Test Description", UUID.randomUUID());
+        Region regionToUpdate = new Region(regionId, "Updated Region Name", "Updated Description", UUID.randomUUID(), 1, 2);
 
         when(regionRepository.existsById(regionId)).thenReturn(true);
         when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
@@ -214,8 +212,8 @@ public class RegionTest {
     public void whenRegionIdWithInvalidFKIsFound_updateRegion_ThrowsDataIntegrityViolationException() {
         int regionId = 2;
 
-        Region region = new Region(regionId, "Test Region Name", "Test Description");
-        Region regionToUpdate = new Region(regionId, "Updated Region Name", "Updated Description", 1, 2);
+        Region region = new Region(regionId, "Test Region Name", "Test Description", UUID.randomUUID());
+        Region regionToUpdate = new Region(regionId, "Updated Region Name", "Updated Description", UUID.randomUUID(), 1, 2);
 
         when(regionRepository.existsById(regionId)).thenReturn(true);
         when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
@@ -228,7 +226,7 @@ public class RegionTest {
     @Test
     public void whenRegionIdIsNotFound_updateRegion_ThrowsIllegalArgumentException() {
         int regionId = 1;
-        Region region = new Region(regionId, "Old Region Name", "Old Description");
+        Region region = new Region(regionId, "Old Region Name", "Old Description", UUID.randomUUID());
 
         when(regionRepository.existsById(regionId)).thenReturn(false);
 
@@ -238,7 +236,7 @@ public class RegionTest {
     @Test
     public void whenSomeRegionFieldsChanged_updateRegion_OnlyUpdatesChangedFields() {
         int regionId = 1;
-        Region region = new Region(regionId, "Name", "Old Region Description", 1, 2);
+        Region region = new Region(regionId, "Name", "Old Region Description", UUID.randomUUID(), 1, 2);
 
         String newDescription = "New Region description";
         int newClimate = 3;
