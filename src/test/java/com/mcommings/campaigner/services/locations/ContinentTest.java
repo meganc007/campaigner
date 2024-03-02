@@ -15,10 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_CONTINENT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -40,8 +37,8 @@ public class ContinentTest {
     @Test
     public void whenThereAreContinents_getContinents_ReturnsContinents() {
         List<Continent> continents = new ArrayList<>();
-        continents.add(new Continent(1, "Continent 1", "Description 1"));
-        continents.add(new Continent(2, "Continent 2", "Description 2"));
+        continents.add(new Continent(1, "Continent 1", "Description 1", UUID.randomUUID()));
+        continents.add(new Continent(2, "Continent 2", "Description 2", UUID.randomUUID()));
         when(continentRepository.findAll()).thenReturn(continents);
 
         List<Continent> result = continentService.getContinents();
@@ -63,7 +60,7 @@ public class ContinentTest {
 
     @Test
     public void whenContinentIsValid_saveContinent_SavesTheContinent() {
-        Continent continent = new Continent(1, "Continent 1", "Description 1");
+        Continent continent = new Continent(1, "Continent 1", "Description 1", UUID.randomUUID());
         when(continentRepository.saveAndFlush(continent)).thenReturn(continent);
 
         assertDoesNotThrow(() -> continentService.saveContinent(continent));
@@ -72,8 +69,8 @@ public class ContinentTest {
 
     @Test
     public void whenContinentNameIsInvalid_saveContinent_ThrowsIllegalArgumentException() {
-        Continent continentWithEmptyName = new Continent(1, "", "Description 1");
-        Continent continentWithNullName = new Continent(2, null, "Description 2");
+        Continent continentWithEmptyName = new Continent(1, "", "Description 1", UUID.randomUUID());
+        Continent continentWithNullName = new Continent(2, null, "Description 2", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> continentService.saveContinent(continentWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> continentService.saveContinent(continentWithNullName));
@@ -81,8 +78,8 @@ public class ContinentTest {
 
     @Test
     public void whenContinentNameAlreadyExists_saveContinent_ThrowsDataIntegrityViolationException() {
-        Continent continent = new Continent(1, "Continent 1", "Description 1");
-        Continent continentWithDuplicatedName = new Continent(2, "Continent 1", "Description 2");
+        Continent continent = new Continent(1, "Continent 1", "Description 1", UUID.randomUUID());
+        Continent continentWithDuplicatedName = new Continent(2, "Continent 1", "Description 2", UUID.randomUUID());
         when(continentRepository.saveAndFlush(continent)).thenReturn(continent);
         when(continentRepository.saveAndFlush(continentWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
 
@@ -128,8 +125,8 @@ public class ContinentTest {
     @Test
     public void whenContinentIdIsFound_updateContinent_UpdatesTheContinent() {
         int continentId = 1;
-        Continent continent = new Continent(continentId, "Old Continent Name", "Old Description");
-        Continent continentToUpdate = new Continent(continentId, "Updated Continent Name", "Updated Description");
+        Continent continent = new Continent(continentId, "Old Continent Name", "Old Description", UUID.randomUUID());
+        Continent continentToUpdate = new Continent(continentId, "Updated Continent Name", "Updated Description", UUID.randomUUID());
 
         when(continentRepository.existsById(continentId)).thenReturn(true);
         when(continentRepository.findById(continentId)).thenReturn(Optional.of(continent));
@@ -146,7 +143,7 @@ public class ContinentTest {
     @Test
     public void whenContinentIdIsNotFound_updateContinent_ThrowsIllegalArgumentException() {
         int continentId = 1;
-        Continent continent = new Continent(continentId, "Old Continent Name", "Old Description");
+        Continent continent = new Continent(continentId, "Old Continent Name", "Old Description", UUID.randomUUID());
 
         when(continentRepository.existsById(continentId)).thenReturn(false);
 
@@ -156,7 +153,7 @@ public class ContinentTest {
     @Test
     public void whenSomeContinentFieldsChanged_updateContinent_OnlyUpdatesChangedFields() {
         int continentId = 1;
-        Continent continent = new Continent(continentId, "Name", "Old Continent Description");
+        Continent continent = new Continent(continentId, "Name", "Old Continent Description", UUID.randomUUID());
 
         String newDescription = "New Continent description";
 

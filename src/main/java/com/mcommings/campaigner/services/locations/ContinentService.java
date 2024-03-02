@@ -40,6 +40,11 @@ public class ContinentService implements IContinent {
     }
 
     @Override
+    public Continent getContinent(int continentId) {
+        return RepositoryHelper.getById(continentRepository, continentId);
+    }
+
+    @Override
     @Transactional
     public void saveContinent(Continent continent) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(continent)) {
