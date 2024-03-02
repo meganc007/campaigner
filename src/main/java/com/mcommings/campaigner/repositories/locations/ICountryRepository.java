@@ -8,10 +8,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ICountryRepository extends JpaRepository<Country, Integer> {
     Optional<Country> findByName(String name);
+
+    @Query("SELECT c FROM Country c WHERE c.fk_campaign_uuid = :uuid")
+    List<Country> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 
     @Query("SELECT c FROM Country c WHERE c.fk_continent = :id")
     List<Country> findByfk_continent(@Param("id") Integer id);

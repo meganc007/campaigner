@@ -8,6 +8,8 @@ public interface ICountry {
 
     List<Country> getCountries();
 
+    Country getCountry(int countryId);
+
     void saveCountry(Country country);
 
     void deleteCountry(int countryId);

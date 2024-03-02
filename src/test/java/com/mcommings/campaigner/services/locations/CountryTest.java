@@ -17,10 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_COUNTRY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -51,9 +48,9 @@ public class CountryTest {
     @Test
     public void whenThereAreCountries_getCountries_ReturnsCountries() {
         List<Country> countries = new ArrayList<>();
-        countries.add(new Country(1, "Country 1", "Description 1"));
-        countries.add(new Country(2, "Country 2", "Description 2"));
-        countries.add(new Country(3, "Country 3", "Description 3", 1, 3));
+        countries.add(new Country(1, "Country 1", "Description 1", UUID.randomUUID()));
+        countries.add(new Country(2, "Country 2", "Description 2", UUID.randomUUID()));
+        countries.add(new Country(3, "Country 3", "Description 3", UUID.randomUUID(), 1, 3));
         when(countryRepository.findAll()).thenReturn(countries);
 
         List<Country> result = countryService.getCountries();
@@ -75,7 +72,7 @@ public class CountryTest {
 
     @Test
     public void whenCountryWithNoForeignKeysIsValid_saveCountry_SavesTheCountry() {
-        Country country = new Country(1, "Country 1", "Description 1");
+        Country country = new Country(1, "Country 1", "Description 1", UUID.randomUUID());
         when(countryRepository.saveAndFlush(country)).thenReturn(country);
 
         assertDoesNotThrow(() -> countryService.saveCountry(country));
@@ -84,7 +81,7 @@ public class CountryTest {
     }
     @Test
     public void whenCountryWithForeignKeysIsValid_saveCountry_SavesTheCountry() {
-        Country country = new Country(1, "Country 1", "Description 1", 1, 3);
+        Country country = new Country(1, "Country 1", "Description 1", UUID.randomUUID(), 1, 3);
 
         when(continentRepository.existsById(1)).thenReturn(true);
         when(governmentRepository.existsById(3)).thenReturn(true);
@@ -97,8 +94,8 @@ public class CountryTest {
 
     @Test
     public void whenCountryNameIsInvalid_saveCountry_ThrowsIllegalArgumentException() {
-        Country countryWithEmptyName = new Country(1, "", "Description 1");
-        Country countryWithNullName = new Country(2, null, "Description 2");
+        Country countryWithEmptyName = new Country(1, "", "Description 1", UUID.randomUUID());
+        Country countryWithNullName = new Country(2, null, "Description 2", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> countryService.saveCountry(countryWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> countryService.saveCountry(countryWithNullName));
@@ -106,8 +103,9 @@ public class CountryTest {
 
     @Test
     public void whenCountryNameAlreadyExists_saveCountry_ThrowsDataIntegrityViolationException() {
-        Country country = new Country(1, "Country 1", "Description 1", 1, 2);
-        Country countryWithDuplicatedName = new Country(2, "Country 1", "Description 2", 3, 4);
+        UUID campaign_uuid = UUID.randomUUID();
+        Country country = new Country(1, "Country 1", "Description 1", campaign_uuid, 1, 2);
+        Country countryWithDuplicatedName = new Country(2, "Country 1", "Description 2", campaign_uuid, 3, 4);
 
         when(continentRepository.existsById(1)).thenReturn(true);
         when(continentRepository.existsById(3)).thenReturn(true);
@@ -123,7 +121,7 @@ public class CountryTest {
 
     @Test
     public void whenCountryHasInvalidForeignKeys_saveCountry_ThrowsDataIntegrityViolationException() {
-        Country country = new Country(1, "Country 1", "Description 1", 1, 2);
+        Country country = new Country(1, "Country 1", "Description 1", UUID.randomUUID(), 1, 2);
 
         when(continentRepository.existsById(1)).thenReturn(true);
         when(continentRepository.existsById(3)).thenReturn(false);
@@ -181,8 +179,8 @@ public class CountryTest {
     public void whenCountryIdWithNoFKIsFound_updateCountry_UpdatesTheCountry() {
         int countryId = 1;
 
-        Country country = new Country(countryId, "Old Country Name", "Old Description");
-        Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description");
+        Country country = new Country(countryId, "Old Country Name", "Old Description", UUID.randomUUID());
+        Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description", UUID.randomUUID());
 
         when(countryRepository.existsById(countryId)).thenReturn(true);
         when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));
@@ -198,9 +196,10 @@ public class CountryTest {
     @Test
     public void whenCountryIdWithValidFKIsFound_updateCountry_UpdatesTheCountry() {
         int countryId = 2;
+        UUID campaign_uuid = UUID.randomUUID();
 
-        Country country = new Country(countryId, "Test Country Name", "Test Description");
-        Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description", 1, 2);
+        Country country = new Country(countryId, "Test Country Name", "Test Description", campaign_uuid);
+        Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description", campaign_uuid, 1, 2);
 
         when(countryRepository.existsById(countryId)).thenReturn(true);
         when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));
@@ -221,8 +220,8 @@ public class CountryTest {
     public void whenCountryIdWithInvalidFKIsFound_updateCountry_ThrowsDataIntegrityViolationException() {
         int countryId = 1;
 
-        Country country = new Country(countryId, "Test Country Name", "Test Description");
-        Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description", 1, 2);
+        Country country = new Country(countryId, "Test Country Name", "Test Description", UUID.randomUUID());
+        Country countryToUpdate = new Country(countryId, "Updated Country Name", "Updated Description", UUID.randomUUID(), 1, 2);
 
         when(countryRepository.existsById(countryId)).thenReturn(true);
         when(countryRepository.findById(countryId)).thenReturn(Optional.of(country));
@@ -235,7 +234,7 @@ public class CountryTest {
     @Test
     public void whenCountryIdIsNotFound_updateCountry_ThrowsIllegalArgumentException() {
         int countryId = 1;
-        Country country = new Country(countryId, "Old Country Name", "Old Description");
+        Country country = new Country(countryId, "Old Country Name", "Old Description", UUID.randomUUID());
 
         when(countryRepository.existsById(countryId)).thenReturn(false);
 
@@ -245,7 +244,7 @@ public class CountryTest {
     @Test
     public void whenSomeCountryFieldsChanged_updateCountry_OnlyUpdatesChangedFields() {
         int countryId = 1;
-        Country country = new Country(countryId, "Country 1", "Description 1", 1, 2);
+        Country country = new Country(countryId, "Country 1", "Description 1", UUID.randomUUID(), 1, 2);
 
         String newDescription = "New Country description";
         int newContinent = 3;

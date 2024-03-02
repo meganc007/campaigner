@@ -23,6 +23,11 @@ public class CountryController {
         return countryService.getCountries();
     }
 
+    @GetMapping(path = "{countryId}")
+    public Country getCountry(@PathVariable("countryId") int countryId) {
+        return countryService.getCountry(countryId);
+    }
+
     @PostMapping
     public void saveCountry(@RequestBody Country country) {
         countryService.saveCountry(country);
