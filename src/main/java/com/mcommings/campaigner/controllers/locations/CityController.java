@@ -23,6 +23,11 @@ public class CityController {
         return cityService.getCities();
     }
 
+    @GetMapping(path = "{cityId}")
+    public City getCity(@PathVariable("cityId") int cityId) {
+        return cityService.getCity(cityId);
+    }
+
     @PostMapping
     public void saveCity(@RequestBody City city) {
         cityService.saveCity(city);

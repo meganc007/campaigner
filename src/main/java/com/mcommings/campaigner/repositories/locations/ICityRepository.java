@@ -8,11 +8,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ICityRepository extends JpaRepository<City, Integer> {
 
     Optional<City> findByName(String name);
+
+    @Query("SELECT c FROM City c WHERE c.fk_campaign_uuid = :uuid")
+    List<City> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 
     @Query("SELECT c FROM City c WHERE c.fk_wealth = :id")
     List<City> findByfk_wealth(@Param("id") Integer id);

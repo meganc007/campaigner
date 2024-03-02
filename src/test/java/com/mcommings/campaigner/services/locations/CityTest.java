@@ -16,10 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_CITY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -51,9 +48,9 @@ public class CityTest {
     @Test
     public void whenThereAreCities_getCities_ReturnsCities() {
         List<City> cities = new ArrayList<>();
-        cities.add(new City(1, "City 1", "Description 1"));
-        cities.add(new City(2, "City 2", "Description 2"));
-        cities.add(new City(3, "City 3", "Description 3", 1, 2, 3, 4, 5));
+        cities.add(new City(1, "City 1", "Description 1", UUID.randomUUID()));
+        cities.add(new City(2, "City 2", "Description 2", UUID.randomUUID()));
+        cities.add(new City(3, "City 3", "Description 3", UUID.randomUUID(), 1, 2, 3, 4, 5));
         when(cityRepository.findAll()).thenReturn(cities);
 
         List<City> result = cityService.getCities();
@@ -75,7 +72,7 @@ public class CityTest {
 
     @Test
     public void whenCityWithNoForeignKeysIsValid_saveCity_SavesTheCity() {
-        City city = new City(1, "City 1", "Description 1");
+        City city = new City(1, "City 1", "Description 1", UUID.randomUUID());
         when(cityRepository.saveAndFlush(city)).thenReturn(city);
 
         assertDoesNotThrow(() -> cityService.saveCity(city));
@@ -85,7 +82,7 @@ public class CityTest {
 
     @Test
     public void whenCityWithForeignKeysIsValid_saveCity_SavesTheCity() {
-        City city = new City(1, "City 1", "Description 1", 1, 2, 3, 4, 5);
+        City city = new City(1, "City 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
 
         when(wealthRepository.existsById(1)).thenReturn(true);
         when(countryRepository.existsById(2)).thenReturn(true);
@@ -101,8 +98,8 @@ public class CityTest {
 
     @Test
     public void whenCityNameIsInvalid_saveCity_ThrowsIllegalArgumentException() {
-        City cityWithEmptyName = new City(1, "", "Description 1");
-        City cityWithNullName = new City(2, null, "Description 2");
+        City cityWithEmptyName = new City(1, "", "Description 1", UUID.randomUUID());
+        City cityWithNullName = new City(2, null, "Description 2", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> cityService.saveCity(cityWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> cityService.saveCity(cityWithNullName));
@@ -110,8 +107,8 @@ public class CityTest {
 
     @Test
     public void whenCityNameAlreadyExists_saveCity_ThrowsDataIntegrityViolationException() {
-        City city = new City(1, "City 1", "Description 1", 1, 2, 3, 4, 5);
-        City cityWithDuplicatedName = new City(2, "City 1", "Description 2", 5, 6, 7, 8, 9);
+        City city = new City(1, "City 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
+        City cityWithDuplicatedName = new City(2, "City 1", "Description 2", UUID.randomUUID(), 5, 6, 7, 8, 9);
 
         when(cityRepository.existsById(1)).thenReturn(true);
         when(wealthRepository.existsById(1)).thenReturn(true);
@@ -136,7 +133,7 @@ public class CityTest {
 
     @Test
     public void whenCityHasInvalidForeignKeys_saveCity_ThrowsDataIntegrityViolationException() {
-        City city = new City(1, "City 1", "Description 1", 1, 2, 3, 4, 5);
+        City city = new City(1, "City 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
 
         when(wealthRepository.existsById(1)).thenReturn(true);
         when(countryRepository.existsById(3)).thenReturn(false);
@@ -186,9 +183,10 @@ public class CityTest {
     @Test
     public void whenCityIdWithNoFKIsFound_updateCity_UpdatesTheCity() {
         int cityId1 = 1;
+        UUID campaign = UUID.randomUUID();
 
-        City city = new City(cityId1, "Old City Name", "Old Description");
-        City cityToUpdateNoFK = new City(cityId1, "Updated City Name", "Updated Description");
+        City city = new City(cityId1, "Old City Name", "Old Description", campaign);
+        City cityToUpdateNoFK = new City(cityId1, "Updated City Name", "Updated Description", campaign);
 
         when(cityRepository.existsById(cityId1)).thenReturn(true);
         when(cityRepository.findById(cityId1)).thenReturn(Optional.of(city));
@@ -204,9 +202,10 @@ public class CityTest {
     @Test
     public void whenCityIdWithValidFKIsFound_updateCity_UpdatesTheCity() {
         int cityId = 2;
+        UUID campaign = UUID.randomUUID();
 
-        City city = new City(cityId, "Test City Name", "Test Description");
-        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", 1, 2, 3, 4, 5);
+        City city = new City(cityId, "Test City Name", "Test Description", campaign);
+        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", campaign, 1, 2, 3, 4, 5);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(wealthRepository, countryRepository,
                 settlementTypeRepository, governmentRepository, regionRepository));
 
@@ -235,9 +234,10 @@ public class CityTest {
     @Test
     public void whenCityIdWithInvalidFKIsFound_updateCity_ThrowsDataIntegrityViolationException() {
         int cityId = 2;
+        UUID campaign = UUID.randomUUID();
 
-        City city = new City(cityId, "Test City Name", "Test Description");
-        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", 1, 2, 3, 4, 5);
+        City city = new City(cityId, "Test City Name", "Test Description", campaign);
+        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", campaign, 1, 2, 3, 4, 5);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(wealthRepository, countryRepository, settlementTypeRepository, governmentRepository));
 
         when(cityRepository.existsById(cityId)).thenReturn(true);
@@ -254,7 +254,7 @@ public class CityTest {
     @Test
     public void whenCityIdIsNotFound_updateCity_ThrowsIllegalArgumentException() {
         int cityId = 1;
-        City city = new City(cityId, "Old City Name", "Old Description");
+        City city = new City(cityId, "Old City Name", "Old Description", UUID.randomUUID());
 
         when(cityRepository.existsById(cityId)).thenReturn(false);
 
