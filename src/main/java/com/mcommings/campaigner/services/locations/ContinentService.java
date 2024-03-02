@@ -3,7 +3,6 @@ package com.mcommings.campaigner.services.locations;
 import com.mcommings.campaigner.interfaces.locations.IContinent;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.Continent;
-import com.mcommings.campaigner.repositories.ICampaignRepository;
 import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.locations.IContinentRepository;
 import com.mcommings.campaigner.repositories.locations.ICountryRepository;
@@ -24,15 +23,12 @@ import static com.mcommings.campaigner.enums.ForeignKey.FK_CONTINENT;
 public class ContinentService implements IContinent {
 
     private final IContinentRepository continentRepository;
-    private final ICampaignRepository campaignRepository;
     private final ICountryRepository countryRepository;
     private final IEventRepository eventRepository;
 
     @Autowired
-    public ContinentService(IContinentRepository continentRepository, ICampaignRepository campaignRepository,
-                            ICountryRepository countryRepository, IEventRepository eventRepository) {
+    public ContinentService(IContinentRepository continentRepository, ICountryRepository countryRepository, IEventRepository eventRepository) {
         this.continentRepository = continentRepository;
-        this.campaignRepository = campaignRepository;
         this.countryRepository = countryRepository;
         this.eventRepository = eventRepository;
     }
