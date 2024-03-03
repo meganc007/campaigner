@@ -151,7 +151,7 @@ public class RegionTest {
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, placeRepository, regionRepository));
         List<Place> places = new ArrayList<>(Arrays.asList(place));
 
-        Landmark landmark = new Landmark(1, "Landmark", "Description", regionId);
+        Landmark landmark = new Landmark(1, "Landmark", "Description", UUID.randomUUID(), regionId);
         List<Landmark> landmarks = new ArrayList<>(Arrays.asList(landmark));
 
         when(regionRepository.existsById(regionId)).thenReturn(true);

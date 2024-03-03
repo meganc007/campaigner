@@ -13,6 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,9 +32,9 @@ public class LandmarkTest {
     @Test
     public void whenThereAreLandmarks_getLandmarks_ReturnsLandmarks() {
         List<Landmark> landmarks = new ArrayList<>();
-        landmarks.add(new Landmark(1, "Landmark 1", "Description 1"));
-        landmarks.add(new Landmark(2, "Landmark 2", "Description 2"));
-        landmarks.add(new Landmark(3, "Landmark 3", "Description 3", 2));
+        landmarks.add(new Landmark(1, "Landmark 1", "Description 1", UUID.randomUUID()));
+        landmarks.add(new Landmark(2, "Landmark 2", "Description 2", UUID.randomUUID()));
+        landmarks.add(new Landmark(3, "Landmark 3", "Description 3", UUID.randomUUID(), 2));
         when(landmarkRepository.findAll()).thenReturn(landmarks);
 
         List<Landmark> result = landmarkService.getLandmarks();
@@ -55,7 +56,7 @@ public class LandmarkTest {
 
     @Test
     public void whenLandmarkWithNoForeignKeysIsValid_saveLandmark_SavesTheLandmark() {
-        Landmark landmark = new Landmark(1, "Landmark 1", "Description 1");
+        Landmark landmark = new Landmark(1, "Landmark 1", "Description 1", UUID.randomUUID());
         when(landmarkRepository.saveAndFlush(landmark)).thenReturn(landmark);
 
         assertDoesNotThrow(() -> landmarkService.saveLandmark(landmark));
@@ -64,7 +65,7 @@ public class LandmarkTest {
 
     @Test
     public void whenLandmarkWithForeignKeysIsValid_saveLandmark_SavesTheLandmark() {
-        Landmark landmark = new Landmark(1, "Landmark 1", "Description 1", 3);
+        Landmark landmark = new Landmark(1, "Landmark 1", "Description 1", UUID.randomUUID(), 3);
 
         when(landmarkRepository.existsById(1)).thenReturn(true);
         when(regionRepository.existsById(3)).thenReturn(true);
@@ -77,8 +78,8 @@ public class LandmarkTest {
 
     @Test
     public void whenLandmarkNameIsInvalid_saveLandmark_ThrowsIllegalArgumentException() {
-        Landmark landmarkWithEmptyName = new Landmark(1, "", "Description 1");
-        Landmark landmarkWithNullName = new Landmark(2, null, "Description 2");
+        Landmark landmarkWithEmptyName = new Landmark(1, "", "Description 1", UUID.randomUUID());
+        Landmark landmarkWithNullName = new Landmark(2, null, "Description 2", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> landmarkService.saveLandmark(landmarkWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> landmarkService.saveLandmark(landmarkWithNullName));
@@ -86,8 +87,8 @@ public class LandmarkTest {
 
     @Test
     public void whenLandmarkNameAlreadyExists_saveLandmark_ThrowsDataIntegrityViolationException() {
-        Landmark landmark = new Landmark(1, "Landmark 1", "Description 1");
-        Landmark landmarkWithDuplicatedName = new Landmark(2, "Landmark 1", "Description 2");
+        Landmark landmark = new Landmark(1, "Landmark 1", "Description 1", UUID.randomUUID());
+        Landmark landmarkWithDuplicatedName = new Landmark(2, "Landmark 1", "Description 2", UUID.randomUUID());
         when(landmarkRepository.saveAndFlush(landmark)).thenReturn(landmark);
         when(landmarkRepository.saveAndFlush(landmarkWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
 
@@ -97,7 +98,7 @@ public class LandmarkTest {
 
     @Test
     public void whenLandmarkHasInvalidForeignKeys_saveLandmark_ThrowsDataIntegrityViolationException() {
-        Landmark landmark = new Landmark(1, "Landmark 1", "Description 1", 2);
+        Landmark landmark = new Landmark(1, "Landmark 1", "Description 1", UUID.randomUUID(), 2);
 
         when(landmarkRepository.existsById(1)).thenReturn(true);
         when(regionRepository.existsById(2)).thenReturn(false);
@@ -124,8 +125,9 @@ public class LandmarkTest {
     @Test
     public void whenLandmarkIdWithNoFKIsFound_updateLandmark_UpdatesTheLandmark() {
         int landmarkId = 1;
-        Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description");
-        Landmark landmarkToUpdate = new Landmark(landmarkId, "Updated Landmark Name", "Updated Description");
+        UUID campaign = UUID.randomUUID();
+        Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description", campaign);
+        Landmark landmarkToUpdate = new Landmark(landmarkId, "Updated Landmark Name", "Updated Description", campaign);
 
         when(landmarkRepository.existsById(landmarkId)).thenReturn(true);
         when(landmarkRepository.findById(landmarkId)).thenReturn(Optional.of(landmark));
@@ -141,8 +143,9 @@ public class LandmarkTest {
     @Test
     public void whenLandmarkIdWithValidFKIsFound_updateLandmark_UpdatesTheLandmark() {
         int landmarkId = 1;
-        Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description");
-        Landmark landmarkToUpdate = new Landmark(landmarkId, "Updated Landmark Name", "Updated Description", 3);
+        UUID campaign = UUID.randomUUID();
+        Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description", campaign);
+        Landmark landmarkToUpdate = new Landmark(landmarkId, "Updated Landmark Name", "Updated Description", campaign, 3);
 
         when(landmarkRepository.existsById(landmarkId)).thenReturn(true);
         when(landmarkRepository.findById(landmarkId)).thenReturn(Optional.of(landmark));
@@ -161,8 +164,9 @@ public class LandmarkTest {
     @Test
     public void whenLandmarkIdWithInvalidFKIsFound_updateLandmark_UpdatesTheLandmark() {
         int landmarkId = 1;
-        Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description");
-        Landmark landmarkToUpdate = new Landmark(landmarkId, "Updated Landmark Name", "Updated Description", 3);
+        UUID campaign = UUID.randomUUID();
+        Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description", campaign);
+        Landmark landmarkToUpdate = new Landmark(landmarkId, "Updated Landmark Name", "Updated Description", campaign, 3);
 
         when(landmarkRepository.existsById(landmarkId)).thenReturn(true);
         when(landmarkRepository.findById(landmarkId)).thenReturn(Optional.of(landmark));
@@ -174,7 +178,7 @@ public class LandmarkTest {
     @Test
     public void whenLandmarkIdIsNotFound_updateLandmark_ThrowsIllegalArgumentException() {
         int landmarkId = 1;
-        Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description");
+        Landmark landmark = new Landmark(landmarkId, "Old Landmark Name", "Old Description", UUID.randomUUID());
 
         when(landmarkRepository.existsById(landmarkId)).thenReturn(false);
 
@@ -184,7 +188,7 @@ public class LandmarkTest {
     @Test
     public void whenSomeLandmarkFieldsChanged_updateLandmark_OnlyUpdatesChangedFields() {
         int landmarkId = 1;
-        Landmark landmark = new Landmark(landmarkId, "Name", "Description", 1);
+        Landmark landmark = new Landmark(landmarkId, "Name", "Description", UUID.randomUUID(), 1);
 
         String newDescription = "New Landmark description";
         int newMonth = 3;

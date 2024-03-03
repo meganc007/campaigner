@@ -5,8 +5,10 @@ import com.mcommings.campaigner.models.locations.Landmark;
 import java.util.List;
 
 public interface ILandmark {
-    
+
     List<Landmark> getLandmarks();
+
+    Landmark getLandmark(int landmarkId);
 
     void saveLandmark(Landmark landmark);
 
