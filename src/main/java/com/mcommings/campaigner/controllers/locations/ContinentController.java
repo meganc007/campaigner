@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/locations/continents")
@@ -23,9 +24,14 @@ public class ContinentController {
         return continentService.getContinents();
     }
 
-    @GetMapping(path = "{continentId}")
+    @GetMapping(path = "/{continentId}")
     public Continent getContinent(@PathVariable("continentId") int continentId) {
         return continentService.getContinent(continentId);
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<Continent> getContinentsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return continentService.getContinentsByCampaignUUID(uuid);
     }
 
     @PostMapping

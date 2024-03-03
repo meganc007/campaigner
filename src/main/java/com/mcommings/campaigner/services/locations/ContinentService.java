@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_CONTINENT;
@@ -41,6 +42,11 @@ public class ContinentService implements IContinent {
     @Override
     public Continent getContinent(int continentId) {
         return RepositoryHelper.getById(continentRepository, continentId);
+    }
+
+    @Override
+    public List<Continent> getContinentsByCampaignUUID(UUID uuid) {
+        return continentRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override
