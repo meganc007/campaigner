@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/locations/landmarks")
@@ -23,9 +24,14 @@ public class LandmarkController {
         return landmarkService.getLandmarks();
     }
 
-    @GetMapping(path = "{landmarkId}")
+    @GetMapping(path = "/{landmarkId}")
     public Landmark getLandmark(@PathVariable("landmarkId") int landmarkId) {
         return landmarkService.getLandmark(landmarkId);
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<Landmark> getLandmarksByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return landmarkService.getLandmarksByCampaignUUID(uuid);
     }
 
     @PostMapping
