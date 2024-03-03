@@ -3,12 +3,15 @@ package com.mcommings.campaigner.interfaces.locations;
 import com.mcommings.campaigner.models.locations.Region;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface IRegion {
 
     List<Region> getRegions();
 
     Region getRegion(int regionId);
+
+    List<Region> getRegionsByCampaignUUID(UUID uuid);
 
     void saveRegion(Region region);
 
