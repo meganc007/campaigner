@@ -29,10 +29,15 @@ function CampaignOverview(props) {
           <p>{campaign.description}</p>
           <div className="container">
             <div className="row">
-              <div className="col-12">
+              <div className="col-6">
                 <div className="card">
                   <h2>Locations</h2>
                   <Continent continents={continents} />
+                </div>
+              </div>
+              <div className="col-6">
+                <div className="card">
+                  <h2>People</h2>
                 </div>
               </div>
             </div>
