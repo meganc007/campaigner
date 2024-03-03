@@ -7,6 +7,8 @@ import java.util.List;
 public interface IContinent {
     List<Continent> getContinents();
 
+    Continent getContinent(int continentId);
+
     void saveContinent(Continent continent);
 
     void deleteContinent(int continentId);

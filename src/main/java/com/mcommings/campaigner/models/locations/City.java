@@ -1,11 +1,14 @@
 package com.mcommings.campaigner.models.locations;
 
 import com.mcommings.campaigner.models.BaseEntity;
+import com.mcommings.campaigner.models.Campaign;
 import com.mcommings.campaigner.models.Government;
 import com.mcommings.campaigner.models.Wealth;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+
+import java.util.UUID;
 
 @Data
 @Entity
@@ -18,20 +21,27 @@ public class City extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name="fk_wealth")
+    @Column(name = "fk_campaign_uuid")
+    private UUID fk_campaign_uuid;
+
+    @Column(name = "fk_wealth")
     private Integer fk_wealth;
 
-    @Column(name="fk_country")
+    @Column(name = "fk_country")
     private Integer fk_country;
 
-    @Column(name="fk_settlement")
+    @Column(name = "fk_settlement")
     private Integer fk_settlement;
 
-    @Column(name="fk_government")
+    @Column(name = "fk_government")
     private Integer fk_government;
 
-    @Column(name="fk_region")
+    @Column(name = "fk_region")
     private Integer fk_region;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
+    private Campaign campaign;
 
     @ManyToOne
     @JoinColumn(name = "fk_wealth", referencedColumnName = "id", updatable = false, insertable = false)
@@ -57,17 +67,19 @@ public class City extends BaseEntity {
         super();
     }
 
-    public City(int id, String name, String description) {
+    public City(int id, String name, String description, UUID fk_campaign_uuid) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 
-    public City(int id, String name, String description, Integer fk_wealth,
-                   Integer fk_country, Integer fk_settlement, Integer fk_government, Integer fk_region) {
+    public City(int id, String name, String description, UUID fk_campaign_uuid, Integer fk_wealth,
+                Integer fk_country, Integer fk_settlement, Integer fk_government, Integer fk_region) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
+        this.fk_campaign_uuid = fk_campaign_uuid;
         this.fk_wealth = fk_wealth;
         this.fk_country = fk_country;
         this.fk_settlement = fk_settlement;

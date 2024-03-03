@@ -8,6 +8,8 @@ public interface IPlace {
 
     List<Place> getPlaces();
 
+    Place getPlace(int placeId);
+
     void savePlace(Place place);
 
     void deletePlace(int placeId);

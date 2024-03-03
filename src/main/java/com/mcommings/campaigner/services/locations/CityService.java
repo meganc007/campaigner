@@ -53,6 +53,11 @@ public class CityService implements ICity {
     }
 
     @Override
+    public City getCity(int cityId) {
+        return RepositoryHelper.getById(cityRepository, cityId);
+    }
+
+    @Override
     @Transactional
     public void saveCity(City city) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(city)) {

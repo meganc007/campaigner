@@ -23,6 +23,11 @@ public class LandmarkController {
         return landmarkService.getLandmarks();
     }
 
+    @GetMapping(path = "{landmarkId}")
+    public Landmark getLandmark(@PathVariable("landmarkId") int landmarkId) {
+        return landmarkService.getLandmark(landmarkId);
+    }
+
     @PostMapping
     public void saveLandmark(@RequestBody Landmark landmark) {
         landmarkService.saveLandmark(landmark);

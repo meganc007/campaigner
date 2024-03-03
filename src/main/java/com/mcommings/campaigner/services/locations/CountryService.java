@@ -3,6 +3,7 @@ package com.mcommings.campaigner.services.locations;
 import com.mcommings.campaigner.interfaces.locations.ICountry;
 import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.models.locations.Country;
+import com.mcommings.campaigner.repositories.ICampaignRepository;
 import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.locations.*;
@@ -24,6 +25,7 @@ import static com.mcommings.campaigner.enums.ForeignKey.*;
 public class CountryService implements ICountry {
 
     private final ICountryRepository countryRepository;
+    private final ICampaignRepository campaignRepository;
     private final IContinentRepository continentRepository;
     private final IGovernmentRepository governmentRepository;
     private final IRegionRepository regionRepository;
@@ -32,10 +34,12 @@ public class CountryService implements ICountry {
     private final IPlaceRepository placeRepository;
 
     @Autowired
-    public CountryService(ICountryRepository countryRepository, IContinentRepository continentRepository,
-                          IGovernmentRepository governmentRepository, ICityRepository cityRepository,
-                          IRegionRepository regionRepository, IEventRepository eventRepository, IPlaceRepository placeRepository) {
+    public CountryService(ICountryRepository countryRepository, ICampaignRepository campaignRepository,
+                          IContinentRepository continentRepository, IGovernmentRepository governmentRepository,
+                          ICityRepository cityRepository, IRegionRepository regionRepository, IEventRepository eventRepository,
+                          IPlaceRepository placeRepository) {
         this.countryRepository = countryRepository;
+        this.campaignRepository = campaignRepository;
         this.continentRepository = continentRepository;
         this.governmentRepository = governmentRepository;
         this.cityRepository = cityRepository;
@@ -47,6 +51,11 @@ public class CountryService implements ICountry {
     @Override
     public List<Country> getCountries() {
         return countryRepository.findAll();
+    }
+
+    @Override
+    public Country getCountry(int countryId) {
+        return RepositoryHelper.getById(countryRepository, countryId);
     }
 
     @Override
@@ -93,6 +102,7 @@ public class CountryService implements ICountry {
         Country countryToUpdate = RepositoryHelper.getById(countryRepository, countryId);
         if (country.getName() != null) countryToUpdate.setName(country.getName());
         if (country.getDescription() != null) countryToUpdate.setDescription(country.getDescription());
+        if (country.getFk_campaign_uuid() != null) countryToUpdate.setFk_campaign_uuid(country.getFk_campaign_uuid());
         if (country.getFk_continent() != null) countryToUpdate.setFk_continent(country.getFk_continent());
         if (country.getFk_government() != null) countryToUpdate.setFk_government(country.getFk_government());
     }
@@ -102,7 +112,7 @@ public class CountryService implements ICountry {
     }
 
     private boolean hasForeignKeys(Country country) {
-        return country.getFk_continent() != null || country.getFk_government() != null;
+        return country.getFk_campaign_uuid() != null && (country.getFk_continent() != null || country.getFk_government() != null);
     }
 
     private List<CrudRepository> getListOfForeignKeyRepositories() {

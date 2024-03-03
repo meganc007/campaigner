@@ -13,10 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_TERRAIN;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -105,7 +102,7 @@ public class TerrainTest {
     @Test
     public void whenTerrainIdIsAForeignKey_deleteTerrain_ThrowsDataIntegrityViolationException() {
         int terrainId = 1;
-        Place place = new Place(1, "Place", "Description", 1, terrainId, 1, 1, 1);
+        Place place = new Place(1, "Place", "Description", UUID.randomUUID(), 1, terrainId, 1, 1, 1);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
         List<Place> places = new ArrayList<>(Arrays.asList(place));
 

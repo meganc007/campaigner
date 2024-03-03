@@ -35,6 +35,11 @@ public class LandmarkService implements ILandmark {
     }
 
     @Override
+    public Landmark getLandmark(int landmarkId) {
+        return RepositoryHelper.getById(landmarkRepository, landmarkId);
+    }
+
+    @Override
     @Transactional
     public void saveLandmark(Landmark landmark) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(landmark)) {

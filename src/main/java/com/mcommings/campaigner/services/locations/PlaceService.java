@@ -51,6 +51,11 @@ public class PlaceService implements IPlace {
     }
 
     @Override
+    public Place getPlace(int placeId) {
+        return RepositoryHelper.getById(placeRepository, placeId);
+    }
+
+    @Override
     @Transactional
     public void savePlace(Place place) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(place)) {

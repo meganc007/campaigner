@@ -27,8 +27,7 @@ public class ContinentService implements IContinent {
     private final IEventRepository eventRepository;
 
     @Autowired
-    public ContinentService(IContinentRepository continentRepository, ICountryRepository countryRepository,
-                            IEventRepository eventRepository) {
+    public ContinentService(IContinentRepository continentRepository, ICountryRepository countryRepository, IEventRepository eventRepository) {
         this.continentRepository = continentRepository;
         this.countryRepository = countryRepository;
         this.eventRepository = eventRepository;
@@ -37,6 +36,11 @@ public class ContinentService implements IContinent {
     @Override
     public List<Continent> getContinents() {
         return continentRepository.findAll();
+    }
+
+    @Override
+    public Continent getContinent(int continentId) {
+        return RepositoryHelper.getById(continentRepository, continentId);
     }
 
     @Override
@@ -77,6 +81,8 @@ public class ContinentService implements IContinent {
         Continent continentToUpdate = RepositoryHelper.getById(continentRepository, continentId);
         if (continent.getName() != null) continentToUpdate.setName(continent.getName());
         if (continent.getDescription() != null) continentToUpdate.setDescription(continent.getDescription());
+        if (continent.getFk_campaign_uuid() != null)
+            continentToUpdate.setFk_campaign_uuid(continent.getFk_campaign_uuid());
     }
 
     private List<CrudRepository> getReposWhereContinentIsAForeignKey() {

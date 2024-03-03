@@ -13,10 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_PLACE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -47,9 +44,9 @@ public class PlaceTest {
     @Test
     public void whenThereArePlaces_getPlaces_ReturnsPlaces() {
         List<Place> places = new ArrayList<>();
-        places.add(new Place(1, "Place 1", "Description 1"));
-        places.add(new Place(2, "Place 2", "Description 2"));
-        places.add(new Place(3, "Place 3", "Description 3", 1, 2, 3, 4, 5));
+        places.add(new Place(1, "Place 1", "Description 1", UUID.randomUUID()));
+        places.add(new Place(2, "Place 2", "Description 2", UUID.randomUUID()));
+        places.add(new Place(3, "Place 3", "Description 3", UUID.randomUUID(), 1, 2, 3, 4, 5));
         when(placeRepository.findAll()).thenReturn(places);
 
         List<Place> result = placeService.getPlaces();
@@ -71,7 +68,7 @@ public class PlaceTest {
 
     @Test
     public void whenPlaceWithNoForeignKeysIsValid_savePlace_SavesThePlace() {
-        Place place = new Place(1, "Place 1", "Description 1");
+        Place place = new Place(1, "Place 1", "Description 1", UUID.randomUUID());
         when(placeRepository.saveAndFlush(place)).thenReturn(place);
 
         assertDoesNotThrow(() -> placeService.savePlace(place));
@@ -81,7 +78,7 @@ public class PlaceTest {
 
     @Test
     public void whenPlaceWithForeignKeysIsValid_savePlace_SavesThePlace() {
-        Place place = new Place(1, "Place 1", "Description 1", 1, 2, 3, 4, 5);
+        Place place = new Place(1, "Place 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
 
         when(placeTypesRepository.existsById(1)).thenReturn(true);
         when(terrainRepository.existsById(2)).thenReturn(true);
@@ -97,8 +94,8 @@ public class PlaceTest {
 
     @Test
     public void whenPlaceNameIsInvalid_savePlace_ThrowsIllegalArgumentException() {
-        Place placeWithEmptyName = new Place(1, "", "Description 1");
-        Place placeWithNullName = new Place(2, null, "Description 2");
+        Place placeWithEmptyName = new Place(1, "", "Description 1", UUID.randomUUID());
+        Place placeWithNullName = new Place(2, null, "Description 2", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> placeService.savePlace(placeWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> placeService.savePlace(placeWithNullName));
@@ -106,8 +103,8 @@ public class PlaceTest {
 
     @Test
     public void whenPlaceNameAlreadyExists_savePlace_ThrowsDataIntegrityViolationException() {
-        Place place = new Place(1, "Place 1", "Description 1", 1, 2, 3, 4, 5);
-        Place placeWithDuplicatedName = new Place(2, "Place 1", "Description 2", 5, 6, 7, 8, 9);
+        Place place = new Place(1, "Place 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
+        Place placeWithDuplicatedName = new Place(2, "Place 1", "Description 2", UUID.randomUUID(), 5, 6, 7, 8, 9);
 
         when(placeTypesRepository.existsById(1)).thenReturn(true);
         when(terrainRepository.existsById(2)).thenReturn(true);
@@ -130,7 +127,7 @@ public class PlaceTest {
 
     @Test
     public void whenPlaceHasInvalidForeignKeys_savePlace_ThrowsDataIntegrityViolationException() {
-        Place place = new Place(1, "Place 1", "Description 1", 1, 2, 3, 4, 5);
+        Place place = new Place(1, "Place 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
 
         when(placeTypesRepository.existsById(1)).thenReturn(true);
         when(terrainRepository.existsById(2)).thenReturn(false);
@@ -173,9 +170,10 @@ public class PlaceTest {
     @Test
     public void whenPlaceIdWithNoFKIsFound_updatePlace_UpdatesThePlace() {
         int placeId = 1;
+        UUID campaign = UUID.randomUUID();
 
-        Place place = new Place(placeId, "Old Place Name", "Old Description");
-        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description");
+        Place place = new Place(placeId, "Old Place Name", "Old Description", campaign);
+        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", campaign);
 
         when(placeRepository.existsById(placeId)).thenReturn(true);
         when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
@@ -192,9 +190,10 @@ public class PlaceTest {
     @Test
     public void whenPlaceIdWithValidFKIsFound_updatePlace_UpdatesThePlace() {
         int placeId = 2;
+        UUID campagin = UUID.randomUUID();
 
-        Place place = new Place(placeId, "Test Place Name", "Test Description");
-        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", 1, 2, 3, 4, 5);
+        Place place = new Place(placeId, "Test Place Name", "Test Description", campagin);
+        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", campagin, 1, 2, 3, 4, 5);
 
         when(placeRepository.existsById(placeId)).thenReturn(true);
         when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
@@ -221,9 +220,10 @@ public class PlaceTest {
     @Test
     public void whenPlaceIdWithInvalidFKIsFound_updatePlace_ThrowsDataIntegrityViolationException() {
         int placeId = 1;
+        UUID campaign = UUID.randomUUID();
 
-        Place place = new Place(placeId, "Test Place Name", "Test Description");
-        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", 1, 2, 3, 4, 5);
+        Place place = new Place(placeId, "Test Place Name", "Test Description", campaign);
+        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", campaign, 1, 2, 3, 4, 5);
         when(placeRepository.existsById(placeId)).thenReturn(true);
         when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
         when(placeTypesRepository.existsById(1)).thenReturn(true);
@@ -235,7 +235,7 @@ public class PlaceTest {
     @Test
     public void whenPlaceIdIsNotFound_updatePlace_ThrowsIllegalArgumentException() {
         int placeId = 1;
-        Place place = new Place(placeId, "Old Place Name", "Old Description");
+        Place place = new Place(placeId, "Old Place Name", "Old Description", UUID.randomUUID());
 
         when(placeRepository.existsById(placeId)).thenReturn(false);
 
@@ -245,7 +245,7 @@ public class PlaceTest {
     @Test
     public void whenSomePlaceFieldsChanged_updatePlace_OnlyUpdatesChangedFields() {
         int placeId = 1;
-        Place place = new Place(1, "Place 1", "Description 1",
+        Place place = new Place(1, "Place 1", "Description 1", UUID.randomUUID(),
                 1, 2, 3, 4, 5);
 
         String newDescription = "New description";

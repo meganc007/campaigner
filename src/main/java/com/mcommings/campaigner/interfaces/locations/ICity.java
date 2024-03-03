@@ -8,6 +8,8 @@ public interface ICity {
 
     List<City> getCities();
 
+    City getCity(int cityId);
+
     void saveCity(City city);
 
     void deleteCity(int cityId);

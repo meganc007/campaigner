@@ -23,6 +23,11 @@ public class ContinentController {
         return continentService.getContinents();
     }
 
+    @GetMapping(path = "{continentId}")
+    public Continent getContinent(@PathVariable("continentId") int continentId) {
+        return continentService.getContinent(continentId);
+    }
+
     @PostMapping
     public void saveContinent(@RequestBody Continent continent) {
         continentService.saveContinent(continent);

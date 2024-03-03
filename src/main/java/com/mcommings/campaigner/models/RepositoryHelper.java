@@ -91,7 +91,7 @@ public class RepositoryHelper {
         for (Field field : fields) {
             fieldNames.add(field.getName());
         }
-        return fieldNames.stream().filter(n -> n.contains("fk_")).collect(Collectors.toList());
+        return fieldNames.stream().filter(n -> n.contains("fk_") && !n.equals("fk_campaign_uuid")).collect(Collectors.toList());
     }
 
     private static HashMap<CrudRepository, String> createReposAndColumnsHashMap(List<CrudRepository> repositories,
