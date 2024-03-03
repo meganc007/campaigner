@@ -71,6 +71,34 @@ public class CityTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getCitiesByCampaignUUID_ReturnsCities() {
+        UUID campaign = UUID.randomUUID();
+        List<City> cities = new ArrayList<>();
+        cities.add(new City(1, "City 1", "Description 1", campaign));
+        cities.add(new City(2, "City 2", "Description 2", campaign));
+        cities.add(new City(3, "City 3", "Description 3", campaign, 1, 2, 3, 4, 5));
+
+        when(cityRepository.findByfk_campaign_uuid(campaign)).thenReturn(cities);
+
+        List<City> results = cityService.getCitiesByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(cities, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getCitiesByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<City> cities = new ArrayList<>();
+        when(cityRepository.findByfk_campaign_uuid(campaign)).thenReturn(cities);
+
+        List<City> result = cityService.getCitiesByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(cities, result);
+    }
+
+    @Test
     public void whenCityWithNoForeignKeysIsValid_saveCity_SavesTheCity() {
         City city = new City(1, "City 1", "Description 1", UUID.randomUUID());
         when(cityRepository.saveAndFlush(city)).thenReturn(city);

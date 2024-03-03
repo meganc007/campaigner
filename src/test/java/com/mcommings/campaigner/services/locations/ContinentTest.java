@@ -69,7 +69,7 @@ public class ContinentTest {
     }
 
     @Test
-    public void whenThereIsNotAContinent_getContinent_ReturnsContinent() {
+    public void whenThereIsNotAContinent_getContinent_ReturnsNothing() {
         when(continentRepository.findById(9000)).thenReturn(Optional.empty());
         Assertions.assertThrows(NoSuchElementException.class, () -> continentService.getContinent(9000));
     }

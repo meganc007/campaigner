@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_CITY;
@@ -55,6 +56,11 @@ public class CityService implements ICity {
     @Override
     public City getCity(int cityId) {
         return RepositoryHelper.getById(cityRepository, cityId);
+    }
+
+    @Override
+    public List<City> getCitiesByCampaignUUID(UUID uuid) {
+        return cityRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override
