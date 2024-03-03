@@ -41,11 +41,11 @@ public class RegionTest {
 
     @Test
     public void whenThereAreRegions_getRegions_ReturnsRegions() {
-        UUID campaign_uuid = UUID.randomUUID();
+        UUID campaign = UUID.randomUUID();
         List<Region> regions = new ArrayList<>();
-        regions.add(new Region(1, "Region 1", "Description 1", campaign_uuid));
-        regions.add(new Region(2, "Region 2", "Description 2", campaign_uuid));
-        regions.add(new Region(3, "Region 3", "Description 3", campaign_uuid, 1, 2));
+        regions.add(new Region(1, "Region 1", "Description 1", campaign));
+        regions.add(new Region(2, "Region 2", "Description 2", campaign));
+        regions.add(new Region(3, "Region 3", "Description 3", campaign, 1, 2));
         when(regionRepository.findAll()).thenReturn(regions);
 
         List<Region> result = regionService.getRegions();
@@ -60,6 +60,33 @@ public class RegionTest {
         when(regionRepository.findAll()).thenReturn(regions);
 
         List<Region> result = regionService.getRegions();
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(regions, result);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsValid_getRegionsByCampaignUUID_ReturnsRegions() {
+        UUID campaign = UUID.randomUUID();
+        List<Region> regions = new ArrayList<>();
+        regions.add(new Region(1, "Region 1", "Description 1", campaign));
+        regions.add(new Region(2, "Region 2", "Description 2", campaign));
+        regions.add(new Region(3, "Region 3", "Description 3", campaign, 1, 2));
+        when(regionRepository.findByfk_campaign_uuid(campaign)).thenReturn(regions);
+
+        List<Region> results = regionService.getRegionsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(regions, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getRegionsByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Region> regions = new ArrayList<>();
+        when(regionRepository.findByfk_campaign_uuid(campaign)).thenReturn(regions);
+
+        List<Region> result = regionService.getRegionsByCampaignUUID(campaign);
 
         Assertions.assertEquals(0, result.size());
         Assertions.assertEquals(regions, result);

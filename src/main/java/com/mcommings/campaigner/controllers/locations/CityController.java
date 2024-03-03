@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/locations/cities")
@@ -23,9 +24,14 @@ public class CityController {
         return cityService.getCities();
     }
 
-    @GetMapping(path = "{cityId}")
+    @GetMapping(path = "/{cityId}")
     public City getCity(@PathVariable("cityId") int cityId) {
         return cityService.getCity(cityId);
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<City> getCitiesByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return cityService.getCitiesByCampaignUUID(uuid);
     }
 
     @PostMapping

@@ -55,6 +55,34 @@ public class LandmarkTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getLandmarksByCampaignUUID_ReturnsLandmarks() {
+        UUID campaign = UUID.randomUUID();
+        List<Landmark> landmarks = new ArrayList<>();
+        landmarks.add(new Landmark(1, "Landmark 1", "Description 1", UUID.randomUUID()));
+        landmarks.add(new Landmark(2, "Landmark 2", "Description 2", UUID.randomUUID()));
+        landmarks.add(new Landmark(3, "Landmark 3", "Description 3", UUID.randomUUID(), 2));
+
+        when(landmarkRepository.findByfk_campaign_uuid(campaign)).thenReturn(landmarks);
+
+        List<Landmark> results = landmarkService.getLandmarksByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(landmarks, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getLandmarksByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Landmark> landmarks = new ArrayList<>();
+        when(landmarkRepository.findByfk_campaign_uuid(campaign)).thenReturn(landmarks);
+
+        List<Landmark> result = landmarkService.getLandmarksByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(landmarks, result);
+    }
+
+    @Test
     public void whenLandmarkWithNoForeignKeysIsValid_saveLandmark_SavesTheLandmark() {
         Landmark landmark = new Landmark(1, "Landmark 1", "Description 1", UUID.randomUUID());
         when(landmarkRepository.saveAndFlush(landmark)).thenReturn(landmark);
@@ -140,6 +168,7 @@ public class LandmarkTest {
         Assertions.assertEquals(landmarkToUpdate.getName(), result.getName());
         Assertions.assertEquals(landmarkToUpdate.getDescription(), result.getDescription());
     }
+
     @Test
     public void whenLandmarkIdWithValidFKIsFound_updateLandmark_UpdatesTheLandmark() {
         int landmarkId = 1;

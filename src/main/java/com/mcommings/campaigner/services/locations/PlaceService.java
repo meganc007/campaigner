@@ -11,10 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.*;
@@ -53,6 +50,11 @@ public class PlaceService implements IPlace {
     @Override
     public Place getPlace(int placeId) {
         return RepositoryHelper.getById(placeRepository, placeId);
+    }
+
+    @Override
+    public List<Place> getPlacesByCampaignUUID(UUID uuid) {
+        return placeRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

@@ -59,6 +59,49 @@ public class ContinentTest {
     }
 
     @Test
+    public void whenThereIsAContinent_getContinent_ReturnsContinent() {
+        Continent continent = new Continent(1, "Continent 1", "Description 1", UUID.randomUUID());
+        when(continentRepository.findById(1)).thenReturn(Optional.of(continent));
+
+        Continent result = continentService.getContinent(1);
+
+        Assertions.assertEquals(continent, result);
+    }
+
+    @Test
+    public void whenThereIsNotAContinent_getContinent_ReturnsNothing() {
+        when(continentRepository.findById(9000)).thenReturn(Optional.empty());
+        Assertions.assertThrows(NoSuchElementException.class, () -> continentService.getContinent(9000));
+    }
+
+    @Test
+    public void whenCampaignUUIDIsValid_getContinentsByCampaignUUID_ReturnsContinents() {
+        UUID campaign = UUID.randomUUID();
+        List<Continent> continents = new ArrayList<>();
+        continents.add(new Continent(1, "Continent 1", "Description 1", campaign));
+        continents.add(new Continent(2, "Continent 2", "Description 2", campaign));
+
+        when(continentRepository.findByfk_campaign_uuid(campaign)).thenReturn(continents);
+
+        List<Continent> results = continentService.getContinentsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(2, results.size());
+        Assertions.assertEquals(continents, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getContinentsByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Continent> continents = new ArrayList<>();
+        when(continentRepository.findByfk_campaign_uuid(campaign)).thenReturn(continents);
+
+        List<Continent> result = continentService.getContinentsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(continents, result);
+    }
+
+    @Test
     public void whenContinentIsValid_saveContinent_SavesTheContinent() {
         Continent continent = new Continent(1, "Continent 1", "Description 1", UUID.randomUUID());
         when(continentRepository.saveAndFlush(continent)).thenReturn(continent);

@@ -11,10 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.*;
@@ -49,6 +46,11 @@ public class RegionService implements IRegion {
     @Override
     public Region getRegion(int regionId) {
         return RepositoryHelper.getById(regionRepository, regionId);
+    }
+
+    @Override
+    public List<Region> getRegionsByCampaignUUID(UUID uuid) {
+        return regionRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

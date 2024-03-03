@@ -13,10 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.*;
@@ -56,6 +53,11 @@ public class CountryService implements ICountry {
     @Override
     public Country getCountry(int countryId) {
         return RepositoryHelper.getById(countryRepository, countryId);
+    }
+
+    @Override
+    public List<Country> getCountriesByCampaignUUID(UUID uuid) {
+        return countryRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override
