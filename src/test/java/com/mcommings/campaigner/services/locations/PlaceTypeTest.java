@@ -13,10 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_PLACE_TYPE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -105,7 +102,7 @@ public class PlaceTypeTest {
     @Test
     public void whenPlaceTypeIdIsAForeignKey_deletePlaceType_ThrowsDataIntegrityViolationException() {
         int placeTypeId = 1;
-        Place place = new Place(1, "Place", "Description", placeTypeId, 1, 1, 1, 1);
+        Place place = new Place(1, "Place", "Description", UUID.randomUUID(), placeTypeId, 1, 1, 1, 1);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
         List<Place> places = new ArrayList<>(Arrays.asList(place));
 

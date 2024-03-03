@@ -147,7 +147,7 @@ public class RegionTest {
     @Test
     public void whenRegionIdIsAForeignKey_deleteRegion_ThrowsDataIntegrityViolationException() {
         int regionId = 1;
-        Place place = new Place(1, "Place", "Description", 1, 1, 1, 1, regionId);
+        Place place = new Place(1, "Place", "Description", UUID.randomUUID(), 1, 1, 1, 1, regionId);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, placeRepository, regionRepository));
         List<Place> places = new ArrayList<>(Arrays.asList(place));
 

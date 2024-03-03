@@ -164,7 +164,7 @@ public class CityTest {
     @Test
     public void whenCityIdIsAForeignKey_deleteCity_ThrowsDataIntegrityViolationException() {
         int cityId = 1;
-        Place place = new Place(1, "Place", "Description", 1, cityId, 1, 1, 1);
+        Place place = new Place(1, "Place", "Description", UUID.randomUUID(), 1, cityId, 1, 1, 1);
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository, eventRepository));
         List<Place> places = new ArrayList<>(Arrays.asList(place));
 

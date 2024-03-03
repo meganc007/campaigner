@@ -23,6 +23,11 @@ public class PlaceController {
         return placeService.getPlaces();
     }
 
+    @GetMapping(path = "{placeId}")
+    public Place getPlace(@PathVariable("placeId") int placeId) {
+        return placeService.getPlace(placeId);
+    }
+
     @PostMapping
     public void savePlace(@RequestBody Place place) {
         placeService.savePlace(place);

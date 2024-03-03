@@ -160,7 +160,7 @@ public class CountryTest {
                 1, 1, countryId);
         List<Event> events = new ArrayList<>(Arrays.asList(event));
 
-        Place place = new Place(1, "Place", "Description", 1, 1, countryId, 1, 1);
+        Place place = new Place(1, "Place", "Description", UUID.randomUUID(), 1, 1, countryId, 1, 1);
         List<Place> places = new ArrayList<>(Arrays.asList(place));
 
         when(countryRepository.existsById(countryId)).thenReturn(true);

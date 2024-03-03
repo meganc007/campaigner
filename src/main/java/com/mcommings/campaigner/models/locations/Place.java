@@ -1,9 +1,12 @@
 package com.mcommings.campaigner.models.locations;
 
 import com.mcommings.campaigner.models.BaseEntity;
+import com.mcommings.campaigner.models.Campaign;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+
+import java.util.UUID;
 
 @Data
 @Entity
@@ -15,6 +18,9 @@ public class Place extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(name = "fk_campaign_uuid")
+    private UUID fk_campaign_uuid;
 
     @Column(name = "fk_place_type")
     private Integer fk_place_type;
@@ -30,6 +36,10 @@ public class Place extends BaseEntity {
 
     @Column(name = "fk_region")
     private Integer fk_region;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
+    private Campaign campaign;
 
     @ManyToOne
     @JoinColumn(name = "fk_place_type", referencedColumnName = "id", updatable = false, insertable = false)
@@ -55,18 +65,20 @@ public class Place extends BaseEntity {
         super();
     }
 
-    public Place(int id, String name, String description) {
+    public Place(int id, String name, String description, UUID fk_campaign_uuid) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 
-    public Place(int id, String name, String description,
-                 Integer fk_place_type, Integer fk_terrain,
-                 Integer fk_country, Integer fk_city, Integer fk_region) {
+    public Place(int id, String name, String description, UUID fk_campaign_uuid,
+                 Integer fk_place_type, Integer fk_terrain, Integer fk_country,
+                 Integer fk_city, Integer fk_region) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
+        this.fk_campaign_uuid = fk_campaign_uuid;
         this.fk_place_type = fk_place_type;
         this.fk_terrain = fk_terrain;
         this.fk_country = fk_country;

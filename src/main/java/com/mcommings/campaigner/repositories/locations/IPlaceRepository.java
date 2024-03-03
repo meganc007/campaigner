@@ -8,11 +8,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface IPlaceRepository extends JpaRepository<Place, Integer> {
 
     Optional<Place> findByName(String name);
+
+    @Query("SELECT p FROM Place p WHERE p.fk_campaign_uuid = :uuid")
+    List<Place> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 
     @Query("SELECT p FROM Place p WHERE p.fk_place_type = :id")
     List<Place> findByfk_place_type(@Param("id") Integer id);
