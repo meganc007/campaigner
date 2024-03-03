@@ -5,12 +5,15 @@ function Continent(props) {
   return (
     <div className="container">
       <div className="row">
-        {continents.map((continent) => (
-          <div className="col-12" key={continent.id}>
-            <h4>{continent.name}</h4>
-            <p>{continent.description}</p>
-          </div>
-        ))}
+        <div className="col-12">
+          <h2>Continents</h2>
+          {continents.map((continent) => (
+            <div key={continent.id}>
+              <h4>{continent.name}</h4>
+              <p>{continent.description}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
