@@ -71,6 +71,49 @@ public class CountryTest {
     }
 
     @Test
+    public void whenThereIsACountry_getCountry_ReturnsCountry() {
+        Country country = new Country(1, "Country 1", "Description 1", UUID.randomUUID());
+        when(countryRepository.findById(1)).thenReturn(Optional.of(country));
+
+        Country result = countryService.getCountry(1);
+
+        Assertions.assertEquals(country, result);
+    }
+
+    @Test
+    public void whenThereIsNotACountry_getCountry_ReturnsCountry() {
+        when(countryRepository.findById(9000)).thenReturn(Optional.empty());
+        Assertions.assertThrows(NoSuchElementException.class, () -> countryService.getCountry(9000));
+    }
+
+    @Test
+    public void whenCampaignUUIDIsValid_getCountriesByCampaignUUID_ReturnsCountries() {
+        UUID campaign = UUID.randomUUID();
+        List<Country> countries = new ArrayList<>();
+        countries.add(new Country(1, "Country 1", "Description 1", campaign));
+        countries.add(new Country(2, "Country 2", "Description 2", campaign));
+
+        when(countryRepository.findByfk_campaign_uuid(campaign)).thenReturn(countries);
+
+        List<Country> results = countryService.getCountriesByCampaignUUID(campaign);
+
+        Assertions.assertEquals(2, results.size());
+        Assertions.assertEquals(countries, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getCountriesByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Country> countries = new ArrayList<>();
+        when(countryRepository.findByfk_campaign_uuid(campaign)).thenReturn(countries);
+
+        List<Country> result = countryService.getCountriesByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(countries, result);
+    }
+
+    @Test
     public void whenCountryWithNoForeignKeysIsValid_saveCountry_SavesTheCountry() {
         Country country = new Country(1, "Country 1", "Description 1", UUID.randomUUID());
         when(countryRepository.saveAndFlush(country)).thenReturn(country);
@@ -79,6 +122,7 @@ public class CountryTest {
 
         verify(countryRepository, times(1)).saveAndFlush(country);
     }
+
     @Test
     public void whenCountryWithForeignKeysIsValid_saveCountry_SavesTheCountry() {
         Country country = new Country(1, "Country 1", "Description 1", UUID.randomUUID(), 1, 3);

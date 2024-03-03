@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
@@ -37,6 +38,11 @@ public class LandmarkService implements ILandmark {
     @Override
     public Landmark getLandmark(int landmarkId) {
         return RepositoryHelper.getById(landmarkRepository, landmarkId);
+    }
+
+    @Override
+    public List<Landmark> getLandmarksByCampaignUUID(UUID uuid) {
+        return landmarkRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

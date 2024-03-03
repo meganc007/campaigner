@@ -67,6 +67,33 @@ public class PlaceTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getPlacesByCampaignUUID_ReturnsPlaces() {
+        UUID campaign = UUID.randomUUID();
+        List<Place> places = new ArrayList<>();
+        places.add(new Place(1, "Place 1", "Description 1", campaign));
+        places.add(new Place(2, "Place 2", "Description 2", campaign));
+        places.add(new Place(3, "Place 3", "Description 3", campaign, 1, 2, 3, 4, 5));
+        when(placeRepository.findByfk_campaign_uuid(campaign)).thenReturn(places);
+
+        List<Place> results = placeService.getPlacesByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(places, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getPlacesByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Place> places = new ArrayList<>();
+        when(placeRepository.findByfk_campaign_uuid(campaign)).thenReturn(places);
+
+        List<Place> result = placeService.getPlacesByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(places, result);
+    }
+
+    @Test
     public void whenPlaceWithNoForeignKeysIsValid_savePlace_SavesThePlace() {
         Place place = new Place(1, "Place 1", "Description 1", UUID.randomUUID());
         when(placeRepository.saveAndFlush(place)).thenReturn(place);

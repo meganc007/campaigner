@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/locations/regions")
@@ -23,9 +24,14 @@ public class RegionController {
         return regionService.getRegions();
     }
 
-    @GetMapping(path = "{regionId}")
+    @GetMapping(path = "/{regionId}")
     public Region getRegion(@PathVariable("regionId") int regionId) {
         return regionService.getRegion(regionId);
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<Region> getRegionsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return regionService.getRegionsByCampaignUUID(uuid);
     }
 
     @PostMapping
