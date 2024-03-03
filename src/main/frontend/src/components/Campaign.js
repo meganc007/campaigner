@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 function Campaign(props) {
   const campaigns = props.campaigns;
   return (
@@ -5,7 +7,9 @@ function Campaign(props) {
       <div className="row">
         {campaigns.map((campaign) => (
           <div className="col-12" key={campaign.uuid}>
-            <h4>{campaign.name}</h4>
+            <Link to="/campaign-overview" state={{ campaign }}>
+              <h4>{campaign.name}</h4>
+            </Link>
             <p>{campaign.description}</p>
           </div>
         ))}
