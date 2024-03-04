@@ -13,10 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_JOB;
 import static org.junit.jupiter.api.Assertions.*;
@@ -104,7 +101,7 @@ public class JobTest {
     @Test
     public void whenJobIdIsAForeignKey_deleteJob_ThrowsDataIntegrityViolationException() {
         int jobId = 1;
-        JobAssignment jobAssignment = new JobAssignment(1, 1, jobId);
+        JobAssignment jobAssignment = new JobAssignment(1, 1, jobId, UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(jobAssignmentRepository));
         List<JobAssignment> jobAssignments = new ArrayList<>(Arrays.asList(jobAssignment));
 
