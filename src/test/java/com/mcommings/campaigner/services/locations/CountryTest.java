@@ -201,7 +201,7 @@ public class CountryTest {
         List<Region> regions = new ArrayList<>(Arrays.asList(region));
 
         Event event = new Event(1, "Name", "Description", 1, 1, 1, 1,
-                1, 1, countryId);
+                1, 1, countryId, UUID.randomUUID());
         List<Event> events = new ArrayList<>(Arrays.asList(event));
 
         Place place = new Place(1, "Place", "Description", UUID.randomUUID(), 1, 1, countryId, 1, 1);

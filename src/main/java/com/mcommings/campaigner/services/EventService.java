@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_EVENT;
@@ -54,6 +55,26 @@ public class EventService implements IEvent {
     @Override
     public List<Event> getEvents() {
         return eventRepository.findAll();
+    }
+
+    @Override
+    public List<Event> getEventsByCampaignUUID(UUID uuid) {
+        return eventRepository.findByfk_campaign_uuid(uuid);
+    }
+
+    @Override
+    public List<Event> getEventsByContinent(int continentId) {
+        return eventRepository.findByfk_continent(continentId);
+    }
+
+    @Override
+    public List<Event> getEventsByCountry(int countryId) {
+        return eventRepository.findByfk_country(countryId);
+    }
+
+    @Override
+    public List<Event> getEventsByCity(int cityId) {
+        return eventRepository.findByfk_city(cityId);
     }
 
     @Override

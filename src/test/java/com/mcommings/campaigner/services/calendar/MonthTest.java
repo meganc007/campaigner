@@ -17,10 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_MONTH;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -128,7 +125,7 @@ public class MonthTest {
         List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
 
         Event event = new Event(1, "Name", "Description", 1, monthId, 1, 1,
-                1, 1, 1);
+                1, 1, 1, UUID.randomUUID());
         List<Event> events = new ArrayList<>(Arrays.asList(event));
 
         when(monthRepository.existsById(monthId)).thenReturn(true);

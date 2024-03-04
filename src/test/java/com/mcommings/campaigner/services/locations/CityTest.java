@@ -196,7 +196,7 @@ public class CityTest {
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository, eventRepository));
         List<Place> places = new ArrayList<>(Arrays.asList(place));
 
-        Event event = new Event(1, "Event", "Description", 1, 1, 1, 1, cityId, 1, 1);
+        Event event = new Event(1, "Event", "Description", 1, 1, 1, 1, cityId, 1, 1, UUID.randomUUID());
         List<Event> events = new ArrayList<>(Arrays.asList(event));
 
         when(cityRepository.existsById(cityId)).thenReturn(true);

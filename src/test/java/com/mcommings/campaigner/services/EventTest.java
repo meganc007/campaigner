@@ -52,9 +52,10 @@ public class EventTest {
     @Test
     public void whenThereAreEvents_getEvents_ReturnsEvents() {
         List<Event> events = new ArrayList<>();
-        events.add(new Event(1, "Event 1", "Description 1", 1));
-        events.add(new Event(2, "Event 2", "Description 2", 1));
-        events.add(new Event(3, "Event 3", "Description 3", 1, 2, 3, 4, 5, 6, 7));
+        UUID campaign = UUID.randomUUID();
+        events.add(new Event(1, "Event 1", "Description 1", 1, campaign));
+        events.add(new Event(2, "Event 2", "Description 2", 1, campaign));
+        events.add(new Event(3, "Event 3", "Description 3", 1, 2, 3, 4, 5, 6, 7, campaign));
         when(eventRepository.findAll()).thenReturn(events);
 
         List<Event> result = eventService.getEvents();
@@ -75,8 +76,35 @@ public class EventTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getEventsByCampaignUUID_ReturnsEvents() {
+        List<Event> events = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        events.add(new Event(1, "Event 1", "Description 1", 1, campaign));
+        events.add(new Event(2, "Event 2", "Description 2", 1, campaign));
+        events.add(new Event(3, "Event 3", "Description 3", 1, 2, 3, 4, 5, 6, 7, campaign));
+        when(eventRepository.findByfk_campaign_uuid(campaign)).thenReturn(events);
+
+        List<Event> results = eventService.getEventsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(events, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getEventsByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Event> events = new ArrayList<>();
+        when(eventRepository.findByfk_campaign_uuid(campaign)).thenReturn(events);
+
+        List<Event> result = eventService.getEventsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(events, result);
+    }
+
+    @Test
     public void whenEventWithNoForeignKeysIsValid_saveEvent_SavesTheEvent() {
-        Event event = new Event(1, "Event 1", "Description 1", 1);
+        Event event = new Event(1, "Event 1", "Description 1", 1, UUID.randomUUID());
         when(eventRepository.saveAndFlush(event)).thenReturn(event);
 
         assertDoesNotThrow(() -> eventService.saveEvent(event));
@@ -87,7 +115,7 @@ public class EventTest {
     @Test
     public void whenEventWithForeignKeysIsValid_saveEvent_SavesTheEvent() {
         Event event = new Event(1, "Event 1", "Description 1", 1, 2, 3,
-                4, 5, 6, 7);
+                4, 5, 6, 7, UUID.randomUUID());
 
         when(monthRepository.existsById(2)).thenReturn(true);
         when(weekRepository.existsById(3)).thenReturn(true);
@@ -104,8 +132,8 @@ public class EventTest {
 
     @Test
     public void whenEventNameIsInvalid_saveEvent_ThrowsIllegalArgumentException() {
-        Event eventWithEmptyName = new Event(1, "", "Description 1", 1);
-        Event eventWithNullName = new Event(2, null, "Description 2", 2);
+        Event eventWithEmptyName = new Event(1, "", "Description 1", 1, UUID.randomUUID());
+        Event eventWithNullName = new Event(2, null, "Description 2", 2, UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> eventService.saveEvent(eventWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> eventService.saveEvent(eventWithNullName));
@@ -114,9 +142,9 @@ public class EventTest {
     @Test
     public void whenEventNameAlreadyExists_saveEvent_ThrowsDataIntegrityViolationException() {
         Event event = new Event(1, "Event 1", "Description 1", 1, 2, 3,
-                4, 5, 6, 7);
+                4, 5, 6, 7, UUID.randomUUID());
         Event eventWithDuplicatedName = new Event(2, "Event 1", "Description 2", 8,
-                9, 10, 11, 12, 13, 14);
+                9, 10, 11, 12, 13, 14, UUID.randomUUID());
 
         when(eventRepository.existsById(1)).thenReturn(true);
         when(monthRepository.existsById(2)).thenReturn(true);
@@ -144,12 +172,12 @@ public class EventTest {
     @Test
     public void whenEventHasInvalidForeignKeys_saveEvent_ThrowsDataIntegrityViolationException() {
         Event event = new Event(1, "Event 1", "Description 1", 1, 2, 3,
-                4, 5, 6, 7);
+                4, 5, 6, 7, UUID.randomUUID());
         when(monthRepository.existsById(2)).thenReturn(true);
         when(weekRepository.existsById(3)).thenReturn(false);
         when(dayRepository.existsById(4)).thenReturn(true);
         when(cityRepository.existsById(5)).thenReturn(false);
-        when(continentRepository.existsById(6)).thenReturn(true);
+        when(eventRepository.existsById(6)).thenReturn(true);
         when(countryRepository.existsById(7)).thenReturn(false);
         when(eventRepository.saveAndFlush(event)).thenReturn(event);
 
@@ -189,9 +217,10 @@ public class EventTest {
     @Test
     public void whenEventIdWithNoFKIsFound_updateEvent_UpdatesTheEvent() {
         int eventId = 1;
+        UUID campaign = UUID.randomUUID();
 
-        Event event = new Event(eventId, "Old Event Name", "Old Description", 1);
-        Event eventToUpdate = new Event(eventId, "Updated Event Name", "Updated Description", 2);
+        Event event = new Event(eventId, "Old Event Name", "Old Description", 1, campaign);
+        Event eventToUpdate = new Event(eventId, "Updated Event Name", "Updated Description", 2, campaign);
 
         when(eventRepository.existsById(eventId)).thenReturn(true);
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
@@ -209,10 +238,11 @@ public class EventTest {
     @Test
     public void whenEventIdWithValidFKIsFound_updateEvent_UpdatesTheEvent() {
         int eventId = 2;
+        UUID campaign = UUID.randomUUID();
 
-        Event event = new Event(eventId, "Test Event Name", "Test Description", 1);
+        Event event = new Event(eventId, "Test Event Name", "Test Description", 1, campaign);
         Event eventToUpdate = new Event(eventId, "Updated Event Name", "Updated Description",
-                1, 2, 3, 4, 5, 6, 7);
+                1, 2, 3, 4, 5, 6, 7, campaign);
 
         when(eventRepository.existsById(eventId)).thenReturn(true);
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
@@ -242,10 +272,11 @@ public class EventTest {
     @Test
     public void whenEventIdWithInvalidFKIsFound_updateEvent_ThrowsDataIntegrityViolationException() {
         int eventId = 2;
+        UUID campaign = UUID.randomUUID();
 
-        Event event = new Event(eventId, "Test Event Name", "Test Description", 1);
+        Event event = new Event(eventId, "Test Event Name", "Test Description", 1, campaign);
         Event eventToUpdate = new Event(eventId, "Updated Event Name", "Updated Description",
-                1, 2, 3, 4, 5, 6, 7);
+                1, 2, 3, 4, 5, 6, 7, campaign);
 
         when(eventRepository.existsById(eventId)).thenReturn(true);
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
@@ -254,7 +285,7 @@ public class EventTest {
         when(weekRepository.existsById(3)).thenReturn(false);
         when(dayRepository.existsById(4)).thenReturn(true);
         when(cityRepository.existsById(5)).thenReturn(false);
-        when(continentRepository.existsById(6)).thenReturn(true);
+        when(eventRepository.existsById(6)).thenReturn(true);
         when(countryRepository.existsById(7)).thenReturn(false);
 
         assertThrows(DataIntegrityViolationException.class, () -> eventService.updateEvent(eventId, eventToUpdate));
@@ -263,7 +294,7 @@ public class EventTest {
     @Test
     public void whenEventIdIsNotFound_updateEvent_ThrowsIllegalArgumentException() {
         int eventId = 1;
-        Event event = new Event(eventId, "Old Event Name", "Old Description", 1);
+        Event event = new Event(eventId, "Old Event Name", "Old Description", 1, UUID.randomUUID());
 
         when(eventRepository.existsById(eventId)).thenReturn(false);
 
@@ -273,7 +304,7 @@ public class EventTest {
     @Test
     public void whenSomeEventFieldsChanged_updateEvent_OnlyUpdatesChangedFields() {
         int eventId = 1;
-        Event event = new Event(eventId, "Old Event Name", "Old Description", 120);
+        Event event = new Event(eventId, "Old Event Name", "Old Description", 120, UUID.randomUUID());
         Event eventToUpdate = new Event();
         eventToUpdate.setDescription("New event description");
 

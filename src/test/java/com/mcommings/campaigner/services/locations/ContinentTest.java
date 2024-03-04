@@ -153,7 +153,7 @@ public class ContinentTest {
         List<Country> countries = new ArrayList<>(Arrays.asList(country));
 
         Event event = new Event(1, "Name", "Description", 1, 1, 1, 1,
-                1, continentId, 1);
+                1, continentId, 1, UUID.randomUUID());
         List<Event> events = new ArrayList<>(Arrays.asList(event));
 
         when(continentRepository.existsById(continentId)).thenReturn(true);
