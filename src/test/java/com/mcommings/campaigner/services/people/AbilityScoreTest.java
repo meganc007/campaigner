@@ -138,7 +138,7 @@ public class AbilityScoreTest {
         GenericMonster genericMonster = new GenericMonster(1, "name", "desc", abilityScoreId, "traits", "notes", UUID.randomUUID());
         List<GenericMonster> genericMonsters = new ArrayList<>(Arrays.asList(genericMonster));
 
-        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title", 1, 1, abilityScoreId, false, "description", "personality", "notes");
+        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title", 1, 1, abilityScoreId, false, "description", "personality", "notes", UUID.randomUUID());
         List<NamedMonster> namedMonsters = new ArrayList<>(Arrays.asList(namedMonster));
 
         when(abilityScoreRepository.existsById(abilityScoreId)).thenReturn(true);

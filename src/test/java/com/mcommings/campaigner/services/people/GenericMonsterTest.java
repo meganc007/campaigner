@@ -164,7 +164,7 @@ public class GenericMonsterTest {
     public void whenGenericMonsterIdIsAForeignKey_deleteGenericMonster_ThrowsDataIntegrityViolationException() {
         int genericMonsterId = 1;
         NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title",
-                1, 2, genericMonsterId, false, "Personality", "Description", "Notes");
+                1, 2, genericMonsterId, false, "Personality", "Description", "Notes", UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(namedMonsterRepository));
         List<NamedMonster> namedMonsters = new ArrayList<>(Arrays.asList(namedMonster));
 

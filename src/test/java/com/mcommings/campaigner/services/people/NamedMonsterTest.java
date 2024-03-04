@@ -15,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,9 +39,10 @@ public class NamedMonsterTest {
     @Test
     public void whenThereAreNamedMonsters_getNamedMonsters_ReturnsNamedMonsters() {
         List<NamedMonster> namedMonsters = new ArrayList<>();
-        namedMonsters.add(new NamedMonster(1, "First Name 1", "Last Name 1", "Title", false, "Personality", "Description", "Notes"));
-        namedMonsters.add(new NamedMonster(2, "First Name 2", "Last Name 2", "Title", false, "Personality", "Description", "Notes"));
-        namedMonsters.add(new NamedMonster(3, "First Name 3", "Last Name 3", "Title", 2, 4, 1, false, "Personality", "Description", "Notes"));
+        UUID campaign = UUID.randomUUID();
+        namedMonsters.add(new NamedMonster(1, "First Name 1", "Last Name 1", "Title", false, "Personality", "Description", "Notes", campaign));
+        namedMonsters.add(new NamedMonster(2, "First Name 2", "Last Name 2", "Title", false, "Personality", "Description", "Notes", campaign));
+        namedMonsters.add(new NamedMonster(3, "First Name 3", "Last Name 3", "Title", 2, 4, 1, false, "Personality", "Description", "Notes", campaign));
         when(namedMonsterRepository.findAll()).thenReturn(namedMonsters);
 
         List<NamedMonster> result = namedMonsterService.getNamedMonsters();
@@ -61,8 +63,35 @@ public class NamedMonsterTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getNamedMonstersByCampaignUUID_ReturnsNamedMonsters() {
+        List<NamedMonster> namedMonsters = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        namedMonsters.add(new NamedMonster(1, "First Name 1", "Last Name 1", "Title", false, "Personality", "Description", "Notes", campaign));
+        namedMonsters.add(new NamedMonster(2, "First Name 2", "Last Name 2", "Title", false, "Personality", "Description", "Notes", campaign));
+        namedMonsters.add(new NamedMonster(3, "First Name 3", "Last Name 3", "Title", 2, 4, 1, false, "Personality", "Description", "Notes", campaign));
+        when(namedMonsterRepository.findByfk_campaign_uuid(campaign)).thenReturn(namedMonsters);
+
+        List<NamedMonster> results = namedMonsterService.getNamedMonstersByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(namedMonsters, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getNamedMonstersByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<NamedMonster> namedMonsters = new ArrayList<>();
+        when(namedMonsterRepository.findByfk_campaign_uuid(campaign)).thenReturn(namedMonsters);
+
+        List<NamedMonster> result = namedMonsterService.getNamedMonstersByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(namedMonsters, result);
+    }
+
+    @Test
     public void whenNamedMonsterWithNoForeignKeysIsValid_saveNamedMonster_SavesTheNamedMonster() {
-        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title", true, "Personality", "Description", "Notes");
+        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title", true, "Personality", "Description", "Notes", UUID.randomUUID());
         when(namedMonsterRepository.saveAndFlush(namedMonster)).thenReturn(namedMonster);
 
         assertDoesNotThrow(() -> namedMonsterService.saveNamedMonster(namedMonster));
@@ -73,7 +102,7 @@ public class NamedMonsterTest {
     @Test
     public void whenNamedMonsterWithForeignKeysIsValid_saveNamedMonster_SavesTheNamedMonster() {
         NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes");
+                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
 
         when(wealthRepository.existsById(4)).thenReturn(true);
         when(abilityScoreRepository.existsById(2)).thenReturn(true);
@@ -88,13 +117,13 @@ public class NamedMonsterTest {
     @Test
     public void whenNamedMonsterNamesInvalid_saveNamedMonster_ThrowsIllegalArgumentException() {
         NamedMonster namedMonsterWithEmptyFirstName = new NamedMonster(1, "", "Last Name", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes");
+                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
         NamedMonster namedMonsterWithEmptyLastName = new NamedMonster(1, "First Name", "", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes");
+                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
         NamedMonster namedMonsterWithNullFirstName = new NamedMonster(1, null, "Last Name", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes");
+                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
         NamedMonster namedMonsterWithNullLastName = new NamedMonster(1, "First Name", null, "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes");
+                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> namedMonsterService.saveNamedMonster(namedMonsterWithEmptyFirstName));
         assertThrows(IllegalArgumentException.class, () -> namedMonsterService.saveNamedMonster(namedMonsterWithEmptyLastName));
@@ -105,9 +134,9 @@ public class NamedMonsterTest {
     @Test
     public void whenNamedMonsterAlreadyExists_saveNamedMonster_ThrowsDataIntegrityViolationException() {
         NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes");
+                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
         NamedMonster doppelganger = new NamedMonster(2, "First Name", "Last Name", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes");
+                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
 
         when(namedMonsterRepository.existsById(1)).thenReturn(true);
         when(wealthRepository.existsById(4)).thenReturn(true);
@@ -161,11 +190,12 @@ public class NamedMonsterTest {
     @Test
     public void whenNamedMonsterIdWithNoFKIsFound_updateNamedMonster_UpdatesTheNamedMonster() {
         int namedMonsterId = 1;
+        UUID campaign = UUID.randomUUID();
 
         NamedMonster namedMonster = new NamedMonster(namedMonsterId, "First Name", "Last Name", "Title",
-                false, "Personality", "Description", "Notes");
+                false, "Personality", "Description", "Notes", campaign);
         NamedMonster namedMonsterToUpdate = new NamedMonster(namedMonsterId, "Jane", "Doe", "The Nameless",
-                true, "Personality", "Description", "Notes");
+                true, "Personality", "Description", "Notes", campaign);
 
         when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(true);
         when(namedMonsterRepository.findById(namedMonsterId)).thenReturn(Optional.of(namedMonster));
@@ -187,11 +217,12 @@ public class NamedMonsterTest {
     @Test
     public void whenNamedMonsterIdWithValidFKIsFound_updateNamedMonster_UpdatesTheNamedMonster() {
         int namedMonsterId = 1;
+        UUID campaign = UUID.randomUUID();
 
         NamedMonster namedMonster = new NamedMonster(namedMonsterId, "First Name", "Last Name", "Title",
-                1, 2, 3, false, "Personality", "Description", "Notes");
+                1, 2, 3, false, "Personality", "Description", "Notes", campaign);
         NamedMonster namedMonsterToUpdate = new NamedMonster(namedMonsterId, "Jane", "Doe", "The Nameless",
-                4, 5, 6, true, "Personality", "Description", "Notes");
+                4, 5, 6, true, "Personality", "Description", "Notes", campaign);
 
         when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(true);
         when(namedMonsterRepository.findById(namedMonsterId)).thenReturn(Optional.of(namedMonster));
@@ -223,11 +254,12 @@ public class NamedMonsterTest {
     @Test
     public void whenNamedMonsterIdWithInvalidFKIsFound_updateNamedMonster_ThrowsDataIntegrityViolationException() {
         int namedMonsterId = 1;
+        UUID campaign = UUID.randomUUID();
 
         NamedMonster namedMonster = new NamedMonster(namedMonsterId, "First Name", "Last Name", "Title",
-                1, 2, 3, false, "Personality", "Description", "Notes");
+                1, 2, 3, false, "Personality", "Description", "Notes", campaign);
         NamedMonster namedMonsterToUpdate = new NamedMonster(namedMonsterId, "Jane", "Doe", "The Nameless",
-                4, 5, 6, true, "Personality", "Description", "Notes");
+                4, 5, 6, true, "Personality", "Description", "Notes", campaign);
 
         when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(true);
         when(namedMonsterRepository.findById(namedMonsterId)).thenReturn(Optional.of(namedMonster));
@@ -246,7 +278,7 @@ public class NamedMonsterTest {
     public void whenNamedMonsterIdIsNotFound_updateNamedMonster_ThrowsIllegalArgumentException() {
         int namedMonsterId = 1;
         NamedMonster namedMonster = new NamedMonster(namedMonsterId, "First Name", "Last Name", "Title",
-                1, 2, 3, false, "Personality", "Description", "Notes");
+                1, 2, 3, false, "Personality", "Description", "Notes", UUID.randomUUID());
 
 
         when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(false);
@@ -258,7 +290,7 @@ public class NamedMonsterTest {
     public void whenSomeNamedMonsterFieldsChanged_updateNamedMonster_OnlyUpdatesChangedFields() {
         int namedMonsterId = 1;
         NamedMonster namedMonster = new NamedMonster(namedMonsterId, "First Name", "Last Name", "Title",
-                1, 2, 3, false, "Personality", "Description", "Notes");
+                1, 2, 3, false, "Personality", "Description", "Notes", UUID.randomUUID());
 
         String newDescription = "New NamedMonster description";
         int newAbilityScore = 3;
