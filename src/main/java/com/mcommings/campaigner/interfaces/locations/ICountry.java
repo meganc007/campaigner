@@ -13,6 +13,8 @@ public interface ICountry {
 
     List<Country> getCountriesByCampaignUUID(UUID uuid);
 
+    List<Country> getCountriesByContinentId(int continentId);
+
     void saveCountry(Country country);
 
     void deleteCountry(int countryId);
