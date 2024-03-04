@@ -19,10 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_EVENT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -177,7 +174,7 @@ public class EventTest {
     @Test
     public void whenEventIdIsAForeignKey_deleteEvent_ThrowsDataIntegrityViolationException() {
         int eventId = 1;
-        EventPlacePerson epp = new EventPlacePerson(1, eventId, 1, 1);
+        EventPlacePerson epp = new EventPlacePerson(1, eventId, 1, 1, UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(eventPlacePersonRepository));
         List<EventPlacePerson> epps = new ArrayList<>(Arrays.asList(epp));
 

@@ -177,7 +177,7 @@ public class PersonTest {
         JobAssignment jobAssignment = new JobAssignment(1, personId, 1, UUID.randomUUID());
         List<JobAssignment> jobAssignments = new ArrayList<>(Arrays.asList(jobAssignment));
 
-        EventPlacePerson epp = new EventPlacePerson(1, 1, 1, personId);
+        EventPlacePerson epp = new EventPlacePerson(1, 1, 1, personId, UUID.randomUUID());
         List<EventPlacePerson> epps = new ArrayList<>(Arrays.asList(epp));
 
 
