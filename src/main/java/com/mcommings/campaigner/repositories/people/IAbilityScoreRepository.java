@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface IAbilityScoreRepository extends JpaRepository<AbilityScore, Integer> {
@@ -20,4 +22,6 @@ public interface IAbilityScoreRepository extends JpaRepository<AbilityScore, Int
             "a.charisma = :#{#abilityScore.charisma}")
     Optional<AbilityScore> abilityScoreExists(@Param("abilityScore") AbilityScore abilityScore);
 
+    @Query("SELECT a FROM AbilityScore a WHERE a.fk_campaign_uuid = :uuid")
+    List<AbilityScore> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 }
