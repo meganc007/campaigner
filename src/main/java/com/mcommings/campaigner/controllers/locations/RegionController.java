@@ -34,6 +34,11 @@ public class RegionController {
         return regionService.getRegionsByCampaignUUID(uuid);
     }
 
+    @GetMapping(path = "/country/{countryId}")
+    public List<Region> getRegionsByCountryId(@PathVariable("countryId") int countryId) {
+        return regionService.getRegionsByCountryId(countryId);
+    }
+
     @PostMapping
     public void saveRegion(@RequestBody Region region) {
         regionService.saveRegion(region);
