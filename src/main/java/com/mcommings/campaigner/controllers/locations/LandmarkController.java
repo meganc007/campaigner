@@ -34,6 +34,11 @@ public class LandmarkController {
         return landmarkService.getLandmarksByCampaignUUID(uuid);
     }
 
+    @GetMapping(path = "/region/{regionId}")
+    public List<Landmark> getLandmarksByRegionId(@PathVariable("regionId") int regionId) {
+        return landmarkService.getLandmarksByRegionId(regionId);
+    }
+
     @PostMapping
     public void saveLandmark(@RequestBody Landmark landmark) {
         landmarkService.saveLandmark(landmark);
