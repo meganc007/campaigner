@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface INamedMonsterRepository extends JpaRepository<NamedMonster, Integer> {
@@ -21,6 +22,9 @@ public interface INamedMonsterRepository extends JpaRepository<NamedMonster, Int
             "n.lastName = :#{#monster.lastName} AND " +
             "n.fk_generic_monster = :#{#monster.fk_generic_monster}")
     Optional<NamedMonster> monsterExists(@Param("monster") NamedMonster monster);
+
+    @Query("SELECT n FROM NamedMonster n WHERE n.fk_campaign_uuid = :uuid")
+    List<NamedMonster> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 
     @Query("SELECT n FROM NamedMonster n WHERE n.fk_wealth = :id")
     List<NamedMonster> findByfk_wealth(Integer id);

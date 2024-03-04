@@ -13,10 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.*;
@@ -42,6 +39,16 @@ public class NamedMonsterService implements INamedMonster {
     @Override
     public List<NamedMonster> getNamedMonsters() {
         return namedMonsterRepository.findAll();
+    }
+
+    @Override
+    public List<NamedMonster> getNamedMonstersByCampaignUUID(UUID uuid) {
+        return namedMonsterRepository.findByfk_campaign_uuid(uuid);
+    }
+
+    @Override
+    public List<NamedMonster> getNamedMonstersByGenericMonster(int id) {
+        return namedMonsterRepository.findByfk_generic_monster(id);
     }
 
     @Override

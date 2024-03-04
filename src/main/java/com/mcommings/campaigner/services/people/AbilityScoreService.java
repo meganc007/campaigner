@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_ABILITY_SCORE;
@@ -40,6 +41,11 @@ public class AbilityScoreService implements IAbilityScore {
     @Override
     public List<AbilityScore> getAbilityScores() {
         return abilityScoreRepository.findAll();
+    }
+
+    @Override
+    public List<AbilityScore> getAbilityScoresByCampaignUUID(UUID uuid) {
+        return abilityScoreRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

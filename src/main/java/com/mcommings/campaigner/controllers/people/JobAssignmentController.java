@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/people/job-assignments")
@@ -21,6 +22,16 @@ public class JobAssignmentController {
     @GetMapping
     public List<JobAssignment> getJobAssignments() {
         return jobAssignmentService.getJobAssignments();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<JobAssignment> getJobAssignmentsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return jobAssignmentService.getJobAssignmentsByCampaignUUID(uuid);
+    }
+
+    @GetMapping(path = "/person/{personId}")
+    public List<JobAssignment> getJobAssignmentsByPersonId(@PathVariable("personId") int personId) {
+        return jobAssignmentService.getJobAssignmentsByPersonId(personId);
     }
 
     @PostMapping

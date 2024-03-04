@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface IPersonRepository extends JpaRepository<Person, Integer> {
@@ -30,5 +31,8 @@ public interface IPersonRepository extends JpaRepository<Person, Integer> {
 
     @Query("SELECT p FROM Person p WHERE p.fk_ability_score = :id")
     List<Person> findByfk_ability_score(Integer id);
+
+    @Query("SELECT p FROM Person p WHERE p.fk_campaign_uuid = :uuid")
+    List<Person> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 
 }

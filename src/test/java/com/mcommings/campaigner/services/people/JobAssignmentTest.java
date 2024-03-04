@@ -14,6 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,10 +34,11 @@ public class JobAssignmentTest {
 
     @Test
     public void whenThereAreJobAssignments_getJobAssignments_ReturnsJobAssignments() {
+        UUID campaign = UUID.randomUUID();
         List<JobAssignment> jobAssignments = new ArrayList<>();
-        jobAssignments.add(new JobAssignment(1, 1, 3));
-        jobAssignments.add(new JobAssignment(2, 2, 6));
-        jobAssignments.add(new JobAssignment(3, 3, 9));
+        jobAssignments.add(new JobAssignment(1, 1, 3, campaign));
+        jobAssignments.add(new JobAssignment(2, 2, 6, campaign));
+        jobAssignments.add(new JobAssignment(3, 3, 9, campaign));
         when(jobAssignmentRepository.findAll()).thenReturn(jobAssignments);
 
         List<JobAssignment> result = jobAssignmentService.getJobAssignments();
@@ -57,8 +59,35 @@ public class JobAssignmentTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getJobAssignmentsByCampaignUUID_ReturnsJobAssignments() {
+        UUID campaign = UUID.randomUUID();
+        List<JobAssignment> jobAssignments = new ArrayList<>();
+        jobAssignments.add(new JobAssignment(1, 1, 3, campaign));
+        jobAssignments.add(new JobAssignment(2, 2, 6, campaign));
+        jobAssignments.add(new JobAssignment(3, 3, 9, campaign));
+        when(jobAssignmentRepository.findByfk_campaign_uuid(campaign)).thenReturn(jobAssignments);
+
+        List<JobAssignment> results = jobAssignmentService.getJobAssignmentsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(jobAssignments, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getJobAssignmentsByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<JobAssignment> jobAssignments = new ArrayList<>();
+        when(jobAssignmentRepository.findByfk_campaign_uuid(campaign)).thenReturn(jobAssignments);
+
+        List<JobAssignment> result = jobAssignmentService.getJobAssignmentsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(jobAssignments, result);
+    }
+
+    @Test
     public void whenJobAssignmentIsValid_saveJobAssignment_SavesTheJobAssignment() {
-        JobAssignment jobAssignment = new JobAssignment(1, 2, 3);
+        JobAssignment jobAssignment = new JobAssignment(1, 2, 3, UUID.randomUUID());
 
         when(personRepository.existsById(2)).thenReturn(true);
         when(jobRepository.existsById(3)).thenReturn(true);
@@ -71,8 +100,9 @@ public class JobAssignmentTest {
 
     @Test
     public void whenJobAssignmentAlreadyExists_saveJobAssignment_ThrowsDataIntegrityViolationException() {
-        JobAssignment jobAssignment = new JobAssignment(1, 2, 3);
-        JobAssignment jobAssignmentCopy = new JobAssignment(2, 2, 3);
+        UUID campaign = UUID.randomUUID();
+        JobAssignment jobAssignment = new JobAssignment(1, 2, 3, campaign);
+        JobAssignment jobAssignmentCopy = new JobAssignment(2, 2, 3, campaign);
 
         when(personRepository.existsById(2)).thenReturn(true);
         when(jobRepository.existsById(3)).thenReturn(true);
@@ -104,9 +134,9 @@ public class JobAssignmentTest {
     @Test
     public void whenJobAssignmentIdWithValidFKIsFound_updateJobAssignment_UpdatesTheJobAssignment() {
         int jaId = 1;
-
-        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3);
-        JobAssignment update = new JobAssignment(jaId, 3, 4);
+        UUID campaign = UUID.randomUUID();
+        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3, campaign);
+        JobAssignment update = new JobAssignment(jaId, 3, 4, campaign);
 
         when(jobAssignmentRepository.existsById(jaId)).thenReturn(true);
         when(jobAssignmentRepository.findById(jaId)).thenReturn(Optional.of(jobAssignment));
@@ -128,9 +158,9 @@ public class JobAssignmentTest {
     @Test
     public void whenJobAssignmentIdWithInvalidFKIsFound_updateJobAssignment_ThrowsDataIntegrityViolationException() {
         int jaId = 1;
-
-        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3);
-        JobAssignment update = new JobAssignment(jaId, 3, 4);
+        UUID campaign = UUID.randomUUID();
+        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3, campaign);
+        JobAssignment update = new JobAssignment(jaId, 3, 4, campaign);
 
         when(jobAssignmentRepository.existsById(jaId)).thenReturn(true);
         when(jobAssignmentRepository.findById(jaId)).thenReturn(Optional.of(jobAssignment));
@@ -145,7 +175,7 @@ public class JobAssignmentTest {
     @Test
     public void whenJobAssignmentIdIsNotFound_updateJobAssignment_ThrowsIllegalArgumentException() {
         int jaId = 1;
-        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3);
+        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3, UUID.randomUUID());
 
         when(jobAssignmentRepository.existsById(jaId)).thenReturn(false);
 
@@ -155,7 +185,7 @@ public class JobAssignmentTest {
     @Test
     public void whenSomeJobAssignmentFieldsChanged_updateJobAssignment_OnlyUpdatesChangedFields() {
         int jaId = 1;
-        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3);
+        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3, UUID.randomUUID());
         int newJob = 9;
 
         JobAssignment jobAssignmentToUpdate = new JobAssignment();

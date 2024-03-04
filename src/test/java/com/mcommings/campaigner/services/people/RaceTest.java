@@ -13,10 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_RACE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -106,7 +103,7 @@ public class RaceTest {
     public void whenRaceIdIsAForeignKey_deleteRace_ThrowsDataIntegrityViolationException() {
         int raceId = 1;
         Person person = new Person(1, "Jane", "Doe", 33, "The Nameless One",
-                raceId, 2, 2, true, false, "Personality", "Description", "Notes");
+                raceId, 2, 2, true, false, "Personality", "Description", "Notes", UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(personRepository));
         List<Person> people = new ArrayList<>(Arrays.asList(person));
 

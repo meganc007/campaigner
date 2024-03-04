@@ -12,10 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_JOB;
@@ -39,6 +36,16 @@ public class JobAssignmentService implements IJobAssignment {
     @Override
     public List<JobAssignment> getJobAssignments() {
         return jobAssignmentRepository.findAll();
+    }
+
+    @Override
+    public List<JobAssignment> getJobAssignmentsByCampaignUUID(UUID uuid) {
+        return jobAssignmentRepository.findByfk_campaign_uuid(uuid);
+    }
+
+    @Override
+    public List<JobAssignment> getJobAssignmentsByPersonId(int personId) {
+        return jobAssignmentRepository.findByfk_person(personId);
     }
 
     @Override

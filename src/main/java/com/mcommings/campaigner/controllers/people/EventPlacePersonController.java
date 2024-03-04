@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/people/events-places-people")
@@ -19,8 +20,28 @@ public class EventPlacePersonController {
     }
 
     @GetMapping
-    List<EventPlacePerson> getEventsPlacesPeople() {
+    public List<EventPlacePerson> getEventsPlacesPeople() {
         return eventPlacePersonService.getEventsPlacesPeople();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<EventPlacePerson> getEventsPlacesPeopleByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return eventPlacePersonService.getEventsPlacesPeopleByCampaignUUID(uuid);
+    }
+
+    @GetMapping(path = "/person/{personId}")
+    public List<EventPlacePerson> getEventsPlacesPeopleByPerson(@PathVariable("personId") int personId) {
+        return eventPlacePersonService.getEventsPlacesPeopleByPerson(personId);
+    }
+
+    @GetMapping(path = "/place/{placeId}")
+    public List<EventPlacePerson> getEventsPlacesPeopleByPlace(@PathVariable("placeId") int placeId) {
+        return eventPlacePersonService.getEventsPlacesPeopleByPlace(placeId);
+    }
+
+    @GetMapping(path = "/event/{eventId}")
+    public List<EventPlacePerson> getEventsPlacesPeopleByEvent(@PathVariable("eventId") int eventId) {
+        return eventPlacePersonService.getEventsPlacesPeopleByEvent(eventId);
     }
 
     @PostMapping

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/people/generic-monsters")
@@ -21,6 +22,11 @@ public class GenericMonsterController {
     @GetMapping
     public List<GenericMonster> GenericMonster() {
         return genericMonsterService.getGenericMonsters();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    List<GenericMonster> getGenericMonstersByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return genericMonsterService.getGenericMonstersByCampaignUUID(uuid);
     }
 
     @PostMapping

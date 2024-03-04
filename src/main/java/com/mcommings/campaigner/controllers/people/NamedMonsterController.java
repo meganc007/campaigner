@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/namedMonsters/named-monsters")
@@ -21,6 +22,16 @@ public class NamedMonsterController {
     @GetMapping
     public List<NamedMonster> getNamedMonsters() {
         return namedMonsterService.getNamedMonsters();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<NamedMonster> getNamedMonstersByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return namedMonsterService.getNamedMonstersByCampaignUUID(uuid);
+    }
+
+    @GetMapping(path = "/genericMonster/{id}")
+    public List<NamedMonster> getNamedMonstersByGenericMonster(int id) {
+        return namedMonsterService.getNamedMonstersByGenericMonster(id);
     }
 
     @PostMapping

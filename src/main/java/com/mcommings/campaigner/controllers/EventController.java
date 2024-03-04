@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/events")
@@ -21,6 +22,26 @@ public class EventController {
     @GetMapping
     public List<Event> getEvents() {
         return eventService.getEvents();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<Event> getEventsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return eventService.getEventsByCampaignUUID(uuid);
+    }
+
+    @GetMapping(path = "/continent/{continentId}")
+    public List<Event> getEventsByContinent(@PathVariable("continentId") int continentId) {
+        return eventService.getEventsByContinent(continentId);
+    }
+
+    @GetMapping(path = "/country/{countryId}")
+    public List<Event> getEventsByCountry(@PathVariable("countryId") int countryId) {
+        return eventService.getEventsByCountry(countryId);
+    }
+
+    @GetMapping(path = "/city/{cityId}")
+    public List<Event> getEventsByCity(@PathVariable("cityId") int cityId) {
+        return eventService.getEventsByCity(cityId);
     }
 
     @PostMapping

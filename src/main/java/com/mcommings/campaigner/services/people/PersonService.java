@@ -11,10 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.*;
@@ -45,6 +42,11 @@ public class PersonService implements IPerson {
     @Override
     public List<Person> getPeople() {
         return personRepository.findAll();
+    }
+
+    @Override
+    public List<Person> getPeopleByCampaignUUID(UUID uuid) {
+        return personRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface IGenericMonsterRepository extends JpaRepository<GenericMonster, Integer> {
@@ -15,4 +16,7 @@ public interface IGenericMonsterRepository extends JpaRepository<GenericMonster,
 
     @Query("SELECT g FROM GenericMonster g WHERE g.fk_ability_score = :id")
     List<GenericMonster> findByfk_ability_score(Integer id);
+
+    @Query("SELECT g FROM GenericMonster g WHERE g.fk_campaign_uuid = :uuid")
+    List<GenericMonster> findByfk_campaign_uuid(UUID uuid);
 }

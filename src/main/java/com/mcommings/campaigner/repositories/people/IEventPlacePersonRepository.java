@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface IEventPlacePersonRepository extends JpaRepository<EventPlacePerson, Integer> {
@@ -17,6 +18,9 @@ public interface IEventPlacePersonRepository extends JpaRepository<EventPlacePer
             "e.fk_place = :#{#eventPlacePerson.fk_place} AND " +
             "e.fk_person = :#{#eventPlacePerson.fk_person}")
     Optional<EventPlacePerson> eventPlacePersonExists(@Param("eventPlacePerson") EventPlacePerson eventPlacePerson);
+
+    @Query("SELECT e FROM EventPlacePerson e WHERE e.fk_campaign_uuid = :uuid")
+    List<EventPlacePerson> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 
     @Query("SELECT e FROM EventPlacePerson e WHERE e.fk_event = :id")
     List<EventPlacePerson> findByfk_event(@Param("id") Integer id);

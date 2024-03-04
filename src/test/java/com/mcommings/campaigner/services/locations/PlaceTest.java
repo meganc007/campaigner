@@ -182,7 +182,7 @@ public class PlaceTest {
     @Test
     public void whenPlaceIdIsAForeignKey_deletePlace_ThrowsDataIntegrityViolationException() {
         int placeId = 1;
-        EventPlacePerson epp = new EventPlacePerson(1, 1, placeId, 1);
+        EventPlacePerson epp = new EventPlacePerson(1, 1, placeId, 1, UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(eventPlacePersonRepository));
         List<EventPlacePerson> epps = new ArrayList<>(Arrays.asList(epp));
 

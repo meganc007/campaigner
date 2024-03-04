@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
@@ -40,6 +41,26 @@ public class EventPlacePersonService implements IEventPlacePerson {
     @Override
     public List<EventPlacePerson> getEventsPlacesPeople() {
         return eventPlacePersonRepository.findAll();
+    }
+
+    @Override
+    public List<EventPlacePerson> getEventsPlacesPeopleByCampaignUUID(UUID uuid) {
+        return eventPlacePersonRepository.findByfk_campaign_uuid(uuid);
+    }
+
+    @Override
+    public List<EventPlacePerson> getEventsPlacesPeopleByPerson(int personId) {
+        return eventPlacePersonRepository.findByfk_person(personId);
+    }
+
+    @Override
+    public List<EventPlacePerson> getEventsPlacesPeopleByPlace(int placeId) {
+        return eventPlacePersonRepository.findByfk_place(placeId);
+    }
+
+    @Override
+    public List<EventPlacePerson> getEventsPlacesPeopleByEvent(int eventId) {
+        return eventPlacePersonRepository.findByfk_event(eventId);
     }
 
     @Override

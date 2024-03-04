@@ -1,7 +1,10 @@
 package com.mcommings.campaigner.models.people;
 
+import com.mcommings.campaigner.models.Campaign;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Data
 @Entity
@@ -19,6 +22,9 @@ public class JobAssignment {
     @Column(name = "fk_job")
     private Integer fk_job;
 
+    @Column(name = "fk_campaign_uuid")
+    private UUID fk_campaign_uuid;
+
     @ManyToOne
     @JoinColumn(name = "fk_person", referencedColumnName = "id", updatable = false, insertable = false)
     private Person person;
@@ -27,13 +33,18 @@ public class JobAssignment {
     @JoinColumn(name = "fk_job", referencedColumnName = "id", updatable = false, insertable = false)
     private Job job;
 
+    @ManyToOne
+    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
+    private Campaign campaign;
+
     public JobAssignment() {
     }
 
-    public JobAssignment(int id, Integer fk_person, Integer fk_job) {
+    public JobAssignment(int id, Integer fk_person, Integer fk_job, UUID fk_campaign_uuid) {
         this.id = id;
         this.fk_person = fk_person;
         this.fk_job = fk_job;
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 
 }
