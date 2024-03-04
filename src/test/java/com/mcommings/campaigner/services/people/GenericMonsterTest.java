@@ -14,10 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_GENERIC_MONSTER;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -40,9 +37,10 @@ public class GenericMonsterTest {
     @Test
     public void whenThereAreGenericMonsters_getGenericMonsters_ReturnsGenericMonsters() {
         List<GenericMonster> genericMonsters = new ArrayList<>();
-        genericMonsters.add(new GenericMonster(1, "GenericMonster 1", "Description 1"));
-        genericMonsters.add(new GenericMonster(2, "GenericMonster 2", "Description 2"));
-        genericMonsters.add(new GenericMonster(3, "GenericMonster 3", "Description 3", 1, "Traits", "Notes"));
+        UUID campaign = UUID.randomUUID();
+        genericMonsters.add(new GenericMonster(1, "GenericMonster 1", "Description 1", campaign));
+        genericMonsters.add(new GenericMonster(2, "GenericMonster 2", "Description 2", campaign));
+        genericMonsters.add(new GenericMonster(3, "GenericMonster 3", "Description 3", 1, "Traits", "Notes", campaign));
         when(genericMonsterRepository.findAll()).thenReturn(genericMonsters);
 
         List<GenericMonster> result = genericMonsterService.getGenericMonsters();
@@ -63,8 +61,35 @@ public class GenericMonsterTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getGenericMonstersByCampaignUUID_ReturnsGenericMonsters() {
+        List<GenericMonster> genericMonsters = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        genericMonsters.add(new GenericMonster(1, "GenericMonster 1", "Description 1", campaign));
+        genericMonsters.add(new GenericMonster(2, "GenericMonster 2", "Description 2", campaign));
+        genericMonsters.add(new GenericMonster(3, "GenericMonster 3", "Description 3", 1, "Traits", "Notes", campaign));
+        when(genericMonsterRepository.findByfk_campaign_uuid(campaign)).thenReturn(genericMonsters);
+
+        List<GenericMonster> results = genericMonsterService.getGenericMonstersByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(genericMonsters, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getGenericMonstersByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<GenericMonster> genericMonsters = new ArrayList<>();
+        when(genericMonsterRepository.findByfk_campaign_uuid(campaign)).thenReturn(genericMonsters);
+
+        List<GenericMonster> result = genericMonsterService.getGenericMonstersByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(genericMonsters, result);
+    }
+
+    @Test
     public void whenGenericMonsterWithNoForeignKeysIsValid_saveGenericMonster_SavesTheGenericMonster() {
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster 1", "Description 1");
+        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster 1", "Description 1", UUID.randomUUID());
         when(genericMonsterRepository.saveAndFlush(genericMonster)).thenReturn(genericMonster);
 
         assertDoesNotThrow(() -> genericMonsterService.saveGenericMonster(genericMonster));
@@ -74,7 +99,7 @@ public class GenericMonsterTest {
 
     @Test
     public void whenGenericMonsterWithForeignKeysIsValid_saveGenericMonster_SavesTheGenericMonster() {
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes");
+        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes", UUID.randomUUID());
 
         when(abilityScoreRepository.existsById(1)).thenReturn(true);
         when(genericMonsterRepository.saveAndFlush(genericMonster)).thenReturn(genericMonster);
@@ -86,8 +111,9 @@ public class GenericMonsterTest {
 
     @Test
     public void whenGenericMonsterNameIsInvalid_saveGenericMonster_ThrowsIllegalArgumentException() {
-        GenericMonster genericMonsterWithEmptyName = new GenericMonster(1, "", "Description 1");
-        GenericMonster genericMonsterWithNullName = new GenericMonster(2, null, "Description 2");
+        UUID campaign = UUID.randomUUID();
+        GenericMonster genericMonsterWithEmptyName = new GenericMonster(1, "", "Description 1", campaign);
+        GenericMonster genericMonsterWithNullName = new GenericMonster(2, null, "Description 2", campaign);
 
         assertThrows(IllegalArgumentException.class, () -> genericMonsterService.saveGenericMonster(genericMonsterWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> genericMonsterService.saveGenericMonster(genericMonsterWithNullName));
@@ -95,8 +121,9 @@ public class GenericMonsterTest {
 
     @Test
     public void whenGenericMonsterNameAlreadyExists_saveGenericMonster_ThrowsDataIntegrityViolationException() {
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes");
-        GenericMonster genericMonsterCopy = new GenericMonster(2, "GenericMonster", "Description", 1, "Traits", "Notes");
+        UUID campaign = UUID.randomUUID();
+        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes", campaign);
+        GenericMonster genericMonsterCopy = new GenericMonster(2, "GenericMonster", "Description", 1, "Traits", "Notes", campaign);
 
         when(genericMonsterRepository.existsById(1)).thenReturn(true);
         when(abilityScoreRepository.existsById(1)).thenReturn(true);
@@ -110,7 +137,7 @@ public class GenericMonsterTest {
 
     @Test
     public void whenGenericMonsterHasInvalidForeignKeys_saveGenericMonster_ThrowsDataIntegrityViolationException() {
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes");
+        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes", UUID.randomUUID());
 
         when(abilityScoreRepository.existsById(2)).thenReturn(false);
         when(genericMonsterRepository.saveAndFlush(genericMonster)).thenReturn(genericMonster);
@@ -152,9 +179,10 @@ public class GenericMonsterTest {
     @Test
     public void whenGenericMonsterIdWithNoFKIsFound_updateGenericMonster_UpdatesTheGenericMonster() {
         int genericMonsterId = 1;
+        UUID campaign = UUID.randomUUID();
 
-        GenericMonster genericMonster = new GenericMonster(genericMonsterId, "Old GenericMonster Name", "Old Description");
-        GenericMonster updateNoFK = new GenericMonster(genericMonsterId, "Updated GenericMonster Name", "Updated Description");
+        GenericMonster genericMonster = new GenericMonster(genericMonsterId, "Old GenericMonster Name", "Old Description", campaign);
+        GenericMonster updateNoFK = new GenericMonster(genericMonsterId, "Updated GenericMonster Name", "Updated Description", campaign);
 
         when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
         when(genericMonsterRepository.findById(genericMonsterId)).thenReturn(Optional.of(genericMonster));
@@ -171,9 +199,9 @@ public class GenericMonsterTest {
     @Test
     public void whenGenericMonsterIdWithValidFKIsFound_updateGenericMonster_UpdatesTheGenericMonster() {
         int genericMonsterId = 2;
-
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes");
-        GenericMonster update = new GenericMonster(1, "GenericMonster", "Description", 3, "Traits", "Notes");
+        UUID campaign = UUID.randomUUID();
+        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes", campaign);
+        GenericMonster update = new GenericMonster(1, "GenericMonster", "Description", 3, "Traits", "Notes", campaign);
 
         when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
         when(genericMonsterRepository.findById(genericMonsterId)).thenReturn(Optional.of(genericMonster));
@@ -195,9 +223,10 @@ public class GenericMonsterTest {
     @Test
     public void whenGenericMonsterIdWithInvalidFKIsFound_updateGenericMonster_ThrowsDataIntegrityViolationException() {
         int genericMonsterId = 2;
+        UUID campaign = UUID.randomUUID();
 
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes");
-        GenericMonster update = new GenericMonster(1, "GenericMonster", "Description", 3, "Traits", "Notes");
+        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes", campaign);
+        GenericMonster update = new GenericMonster(1, "GenericMonster", "Description", 3, "Traits", "Notes", campaign);
 
         when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
         when(genericMonsterRepository.findById(genericMonsterId)).thenReturn(Optional.of(genericMonster));
@@ -210,7 +239,7 @@ public class GenericMonsterTest {
     @Test
     public void whenGenericMonsterIdIsNotFound_updateGenericMonster_ThrowsIllegalArgumentException() {
         int genericMonsterId = 1;
-        GenericMonster genericMonster = new GenericMonster(genericMonsterId, "Old GenericMonster Name", "Old Description");
+        GenericMonster genericMonster = new GenericMonster(genericMonsterId, "Old GenericMonster Name", "Old Description", UUID.randomUUID());
 
         when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(false);
 
@@ -221,7 +250,7 @@ public class GenericMonsterTest {
     public void whenSomeGenericMonsterFieldsChanged_updateGenericMonster_OnlyUpdatesChangedFields() {
         int genericMonsterId = 1;
         GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description",
-                1, "Traits", "Notes");
+                1, "Traits", "Notes", UUID.randomUUID());
         String newDescription = "New GenericMonster description";
 
         GenericMonster genericMonsterToUpdate = new GenericMonster();

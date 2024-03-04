@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_GENERIC_MONSTER;
@@ -37,6 +38,11 @@ public class GenericMonsterService implements IGenericMonster {
     @Override
     public List<GenericMonster> getGenericMonsters() {
         return genericMonsterRepository.findAll();
+    }
+
+    @Override
+    public List<GenericMonster> getGenericMonstersByCampaignUUID(UUID uuid) {
+        return genericMonsterRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override
