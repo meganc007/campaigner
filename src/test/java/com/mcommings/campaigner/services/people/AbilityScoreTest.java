@@ -131,7 +131,7 @@ public class AbilityScoreTest {
     public void whenAbilityScoreIdIsAForeignKey_deleteAbilityScore_ThrowsDataIntegrityViolationException() {
         int abilityScoreId = 1;
         Person person = new Person(1, "Jane", "Doe", 33, "The Nameless One",
-                2, 2, abilityScoreId, true, false, "Personality", "Description", "Notes");
+                2, 2, abilityScoreId, true, false, "Personality", "Description", "Notes", UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(personRepository));
         List<Person> people = new ArrayList<>(Arrays.asList(person));
 
