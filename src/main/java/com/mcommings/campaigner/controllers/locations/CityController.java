@@ -34,6 +34,16 @@ public class CityController {
         return cityService.getCitiesByCampaignUUID(uuid);
     }
 
+    @GetMapping(path = "/country/{countryId}")
+    public List<City> getCitiesByCountryId(@PathVariable("countryId") int countryId) {
+        return cityService.getCitiesByCountryId(countryId);
+    }
+
+    @GetMapping(path = "/region/{regionId}")
+    public List<City> getCitiesByRegionId(@PathVariable("regionId") int regionId) {
+        return cityService.getCitiesByRegionId(regionId);
+    }
+
     @PostMapping
     public void saveCity(@RequestBody City city) {
         cityService.saveCity(city);

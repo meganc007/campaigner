@@ -54,6 +54,11 @@ public class RegionService implements IRegion {
     }
 
     @Override
+    public List<Region> getRegionsByCountryId(int countryId) {
+        return regionRepository.findByfk_country(countryId);
+    }
+
+    @Override
     @Transactional
     public void saveRegion(Region region) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(region)) {

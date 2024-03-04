@@ -13,6 +13,10 @@ public interface ICity {
 
     List<City> getCitiesByCampaignUUID(UUID uuid);
 
+    List<City> getCitiesByCountryId(int countryId);
+
+    List<City> getCitiesByRegionId(int regionId);
+
     void saveCity(City city);
 
     void deleteCity(int cityId);

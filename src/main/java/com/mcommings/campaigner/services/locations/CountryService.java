@@ -61,6 +61,11 @@ public class CountryService implements ICountry {
     }
 
     @Override
+    public List<Country> getCountriesByContinentId(int continentId) {
+        return countryRepository.findByfk_continent(continentId);
+    }
+
+    @Override
     @Transactional
     public void saveCountry(Country country) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(country)) {

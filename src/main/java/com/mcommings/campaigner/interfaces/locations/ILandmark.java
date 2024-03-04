@@ -13,6 +13,8 @@ public interface ILandmark {
 
     List<Landmark> getLandmarksByCampaignUUID(UUID uuid);
 
+    List<Landmark> getLandmarksByRegionId(int regionId);
+
     void saveLandmark(Landmark landmark);
 
     void deleteLandmark(int landmarkId);
