@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
@@ -39,6 +40,11 @@ public class WeaponService implements IWeapon {
     @Override
     public List<Weapon> getWeapons() {
         return weaponRepository.findAll();
+    }
+
+    @Override
+    public List<Weapon> getWeaponsByCampaignUUID(UUID uuid) {
+        return weaponRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

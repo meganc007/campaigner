@@ -13,10 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_DICE_TYPE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -109,7 +106,7 @@ public class DiceTypeTest {
 
         Weapon weapon = new Weapon(1, "Weapon", "Description", "Rare", 32, 20,
                 12, 20.0f, 2, 2, diceTypeId, 6, 0,
-                true, false, "Notes");
+                true, false, "Notes", UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weaponRepository));
         List<Weapon> weapons = new ArrayList<>(Arrays.asList(weapon));
 
