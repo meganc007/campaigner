@@ -64,6 +64,16 @@ public class CityService implements ICity {
     }
 
     @Override
+    public List<City> getCitiesByCountryId(int countryId) {
+        return cityRepository.findByfk_country(countryId);
+    }
+
+    @Override
+    public List<City> getCitiesByRegionId(int regionId) {
+        return cityRepository.findByfk_region(regionId);
+    }
+
+    @Override
     @Transactional
     public void saveCity(City city) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(city)) {
