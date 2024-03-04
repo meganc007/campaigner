@@ -34,6 +34,21 @@ public class PlaceController {
         return placeService.getPlacesByCampaignUUID(uuid);
     }
 
+    @GetMapping(path = "/country/{countryId}")
+    public List<Place> getPlacesByCountryId(@PathVariable("countryId") int countryId) {
+        return placeService.getPlacesByCountryId(countryId);
+    }
+
+    @GetMapping(path = "/city/{cityId}")
+    public List<Place> getPlacesByCityId(@PathVariable("cityId") int cityId) {
+        return placeService.getPlacesByCityId(cityId);
+    }
+
+    @GetMapping(path = "/region/{regionId}")
+    public List<Place> getPlacesByRegionId(@PathVariable("regionId") int regionId) {
+        return placeService.getPlacesByRegionId(regionId);
+    }
+
     @PostMapping
     public void savePlace(@RequestBody Place place) {
         placeService.savePlace(place);

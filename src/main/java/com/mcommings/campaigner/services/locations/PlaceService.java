@@ -58,6 +58,21 @@ public class PlaceService implements IPlace {
     }
 
     @Override
+    public List<Place> getPlacesByCountryId(int countryId) {
+        return placeRepository.findByfk_country(countryId);
+    }
+
+    @Override
+    public List<Place> getPlacesByCityId(int cityId) {
+        return placeRepository.findByfk_city(cityId);
+    }
+
+    @Override
+    public List<Place> getPlacesByRegionId(int regionId) {
+        return placeRepository.findByfk_region(regionId);
+    }
+
+    @Override
     @Transactional
     public void savePlace(Place place) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(place)) {

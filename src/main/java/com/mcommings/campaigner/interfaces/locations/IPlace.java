@@ -13,6 +13,13 @@ public interface IPlace {
 
     List<Place> getPlacesByCampaignUUID(UUID uuid);
 
+    List<Place> getPlacesByCountryId(int countryId);
+
+    List<Place> getPlacesByCityId(int cityId);
+
+    List<Place> getPlacesByRegionId(int regionId);
+
+
     void savePlace(Place place);
 
     void deletePlace(int placeId);

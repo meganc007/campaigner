@@ -13,6 +13,8 @@ public interface IRegion {
 
     List<Region> getRegionsByCampaignUUID(UUID uuid);
 
+    List<Region> getRegionsByCountryId(int countryId);
+
     void saveRegion(Region region);
 
     void deleteRegion(int regionId);

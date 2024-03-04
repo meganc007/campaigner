@@ -46,6 +46,11 @@ public class LandmarkService implements ILandmark {
     }
 
     @Override
+    public List<Landmark> getLandmarksByRegionId(int regionId) {
+        return landmarkRepository.findByfk_region(regionId);
+    }
+
+    @Override
     @Transactional
     public void saveLandmark(Landmark landmark) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(landmark)) {
