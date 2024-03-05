@@ -1,9 +1,12 @@
 package com.mcommings.campaigner.models.items;
 
 import com.mcommings.campaigner.models.BaseEntity;
+import com.mcommings.campaigner.models.Campaign;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+
+import java.util.UUID;
 
 @Data
 @Entity
@@ -55,6 +58,13 @@ public class Weapon extends BaseEntity {
     @Column(name = "notes")
     private String notes;
 
+    @Column(name = "fk_campaign_uuid")
+    private UUID fk_campaign_uuid;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
+    private Campaign campaign;
+
     @ManyToOne
     @JoinColumn(name = "fk_weapon_type", referencedColumnName = "id", updatable = false, insertable = false)
     private WeaponType weaponType;
@@ -71,15 +81,16 @@ public class Weapon extends BaseEntity {
         super();
     }
 
-    public Weapon(int id, String name, String description) {
+    public Weapon(int id, String name, String description, UUID fk_campaign_uuid) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 
     public Weapon(int id, String name, String description, String rarity, int gold_value, int silver_value,
                   int copper_value, float weight, Integer fk_weapon_type, Integer fk_damage_type, Integer fk_dice_type,
-                  int number_of_dice, int damage_modifier, boolean isMagical, boolean isCursed, String notes) {
+                  int number_of_dice, int damage_modifier, boolean isMagical, boolean isCursed, String notes, UUID fk_campaign_uuid) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
@@ -96,5 +107,6 @@ public class Weapon extends BaseEntity {
         this.isMagical = isMagical;
         this.isCursed = isCursed;
         this.notes = notes;
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 }

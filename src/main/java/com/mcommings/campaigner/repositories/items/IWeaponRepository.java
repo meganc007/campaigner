@@ -8,11 +8,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface IWeaponRepository extends JpaRepository<Weapon, Integer> {
 
     Optional<Weapon> findByName(String name);
+
+    @Query("SELECT w FROM Weapon w WHERE w.fk_campaign_uuid = :uuid")
+    List<Weapon> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 
     @Query("SELECT w FROM Weapon w WHERE w.fk_weapon_type = :id")
     List<Weapon> findByfk_weapon_type(@Param("id") Integer id);

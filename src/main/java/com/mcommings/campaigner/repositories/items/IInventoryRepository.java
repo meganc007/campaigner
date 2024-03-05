@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface IInventoryRepository extends JpaRepository<Inventory, Integer> {
@@ -19,6 +20,8 @@ public interface IInventoryRepository extends JpaRepository<Inventory, Integer> 
             "i.fk_place = :#{#inventory.fk_place}")
     Optional<Inventory> inventoryExists(@Param("inventory") Inventory inventory);
 
+    @Query("SELECT i FROM Inventory i WHERE i.fk_campaign_uuid = :uuid")
+    List<Inventory> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 
     @Query("SELECT i FROM Inventory i WHERE i.fk_person = :id")
     List<Inventory> findByfk_person(@Param("id") Integer id);

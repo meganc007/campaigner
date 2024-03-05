@@ -15,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,11 +39,11 @@ public class WeaponTest {
     @Test
     public void whenThereAreWeapons_getWeapons_ReturnsWeapons() {
         List<Weapon> weapons = new ArrayList<>();
-        weapons.add(new Weapon(1, "Weapon 1", "Description 1"));
-        weapons.add(new Weapon(2, "Weapon 2", "Description 2"));
+        UUID campaign = UUID.randomUUID();
+        weapons.add(new Weapon(1, "Weapon 1", "Description 1", campaign));
+        weapons.add(new Weapon(2, "Weapon 2", "Description 2", campaign));
         weapons.add(new Weapon(3, "Weapon 3", "Description 3", "Rare", 32, 20,
-                12, 20.0f, 2, 2, 2, 6, 0,
-                true, false, "Notes"));
+                12, 20.0f, 2, 2, 2, 6, 0, true, false, "Notes", campaign));
         when(weaponRepository.findAll()).thenReturn(weapons);
 
         List<Weapon> result = weaponService.getWeapons();
@@ -63,8 +64,37 @@ public class WeaponTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getWeaponsByCampaignUUID_ReturnsWeapons() {
+        List<Weapon> weapons = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        weapons.add(new Weapon(1, "Weapon 1", "Description 1", campaign));
+        weapons.add(new Weapon(2, "Weapon 2", "Description 2", campaign));
+        weapons.add(new Weapon(3, "Weapon 3", "Description 3", "Rare", 32, 20,
+                12, 20.0f, 2, 2, 2, 6, 0,
+                true, false, "Notes", campaign));
+        when(weaponRepository.findByfk_campaign_uuid(campaign)).thenReturn(weapons);
+
+        List<Weapon> results = weaponService.getWeaponsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(weapons, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getWeaponsByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Weapon> weapons = new ArrayList<>();
+        when(weaponRepository.findByfk_campaign_uuid(campaign)).thenReturn(weapons);
+
+        List<Weapon> result = weaponService.getWeaponsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(weapons, result);
+    }
+
+    @Test
     public void whenWeaponWithNoForeignKeysIsValid_saveWeapon_SavesTheWeapon() {
-        Weapon weapon = new Weapon(1, "Weapon 1", "Description 1");
+        Weapon weapon = new Weapon(1, "Weapon 1", "Description 1", UUID.randomUUID());
         when(weaponRepository.saveAndFlush(weapon)).thenReturn(weapon);
 
         assertDoesNotThrow(() -> weaponService.saveWeapon(weapon));
@@ -76,7 +106,7 @@ public class WeaponTest {
     public void whenWeaponWithForeignKeysIsValid_saveWeapon_SavesTheWeapon() {
         Weapon weapon = new Weapon(1, "Weapon", "Description", "Rare", 32, 20,
                 12, 20.0f, 2, 2, 2, 6, 0,
-                true, false, "Notes");
+                true, false, "Notes", UUID.randomUUID());
 
         when(weaponTypeRepository.existsById(2)).thenReturn(true);
         when(damageTypeRepository.existsById(2)).thenReturn(true);
@@ -90,8 +120,8 @@ public class WeaponTest {
 
     @Test
     public void whenWeaponNameIsInvalid_saveWeapon_ThrowsIllegalArgumentException() {
-        Weapon weaponWithEmptyName = new Weapon(1, "", "Description 1");
-        Weapon weaponWithNullName = new Weapon(2, null, "Description 2");
+        Weapon weaponWithEmptyName = new Weapon(1, "", "Description 1", UUID.randomUUID());
+        Weapon weaponWithNullName = new Weapon(2, null, "Description 2", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> weaponService.saveWeapon(weaponWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> weaponService.saveWeapon(weaponWithNullName));
@@ -101,10 +131,10 @@ public class WeaponTest {
     public void whenWeaponNameAlreadyExists_saveWeapon_ThrowsDataIntegrityViolationException() {
         Weapon weapon = new Weapon(1, "Weapon", "Description", "Rare", 32, 20,
                 12, 20.0f, 2, 2, 2, 6, 0,
-                true, false, "Notes");
+                true, false, "Notes", UUID.randomUUID());
         Weapon weaponWithDuplicatedName = new Weapon(2, "Weapon", "Description", "Rare", 32, 20,
                 12, 20.0f, 2, 2, 2, 6, 0,
-                true, false, "Notes");
+                true, false, "Notes", UUID.randomUUID());
 
         when(weaponRepository.existsById(1)).thenReturn(true);
         when(weaponTypeRepository.existsById(2)).thenReturn(true);
@@ -122,8 +152,7 @@ public class WeaponTest {
     public void whenWeaponHasInvalidForeignKeys_saveWeapon_ThrowsDataIntegrityViolationException() {
         Weapon weapon = new Weapon(1, "Weapon", "Description", "Rare", 32, 20,
                 12, 20.0f, 2, 2, 2, 6, 0,
-                true, false, "Notes");
-
+                true, false, "Notes", UUID.randomUUID());
 
         when(weaponTypeRepository.existsById(2)).thenReturn(false);
         when(damageTypeRepository.existsById(2)).thenReturn(true);
@@ -171,9 +200,10 @@ public class WeaponTest {
     @Test
     public void whenWeaponIdWithNoFKIsFound_updateWeapon_UpdatesTheWeapon() {
         int weaponId = 1;
+        UUID campaign = UUID.randomUUID();
 
-        Weapon weapon = new Weapon(weaponId, "Old Weapon Name", "Old Description");
-        Weapon updateNoFK = new Weapon(weaponId, "Updated Weapon Name", "Updated Description");
+        Weapon weapon = new Weapon(weaponId, "Old Weapon Name", "Old Description", campaign);
+        Weapon updateNoFK = new Weapon(weaponId, "Updated Weapon Name", "Updated Description", campaign);
 
         when(weaponRepository.existsById(weaponId)).thenReturn(true);
         when(weaponRepository.findById(weaponId)).thenReturn(Optional.of(weapon));
@@ -190,13 +220,14 @@ public class WeaponTest {
     @Test
     public void whenWeaponIdWithValidFKIsFound_updateWeapon_UpdatesTheWeapon() {
         int weaponId = 2;
+        UUID campaign = UUID.randomUUID();
 
         Weapon weapon = new Weapon(weaponId, "Weapon", "Description", "Rare", 32, 20,
                 12, 20.0f, 2, 2, 2, 6, 0,
-                true, false, "Notes");
+                true, false, "Notes", campaign);
         Weapon update = new Weapon(weaponId, "Weapon", "Description", "Rare", 3200, 2000,
                 12, 10.0f, 2, 2, 2, 12, 5,
-                true, false, "Notes");
+                true, false, "Notes", campaign);
 
         when(weaponRepository.existsById(weaponId)).thenReturn(true);
         when(weaponRepository.findById(weaponId)).thenReturn(Optional.of(weapon));
@@ -229,13 +260,14 @@ public class WeaponTest {
     @Test
     public void whenWeaponIdWithInvalidFKIsFound_updateWeapon_ThrowsDataIntegrityViolationException() {
         int weaponId = 2;
+        UUID campaign = UUID.randomUUID();
 
         Weapon weapon = new Weapon(weaponId, "Weapon", "Description", "Rare", 32, 20,
                 12, 20.0f, 2, 2, 2, 6, 0,
-                true, false, "Notes");
+                true, false, "Notes", campaign);
         Weapon update = new Weapon(weaponId, "Weapon", "Description", "Rare", 3200, 2000,
                 12, 10.0f, 2, 2, 2, 12, 5,
-                true, false, "Notes");
+                true, false, "Notes", campaign);
 
         when(weaponRepository.existsById(weaponId)).thenReturn(true);
         when(weaponRepository.findById(weaponId)).thenReturn(Optional.of(weapon));
@@ -247,7 +279,7 @@ public class WeaponTest {
     @Test
     public void whenWeaponIdIsNotFound_updateWeapon_ThrowsIllegalArgumentException() {
         int weaponId = 1;
-        Weapon weapon = new Weapon(weaponId, "Old Weapon Name", "Old Description");
+        Weapon weapon = new Weapon(weaponId, "Old Weapon Name", "Old Description", UUID.randomUUID());
 
         when(weaponRepository.existsById(weaponId)).thenReturn(false);
 
@@ -259,7 +291,7 @@ public class WeaponTest {
         int weaponId = 1;
         Weapon weapon = new Weapon(weaponId, "Weapon", "Description", "Rare", 32, 20,
                 12, 20.0f, 2, 2, 2, 6, 0,
-                true, false, "Notes");
+                true, false, "Notes", UUID.randomUUID());
 
         int newSilverValue = 0;
         Boolean newIsMagical = false;

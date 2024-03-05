@@ -16,6 +16,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,9 +42,10 @@ public class InventoryTest {
     @Test
     public void whenThereAreInventories_getInventories_ReturnsInventories() {
         List<Inventory> inventories = new ArrayList<>();
-        inventories.add(new Inventory(1, 1, 2, 3, 4));
-        inventories.add(new Inventory(2, 2, 3, 4, 5));
-        inventories.add(new Inventory(3, 3, 4, 5, 6));
+        UUID campaign = UUID.randomUUID();
+        inventories.add(new Inventory(1, 1, 2, 3, 4, campaign));
+        inventories.add(new Inventory(2, 2, 3, 4, 5, campaign));
+        inventories.add(new Inventory(3, 3, 4, 5, 6, campaign));
         when(inventoryRepository.findAll()).thenReturn(inventories);
 
         List<Inventory> result = inventoryService.getInventories();
@@ -64,8 +66,35 @@ public class InventoryTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getInventoriesByCampaignUUID_ReturnsInventories() {
+        List<Inventory> inventories = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        inventories.add(new Inventory(1, 1, 2, 3, 4, campaign));
+        inventories.add(new Inventory(2, 2, 3, 4, 5, campaign));
+        inventories.add(new Inventory(3, 3, 4, 5, 6, campaign));
+        when(inventoryRepository.findByfk_campaign_uuid(campaign)).thenReturn(inventories);
+
+        List<Inventory> results = inventoryService.getInventoriesByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(inventories, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getInventoriesByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Inventory> inventories = new ArrayList<>();
+        when(inventoryRepository.findByfk_campaign_uuid(campaign)).thenReturn(inventories);
+
+        List<Inventory> result = inventoryService.getInventoriesByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(inventories, result);
+    }
+
+    @Test
     public void whenInventoryIsValid_saveInventory_SavesTheInventory() {
-        Inventory inventory = new Inventory(1, 2, 3, 4, 5);
+        Inventory inventory = new Inventory(1, 2, 3, 4, 5, UUID.randomUUID());
 
         when(personRepository.existsById(2)).thenReturn(true);
         when(itemRepository.existsById(3)).thenReturn(true);
@@ -80,8 +109,8 @@ public class InventoryTest {
 
     @Test
     public void whenInventoryAlreadyExists_saveInventory_ThrowsDataIntegrityViolationException() {
-        Inventory inventory = new Inventory(1, 2, 3, 4, 5);
-        Inventory inventoryCopy = new Inventory(2, 2, 3, 4, 5);
+        Inventory inventory = new Inventory(1, 2, 3, 4, 5, UUID.randomUUID());
+        Inventory inventoryCopy = new Inventory(2, 2, 3, 4, 5, UUID.randomUUID());
 
         when(personRepository.existsById(2)).thenReturn(true);
         when(itemRepository.existsById(3)).thenReturn(true);
@@ -115,9 +144,10 @@ public class InventoryTest {
     @Test
     public void whenInventoryIdWithValidFKIsFound_updateInventory_UpdatesTheInventory() {
         int id = 1;
+        UUID campaign = UUID.randomUUID();
 
-        Inventory inventory = new Inventory(id, 2, 3, 4, 5);
-        Inventory update = new Inventory(id, 3, 4, 5, 6);
+        Inventory inventory = new Inventory(id, 2, 3, 4, 5, campaign);
+        Inventory update = new Inventory(id, 3, 4, 5, 6, campaign);
 
         when(inventoryRepository.existsById(id)).thenReturn(true);
         when(inventoryRepository.findById(id)).thenReturn(Optional.of(inventory));
@@ -146,9 +176,10 @@ public class InventoryTest {
     @Test
     public void whenInventoryIdWithInvalidFKIsFound_updateInventory_ThrowsDataIntegrityViolationException() {
         int id = 1;
+        UUID campaign = UUID.randomUUID();
 
-        Inventory inventory = new Inventory(id, 2, 3, 4, 5);
-        Inventory update = new Inventory(id, 3, 4, 5, 6);
+        Inventory inventory = new Inventory(id, 2, 3, 4, 5, campaign);
+        Inventory update = new Inventory(id, 3, 4, 5, 6, campaign);
 
         when(inventoryRepository.existsById(id)).thenReturn(true);
         when(inventoryRepository.findById(id)).thenReturn(Optional.of(inventory));
@@ -168,7 +199,7 @@ public class InventoryTest {
     @Test
     public void whenInventoryIdIsNotFound_updateInventory_ThrowsIllegalArgumentException() {
         int id = 1;
-        Inventory inventory = new Inventory(id, 2, 3, 4, 5);
+        Inventory inventory = new Inventory(id, 2, 3, 4, 5, UUID.randomUUID());
 
         when(inventoryRepository.existsById(id)).thenReturn(false);
 
@@ -178,7 +209,7 @@ public class InventoryTest {
     @Test
     public void whenSomeInventoryFieldsChanged_updateInventory_OnlyUpdatesChangedFields() {
         int inventoryId = 1;
-        Inventory inventory = new Inventory(inventoryId, 1, 1, 2, 3);
+        Inventory inventory = new Inventory(inventoryId, 1, 1, 2, 3, UUID.randomUUID());
 
         int newPerson = 3;
 

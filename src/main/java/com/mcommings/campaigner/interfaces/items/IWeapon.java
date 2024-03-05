@@ -3,10 +3,13 @@ package com.mcommings.campaigner.interfaces.items;
 import com.mcommings.campaigner.models.items.Weapon;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface IWeapon {
 
     List<Weapon> getWeapons();
+
+    List<Weapon> getWeaponsByCampaignUUID(UUID uuid);
 
     void saveWeapon(Weapon weapon);
 

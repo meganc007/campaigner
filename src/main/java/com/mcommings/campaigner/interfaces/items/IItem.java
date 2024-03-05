@@ -3,10 +3,13 @@ package com.mcommings.campaigner.interfaces.items;
 import com.mcommings.campaigner.models.items.Item;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface IItem {
 
     List<Item> getItems();
+
+    List<Item> getItemsByCampaignUUID(UUID uuid);
 
     void saveItem(Item item);
 

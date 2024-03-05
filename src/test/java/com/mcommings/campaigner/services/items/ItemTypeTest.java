@@ -13,10 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_ITEM_TYPE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -107,7 +104,7 @@ public class ItemTypeTest {
     public void whenItemTypeIdIsAForeignKey_deleteItemType_ThrowsDataIntegrityViolationException() {
         int itemTypeId = 1;
         Item item = new Item(1, "Item 1", "Description 1", "Rare", 32, 20,
-                12, 20.0f, 2, true, false, "Notes");
+                12, 20.0f, 2, true, false, "Notes", UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(itemRepository));
         List<Item> items = new ArrayList<>(Arrays.asList(item));
 
