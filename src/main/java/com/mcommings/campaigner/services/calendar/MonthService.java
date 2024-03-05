@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_MONTH;
@@ -40,6 +41,11 @@ public class MonthService implements IMonth {
     @Override
     public List<Month> getMonths() {
         return monthRepository.findAll();
+    }
+
+    @Override
+    public List<Month> getMonthsByCampaignUUID(UUID uuid) {
+        return monthRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

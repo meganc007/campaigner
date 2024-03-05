@@ -1,9 +1,12 @@
 package com.mcommings.campaigner.models.calendar;
 
 import com.mcommings.campaigner.models.BaseEntity;
+import com.mcommings.campaigner.models.Campaign;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+
+import java.util.UUID;
 
 @Data
 @Entity
@@ -19,20 +22,29 @@ public class Month extends BaseEntity {
     @Column(name = "season")
     private String season;
 
+    @Column(name = "fk_campaign_uuid")
+    private UUID fk_campaign_uuid;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
+    private Campaign campaign;
+
     public Month() {
         super();
     }
 
-    public Month(int id, String name, String description) {
+    public Month(int id, String name, String description, UUID fk_campaign_uuid) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 
-    public Month(int id, String name, String description, String season) {
+    public Month(int id, String name, String description, String season, UUID fk_campaign_uuid) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
         this.season = season;
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 }

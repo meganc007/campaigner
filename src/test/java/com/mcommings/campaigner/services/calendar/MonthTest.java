@@ -42,9 +42,10 @@ public class MonthTest {
     @Test
     public void whenThereAreMonths_getMonths_ReturnsMonths() {
         List<Month> months = new ArrayList<>();
-        months.add(new Month(1, "Month 1", "Description 1"));
-        months.add(new Month(2, "Month 2", "Description 2"));
-        months.add(new Month(3, "Month 3", "Description 3", "fall"));
+        UUID campaign = UUID.randomUUID();
+        months.add(new Month(1, "Month 1", "Description 1", campaign));
+        months.add(new Month(2, "Month 2", "Description 2", campaign));
+        months.add(new Month(3, "Month 3", "Description 3", "fall", campaign));
         when(monthRepository.findAll()).thenReturn(months);
 
         List<Month> result = monthService.getMonths();
@@ -65,8 +66,35 @@ public class MonthTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getMonthsByCampaignUUID_ReturnsMonths() {
+        List<Month> months = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        months.add(new Month(1, "Month 1", "Description 1", campaign));
+        months.add(new Month(2, "Month 2", "Description 2", campaign));
+        months.add(new Month(3, "Month 3", "Description 3", "fall", campaign));
+        when(monthRepository.findByfk_campaign_uuid(campaign)).thenReturn(months);
+
+        List<Month> results = monthService.getMonthsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(months, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getMonthsByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Month> months = new ArrayList<>();
+        when(monthRepository.findByfk_campaign_uuid(campaign)).thenReturn(months);
+
+        List<Month> result = monthService.getMonthsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(months, result);
+    }
+
+    @Test
     public void whenMonthIsValid_saveMonth_SavesTheMonth() {
-        Month month = new Month(1, "Month 1", "Description 1", "fall");
+        Month month = new Month(1, "Month 1", "Description 1", "fall", UUID.randomUUID());
         when(monthRepository.saveAndFlush(month)).thenReturn(month);
 
         assertDoesNotThrow(() -> monthService.saveMonth(month));
@@ -76,8 +104,8 @@ public class MonthTest {
 
     @Test
     public void whenMonthNameIsInvalid_saveMonth_ThrowsIllegalArgumentException() {
-        Month monthWithEmptyName = new Month(1, "", "Description 1");
-        Month monthWithNullName = new Month(2, null, "Description 2");
+        Month monthWithEmptyName = new Month(1, "", "Description 1", UUID.randomUUID());
+        Month monthWithNullName = new Month(2, null, "Description 2", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> monthService.saveMonth(monthWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> monthService.saveMonth(monthWithNullName));
@@ -85,8 +113,8 @@ public class MonthTest {
 
     @Test
     public void whenMonthNameAlreadyExists_saveMonth_ThrowsDataIntegrityViolationException() {
-        Month month = new Month(1, "Month 1", "Description 1");
-        Month monthWithDuplicatedName = new Month(2, "Month 1", "Description 2", "fall");
+        Month month = new Month(1, "Month 1", "Description 1", UUID.randomUUID());
+        Month monthWithDuplicatedName = new Month(2, "Month 1", "Description 2", "fall", UUID.randomUUID());
 
         when(monthRepository.existsById(1)).thenReturn(true);
         when(monthRepository.existsById(2)).thenReturn(true);
@@ -141,8 +169,9 @@ public class MonthTest {
     @Test
     public void whenMonthIdIsFound_updateMonth_UpdatesTheMonth() {
         int monthId = 1;
-        Month month = new Month(monthId, "Old Month Name", "Old Description");
-        Month monthToUpdate = new Month(monthId, "Updated Month Name", "Updated Description");
+        UUID campaign = UUID.randomUUID();
+        Month month = new Month(monthId, "Old Month Name", "Old Description", campaign);
+        Month monthToUpdate = new Month(monthId, "Updated Month Name", "Updated Description", campaign);
 
         when(monthRepository.existsById(monthId)).thenReturn(true);
         when(monthRepository.findById(monthId)).thenReturn(Optional.of(month));
@@ -159,7 +188,7 @@ public class MonthTest {
     @Test
     public void whenMonthIdIsNotFound_updateMonth_ThrowsIllegalArgumentException() {
         int monthId = 1;
-        Month month = new Month(monthId, "Old Month Name", "Old Description");
+        Month month = new Month(monthId, "Old Month Name", "Old Description", UUID.randomUUID());
 
         when(monthRepository.existsById(monthId)).thenReturn(false);
 
@@ -169,7 +198,7 @@ public class MonthTest {
     @Test
     public void whenSomeMonthFieldsChanged_updateMonth_OnlyUpdatesChangedFields() {
         int monthId = 1;
-        Month month = new Month(monthId, "Old Month Name", "Old Description", "SUMMER");
+        Month month = new Month(monthId, "Old Month Name", "Old Description", "SUMMER", UUID.randomUUID());
 
         String fall = "FALL";
 
