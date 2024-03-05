@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.*;
@@ -42,6 +43,31 @@ public class InventoryService implements IInventory {
     @Override
     public List<Inventory> getInventories() {
         return inventoryRepository.findAll();
+    }
+
+    @Override
+    public List<Inventory> getInventoriesByCampaignUUID(UUID uuid) {
+        return inventoryRepository.findByfk_campaign_uuid(uuid);
+    }
+
+    @Override
+    public List<Inventory> getInventoriesByItem(int itemId) {
+        return inventoryRepository.findByfk_item(itemId);
+    }
+
+    @Override
+    public List<Inventory> getInventoriesByPerson(int personId) {
+        return inventoryRepository.findByfk_person(personId);
+    }
+
+    @Override
+    public List<Inventory> getInventoriesByPlace(int placeId) {
+        return inventoryRepository.findByfk_place(placeId);
+    }
+
+    @Override
+    public List<Inventory> getInventoriesByWeapon(int weaponId) {
+        return inventoryRepository.findByfk_weapon(weaponId);
     }
 
     @Override
