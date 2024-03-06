@@ -144,7 +144,7 @@ public class MonthTest {
     @Test
     public void whenMonthIdIsAForeignKey_deleteMonth_ThrowsDataIntegrityViolationException() {
         int monthId = 1;
-        Week week = new Week(1, "Description", 1, monthId);
+        Week week = new Week(1, "Description", 1, monthId, UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weekRepository, celestialEventRepository));
         List<Week> weeks = new ArrayList<>(Arrays.asList(week));
 
