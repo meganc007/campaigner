@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/quests/hooks")
@@ -21,6 +22,11 @@ public class HookController {
     @GetMapping
     public List<Hook> getHooks() {
         return hookService.getHooks();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<Hook> getHooksByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return hookService.getHooksByCampaignUUID(uuid);
     }
 
     @PostMapping
