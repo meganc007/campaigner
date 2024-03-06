@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface IDayRepository extends JpaRepository<Day, Integer> {
@@ -16,4 +17,7 @@ public interface IDayRepository extends JpaRepository<Day, Integer> {
 
     @Query("SELECT d FROM Day d WHERE d.fk_week = :id")
     List<Day> findByfk_week(@Param("id") Integer id);
+
+    @Query("SELECT d FROM Day d WHERE d.fk_campaign_uuid = :uuid")
+    List<Day> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 }

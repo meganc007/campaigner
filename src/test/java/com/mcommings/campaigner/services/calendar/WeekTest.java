@@ -136,7 +136,7 @@ public class WeekTest {
     @Test
     public void whenWeekIdIsAForeignKey_deleteWeek_ThrowsDataIntegrityViolationException() {
         int weekId = 1;
-        Day day = new Day(1, "Day", "Description", weekId);
+        Day day = new Day(1, "Day", "Description", weekId, UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(dayRepository));
         List<Day> days = new ArrayList<>(Arrays.asList(day));
 

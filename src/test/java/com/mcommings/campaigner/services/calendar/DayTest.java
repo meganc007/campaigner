@@ -41,9 +41,10 @@ public class DayTest {
     @Test
     public void whenThereAreDays_getDays_ReturnsDays() {
         List<Day> days = new ArrayList<>();
-        days.add(new Day(1, "Day 1", "Description 1", 1));
-        days.add(new Day(2, "Day 2", "Description 2", 1));
-        days.add(new Day(3, "Day 3", "Description 3", 1));
+        UUID campaign = UUID.randomUUID();
+        days.add(new Day(1, "Day 1", "Description 1", 1, campaign));
+        days.add(new Day(2, "Day 2", "Description 2", 1, campaign));
+        days.add(new Day(3, "Day 3", "Description 3", 1, campaign));
         when(dayRepository.findAll()).thenReturn(days);
 
         List<Day> result = dayService.getDays();
@@ -64,8 +65,35 @@ public class DayTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getDaysByCampaignUUID_ReturnsDays() {
+        List<Day> days = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        days.add(new Day(1, "Day 1", "Description 1", 1, campaign));
+        days.add(new Day(2, "Day 2", "Description 2", 1, campaign));
+        days.add(new Day(3, "Day 3", "Description 3", 1, campaign));
+        when(dayRepository.findByfk_campaign_uuid(campaign)).thenReturn(days);
+
+        List<Day> results = dayService.getDaysByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(days, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getDaysByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Day> days = new ArrayList<>();
+        when(dayRepository.findByfk_campaign_uuid(campaign)).thenReturn(days);
+
+        List<Day> result = dayService.getDaysByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(days, result);
+    }
+
+    @Test
     public void whenDayIsValid_saveDay_SavesTheDay() {
-        Day day = new Day(1, "Day 1", "Description 1", 1);
+        Day day = new Day(1, "Day 1", "Description 1", 1, UUID.randomUUID());
 
         when(weekRepository.existsById(1)).thenReturn(true);
         when(dayRepository.saveAndFlush(day)).thenReturn(day);
@@ -77,8 +105,8 @@ public class DayTest {
 
     @Test
     public void whenDayNameIsInvalid_saveDay_ThrowsIllegalArgumentException() {
-        Day dayWithEmptyName = new Day(1, "", "Description 1", 1);
-        Day dayWithNullName = new Day(2, null, "Description 2", 1);
+        Day dayWithEmptyName = new Day(1, "", "Description 1", 1, UUID.randomUUID());
+        Day dayWithNullName = new Day(2, null, "Description 2", 1, UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> dayService.saveDay(dayWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> dayService.saveDay(dayWithNullName));
@@ -86,7 +114,7 @@ public class DayTest {
 
     @Test
     public void whenDayHasInvalidForeignKeys_saveDay_ThrowsDataIntegrityViolationException() {
-        Day day = new Day(1, "Day 1", "Description 1", 1);
+        Day day = new Day(1, "Day 1", "Description 1", 1, UUID.randomUUID());
 
         when(weekRepository.existsById(1)).thenReturn(false);
         when(dayRepository.saveAndFlush(day)).thenReturn(day);
@@ -134,9 +162,10 @@ public class DayTest {
     @Test
     public void whenDayIdWithValidFKIsFound_updateDay_UpdatesTheDay() {
         int dayId = 2;
+        UUID campaign = UUID.randomUUID();
 
-        Day day = new Day(dayId, "Test Day Name", "Test Description", 1);
-        Day dayToUpdate = new Day(dayId, "Updated Day Name", "Updated Description", 2);
+        Day day = new Day(dayId, "Test Day Name", "Test Description", 1, campaign);
+        Day dayToUpdate = new Day(dayId, "Updated Day Name", "Updated Description", 2, campaign);
 
         when(dayRepository.existsById(dayId)).thenReturn(true);
         when(dayRepository.findById(dayId)).thenReturn(Optional.of(day));
@@ -156,9 +185,10 @@ public class DayTest {
     @Test
     public void whenDayIdWithInvalidFKIsFound_updateDay_ThrowsDataIntegrityViolationException() {
         int dayId = 2;
+        UUID campaign = UUID.randomUUID();
 
-        Day day = new Day(dayId, "Test Day Name", "Test Description", 1);
-        Day dayToUpdate = new Day(dayId, "Updated Day Name", "Updated Description", 4);
+        Day day = new Day(dayId, "Test Day Name", "Test Description", 1, campaign);
+        Day dayToUpdate = new Day(dayId, "Updated Day Name", "Updated Description", 4, campaign);
 
         when(dayRepository.existsById(dayId)).thenReturn(true);
         when(dayRepository.findById(dayId)).thenReturn(Optional.of(day));
@@ -170,7 +200,7 @@ public class DayTest {
     @Test
     public void whenDayIdIsNotFound_updateDay_ThrowsIllegalArgumentException() {
         int dayId = 1;
-        Day day = new Day(dayId, "Old Day Name", "Old Description", 3);
+        Day day = new Day(dayId, "Old Day Name", "Old Description", 3, UUID.randomUUID());
 
         when(dayRepository.existsById(dayId)).thenReturn(false);
 
@@ -180,7 +210,7 @@ public class DayTest {
     @Test
     public void whenSomeDayFieldsChanged_updateDay_OnlyUpdatesChangedFields() {
         int dayId = 1;
-        Day day = new Day(dayId, "Old Day Name", "Old Description", 1);
+        Day day = new Day(dayId, "Old Day Name", "Old Description", 1, UUID.randomUUID());
 
         String newName = "Pizza Day";
         int newWeek = 12;
