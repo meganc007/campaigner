@@ -12,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,9 +39,10 @@ public class CelestialEventTest {
     @Test
     public void whenThereAreCities_getCities_ReturnsCities() {
         List<CelestialEvent> celestialEvents = new ArrayList<>();
-        celestialEvents.add(new CelestialEvent(1, "CelestialEvent 1", "Description 1", 1));
-        celestialEvents.add(new CelestialEvent(2, "CelestialEvent 2", "Description 2", 1));
-        celestialEvents.add(new CelestialEvent(3, "CelestialEvent 3", "Description 3", 1, 1, 3, 4, 5, 1));
+        UUID campaign = UUID.randomUUID();
+        celestialEvents.add(new CelestialEvent(1, "CelestialEvent 1", "Description 1", 1, campaign));
+        celestialEvents.add(new CelestialEvent(2, "CelestialEvent 2", "Description 2", 1, campaign));
+        celestialEvents.add(new CelestialEvent(3, "CelestialEvent 3", "Description 3", 1, 1, 3, 4, 5, 1, campaign));
         when(celestialEventRepository.findAll()).thenReturn(celestialEvents);
 
         List<CelestialEvent> result = celestialEventService.getCelestialEvents();
@@ -61,8 +63,35 @@ public class CelestialEventTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getCelestialEventsByCampaignUUID_ReturnsCelestialEvents() {
+        List<CelestialEvent> celestialEvents = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        celestialEvents.add(new CelestialEvent(1, "CelestialEvent 1", "Description 1", 1, campaign));
+        celestialEvents.add(new CelestialEvent(2, "CelestialEvent 2", "Description 2", 1, campaign));
+        celestialEvents.add(new CelestialEvent(3, "CelestialEvent 3", "Description 3", 1, 1, 3, 4, 5, 1, campaign));
+        when(celestialEventRepository.findByfk_campaign_uuid(campaign)).thenReturn(celestialEvents);
+
+        List<CelestialEvent> results = celestialEventService.getCelestialEventsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(celestialEvents, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getCelestialEventsByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<CelestialEvent> celestialEvents = new ArrayList<>();
+        when(celestialEventRepository.findByfk_campaign_uuid(campaign)).thenReturn(celestialEvents);
+
+        List<CelestialEvent> result = celestialEventService.getCelestialEventsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(celestialEvents, result);
+    }
+
+    @Test
     public void whenCelestialEventWithNoForeignKeysIsValid_saveCelestialEvent_SavesTheCelestialEvent() {
-        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent 1", "Description 1", 1);
+        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent 1", "Description 1", 1, UUID.randomUUID());
         when(celestialEventRepository.saveAndFlush(celestialEvent)).thenReturn(celestialEvent);
 
         assertDoesNotThrow(() -> celestialEventService.saveCelestialEvent(celestialEvent));
@@ -72,8 +101,8 @@ public class CelestialEventTest {
 
     @Test
     public void whenCelestialEventWithForeignKeysIsValid_saveCelestialEvent_SavesTheCelestialEvent() {
-        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent 1", "Description 1", 
-                1, 2, 3, 4, 1, 1);
+        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent 1", "Description 1",
+                1, 2, 3, 4, 1, 1, UUID.randomUUID());
 
         when(moonRepository.existsById(1)).thenReturn(true);
         when(sunRepository.existsById(2)).thenReturn(true);
@@ -89,8 +118,8 @@ public class CelestialEventTest {
 
     @Test
     public void whenCelestialEventNameIsInvalid_saveCelestialEvent_ThrowsIllegalArgumentException() {
-        CelestialEvent celestialEventWithEmptyName = new CelestialEvent(1, "", "Description 1", 1);
-        CelestialEvent celestialEventWithNullName = new CelestialEvent(2, null, "Description 2", 1);
+        CelestialEvent celestialEventWithEmptyName = new CelestialEvent(1, "", "Description 1", 1, UUID.randomUUID());
+        CelestialEvent celestialEventWithNullName = new CelestialEvent(2, null, "Description 2", 1, UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> celestialEventService.saveCelestialEvent(celestialEventWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> celestialEventService.saveCelestialEvent(celestialEventWithNullName));
@@ -99,7 +128,7 @@ public class CelestialEventTest {
     @Test
     public void whenCelestialEventHasInvalidForeignKeys_saveCelestialEvent_ThrowsDataIntegrityViolationException() {
         CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent 1", "Description 1",
-                1, 2, 3, 4, 1, 1);
+                1, 2, 3, 4, 1, 1, UUID.randomUUID());
         when(moonRepository.existsById(1)).thenReturn(true);
         when(sunRepository.existsById(2)).thenReturn(false);
         when(monthRepository.existsById(3)).thenReturn(false);
@@ -129,9 +158,10 @@ public class CelestialEventTest {
     @Test
     public void whenCelestialEventIdWithNoFKIsFound_updateCelestialEvent_UpdatesTheCelestialEvent() {
         int celestialEventId1 = 1;
+        UUID campaign = UUID.randomUUID();
 
-        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId1, "Old CelestialEvent Name", "Old Description", 1);
-        CelestialEvent celestialEventToUpdateNoFK = new CelestialEvent(celestialEventId1, "Updated CelestialEvent Name", "Updated Description", 2);
+        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId1, "Old CelestialEvent Name", "Old Description", 1, campaign);
+        CelestialEvent celestialEventToUpdateNoFK = new CelestialEvent(celestialEventId1, "Updated CelestialEvent Name", "Updated Description", 2, campaign);
 
         when(celestialEventRepository.existsById(celestialEventId1)).thenReturn(true);
         when(celestialEventRepository.findById(celestialEventId1)).thenReturn(Optional.of(celestialEvent));
@@ -149,10 +179,11 @@ public class CelestialEventTest {
     @Test
     public void whenCelestialEventIdWithValidFKIsFound_updateCelestialEvent_UpdatesTheCelestialEvent() {
         int celestialEventId = 2;
+        UUID campaign = UUID.randomUUID();
 
-        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test CelestialEvent Name", "Test Description", 1);
+        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test CelestialEvent Name", "Test Description", 1, campaign);
         CelestialEvent celestialEventToUpdate = new CelestialEvent(celestialEventId, "Updated CelestialEvent Name", "Updated Description",
-                1, 2, 3, 4, 5, 1);
+                1, 2, 3, 4, 5, 1, campaign);
 
         when(celestialEventRepository.existsById(celestialEventId)).thenReturn(true);
         when(celestialEventRepository.findById(celestialEventId)).thenReturn(Optional.of(celestialEvent));
@@ -180,9 +211,10 @@ public class CelestialEventTest {
     @Test
     public void whenCelestialEventIdWithInvalidFKIsFound_updateCelestialEvent_ThrowsDataIntegrityViolationException() {
         int celestialEventId = 2;
+        UUID campaign = UUID.randomUUID();
 
-        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test CelestialEvent Name", "Test Description", 1);
-        CelestialEvent celestialEventToUpdate = new CelestialEvent(celestialEventId, "Updated CelestialEvent Name", "Updated Description", 1, 2, 3, 4, 5, 1);
+        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test CelestialEvent Name", "Test Description", 1, campaign);
+        CelestialEvent celestialEventToUpdate = new CelestialEvent(celestialEventId, "Updated CelestialEvent Name", "Updated Description", 1, 2, 3, 4, 5, 1, campaign);
 
         when(celestialEventRepository.existsById(celestialEventId)).thenReturn(true);
         when(celestialEventRepository.findById(celestialEventId)).thenReturn(Optional.of(celestialEvent));
@@ -198,7 +230,7 @@ public class CelestialEventTest {
     @Test
     public void whenCelestialEventIdIsNotFound_updateCelestialEvent_ThrowsIllegalArgumentException() {
         int celestialEventId = 1;
-        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Old CelestialEvent Name", "Old Description", 1);
+        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Old CelestialEvent Name", "Old Description", 1, UUID.randomUUID());
 
         when(celestialEventRepository.existsById(celestialEventId)).thenReturn(false);
 
@@ -208,7 +240,7 @@ public class CelestialEventTest {
     @Test
     public void whenSomeCelestialEventFieldsChanged_updateCelestialEvent_OnlyUpdatesChangedFields() {
         int celestialEventId = 1;
-        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test Celestial Event Name", "Test Description", 1);
+        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test Celestial Event Name", "Test Description", 1, UUID.randomUUID());
 
         String newName = "Solar Eclipse";
         int newYear = 122;

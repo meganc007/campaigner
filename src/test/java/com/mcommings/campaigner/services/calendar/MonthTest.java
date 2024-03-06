@@ -149,7 +149,7 @@ public class MonthTest {
         List<Week> weeks = new ArrayList<>(Arrays.asList(week));
 
         CelestialEvent celestialEvent = new CelestialEvent(1, "Name", "Description", 1, 1,
-                monthId, 1, 1, 1);
+                monthId, 1, 1, 1, UUID.randomUUID());
         List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
 
         Event event = new Event(1, "Name", "Description", 1, monthId, 1, 1,

@@ -129,7 +129,7 @@ public class MoonTest {
     @Test
     public void whenMoonIdIsAForeignKey_deleteMoon_ThrowsDataIntegrityViolationException() {
         int moonId = 1;
-        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent", "Description", moonId, 1, 1, 1, 1, 1);
+        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent", "Description", moonId, 1, 1, 1, 1, 1, UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
         List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
 

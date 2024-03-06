@@ -1,9 +1,12 @@
 package com.mcommings.campaigner.models.calendar;
 
 import com.mcommings.campaigner.models.BaseEntity;
+import com.mcommings.campaigner.models.Campaign;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+
+import java.util.UUID;
 
 @Data
 @Entity
@@ -30,6 +33,13 @@ public class CelestialEvent extends BaseEntity {
 
     @Column(name = "fk_day")
     private Integer fk_day;
+
+    @Column(name = "fk_campaign_uuid")
+    private UUID fk_campaign_uuid;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
+    private Campaign campaign;
 
     @ManyToOne
     @JoinColumn(name = "fk_moon", referencedColumnName = "id", updatable = false, insertable = false)
@@ -58,15 +68,16 @@ public class CelestialEvent extends BaseEntity {
         super();
     }
 
-    public CelestialEvent(int id, String name, String description, int event_year) {
+    public CelestialEvent(int id, String name, String description, int event_year, UUID fk_campaign_uuid) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
         this.event_year = event_year;
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 
     public CelestialEvent(int id, String name, String description, Integer fk_moon, Integer fk_sun,
-                          Integer fk_month, Integer fk_week, Integer fk_day, int event_year) {
+                          Integer fk_month, Integer fk_week, Integer fk_day, int event_year, UUID fk_campaign_uuid) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);
@@ -76,5 +87,6 @@ public class CelestialEvent extends BaseEntity {
         this.fk_week = fk_week;
         this.fk_day = fk_day;
         this.event_year = event_year;
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
@@ -41,6 +42,26 @@ public class CelestialEventService implements ICelestialEvent {
     @Override
     public List<CelestialEvent> getCelestialEvents() {
         return celestialEventRepository.findAll();
+    }
+
+    @Override
+    public List<CelestialEvent> getCelestialEventsByCampaignUUID(UUID uuid) {
+        return celestialEventRepository.findByfk_campaign_uuid(uuid);
+    }
+
+    @Override
+    public List<CelestialEvent> getCelestialEventsByMoon(int moonId) {
+        return celestialEventRepository.findByfk_moon(moonId);
+    }
+
+    @Override
+    public List<CelestialEvent> getCelestialEventsBySun(int sunId) {
+        return celestialEventRepository.findByfk_sun(sunId);
+    }
+
+    @Override
+    public List<CelestialEvent> getCelestialEventsByMonth(int monthId) {
+        return celestialEventRepository.findByfk_month(monthId);
     }
 
     @Override

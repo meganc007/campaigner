@@ -141,7 +141,7 @@ public class WeekTest {
         List<Day> days = new ArrayList<>(Arrays.asList(day));
 
         CelestialEvent celestialEvent = new CelestialEvent(1, "Celestial Event", "Description",
-                1, 1, 1, weekId, 1, 1);
+                1, 1, 1, weekId, 1, 1, UUID.randomUUID());
         List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
 
         Event event = new Event(1, "Name", "Description", 1, 1, weekId, 1,

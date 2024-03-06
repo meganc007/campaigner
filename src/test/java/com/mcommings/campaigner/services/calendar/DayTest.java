@@ -140,7 +140,7 @@ public class DayTest {
     @Test
     public void whenDayIdIsAForeignKey_deleteDay_ThrowsDataIntegrityViolationException() {
         int dayId = 1;
-        CelestialEvent celestialEvent = new CelestialEvent(1, "Celestial Event", "Description", 1, 1, 1, 1, dayId, 1);
+        CelestialEvent celestialEvent = new CelestialEvent(1, "Celestial Event", "Description", 1, 1, 1, 1, dayId, 1, UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
         List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
 

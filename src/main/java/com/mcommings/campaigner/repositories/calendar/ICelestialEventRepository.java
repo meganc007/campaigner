@@ -8,11 +8,15 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ICelestialEventRepository extends JpaRepository<CelestialEvent, Integer> {
 
     Optional<CelestialEvent> getByName(String name);
+
+    @Query("SELECT ce FROM CelestialEvent ce WHERE ce.fk_campaign_uuid = :uuid")
+    List<CelestialEvent> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 
     @Query("SELECT ce FROM CelestialEvent ce WHERE ce.fk_moon = :id")
     List<CelestialEvent> findByfk_moon(@Param("id") Integer id);
