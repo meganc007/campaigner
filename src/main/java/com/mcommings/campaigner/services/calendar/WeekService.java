@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_WEEK;
@@ -43,6 +44,16 @@ public class WeekService implements IWeek {
     @Override
     public List<Week> getWeeks() {
         return weekRepository.findAll();
+    }
+
+    @Override
+    public List<Week> getWeeksByCampaignUUID(UUID uuid) {
+        return weekRepository.findByfk_campaign_uuid(uuid);
+    }
+
+    @Override
+    public List<Week> getWeeksByMonth(int monthId) {
+        return weekRepository.findByfk_month(monthId);
     }
 
     @Override

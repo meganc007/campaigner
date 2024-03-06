@@ -45,9 +45,10 @@ public class WeekTest {
     @Test
     public void whenThereAreWeeks_getWeeks_ReturnsWeeks() {
         List<Week> weeks = new ArrayList<>();
-        weeks.add(new Week(1, "Description 1", 1, 1));
-        weeks.add(new Week(2, "Description 2", 1, 2));
-        weeks.add(new Week(3, "Description 3", 1, 3));
+        UUID campaign = UUID.randomUUID();
+        weeks.add(new Week(1, "Description 1", 1, 1, campaign));
+        weeks.add(new Week(2, "Description 2", 1, 2, campaign));
+        weeks.add(new Week(3, "Description 3", 1, 3, campaign));
         when(weekRepository.findAll()).thenReturn(weeks);
 
         List<Week> result = weekService.getWeeks();
@@ -68,8 +69,35 @@ public class WeekTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getWeeksByCampaignUUID_ReturnsWeeks() {
+        List<Week> weeks = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        weeks.add(new Week(1, "Description 1", 1, 1, campaign));
+        weeks.add(new Week(2, "Description 2", 1, 2, campaign));
+        weeks.add(new Week(3, "Description 3", 1, 3, campaign));
+        when(weekRepository.findByfk_campaign_uuid(campaign)).thenReturn(weeks);
+
+        List<Week> results = weekService.getWeeksByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(weeks, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getWeeksByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Week> weeks = new ArrayList<>();
+        when(weekRepository.findByfk_campaign_uuid(campaign)).thenReturn(weeks);
+
+        List<Week> result = weekService.getWeeksByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(weeks, result);
+    }
+
+    @Test
     public void whenWeekIsValid_saveWeek_SavesTheWeek() {
-        Week week = new Week(1, "Description 1", 1, 2);
+        Week week = new Week(1, "Description 1", 1, 2, UUID.randomUUID());
 
         when(monthRepository.existsById(2)).thenReturn(true);
         when(weekRepository.saveAndFlush(week)).thenReturn(week);
@@ -81,7 +109,7 @@ public class WeekTest {
 
     @Test
     public void whenWeekHasInvalidForeignKey_saveWeek_ThrowsDataIntegrityViolationException() {
-        Week week = new Week(1, "Description 1", 1, 1);
+        Week week = new Week(1, "Description 1", 1, 1, UUID.randomUUID());
 
         when(monthRepository.existsById(1)).thenReturn(false);
         when(weekRepository.saveAndFlush(week)).thenReturn(week);
@@ -108,12 +136,12 @@ public class WeekTest {
     @Test
     public void whenWeekIdIsAForeignKey_deleteWeek_ThrowsDataIntegrityViolationException() {
         int weekId = 1;
-        Day day = new Day(1, "Day", "Description", weekId);
+        Day day = new Day(1, "Day", "Description", weekId, UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(dayRepository));
         List<Day> days = new ArrayList<>(Arrays.asList(day));
 
         CelestialEvent celestialEvent = new CelestialEvent(1, "Celestial Event", "Description",
-                1, 1, 1, weekId, 1, 1);
+                1, 1, 1, weekId, 1, 1, UUID.randomUUID());
         List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
 
         Event event = new Event(1, "Name", "Description", 1, 1, weekId, 1,
@@ -133,9 +161,10 @@ public class WeekTest {
     @Test
     public void whenWeekIdWithValidFKIsFound_updateWeek_UpdatesTheWeek() {
         int weekId = 2;
+        UUID campaign = UUID.randomUUID();
 
-        Week week = new Week(weekId, "Test Description", 1, 1);
-        Week weekToUpdate = new Week(weekId, "Updated Description", 2, 2);
+        Week week = new Week(weekId, "Test Description", 1, 1, campaign);
+        Week weekToUpdate = new Week(weekId, "Updated Description", 2, 2, campaign);
 
         when(weekRepository.existsById(weekId)).thenReturn(true);
         when(weekRepository.findById(weekId)).thenReturn(Optional.of(week));
@@ -155,9 +184,10 @@ public class WeekTest {
     @Test
     public void whenWeekIdWithInvalidFKIsFound_updateWeek_ThrowsDataIntegrityViolationException() {
         int weekId = 1;
+        UUID campaign = UUID.randomUUID();
 
-        Week week = new Week(weekId, "Test Description", 1, 1);
-        Week weekToUpdate = new Week(weekId, "Updated Description", 1, 2);
+        Week week = new Week(weekId, "Test Description", 1, 1, campaign);
+        Week weekToUpdate = new Week(weekId, "Updated Description", 1, 2, campaign);
 
         when(weekRepository.existsById(weekId)).thenReturn(true);
         when(weekRepository.findById(weekId)).thenReturn(Optional.of(week));
@@ -169,7 +199,7 @@ public class WeekTest {
     @Test
     public void whenWeekIdIsNotFound_updateWeek_ThrowsIllegalArgumentException() {
         int weekId = 1;
-        Week week = new Week(weekId, "Old Description", 1, 1);
+        Week week = new Week(weekId, "Old Description", 1, 1, UUID.randomUUID());
 
         when(weekRepository.existsById(weekId)).thenReturn(false);
 
@@ -179,7 +209,7 @@ public class WeekTest {
     @Test
     public void whenSomeWeekFieldsChanged_updateWeek_OnlyUpdatesChangedFields() {
         int weekId = 1;
-        Week week = new Week(weekId, "Old Week Description", 1, 2);
+        Week week = new Week(weekId, "Old Week Description", 1, 2, UUID.randomUUID());
 
         String newDescription = "New Week description";
         int newMonth = 3;
