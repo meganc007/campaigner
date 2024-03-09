@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/quests/outcomes")
@@ -21,6 +22,11 @@ public class OutcomeController {
     @GetMapping
     public List<Outcome> getOutcomes() {
         return outcomeService.getOutcomes();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<Outcome> getOutcomesByCampaignUUID(UUID uuid) {
+        return outcomeService.getOutcomesByCampaignUUID(uuid);
     }
 
     @PostMapping

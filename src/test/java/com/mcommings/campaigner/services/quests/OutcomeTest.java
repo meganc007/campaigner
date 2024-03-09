@@ -12,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,9 +30,10 @@ public class OutcomeTest {
     @Test
     public void whenThereAreOutcomes_getOutcomes_ReturnsOutcomes() {
         List<Outcome> outcomes = new ArrayList<>();
-        outcomes.add(new Outcome(1, "Outcome 1", "Notes 1"));
-        outcomes.add(new Outcome(2, "Outcome 2", "Notes 2"));
-        outcomes.add(new Outcome(2, "Outcome 3"));
+        UUID campaign = UUID.randomUUID();
+        outcomes.add(new Outcome(1, "Outcome 1", "Notes 1", campaign));
+        outcomes.add(new Outcome(2, "Outcome 2", "Notes 2", campaign));
+        outcomes.add(new Outcome(2, "Outcome 3", campaign));
 
         when(outcomeRepository.findAll()).thenReturn(outcomes);
 
@@ -53,8 +55,36 @@ public class OutcomeTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getOutcomesByCampaignUUID_ReturnsOutcomes() {
+        List<Outcome> outcomes = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        outcomes.add(new Outcome(1, "Outcome 1", "Notes 1", campaign));
+        outcomes.add(new Outcome(2, "Outcome 2", "Notes 2", campaign));
+        outcomes.add(new Outcome(2, "Outcome 3", campaign));
+
+        when(outcomeRepository.findByfk_campaign_uuid(campaign)).thenReturn(outcomes);
+
+        List<Outcome> results = outcomeService.getOutcomesByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(outcomes, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getOutcomesByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Outcome> outcomes = new ArrayList<>();
+        when(outcomeRepository.findByfk_campaign_uuid(campaign)).thenReturn(outcomes);
+
+        List<Outcome> result = outcomeService.getOutcomesByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(outcomes, result);
+    }
+
+    @Test
     public void whenOutcomeIsValid_saveOutcome_SavesTheOutcome() {
-        Outcome outcome = new Outcome(1, "Outcome 1", "Notes 1");
+        Outcome outcome = new Outcome(1, "Outcome 1", "Notes 1", UUID.randomUUID());
         when(outcomeRepository.saveAndFlush(outcome)).thenReturn(outcome);
 
         assertDoesNotThrow(() -> outcomeService.saveOutcome(outcome));
@@ -63,8 +93,8 @@ public class OutcomeTest {
 
     @Test
     public void whenOutcomeNameIsInvalid_saveOutcome_ThrowsIllegalArgumentException() {
-        Outcome outcomeWithEmptyName = new Outcome(1, "", "Notes 1");
-        Outcome outcomeWithNullName = new Outcome(2, null, "Notes 2");
+        Outcome outcomeWithEmptyName = new Outcome(1, "", "Notes 1", UUID.randomUUID());
+        Outcome outcomeWithNullName = new Outcome(2, null, "Notes 2", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> outcomeService.saveOutcome(outcomeWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> outcomeService.saveOutcome(outcomeWithNullName));
@@ -72,8 +102,8 @@ public class OutcomeTest {
 
     @Test
     public void whenOutcomeDescriptionAlreadyExists_saveOutcome_ThrowsDataIntegrityViolationException() {
-        Outcome outcome = new Outcome(1, "Outcome 1", "Note 1");
-        Outcome outcomeWithDuplicatedName = new Outcome(2, "Outcome 1", "Note 2");
+        Outcome outcome = new Outcome(1, "Outcome 1", "Note 1", UUID.randomUUID());
+        Outcome outcomeWithDuplicatedName = new Outcome(2, "Outcome 1", "Note 2", UUID.randomUUID());
         when(outcomeRepository.saveAndFlush(outcome)).thenReturn(outcome);
         when(outcomeRepository.saveAndFlush(outcomeWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
 
@@ -115,8 +145,9 @@ public class OutcomeTest {
     @Test
     public void whenOutcomeIdIsFound_updateOutcome_UpdatesTheOutcome() {
         int outcomeId = 1;
-        Outcome outcome = new Outcome(outcomeId, "Old Outcome Name", "Old Notes");
-        Outcome outcomeToUpdate = new Outcome(outcomeId, "Updated Outcome Name", "Updated Notes");
+        UUID campaign = UUID.randomUUID();
+        Outcome outcome = new Outcome(outcomeId, "Old Outcome Name", "Old Notes", campaign);
+        Outcome outcomeToUpdate = new Outcome(outcomeId, "Updated Outcome Name", "Updated Notes", campaign);
 
         when(outcomeRepository.existsById(outcomeId)).thenReturn(true);
         when(outcomeRepository.findById(outcomeId)).thenReturn(Optional.of(outcome));
@@ -133,7 +164,7 @@ public class OutcomeTest {
     @Test
     public void whenOutcomeIdIsNotFound_updateOutcome_ThrowsIllegalArgumentException() {
         int outcomeId = 1;
-        Outcome outcome = new Outcome(outcomeId, "Old Outcome Name", "Old Description");
+        Outcome outcome = new Outcome(outcomeId, "Old Outcome Name", "Old Description", UUID.randomUUID());
 
         when(outcomeRepository.existsById(outcomeId)).thenReturn(false);
 
@@ -143,7 +174,7 @@ public class OutcomeTest {
     @Test
     public void whenSomeOutcomeFieldsChanged_updateOutcome_OnlyUpdatesChangedFields() {
         int outcomeId = 1;
-        Outcome outcome = new Outcome(outcomeId, "Name", "Description");
+        Outcome outcome = new Outcome(outcomeId, "Name", "Description", UUID.randomUUID());
 
         String newDescription = "New Outcome description";
 
