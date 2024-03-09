@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/quests/rewards")
@@ -21,6 +22,21 @@ public class RewardController {
     @GetMapping
     public List<Reward> getRewards() {
         return rewardService.getRewards();
+    }
+
+    @GetMapping("/campaign/{uuid}")
+    public List<Reward> getRewardsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return rewardService.getRewardsByCampaignUUID(uuid);
+    }
+
+    @GetMapping("/item/{itemId}")
+    public List<Reward> getRewardsByItemId(@PathVariable("itemId") int itemId) {
+        return rewardService.getRewardsByItemId(itemId);
+    }
+
+    @GetMapping("/weapon/{weaponId}")
+    public List<Reward> getRewardsByWeaponId(@PathVariable("weaponId") int weaponId) {
+        return rewardService.getRewardsByWeaponId(weaponId);
     }
 
     @PostMapping
