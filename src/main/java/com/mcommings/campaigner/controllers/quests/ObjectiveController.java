@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/quests/objectives")
@@ -21,6 +22,11 @@ public class ObjectiveController {
     @GetMapping
     public List<Objective> getObjectives() {
         return objectiveService.getObjectives();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<Objective> getObjectivesByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return objectiveService.getObjectivesByCampaignUUID(uuid);
     }
 
     @PostMapping

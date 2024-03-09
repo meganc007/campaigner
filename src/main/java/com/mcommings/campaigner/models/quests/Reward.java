@@ -1,10 +1,13 @@
 package com.mcommings.campaigner.models.quests;
 
+import com.mcommings.campaigner.models.Campaign;
 import com.mcommings.campaigner.models.items.Item;
 import com.mcommings.campaigner.models.items.Weapon;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+
+import java.util.UUID;
 
 @Data
 @Entity
@@ -32,6 +35,13 @@ public class Reward extends CommonQuestEntity {
     @Column(name = "fk_weapon")
     private Integer fk_weapon;
 
+    @Column(name = "fk_campaign_uuid")
+    private UUID fk_campaign_uuid;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
+    private Campaign campaign;
+
     @ManyToOne
     @JoinColumn(name = "fk_item", referencedColumnName = "id", updatable = false, insertable = false)
     private Item item;
@@ -44,22 +54,24 @@ public class Reward extends CommonQuestEntity {
         super();
     }
 
-    public Reward(int id, String description, String notes) {
+    public Reward(int id, String description, String notes, UUID fk_campaign_uuid) {
         this.id = id;
         this.setDescription(description);
         this.setNotes(notes);
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 
-    public Reward(int id, String description, String notes, int gold_value, int silver_value, int copper_value) {
+    public Reward(int id, String description, String notes, int gold_value, int silver_value, int copper_value, UUID fk_campaign_uuid) {
         this.id = id;
         this.setDescription(description);
         this.setNotes(notes);
         this.gold_value = gold_value;
         this.silver_value = silver_value;
         this.copper_value = copper_value;
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 
-    public Reward(int id, String description, String notes, int gold_value, int silver_value, int copper_value, int fk_item, int fk_weapon) {
+    public Reward(int id, String description, String notes, int gold_value, int silver_value, int copper_value, int fk_item, int fk_weapon, UUID fk_campaign_uuid) {
         this.id = id;
         this.setDescription(description);
         this.setNotes(notes);
@@ -68,6 +80,7 @@ public class Reward extends CommonQuestEntity {
         this.copper_value = copper_value;
         this.fk_item = fk_item;
         this.fk_weapon = fk_weapon;
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 
 }

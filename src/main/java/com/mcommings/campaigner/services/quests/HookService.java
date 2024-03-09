@@ -10,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static java.util.Objects.isNull;
@@ -27,6 +28,11 @@ public class HookService implements IHook {
     @Override
     public List<Hook> getHooks() {
         return hookRepository.findAll();
+    }
+
+    @Override
+    public List<Hook> getHooksByCampaignUUID(UUID uuid) {
+        return hookRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

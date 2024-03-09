@@ -14,6 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,13 +36,10 @@ public class RewardTest {
     @Test
     public void whenThereAreRewards_getRewards_ReturnsRewards() {
         List<Reward> rewards = new ArrayList<>();
-        rewards.add(new Reward(1, "Description", "Notes"));
-        rewards.add(new Reward(2, "Description", "Notes", 200, 100, 50));
-
-        Reward reward3 = new Reward(3, "Description", "Notes", 200, 100, 50);
-        reward3.setFk_item(1);
-        reward3.setFk_item(2);
-        rewards.add(reward3);
+        UUID campaign = UUID.randomUUID();
+        rewards.add(new Reward(1, "Description", "Notes", campaign));
+        rewards.add(new Reward(2, "Description", "Notes", 200, 100, 50, campaign));
+        rewards.add(new Reward(3, "Description", "Notes", 200, 100, 50, 1, 2, campaign));
         when(rewardRepository.findAll()).thenReturn(rewards);
 
         List<Reward> result = rewardService.getRewards();
@@ -62,8 +60,35 @@ public class RewardTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getRewardsByCampaignUUID_ReturnsRewards() {
+        List<Reward> rewards = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        rewards.add(new Reward(1, "Description", "Notes", campaign));
+        rewards.add(new Reward(2, "Description", "Notes", 200, 100, 50, campaign));
+        rewards.add(new Reward(3, "Description", "Notes", 200, 100, 50, 1, 2, campaign));
+        when(rewardRepository.findByfk_campaign_uuid(campaign)).thenReturn(rewards);
+
+        List<Reward> results = rewardService.getRewardsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(rewards, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getRewardsByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Reward> rewards = new ArrayList<>();
+        when(rewardRepository.findByfk_campaign_uuid(campaign)).thenReturn(rewards);
+
+        List<Reward> result = rewardService.getRewardsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(rewards, result);
+    }
+
+    @Test
     public void whenRewardIsValid_saveReward_SavesTheReward() {
-        Reward reward = new Reward(3, "Description", "Notes", 200, 100, 50);
+        Reward reward = new Reward(3, "Description", "Notes", 200, 100, 50, UUID.randomUUID());
         reward.setFk_item(1);
         reward.setFk_weapon(1);
 
@@ -78,7 +103,7 @@ public class RewardTest {
 
     @Test
     public void whenRewardHasOneFk_saveReward_SavesTheReward() {
-        Reward reward = new Reward(3, "Description", "Notes", 200, 100, 50);
+        Reward reward = new Reward(3, "Description", "Notes", 200, 100, 50, UUID.randomUUID());
         reward.setFk_item(1);
 
         when(itemRepository.existsById(1)).thenReturn(true);
@@ -90,10 +115,10 @@ public class RewardTest {
 
     @Test
     public void whenRewardAlreadyExists_saveReward_ThrowsDataIntegrityViolationException() {
-        Reward reward = new Reward(1, "Description", "Notes", 200, 100, 50);
+        Reward reward = new Reward(1, "Description", "Notes", 200, 100, 50, UUID.randomUUID());
         reward.setFk_item(1);
         reward.setFk_weapon(1);
-        Reward copy = new Reward(2, "Description", "Notes", 200, 100, 50);
+        Reward copy = new Reward(2, "Description", "Notes", 200, 100, 50, UUID.randomUUID());
         copy.setFk_item(1);
         copy.setFk_weapon(1);
 
@@ -127,13 +152,10 @@ public class RewardTest {
     @Test
     public void whenRewardIdWithValidFKIsFound_updateReward_UpdatesTheReward() {
         int rewardId = 1;
+        UUID campaign = UUID.randomUUID();
 
-        Reward reward = new Reward(rewardId, "Description", "Notes", 200, 100, 50);
-        reward.setFk_item(1);
-        reward.setFk_weapon(1);
-        Reward update = new Reward(rewardId, "Description", "Notes", 200, 100, 50);
-        update.setFk_item(2);
-        update.setFk_weapon(2);
+        Reward reward = new Reward(rewardId, "Description", "Notes", 200, 100, 50, 1, 1, campaign);
+        Reward update = new Reward(rewardId, "Description", "Notes", 200, 100, 50, 2, 2, campaign);
 
         when(rewardRepository.existsById(rewardId)).thenReturn(true);
         when(rewardRepository.findById(rewardId)).thenReturn(Optional.of(reward));
@@ -160,13 +182,10 @@ public class RewardTest {
     @Test
     public void whenRewardIdWithInvalidFKIsFound_updateReward_ThrowsDataIntegrityViolationException() {
         int rewardId = 1;
+        UUID campaign = UUID.randomUUID();
 
-        Reward reward = new Reward(rewardId, "Description", "Notes", 200, 100, 50);
-        reward.setFk_item(1);
-        reward.setFk_weapon(1);
-        Reward update = new Reward(rewardId, "Description", "Notes", 200, 100, 50);
-        update.setFk_item(2);
-        update.setFk_weapon(2);
+        Reward reward = new Reward(rewardId, "Description", "Notes", 200, 100, 50, 1, 1, campaign);
+        Reward update = new Reward(rewardId, "Description", "Notes", 200, 100, 50, 2, 2, campaign);
 
         when(rewardRepository.existsById(rewardId)).thenReturn(true);
         when(rewardRepository.findById(rewardId)).thenReturn(Optional.of(reward));
@@ -181,7 +200,7 @@ public class RewardTest {
     @Test
     public void whenRewardIdIsNotFound_updateReward_ThrowsIllegalArgumentException() {
         int rewardId = 1;
-        Reward reward = new Reward(rewardId, "Description", "Notes");
+        Reward reward = new Reward(rewardId, "Description", "Notes", UUID.randomUUID());
 
         when(rewardRepository.existsById(rewardId)).thenReturn(false);
 
@@ -192,7 +211,7 @@ public class RewardTest {
     public void whenSomeRewardFieldsChanged_updateReward_OnlyUpdatesChangedFields() {
         int rewardId = 1;
         Reward reward = new Reward(rewardId, "Description", "Notes",
-                200, 100, 50, 1, 1);
+                200, 100, 50, 1, 1, UUID.randomUUID());
 
         String newDescription = "New Reward description";
         int newGoldValue = 3000;
