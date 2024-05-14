@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import Continent from "../components/Continent";
+import Continent from "../components/Continent.jsx";
 
-function CampaignOverview(props) {
+export default function CampaignOverview(props) {
   const location = useLocation();
   const campaign = location.state.campaign;
 
@@ -47,5 +47,3 @@ function CampaignOverview(props) {
     </div>
   );
 }
-
-export default CampaignOverview;

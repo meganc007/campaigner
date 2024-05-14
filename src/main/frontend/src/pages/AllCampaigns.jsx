@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import Campaign from "../components/Campaign.js";
+import Campaign from "../components/Campaign.jsx";
 
-function AllCampaigns() {
+export default function AllCampaigns() {
   const [campaigns, setCampaigns] = useState([]);
   useEffect(() => {
     fetch("http://localhost:8080/api/campaigns")
@@ -28,4 +28,3 @@ function AllCampaigns() {
     </div>
   );
 }
-export default AllCampaigns;

@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-import CampaignOverview from "./pages/CampaignOverview";
-import AllCampaigns from "./pages/AllCampaigns";
+import CampaignOverview from "./pages/CampaignOverview.jsx";
+import AllCampaigns from "./pages/AllCampaigns.jsx";
 
 function App() {
   return (

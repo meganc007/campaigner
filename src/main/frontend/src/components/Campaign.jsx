@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 
-function Campaign(props) {
-  const campaigns = props.campaigns;
+export default function Campaign({campaigns}) {
   return (
     <div className="container">
       <div className="row">
@@ -17,5 +16,3 @@ function Campaign(props) {
     </div>
   );
 }
-
-export default Campaign;
