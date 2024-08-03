@@ -13,16 +13,18 @@ public class LocationService implements ILocation {
 
     private final IContinentRepository continentRepository;
     private final ICountryRepository countryRepository;
+    private final IRegionRepository regionRepository;
     private final ICityRepository cityRepository;
     private final IPlaceRepository placeRepository;
     private final ILandmarkRepository landmarkRepository;
 
     @Autowired
     public LocationService(IContinentRepository continentRepository, ICountryRepository countryRepository,
-                           ICityRepository cityRepository, IPlaceRepository placeRepository,
-                           ILandmarkRepository landmarkRepository) {
+                           IRegionRepository regionRepository, ICityRepository cityRepository,
+                           IPlaceRepository placeRepository, ILandmarkRepository landmarkRepository) {
         this.continentRepository = continentRepository;
         this.countryRepository = countryRepository;
+        this.regionRepository = regionRepository;
         this.cityRepository = cityRepository;
         this.placeRepository = placeRepository;
         this.landmarkRepository = landmarkRepository;
@@ -33,6 +35,7 @@ public class LocationService implements ILocation {
         Location location = new Location(uuid);
         location.setContinents(continentRepository.findByfk_campaign_uuid(uuid));
         location.setCountries(countryRepository.findByfk_campaign_uuid(uuid));
+        location.setRegions(regionRepository.findByfk_campaign_uuid(uuid));
         location.setCities(cityRepository.findByfk_campaign_uuid(uuid));
         location.setPlaces(placeRepository.findByfk_campaign_uuid(uuid));
         location.setLandmarks(landmarkRepository.findByfk_campaign_uuid(uuid));

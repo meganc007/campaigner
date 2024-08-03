@@ -21,6 +21,8 @@ public class LocationTest {
     @Mock
     private ICountryRepository countryRepository;
     @Mock
+    private IRegionRepository regionRepository;
+    @Mock
     private ICityRepository cityRepository;
     @Mock
     private IPlaceRepository placeRepository;
@@ -39,6 +41,9 @@ public class LocationTest {
         List<Country> countries = new ArrayList<>();
         countries.add(new Country(1, "Country 1", "Description 1", uuid));
 
+        List<Region> regions = new ArrayList<>();
+        regions.add(new Region(1, "Region 1", "Description 1", uuid));
+
         List<City> cities = new ArrayList<>();
         cities.add(new City(1, "City 1", "Description 1", uuid));
 
@@ -50,6 +55,7 @@ public class LocationTest {
 
         when(continentRepository.findByfk_campaign_uuid(uuid)).thenReturn(continents);
         when(countryRepository.findByfk_campaign_uuid(uuid)).thenReturn(countries);
+        when(regionRepository.findByfk_campaign_uuid(uuid)).thenReturn(regions);
         when(cityRepository.findByfk_campaign_uuid(uuid)).thenReturn(cities);
         when(placeRepository.findByfk_campaign_uuid(uuid)).thenReturn(places);
         when(landmarkRepository.findByfk_campaign_uuid(uuid)).thenReturn(landmarks);
@@ -57,6 +63,7 @@ public class LocationTest {
         Location result = locationService.getLocation(uuid);
         Assertions.assertEquals(continents, result.getContinents());
         Assertions.assertEquals(countries, result.getCountries());
+        Assertions.assertEquals(regions, result.getRegions());
         Assertions.assertEquals(cities, result.getCities());
         Assertions.assertEquals(places, result.getPlaces());
         Assertions.assertEquals(landmarks, result.getLandmarks());
@@ -67,12 +74,14 @@ public class LocationTest {
         UUID uuid = UUID.randomUUID();
         List<Continent> continents = new ArrayList<>();
         List<Country> countries = new ArrayList<>();
+        List<Region> regions = new ArrayList<>();
         List<City> cities = new ArrayList<>();
         List<Place> places = new ArrayList<>();
         List<Landmark> landmarks = new ArrayList<>();
 
         when(continentRepository.findByfk_campaign_uuid(uuid)).thenReturn(continents);
         when(countryRepository.findByfk_campaign_uuid(uuid)).thenReturn(countries);
+        when(regionRepository.findByfk_campaign_uuid(uuid)).thenReturn(regions);
         when(cityRepository.findByfk_campaign_uuid(uuid)).thenReturn(cities);
         when(placeRepository.findByfk_campaign_uuid(uuid)).thenReturn(places);
         when(landmarkRepository.findByfk_campaign_uuid(uuid)).thenReturn(landmarks);
@@ -82,6 +91,7 @@ public class LocationTest {
         Assertions.assertEquals(uuid, result.getCampaignUuid());
         Assertions.assertEquals(0, result.getContinents().size());
         Assertions.assertEquals(0, result.getCountries().size());
+        Assertions.assertEquals(0, result.getRegions().size());
         Assertions.assertEquals(0, result.getCities().size());
         Assertions.assertEquals(0, result.getPlaces().size());
         Assertions.assertEquals(0, result.getLandmarks().size());
