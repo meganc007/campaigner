@@ -10,6 +10,7 @@ public class Location {
     private UUID campaignUuid;
     private List<Continent> continents;
     private List<Country> countries;
+    private List<Region> regions;
     private List<City> cities;
     private List<Place> places;
     private List<Landmark> landmarks;
