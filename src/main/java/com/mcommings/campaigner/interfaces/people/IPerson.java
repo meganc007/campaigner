@@ -3,10 +3,13 @@ package com.mcommings.campaigner.interfaces.people;
 import com.mcommings.campaigner.models.people.Person;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface IPerson {
 
     List<Person> getPeople();
+
+    List<Person> getPeopleByCampaignUUID(UUID uuid);
 
     void savePerson(Person person);
 

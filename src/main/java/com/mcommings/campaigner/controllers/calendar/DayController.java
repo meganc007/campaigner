@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/calendar/days")
@@ -21,6 +22,16 @@ public class DayController {
     @GetMapping
     public List<Day> getDays() {
         return dayService.getDays();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<Day> getDaysByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return dayService.getDaysByCampaignUUID(uuid);
+    }
+
+    @GetMapping(path = "/week/{weekId}")
+    public List<Day> getDaysByWeek(@PathVariable("weekId") int weekId) {
+        return dayService.getDaysByWeek(weekId);
     }
 
     @PostMapping

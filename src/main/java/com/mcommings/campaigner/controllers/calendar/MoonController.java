@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/calendar/moons")
@@ -21,6 +22,11 @@ public class MoonController {
     @GetMapping
     public List<Moon> getMoons() {
         return moonService.getMoons();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<Moon> getMoonsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return moonService.getMoonsByCampaignUUID(uuid);
     }
 
     @PostMapping

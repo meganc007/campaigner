@@ -8,18 +8,22 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface IEventRepository extends JpaRepository<Event, Integer> {
-    
+
     Optional<Event> findByName(String name);
-    
+
+    @Query("SELECT e FROM Event e WHERE e.fk_campaign_uuid = :uuid")
+    List<Event> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
+
     @Query("SELECT e FROM Event e WHERE e.fk_month = :id")
     List<Event> findByfk_month(@Param("id") Integer id);
-    
+
     @Query("SELECT e FROM Event e WHERE e.fk_week = :id")
     List<Event> findByfk_week(@Param("id") Integer id);
-    
+
     @Query("SELECT e FROM Event e WHERE e.fk_day = :id")
     List<Event> findByfk_day(@Param("id") Integer id);
 

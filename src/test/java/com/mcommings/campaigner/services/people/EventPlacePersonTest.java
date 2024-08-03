@@ -15,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,9 +39,10 @@ public class EventPlacePersonTest {
     @Test
     public void whenThereAreEventsPlacesPeople_getEventsPlacesPeople_ReturnsEventsPlacesPeople() {
         List<EventPlacePerson> epps = new ArrayList<>();
-        epps.add(new EventPlacePerson(1, 1, 1, 1));
-        epps.add(new EventPlacePerson(2, 2, 2, 2));
-        epps.add(new EventPlacePerson(3, 3, 3, 3));
+        UUID campaign = UUID.randomUUID();
+        epps.add(new EventPlacePerson(1, 1, 1, 1, campaign));
+        epps.add(new EventPlacePerson(2, 2, 2, 2, campaign));
+        epps.add(new EventPlacePerson(3, 3, 3, 3, campaign));
         when(eventPlacePersonRepository.findAll()).thenReturn(epps);
 
         List<EventPlacePerson> result = eventPlacePersonService.getEventsPlacesPeople();
@@ -61,8 +63,35 @@ public class EventPlacePersonTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getEventPlacePersonsByCampaignUUID_ReturnsEventPlacePersons() {
+        List<EventPlacePerson> epps = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        epps.add(new EventPlacePerson(1, 1, 1, 1, campaign));
+        epps.add(new EventPlacePerson(2, 2, 2, 2, campaign));
+        epps.add(new EventPlacePerson(3, 3, 3, 3, campaign));
+        when(eventPlacePersonRepository.findByfk_campaign_uuid(campaign)).thenReturn(epps);
+
+        List<EventPlacePerson> results = eventPlacePersonService.getEventsPlacesPeopleByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(epps, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getEventPlacePersonsByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<EventPlacePerson> eventPlacePersons = new ArrayList<>();
+        when(eventPlacePersonRepository.findByfk_campaign_uuid(campaign)).thenReturn(eventPlacePersons);
+
+        List<EventPlacePerson> result = eventPlacePersonService.getEventsPlacesPeopleByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(eventPlacePersons, result);
+    }
+
+    @Test
     public void whenEventPlacePersonIsValid_saveEventPlacePerson_SavesTheEventPlacePerson() {
-        EventPlacePerson epp = new EventPlacePerson(1, 2, 3, 4);
+        EventPlacePerson epp = new EventPlacePerson(1, 2, 3, 4, UUID.randomUUID());
 
         when(eventRepository.existsById(2)).thenReturn(true);
         when(placeRepository.existsById(3)).thenReturn(true);
@@ -76,8 +105,8 @@ public class EventPlacePersonTest {
 
     @Test
     public void whenEventPlacePersonAlreadyExists_saveEventPlacePerson_ThrowsDataIntegrityViolationException() {
-        EventPlacePerson epp = new EventPlacePerson(1, 2, 3, 4);
-        EventPlacePerson copy = new EventPlacePerson(2, 2, 3, 4);
+        EventPlacePerson epp = new EventPlacePerson(1, 2, 3, 4, UUID.randomUUID());
+        EventPlacePerson copy = new EventPlacePerson(2, 2, 3, 4, UUID.randomUUID());
 
         when(eventRepository.existsById(2)).thenReturn(true);
         when(placeRepository.existsById(3)).thenReturn(true);
@@ -110,9 +139,10 @@ public class EventPlacePersonTest {
     @Test
     public void whenEventPlacePersonIdWithValidFKIsFound_updateEventPlacePerson_UpdatesTheEventPlacePerson() {
         int eppId = 1;
+        UUID campaign = UUID.randomUUID();
 
-        EventPlacePerson eventPlacePerson = new EventPlacePerson(eppId, 2, 3, 4);
-        EventPlacePerson update = new EventPlacePerson(eppId, 5, 6, 7);
+        EventPlacePerson eventPlacePerson = new EventPlacePerson(eppId, 2, 3, 4, campaign);
+        EventPlacePerson update = new EventPlacePerson(eppId, 5, 6, 7, campaign);
 
         when(eventPlacePersonRepository.existsById(eppId)).thenReturn(true);
         when(eventPlacePersonRepository.findById(eppId)).thenReturn(Optional.of(eventPlacePerson));
@@ -138,9 +168,10 @@ public class EventPlacePersonTest {
     @Test
     public void whenEventPlacePersonIdWithInvalidFKIsFound_updateEventPlacePerson_ThrowsDataIntegrityViolationException() {
         int eppId = 1;
+        UUID campaign = UUID.randomUUID();
 
-        EventPlacePerson eventPlacePerson = new EventPlacePerson(eppId, 2, 3, 4);
-        EventPlacePerson update = new EventPlacePerson(eppId, 5, 6, 7);
+        EventPlacePerson eventPlacePerson = new EventPlacePerson(eppId, 2, 3, 4, campaign);
+        EventPlacePerson update = new EventPlacePerson(eppId, 5, 6, 7, campaign);
 
         when(eventPlacePersonRepository.existsById(eppId)).thenReturn(true);
         when(eventPlacePersonRepository.findById(eppId)).thenReturn(Optional.of(eventPlacePerson));
@@ -158,7 +189,7 @@ public class EventPlacePersonTest {
     @Test
     public void whenEventPlacePersonIdIsNotFound_updateEventPlacePerson_ThrowsIllegalArgumentException() {
         int eppId = 1;
-        EventPlacePerson eventPlacePerson = new EventPlacePerson(eppId, 2, 3, 4);
+        EventPlacePerson eventPlacePerson = new EventPlacePerson(eppId, 2, 3, 4, UUID.randomUUID());
 
         when(eventPlacePersonRepository.existsById(eppId)).thenReturn(false);
 

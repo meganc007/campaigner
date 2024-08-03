@@ -3,10 +3,13 @@ package com.mcommings.campaigner.interfaces.quests;
 import com.mcommings.campaigner.models.quests.Objective;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface IObjective {
 
     List<Objective> getObjectives();
+
+    List<Objective> getObjectivesByCampaignUUID(UUID uuid);
 
     void saveObjective(Objective objective);
 

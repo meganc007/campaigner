@@ -1,9 +1,12 @@
 package com.mcommings.campaigner.models.people;
 
+import com.mcommings.campaigner.models.Campaign;
 import com.mcommings.campaigner.models.Wealth;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+
+import java.util.UUID;
 
 @Data
 @Entity
@@ -25,6 +28,13 @@ public class NamedMonster extends SentientBeingEntity {
     @Column(name = "fk_generic_monster")
     private Integer fk_generic_monster;
 
+    @Column(name = "fk_campaign_uuid")
+    private UUID fk_campaign_uuid;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
+    private Campaign campaign;
+
     @ManyToOne
     @JoinColumn(name = "fk_wealth", referencedColumnName = "id", updatable = false, insertable = false)
     private Wealth wealth;
@@ -42,7 +52,7 @@ public class NamedMonster extends SentientBeingEntity {
     }
 
     public NamedMonster(int id, String firstName, String lastName, String title, Boolean isEnemy, String personality,
-                        String description, String notes) {
+                        String description, String notes, UUID fk_campaign_uuid) {
         this.id = id;
         this.setFirstName(firstName);
         this.setLastName(lastName);
@@ -51,10 +61,11 @@ public class NamedMonster extends SentientBeingEntity {
         this.setPersonality(personality);
         this.setDescription(description);
         this.setNotes(notes);
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 
     public NamedMonster(int id, String firstName, String lastName, String title, Integer fk_wealth, Integer fk_ability_score,
-                        Integer fk_generic_monster, Boolean isEnemy, String personality, String description, String notes) {
+                        Integer fk_generic_monster, Boolean isEnemy, String personality, String description, String notes, UUID fk_campaign_uuid) {
         this.id = id;
         this.setFirstName(firstName);
         this.setLastName(lastName);
@@ -66,5 +77,6 @@ public class NamedMonster extends SentientBeingEntity {
         this.setPersonality(personality);
         this.setDescription(description);
         this.setNotes(notes);
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 }

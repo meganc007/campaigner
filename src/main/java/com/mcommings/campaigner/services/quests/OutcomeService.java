@@ -10,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static java.util.Objects.isNull;
@@ -27,6 +28,11 @@ public class OutcomeService implements IOutcome {
     @Override
     public List<Outcome> getOutcomes() {
         return outcomeRepository.findAll();
+    }
+
+    @Override
+    public List<Outcome> getOutcomesByCampaignUUID(UUID uuid) {
+        return outcomeRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

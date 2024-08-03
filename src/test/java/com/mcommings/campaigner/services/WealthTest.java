@@ -115,11 +115,11 @@ public class WealthTest {
         List<City> cities = new ArrayList<>(Arrays.asList(city));
 
         Person person = new Person(1, "Jane", "Doe", 33, "The Nameless One",
-                3, wealthId, 2, true, false, "Personality", "Description", "Notes");
+                3, wealthId, 2, true, false, "Personality", "Description", "Notes", UUID.randomUUID());
         List<Person> people = new ArrayList<>(Arrays.asList(person));
 
         NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title",
-                wealthId, 2, 1, false, "Personality", "Description", "Notes");
+                wealthId, 2, 1, false, "Personality", "Description", "Notes", UUID.randomUUID());
         List<NamedMonster> namedMonsters = new ArrayList<>(Arrays.asList(namedMonster));
 
         when(wealthRepository.existsById(wealthId)).thenReturn(true);

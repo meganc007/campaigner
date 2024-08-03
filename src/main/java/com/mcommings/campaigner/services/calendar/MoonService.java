@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_MOON;
@@ -34,6 +35,11 @@ public class MoonService implements IMoon {
     @Override
     public List<Moon> getMoons() {
         return moonRepository.findAll();
+    }
+
+    @Override
+    public List<Moon> getMoonsByCampaignUUID(UUID uuid) {
+        return moonRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

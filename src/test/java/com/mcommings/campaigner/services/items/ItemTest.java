@@ -13,6 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,10 +33,11 @@ public class ItemTest {
     @Test
     public void whenThereAreItems_getItems_ReturnsItems() {
         List<Item> items = new ArrayList<>();
-        items.add(new Item(1, "Item 1", "Description 1"));
-        items.add(new Item(2, "Item 2", "Description 2"));
+        UUID campaign = UUID.randomUUID();
+        items.add(new Item(1, "Item 1", "Description 1", campaign));
+        items.add(new Item(2, "Item 2", "Description 2", campaign));
         items.add(new Item(3, "Item 3", "Description 3", "Rare", 32, 20,
-                12, 20.0f, 2, true, false, "Notes"));
+                12, 20.0f, 2, true, false, "Notes", campaign));
         when(itemRepository.findAll()).thenReturn(items);
 
         List<Item> result = itemService.getItems();
@@ -56,8 +58,36 @@ public class ItemTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getItemsByCampaignUUID_ReturnsItems() {
+        List<Item> items = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        items.add(new Item(1, "Item 1", "Description 1", campaign));
+        items.add(new Item(2, "Item 2", "Description 2", campaign));
+        items.add(new Item(3, "Item 3", "Description 3", "Rare", 32, 20,
+                12, 20.0f, 2, true, false, "Notes", campaign));
+        when(itemRepository.findByfk_campaign_uuid(campaign)).thenReturn(items);
+
+        List<Item> results = itemService.getItemsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(3, results.size());
+        Assertions.assertEquals(items, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getItemsByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Item> items = new ArrayList<>();
+        when(itemRepository.findByfk_campaign_uuid(campaign)).thenReturn(items);
+
+        List<Item> result = itemService.getItemsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(items, result);
+    }
+
+    @Test
     public void whenItemWithNoForeignKeysIsValid_saveItem_SavesTheItem() {
-        Item item = new Item(1, "Item 1", "Description 1");
+        Item item = new Item(1, "Item 1", "Description 1", UUID.randomUUID());
         when(itemRepository.saveAndFlush(item)).thenReturn(item);
 
         assertDoesNotThrow(() -> itemService.saveItem(item));
@@ -68,7 +98,7 @@ public class ItemTest {
     @Test
     public void whenItemWithForeignKeysIsValid_saveItem_SavesTheItem() {
         Item item = new Item(1, "Item 1", "Description 1", "Rare", 32, 20,
-                12, 20.0f, 2, true, false, "Notes");
+                12, 20.0f, 2, true, false, "Notes", UUID.randomUUID());
 
         when(itemTypeRepository.existsById(2)).thenReturn(true);
         when(itemRepository.saveAndFlush(item)).thenReturn(item);
@@ -80,8 +110,8 @@ public class ItemTest {
 
     @Test
     public void whenItemNameIsInvalid_saveItem_ThrowsIllegalArgumentException() {
-        Item itemWithEmptyName = new Item(1, "", "Description 1");
-        Item itemWithNullName = new Item(2, null, "Description 2");
+        Item itemWithEmptyName = new Item(1, "", "Description 1", UUID.randomUUID());
+        Item itemWithNullName = new Item(2, null, "Description 2", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> itemService.saveItem(itemWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> itemService.saveItem(itemWithNullName));
@@ -90,9 +120,9 @@ public class ItemTest {
     @Test
     public void whenItemNameAlreadyExists_saveItem_ThrowsDataIntegrityViolationException() {
         Item item = new Item(1, "Item 1", "Description 3", "Rare", 32, 20,
-                12, 20.0f, 2, true, false, "Notes");
+                12, 20.0f, 2, true, false, "Notes", UUID.randomUUID());
         Item itemWithDuplicatedName = new Item(2, "Item 2", "Description 3", "Rare", 32, 20,
-                12, 20.0f, 2, true, false, "Notes");
+                12, 20.0f, 2, true, false, "Notes", UUID.randomUUID());
 
         when(itemRepository.existsById(1)).thenReturn(true);
         when(itemTypeRepository.existsById(2)).thenReturn(true);
@@ -107,8 +137,7 @@ public class ItemTest {
     @Test
     public void whenItemHasInvalidForeignKeys_saveItem_ThrowsDataIntegrityViolationException() {
         Item item = new Item(1, "Item 1", "Description 1", "Rare", 32, 20,
-                12, 20.0f, 2, true, false, "Notes");
-
+                12, 20.0f, 2, true, false, "Notes", UUID.randomUUID());
 
         when(itemTypeRepository.existsById(2)).thenReturn(false);
         when(itemRepository.saveAndFlush(item)).thenReturn(item);
@@ -154,9 +183,10 @@ public class ItemTest {
     @Test
     public void whenItemIdWithNoFKIsFound_updateItem_UpdatesTheItem() {
         int itemId = 1;
+        UUID campaign = UUID.randomUUID();
 
-        Item item = new Item(itemId, "Old Item Name", "Old Description");
-        Item updateNoFK = new Item(itemId, "Updated Item Name", "Updated Description");
+        Item item = new Item(itemId, "Old Item Name", "Old Description", campaign);
+        Item updateNoFK = new Item(itemId, "Updated Item Name", "Updated Description", campaign);
 
         when(itemRepository.existsById(itemId)).thenReturn(true);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
@@ -173,11 +203,12 @@ public class ItemTest {
     @Test
     public void whenItemIdWithValidFKIsFound_updateItem_UpdatesTheItem() {
         int itemId = 2;
+        UUID campaign = UUID.randomUUID();
 
         Item item = new Item(itemId, "Test Item Name", "Test Description", "Rare", 32, 20,
-                12, 20.0f, 2, true, false, "Notes");
+                12, 20.0f, 2, true, false, "Notes", campaign);
         Item update = new Item(itemId, "Updated Item Name", "Updated Description", "Rare", 132, 120,
-                112, 450.0f, 2, true, true, "Notes");
+                112, 450.0f, 2, true, true, "Notes", campaign);
 
         when(itemRepository.existsById(itemId)).thenReturn(true);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
@@ -204,10 +235,11 @@ public class ItemTest {
     @Test
     public void whenItemIdWithInvalidFKIsFound_updateItem_ThrowsDataIntegrityViolationException() {
         int itemId = 2;
+        UUID campaign = UUID.randomUUID();
 
-        Item item = new Item(itemId, "Test Item Name", "Test Description");
+        Item item = new Item(itemId, "Test Item Name", "Test Description", campaign);
         Item update = new Item(itemId, "Test Item Name", "Test Description", "Rare", 32, 20,
-                12, 20.0f, 2, true, false, "Notes");
+                12, 20.0f, 2, true, false, "Notes", campaign);
 
         when(itemRepository.existsById(itemId)).thenReturn(true);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
@@ -219,7 +251,7 @@ public class ItemTest {
     @Test
     public void whenItemIdIsNotFound_updateItem_ThrowsIllegalArgumentException() {
         int itemId = 1;
-        Item item = new Item(itemId, "Old Item Name", "Old Description");
+        Item item = new Item(itemId, "Old Item Name", "Old Description", UUID.randomUUID());
 
         when(itemRepository.existsById(itemId)).thenReturn(false);
 
@@ -230,7 +262,7 @@ public class ItemTest {
     public void whenSomeItemFieldsChanged_updateItem_OnlyUpdatesChangedFields() {
         int itemId = 1;
         Item item = new Item(itemId, "Test Item Name", "Test Description", "Rare", 32, 20,
-                12, 20.0f, 2, true, false, "Notes");
+                12, 20.0f, 2, true, false, "Notes", UUID.randomUUID());
 
         int newSilverValue = 0;
         Boolean newIsMagical = false;

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/items/weapons")
@@ -21,6 +22,11 @@ public class WeaponController {
     @GetMapping
     public List<Weapon> Weapon() {
         return weaponService.getWeapons();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<Weapon> getWeaponsByCampaignUUID(UUID uuid) {
+        return weaponService.getWeaponsByCampaignUUID(uuid);
     }
 
     @PostMapping

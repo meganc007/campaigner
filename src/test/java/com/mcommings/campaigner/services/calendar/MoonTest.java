@@ -13,10 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_MOON;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -37,8 +34,9 @@ public class MoonTest {
     @Test
     public void whenThereAreMoons_getMoons_ReturnsMoons() {
         List<Moon> moons = new ArrayList<>();
-        moons.add(new Moon(1, "Moon 1", "Description 1"));
-        moons.add(new Moon(2, "Moon 2", "Description 2"));
+        UUID campaign = UUID.randomUUID();
+        moons.add(new Moon(1, "Moon 1", "Description 1", campaign));
+        moons.add(new Moon(2, "Moon 2", "Description 2", campaign));
         when(moonRepository.findAll()).thenReturn(moons);
 
         List<Moon> result = moonService.getMoons();
@@ -59,8 +57,34 @@ public class MoonTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getMoonsByCampaignUUID_ReturnsMoons() {
+        List<Moon> moons = new ArrayList<>();
+        UUID campaign = UUID.randomUUID();
+        moons.add(new Moon(1, "Moon 1", "Description 1", campaign));
+        moons.add(new Moon(2, "Moon 2", "Description 2", campaign));
+        when(moonRepository.findByfk_campaign_uuid(campaign)).thenReturn(moons);
+
+        List<Moon> results = moonService.getMoonsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(2, results.size());
+        Assertions.assertEquals(moons, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getMoonsByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<Moon> moons = new ArrayList<>();
+        when(moonRepository.findByfk_campaign_uuid(campaign)).thenReturn(moons);
+
+        List<Moon> result = moonService.getMoonsByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(moons, result);
+    }
+
+    @Test
     public void whenMoonIsValid_saveMoon_SavesTheMoon() {
-        Moon moon = new Moon(1, "Moon 1", "Description 1");
+        Moon moon = new Moon(1, "Moon 1", "Description 1", UUID.randomUUID());
         when(moonRepository.saveAndFlush(moon)).thenReturn(moon);
 
         assertDoesNotThrow(() -> moonService.saveMoon(moon));
@@ -69,8 +93,8 @@ public class MoonTest {
 
     @Test
     public void whenMoonNameIsInvalid_saveMoon_ThrowsIllegalArgumentException() {
-        Moon moonWithEmptyName = new Moon(1, "", "Description 1");
-        Moon moonWithNullName = new Moon(2, null, "Description 2");
+        Moon moonWithEmptyName = new Moon(1, "", "Description 1", UUID.randomUUID());
+        Moon moonWithNullName = new Moon(2, null, "Description 2", UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> moonService.saveMoon(moonWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> moonService.saveMoon(moonWithNullName));
@@ -78,8 +102,8 @@ public class MoonTest {
 
     @Test
     public void whenMoonNameAlreadyExists_saveMoon_ThrowsDataIntegrityViolationException() {
-        Moon moon = new Moon(1, "Moon 1", "Description 1");
-        Moon moonWithDuplicatedName = new Moon(2, "Moon 1", "Description 2");
+        Moon moon = new Moon(1, "Moon 1", "Description 1", UUID.randomUUID());
+        Moon moonWithDuplicatedName = new Moon(2, "Moon 1", "Description 2", UUID.randomUUID());
         when(moonRepository.saveAndFlush(moon)).thenReturn(moon);
         when(moonRepository.saveAndFlush(moonWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
 
@@ -105,7 +129,7 @@ public class MoonTest {
     @Test
     public void whenMoonIdIsAForeignKey_deleteMoon_ThrowsDataIntegrityViolationException() {
         int moonId = 1;
-        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent", "Description", moonId, 1, 1, 1, 1, 1);
+        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent", "Description", moonId, 1, 1, 1, 1, 1, UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
         List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
 
@@ -120,8 +144,9 @@ public class MoonTest {
     @Test
     public void whenMoonIdIsFound_updateMoon_UpdatesTheMoon() {
         int moonId = 1;
-        Moon moon = new Moon(moonId, "Old Moon Name", "Old Description");
-        Moon moonToUpdate = new Moon(moonId, "Updated Moon Name", "Updated Description");
+        UUID campaign = UUID.randomUUID();
+        Moon moon = new Moon(moonId, "Old Moon Name", "Old Description", campaign);
+        Moon moonToUpdate = new Moon(moonId, "Updated Moon Name", "Updated Description", campaign);
 
         when(moonRepository.existsById(moonId)).thenReturn(true);
         when(moonRepository.findById(moonId)).thenReturn(Optional.of(moon));
@@ -138,7 +163,7 @@ public class MoonTest {
     @Test
     public void whenMoonIdIsNotFound_updateMoon_ThrowsIllegalArgumentException() {
         int moonId = 1;
-        Moon moon = new Moon(moonId, "Old Moon Name", "Old Description");
+        Moon moon = new Moon(moonId, "Old Moon Name", "Old Description", UUID.randomUUID());
 
         when(moonRepository.existsById(moonId)).thenReturn(false);
 
@@ -148,7 +173,7 @@ public class MoonTest {
     @Test
     public void whenSomeMoonFieldsChanged_updateMoon_OnlyUpdatesChangedFields() {
         int moonId = 1;
-        Moon moon = new Moon(moonId, "Old Moon Name", "Old Description");
+        Moon moon = new Moon(moonId, "Old Moon Name", "Old Description", UUID.randomUUID());
 
         String newName = "New Moon";
 

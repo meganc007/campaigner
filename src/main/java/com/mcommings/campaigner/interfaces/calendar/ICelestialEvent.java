@@ -3,10 +3,19 @@ package com.mcommings.campaigner.interfaces.calendar;
 import com.mcommings.campaigner.models.calendar.CelestialEvent;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface ICelestialEvent {
-    
+
     List<CelestialEvent> getCelestialEvents();
+
+    List<CelestialEvent> getCelestialEventsByCampaignUUID(UUID uuid);
+
+    List<CelestialEvent> getCelestialEventsByMoon(int moonId);
+
+    List<CelestialEvent> getCelestialEventsBySun(int sunId);
+
+    List<CelestialEvent> getCelestialEventsByMonth(int monthId);
 
     void saveCelestialEvent(CelestialEvent celestialEvent);
 

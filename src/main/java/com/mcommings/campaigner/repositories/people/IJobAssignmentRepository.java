@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface IJobAssignmentRepository extends JpaRepository<JobAssignment, Integer> {
@@ -22,4 +23,7 @@ public interface IJobAssignmentRepository extends JpaRepository<JobAssignment, I
 
     @Query("SELECT j FROM JobAssignment j WHERE j.fk_job = :id")
     List<JobAssignment> findByfk_job(@Param("id") Integer id);
+
+    @Query("SELECT j FROM JobAssignment j WHERE j.fk_campaign_uuid = :uuid")
+    List<JobAssignment> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 }

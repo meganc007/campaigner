@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
@@ -32,6 +33,11 @@ public class ItemService implements IItem {
     @Override
     public List<Item> getItems() {
         return itemRepository.findAll();
+    }
+
+    @Override
+    public List<Item> getItemsByCampaignUUID(UUID uuid) {
+        return itemRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

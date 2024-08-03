@@ -1,7 +1,10 @@
 package com.mcommings.campaigner.models.people;
 
+import com.mcommings.campaigner.models.Campaign;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Data
 @Entity
@@ -12,6 +15,9 @@ public class AbilityScore {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
+
+    @Column(name = "fk_campaign_uuid")
+    private UUID fk_campaign_uuid;
 
     @Column(name = "strength")
     private int strength;
@@ -31,10 +37,16 @@ public class AbilityScore {
     @Column(name = "charisma")
     private int charisma;
 
-    public AbilityScore() {}
+    @ManyToOne
+    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
+    private Campaign campaign;
 
-    public AbilityScore(int id, int strength, int dexterity, int constitution, int intelligence, int wisdom, int charisma) {
+    public AbilityScore() {
+    }
+
+    public AbilityScore(int id, UUID fk_campaign_uuid, int strength, int dexterity, int constitution, int intelligence, int wisdom, int charisma) {
         this.id = id;
+        this.fk_campaign_uuid = fk_campaign_uuid;
         this.strength = strength;
         this.dexterity = dexterity;
         this.constitution = constitution;

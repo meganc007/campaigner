@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_SUN;
@@ -33,6 +34,11 @@ public class SunService implements ISun {
     @Override
     public List<Sun> getSuns() {
         return sunRepository.findAll();
+    }
+
+    @Override
+    public List<Sun> getSunsByCampaignUUID(UUID uuid) {
+        return sunRepository.findByfk_campaign_uuid(uuid);
     }
 
     @Override

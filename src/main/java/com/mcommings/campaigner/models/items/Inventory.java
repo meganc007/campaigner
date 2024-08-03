@@ -1,9 +1,12 @@
 package com.mcommings.campaigner.models.items;
 
+import com.mcommings.campaigner.models.Campaign;
 import com.mcommings.campaigner.models.locations.Place;
 import com.mcommings.campaigner.models.people.Person;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Data
 @Entity
@@ -27,6 +30,12 @@ public class Inventory {
     @Column(name = "fk_place")
     private Integer fk_place;
 
+    @Column(name = "fk_campaign_uuid")
+    private UUID fk_campaign_uuid;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
+    private Campaign campaign;
 
     @ManyToOne
     @JoinColumn(name = "fk_person", referencedColumnName = "id", updatable = false, insertable = false)
@@ -47,12 +56,13 @@ public class Inventory {
     public Inventory() {
     }
 
-    public Inventory(int id, Integer fk_person, Integer fk_item, Integer fk_weapon, Integer fk_place) {
+    public Inventory(int id, Integer fk_person, Integer fk_item, Integer fk_weapon, Integer fk_place, UUID fk_campaign_uuid) {
         this.id = id;
         this.fk_person = fk_person;
         this.fk_item = fk_item;
         this.fk_weapon = fk_weapon;
         this.fk_place = fk_place;
+        this.fk_campaign_uuid = fk_campaign_uuid;
     }
 
 }

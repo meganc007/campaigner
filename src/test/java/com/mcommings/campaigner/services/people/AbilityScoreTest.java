@@ -17,10 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.mcommings.campaigner.enums.ForeignKey.FK_ABILITY_SCORE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -44,9 +41,10 @@ public class AbilityScoreTest {
 
     @Test
     public void whenThereAreAbilityScores_getAbilityScores_ReturnsAbilityScores() {
+        UUID campaign = UUID.randomUUID();
         List<AbilityScore> abilityScores = new ArrayList<>();
-        abilityScores.add(new AbilityScore(1, 1, 1, 1, 1, 1, 1));
-        abilityScores.add(new AbilityScore(2, 2, 2, 2, 2, 2, 2));
+        abilityScores.add(new AbilityScore(1, campaign, 1, 1, 1, 1, 1, 1));
+        abilityScores.add(new AbilityScore(2, campaign, 2, 2, 2, 2, 2, 2));
         when(abilityScoreRepository.findAll()).thenReturn(abilityScores);
 
         List<AbilityScore> result = abilityScoreService.getAbilityScores();
@@ -67,8 +65,34 @@ public class AbilityScoreTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getAbilityScoresByCampaignUUID_ReturnsAbilityScores() {
+        UUID campaign = UUID.randomUUID();
+        List<AbilityScore> abilityScores = new ArrayList<>();
+        abilityScores.add(new AbilityScore(1, campaign, 1, 1, 1, 1, 1, 1));
+        abilityScores.add(new AbilityScore(2, campaign, 2, 2, 2, 2, 2, 2));
+        when(abilityScoreRepository.findByfk_campaign_uuid(campaign)).thenReturn(abilityScores);
+
+        List<AbilityScore> results = abilityScoreService.getAbilityScoresByCampaignUUID(campaign);
+
+        Assertions.assertEquals(2, results.size());
+        Assertions.assertEquals(abilityScores, results);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getAbilityScoresByCampaignUUID_ReturnsNothing() {
+        UUID campaign = UUID.randomUUID();
+        List<AbilityScore> abilityScores = new ArrayList<>();
+        when(abilityScoreRepository.findByfk_campaign_uuid(campaign)).thenReturn(abilityScores);
+
+        List<AbilityScore> result = abilityScoreService.getAbilityScoresByCampaignUUID(campaign);
+
+        Assertions.assertEquals(0, result.size());
+        Assertions.assertEquals(abilityScores, result);
+    }
+
+    @Test
     public void whenAbilityScoreIsValid_saveAbilityScore_SavesTheAbilityScore() {
-        AbilityScore abilityScore = new AbilityScore(1, 1, 1, 1, 1, 1, 1);
+        AbilityScore abilityScore = new AbilityScore(1, UUID.randomUUID(), 1, 1, 1, 1, 1, 1);
         when(abilityScoreRepository.saveAndFlush(abilityScore)).thenReturn(abilityScore);
 
         assertDoesNotThrow(() -> abilityScoreService.saveAbilityScore(abilityScore));
@@ -77,13 +101,13 @@ public class AbilityScoreTest {
 
     @Test
     public void whenAbilityScoreEqualsZero_saveAbilityScore_ThrowsIllegalArgumentException() {
-        AbilityScore abilityScore = new AbilityScore(1, 0, 1, 0, 1, 1, 1);
+        AbilityScore abilityScore = new AbilityScore(1, UUID.randomUUID(), 0, 1, 0, 1, 1, 1);
         assertThrows(IllegalArgumentException.class, () -> abilityScoreService.saveAbilityScore(abilityScore));
     }
 
     @Test
     public void whenAbilityScoreAlreadyExists_saveAbilityScore_ThrowsDataIntegrityViolationException() {
-        AbilityScore abilityScore = new AbilityScore(1, 20, 20, 20, 20, 20, 20);
+        AbilityScore abilityScore = new AbilityScore(1, UUID.randomUUID(), 20, 20, 20, 20, 20, 20);
         when(abilityScoreRepository.abilityScoreExists(abilityScore)).thenReturn(Optional.of(abilityScore));
         assertThrows(DataIntegrityViolationException.class, () -> abilityScoreService.saveAbilityScore(abilityScore));
     }
@@ -107,14 +131,14 @@ public class AbilityScoreTest {
     public void whenAbilityScoreIdIsAForeignKey_deleteAbilityScore_ThrowsDataIntegrityViolationException() {
         int abilityScoreId = 1;
         Person person = new Person(1, "Jane", "Doe", 33, "The Nameless One",
-                2, 2, abilityScoreId, true, false, "Personality", "Description", "Notes");
+                2, 2, abilityScoreId, true, false, "Personality", "Description", "Notes", UUID.randomUUID());
         List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(personRepository));
         List<Person> people = new ArrayList<>(Arrays.asList(person));
 
-        GenericMonster genericMonster = new GenericMonster(1, "name", "desc", abilityScoreId, "traits", "notes");
+        GenericMonster genericMonster = new GenericMonster(1, "name", "desc", abilityScoreId, "traits", "notes", UUID.randomUUID());
         List<GenericMonster> genericMonsters = new ArrayList<>(Arrays.asList(genericMonster));
 
-        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title", 1, 1, abilityScoreId, false, "description", "personality", "notes");
+        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title", 1, 1, abilityScoreId, false, "description", "personality", "notes", UUID.randomUUID());
         List<NamedMonster> namedMonsters = new ArrayList<>(Arrays.asList(namedMonster));
 
         when(abilityScoreRepository.existsById(abilityScoreId)).thenReturn(true);
@@ -129,9 +153,10 @@ public class AbilityScoreTest {
 
     @Test
     public void whenAbilityScoreIdIsFound_updateAbilityScore_UpdatesTheAbilityScore() {
+        UUID campaign = UUID.randomUUID();
         int abilityScoreId = 1;
-        AbilityScore abilityScore = new AbilityScore(abilityScoreId, 10, 10, 10, 10, 10, 10);
-        AbilityScore abilityScoreToUpdate = new AbilityScore(abilityScoreId, 20, 20, 20, 20, 20, 20);
+        AbilityScore abilityScore = new AbilityScore(abilityScoreId, campaign, 10, 10, 10, 10, 10, 10);
+        AbilityScore abilityScoreToUpdate = new AbilityScore(abilityScoreId, campaign, 20, 20, 20, 20, 20, 20);
 
         when(abilityScoreRepository.existsById(abilityScoreId)).thenReturn(true);
         when(abilityScoreRepository.findById(abilityScoreId)).thenReturn(Optional.of(abilityScore));
@@ -152,7 +177,7 @@ public class AbilityScoreTest {
     @Test
     public void whenAbilityScoreIdIsNotFound_updateAbilityScore_ThrowsIllegalArgumentException() {
         int abilityScoreId = 1;
-        AbilityScore abilityScore = new AbilityScore(abilityScoreId, 10, 10, 10, 10, 10, 10);
+        AbilityScore abilityScore = new AbilityScore(abilityScoreId, UUID.randomUUID(), 10, 10, 10, 10, 10, 10);
 
         when(abilityScoreRepository.existsById(abilityScoreId)).thenReturn(false);
 
@@ -162,7 +187,7 @@ public class AbilityScoreTest {
     @Test
     public void whenSomeAbilityScoreFieldsChanged_updateAbilityScore_OnlyUpdatesChangedFields() {
         int abilityScoreId = 1;
-        AbilityScore abilityScore = new AbilityScore(abilityScoreId, 10, 10, 19, 10,
+        AbilityScore abilityScore = new AbilityScore(abilityScoreId, UUID.randomUUID(), 10, 10, 19, 10,
                 10, 13);
 
         int newCon = 17;

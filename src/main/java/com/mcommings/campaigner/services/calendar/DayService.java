@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_DAY;
@@ -40,6 +41,16 @@ public class DayService implements IDay {
     @Override
     public List<Day> getDays() {
         return dayRepository.findAll();
+    }
+
+    @Override
+    public List<Day> getDaysByCampaignUUID(UUID uuid) {
+        return dayRepository.findByfk_campaign_uuid(uuid);
+    }
+
+    @Override
+    public List<Day> getDaysByWeek(int weekId) {
+        return dayRepository.findByfk_week(weekId);
     }
 
     @Override

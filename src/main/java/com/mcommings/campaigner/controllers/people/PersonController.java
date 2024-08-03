@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "api/people/people")
@@ -21,6 +22,11 @@ public class PersonController {
     @GetMapping
     public List<Person> getPeople() {
         return personService.getPeople();
+    }
+
+    @GetMapping(path = "/campaign/{uuid}")
+    public List<Person> getPeopleByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+        return personService.getPeopleByCampaignUUID(uuid);
     }
 
     @PostMapping

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static com.mcommings.campaigner.enums.ForeignKey.FK_ITEM;
@@ -38,6 +39,21 @@ public class RewardService implements IReward {
     @Override
     public List<Reward> getRewards() {
         return rewardRepository.findAll();
+    }
+
+    @Override
+    public List<Reward> getRewardsByCampaignUUID(UUID uuid) {
+        return rewardRepository.findByfk_campaign_uuid(uuid);
+    }
+
+    @Override
+    public List<Reward> getRewardsByItemId(int itemId) {
+        return rewardRepository.findByfk_item(itemId);
+    }
+
+    @Override
+    public List<Reward> getRewardsByWeaponId(int weaponId) {
+        return rewardRepository.findByfk_weapon(weaponId);
     }
 
     @Override
