@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Campaign from "../components/Campaign.jsx";
+import { Col, Container, Row } from "react-bootstrap";
 
 export default function AllCampaigns() {
   const [campaigns, setCampaigns] = useState([]);
@@ -14,17 +15,17 @@ export default function AllCampaigns() {
       });
   }, []);
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col-12">
+    <Container>
+      <Row>
+        <Col xs={12}>
           <h1>Campaigner app</h1>
-          <div className="row">
-            <div className="col-12">
+          <Row>
+            <Col xs={12}>
               <Campaign campaigns={campaigns} />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    </Container>
   );
 }

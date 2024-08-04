@@ -1,51 +1,59 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import Continent from "../components/Continent.jsx";
-import Country from "../components/Country.jsx";
-import City from "../components/City.jsx";
+import Location from "../components/locations/Location.jsx";
+import { Col, Container, Row } from "react-bootstrap";
 
 export default function CampaignOverview(props) {
+  const [isLoading, setLoading] = useState(true);
   const reactLocation = useLocation();
   const campaign = reactLocation.state.campaign;
 
   const [location, setLocation] = useState({});
   useEffect(() => {
-    fetch(
-      `http://localhost:8080/api/locations/${campaign.uuid}`
-    )
+    fetch(`http://localhost:8080/api/locations/${campaign.uuid}`)
       .then((res) => {
         return res.json();
       })
       .then((data) => {
         console.log(data);
         setLocation(data);
+        setLoading(false);
       });
   }, [campaign.uuid]);
 
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center">
+        <div className="spinner-border" role="status"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col-12">
+    <Container>
+      <Row>
+        <Col>
           <h1>Campaign Overview</h1>
           <h4>{campaign.name}</h4>
           <p>{campaign.description}</p>
-          <div className="container">
-            <div className="row">
-              <div className="col-12">
-                <div className="card">
+          <Container fluid>
+            <Row>
+              <Col xs={12}>
+                <div>
                   <h2>Locations</h2>
-                  <City cities={location.cities || []} />
+                  {/* <City cities={location.cities || []} /> */}
+                  <Location location={location || []} />
                 </div>
-              </div>
-              <div className="col-12">
-                <div className="card">
+              </Col>
+              <Col xs={12}>
+                <div>
                   <h2>People</h2>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+              </Col>
+            </Row>
+          </Container>
+        </Col>
+      </Row>
+    </Container>
   );
 }
