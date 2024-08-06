@@ -34,7 +34,7 @@ public class Continent extends BaseEntity {
     private Campaign campaign;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "continent", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "continent")
     private Set<Country> countries = new HashSet<>();
 
     public Continent() {

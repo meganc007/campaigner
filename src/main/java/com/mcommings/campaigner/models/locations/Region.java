@@ -1,15 +1,21 @@
 package com.mcommings.campaigner.models.locations;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mcommings.campaigner.models.BaseEntity;
 import com.mcommings.campaigner.models.Campaign;
 import com.mcommings.campaigner.models.Climate;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "regions")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -30,16 +36,22 @@ public class Region extends BaseEntity {
     private Integer fk_climate;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
     private Campaign campaign;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_country", referencedColumnName = "id", updatable = false, insertable = false)
     private Country country;
 
     @ManyToOne
     @JoinColumn(name = "fk_climate", referencedColumnName = "id", updatable = false, insertable = false)
     private Climate climate;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "region")
+    private Set<City> cities = new HashSet<>();
 
     public Region() {
         super();

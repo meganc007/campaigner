@@ -1,6 +1,7 @@
 package com.mcommings.campaigner.models.locations;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mcommings.campaigner.models.BaseEntity;
 import com.mcommings.campaigner.models.Campaign;
 import com.mcommings.campaigner.models.Government;
@@ -9,6 +10,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -45,6 +48,14 @@ public class Country extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "fk_government", referencedColumnName = "id", updatable = false, insertable = false)
     private Government government;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "country")
+    private Set<Region> regions = new HashSet<>();
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "country")
+    private Set<City> cities = new HashSet<>();
 
     public Country() {
         super();
