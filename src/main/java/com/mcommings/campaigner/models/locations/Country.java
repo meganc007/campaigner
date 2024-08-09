@@ -1,15 +1,21 @@
 package com.mcommings.campaigner.models.locations;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mcommings.campaigner.models.BaseEntity;
 import com.mcommings.campaigner.models.Campaign;
 import com.mcommings.campaigner.models.Government;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "countries")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -30,16 +36,26 @@ public class Country extends BaseEntity {
     private Integer fk_government;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
     private Campaign campaign;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_continent", referencedColumnName = "id", updatable = false, insertable = false)
     private Continent continent;
 
     @ManyToOne
     @JoinColumn(name = "fk_government", referencedColumnName = "id", updatable = false, insertable = false)
     private Government government;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "country")
+    private Set<Region> regions = new HashSet<>();
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "country")
+    private Set<City> cities = new HashSet<>();
 
     public Country() {
         super();
