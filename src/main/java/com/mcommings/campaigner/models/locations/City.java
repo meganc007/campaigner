@@ -1,16 +1,22 @@
 package com.mcommings.campaigner.models.locations;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mcommings.campaigner.models.BaseEntity;
 import com.mcommings.campaigner.models.Campaign;
 import com.mcommings.campaigner.models.Government;
 import com.mcommings.campaigner.models.Wealth;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "cities")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -40,6 +46,7 @@ public class City extends BaseEntity {
     private Integer fk_region;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
     private Campaign campaign;
 
@@ -48,6 +55,7 @@ public class City extends BaseEntity {
     private Wealth wealth;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_country", referencedColumnName = "id", updatable = false, insertable = false)
     private Country country;
 
@@ -60,8 +68,13 @@ public class City extends BaseEntity {
     private Government government;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_region", referencedColumnName = "id", updatable = false, insertable = false)
     private Region region;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "city")
+    private Set<Place> places = new HashSet<>();
 
     public City() {
         super();

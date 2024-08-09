@@ -2,10 +2,12 @@ package com.mcommings.campaigner.models.locations;
 
 import com.mcommings.campaigner.models.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "settlement_types")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)

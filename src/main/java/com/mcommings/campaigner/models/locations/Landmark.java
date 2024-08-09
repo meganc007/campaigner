@@ -1,14 +1,17 @@
 package com.mcommings.campaigner.models.locations;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.mcommings.campaigner.models.BaseEntity;
 import com.mcommings.campaigner.models.Campaign;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "landmarks")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -23,11 +26,18 @@ public class Landmark extends BaseEntity {
     private UUID fk_campaign_uuid;
 
     @Column(name = "fk_region")
+    @JsonBackReference
     private Integer fk_region;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
     private Campaign campaign;
+
+    @ManyToOne
+    @JsonBackReference
+    @JoinColumn(name = "fk_region", referencedColumnName = "id", updatable = false, insertable = false)
+    private Region region;
 
     public Landmark() {
         super();
