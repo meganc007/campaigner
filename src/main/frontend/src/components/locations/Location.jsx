@@ -1,41 +1,64 @@
-import {
-  Accordion,
-  Card,
-  CardBody,
-  CardTitle,
-  CardSubtitle,
-  CardText,
-  Col,
-  Container,
-  Row,
-} from "react-bootstrap";
+import { Col, Container, Row, Nav } from "react-bootstrap";
+import "./location.css";
 
-export default function Location({ location }) {
-  const continents = location.continents;
-  const countries = location.countries;
+export default function Location({ continents }) {
   return (
     <Container>
       <Row>
         <Col>
           <Row>
-            {continents.map((continent) => (
-              <Card key={continent.id} className="col">
-                <CardBody>
-                  <CardTitle>{continent.name}</CardTitle>
-                  <CardSubtitle>Continent</CardSubtitle>
-                  <CardText>{continent.description}</CardText>
+            <Nav>
+              <ul>
+                {continents &&
+                  continents.map((continent) => (
+                    <li key={continent.id}>
+                      <a href="">{continent.name}</a>
+                      {continent.countries.length > 0 && (
+                        <ul>
+                          {continent.countries.map((country) => (
+                            <li key={country.id}>
+                              <a href="">{country.name}</a>
+                              {country.regions.length > 0 && (
+                                <ul>
+                                  {country.regions.map((region) => (
+                                    <li key={region.id}>
+                                      <a href="">{region.name}</a>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
 
-                  {countries.map((country) => (
-                    <Accordion key={country.id} defaultActiveKey={country.id}>
-                      <Accordion.Item eventKey={country.id}>
-                        <Accordion.Header>{country.name}</Accordion.Header>
-                        <Accordion.Body>{country.description}</Accordion.Body>
-                      </Accordion.Item>
-                    </Accordion>
+                    // {country.regions.map((region) => (
+                    //   <div key={region.id}>
+                    //     <p>
+                    //       <strong>Regions</strong>
+                    //     </p>
+                    //     <p>{region.name}</p>
+                    //     <p>{region.description}</p>
+                    //     <p>
+                    //       Climate: <br />
+                    //       {region.climate.name} -{" "}
+                    //       {region.climate.description}
+                    //     </p>
+                    //     {region.landmarks.map((landmark) => (
+                    //       <div key={landmark.id}>
+                    //         <p>
+                    //           <strong>Landmarks</strong>
+                    //         </p>
+                    //         <p>{landmark.name}</p>
+                    //         <p>{landmark.description}</p>
+                    //       </div>
+                    //     ))}
+                    //   </div>
+                    // ))}
                   ))}
-                </CardBody>
-              </Card>
-            ))}
+              </ul>
+            </Nav>
           </Row>
         </Col>
       </Row>
