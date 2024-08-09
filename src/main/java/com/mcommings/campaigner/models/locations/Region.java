@@ -53,6 +53,10 @@ public class Region extends BaseEntity {
     @OneToMany(mappedBy = "region")
     private Set<City> cities = new HashSet<>();
 
+    @JsonManagedReference
+    @OneToMany(mappedBy = "region")
+    private Set<Place> places = new HashSet<>();
+
     public Region() {
         super();
     }

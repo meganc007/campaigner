@@ -1,9 +1,13 @@
 package com.mcommings.campaigner.models.locations;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mcommings.campaigner.models.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -15,6 +19,11 @@ public class Terrain extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "terrain")
+    private Set<Place> places = new HashSet<>();
+
     public Terrain() {
         super();
     }

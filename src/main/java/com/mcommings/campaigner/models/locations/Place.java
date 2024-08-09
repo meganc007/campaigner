@@ -1,5 +1,6 @@
 package com.mcommings.campaigner.models.locations;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.mcommings.campaigner.models.BaseEntity;
 import com.mcommings.campaigner.models.Campaign;
 import jakarta.persistence.*;
@@ -38,6 +39,7 @@ public class Place extends BaseEntity {
     private Integer fk_region;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
     private Campaign campaign;
 
@@ -46,18 +48,22 @@ public class Place extends BaseEntity {
     private PlaceType placeType;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_terrain", referencedColumnName = "id", updatable = false, insertable = false)
     private Terrain terrain;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_country", referencedColumnName = "id", updatable = false, insertable = false)
     private Country country;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_city", referencedColumnName = "id", updatable = false, insertable = false)
     private City city;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "fk_region", referencedColumnName = "id", updatable = false, insertable = false)
     private Region region;
 
