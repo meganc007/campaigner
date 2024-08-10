@@ -1,4 +1,5 @@
 import { Col, Container, Row, Nav } from "react-bootstrap";
+import Countries from "./flowchart/Countries";
 import "./location.css";
 
 export default function Location({ continents }) {
@@ -7,58 +8,23 @@ export default function Location({ continents }) {
       <Row>
         <Col>
           <Row>
-            <Nav>
+            <div className="tree">
               <ul>
                 {continents &&
                   continents.map((continent) => (
                     <li key={continent.id}>
-                      <a href="">{continent.name}</a>
+                      <a href="">
+                        {continent.name}
+                        <br />
+                        <small>Continent</small>
+                      </a>
                       {continent.countries.length > 0 && (
-                        <ul>
-                          {continent.countries.map((country) => (
-                            <li key={country.id}>
-                              <a href="">{country.name}</a>
-                              {country.regions.length > 0 && (
-                                <ul>
-                                  {country.regions.map((region) => (
-                                    <li key={region.id}>
-                                      <a href="">{region.name}</a>
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
+                        <Countries countries={continent.countries} />
                       )}
                     </li>
-
-                    // {country.regions.map((region) => (
-                    //   <div key={region.id}>
-                    //     <p>
-                    //       <strong>Regions</strong>
-                    //     </p>
-                    //     <p>{region.name}</p>
-                    //     <p>{region.description}</p>
-                    //     <p>
-                    //       Climate: <br />
-                    //       {region.climate.name} -{" "}
-                    //       {region.climate.description}
-                    //     </p>
-                    //     {region.landmarks.map((landmark) => (
-                    //       <div key={landmark.id}>
-                    //         <p>
-                    //           <strong>Landmarks</strong>
-                    //         </p>
-                    //         <p>{landmark.name}</p>
-                    //         <p>{landmark.description}</p>
-                    //       </div>
-                    //     ))}
-                    //   </div>
-                    // ))}
                   ))}
               </ul>
-            </Nav>
+            </div>
           </Row>
         </Col>
       </Row>
