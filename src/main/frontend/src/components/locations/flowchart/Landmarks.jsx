@@ -1,3 +1,5 @@
+import Heading from "./Heading";
+
 export default function Landmarks({ landmarks }) {
   return (
     <>
@@ -5,11 +7,7 @@ export default function Landmarks({ landmarks }) {
         <>
           {landmarks.map((landmark) => (
             <li key={landmark.id}>
-              <a href="">
-                {landmark.name}
-                <br />
-                <small>Landmark</small>
-              </a>
+              <Heading data={landmark} subheading="Landmark" />
             </li>
           ))}
         </>

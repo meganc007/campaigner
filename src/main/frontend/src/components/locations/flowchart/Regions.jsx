@@ -1,4 +1,5 @@
 import Cities from "./Cities";
+import Heading from "./Heading";
 
 export default function Regions({ regions }) {
   return (
@@ -7,11 +8,7 @@ export default function Regions({ regions }) {
         <ul>
           {regions.map((region) => (
             <li key={region.id}>
-              <a href="">
-                {region.name}
-                <br />
-                <small>Region</small>
-              </a>
+              <Heading data={region} subheading="Region" />
               <Cities cities={region.cities} landmarks={region.landmarks} />
             </li>
           ))}

@@ -1,4 +1,5 @@
 import Landmarks from "./Landmarks";
+import Heading from "./Heading";
 
 export default function Cities({ cities, landmarks }) {
   return (
@@ -7,11 +8,7 @@ export default function Cities({ cities, landmarks }) {
         <ul>
           {cities.map((city) => (
             <li key={city.id}>
-              <a href="">
-                {city.name}
-                <br />
-                <small>City</small>
-              </a>
+              <Heading data={city} subheading="City" />
             </li>
           ))}
           <Landmarks landmarks={landmarks} />
