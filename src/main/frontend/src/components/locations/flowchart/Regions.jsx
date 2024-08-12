@@ -8,8 +8,16 @@ export default function Regions({ regions }) {
         <ul>
           {regions.map((region) => (
             <li key={region.id}>
-              <Heading data={region} subheading="Region" />
-              <Cities cities={region.cities} landmarks={region.landmarks} />
+              <Heading
+                data={region}
+                subheading="Region"
+                extraInfo={`climate: ${region.climate.name}`}
+              />
+              <Cities
+                cities={region.cities}
+                landmarks={region.landmarks}
+                places={region.places}
+              />
             </li>
           ))}
         </ul>

@@ -1,9 +1,15 @@
-export default function Heading({ data, subheading }) {
+export default function Heading({ data, subheading, extraInfo }) {
   return (
     <a href="">
       {data.name}
-      <br />
-      <small>{subheading}</small>
+
+      <h6>{subheading}</h6>
+
+      {extraInfo !== null && (
+        <>
+          <span>{extraInfo}</span>
+        </>
+      )}
     </a>
   );
 }

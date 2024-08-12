@@ -26,9 +26,10 @@ body {
   min-height: auto;
 }
 
-.tree small {
-  font-size: smaller;
+.tree h6 {
+  font-size: 0.9rem;
   color: silver;
+  margin-bottom: 0.25rem;
 }
 
 .tree ul {
@@ -43,6 +44,10 @@ body {
   
   text-align: center;
   list-style-type: none; 
+}
+
+.tree li span {
+  font-size: small;
 }
 
 .tree li::before, .tree li::after{
