@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.models.locations;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.mcommings.campaigner.models.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -22,7 +22,7 @@ public class Terrain extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @JsonManagedReference
+    @JsonBackReference
     @OneToMany(mappedBy = "terrain")
     private Set<Place> places = new HashSet<>();
 

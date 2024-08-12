@@ -1,6 +1,7 @@
 package com.mcommings.campaigner.models.locations;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.mcommings.campaigner.models.BaseEntity;
 import com.mcommings.campaigner.models.Campaign;
 import jakarta.persistence.*;
@@ -50,7 +51,7 @@ public class Place extends BaseEntity {
     private PlaceType placeType;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonManagedReference
     @JoinColumn(name = "fk_terrain", referencedColumnName = "id", updatable = false, insertable = false)
     private Terrain terrain;
 
