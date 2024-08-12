@@ -11,7 +11,13 @@ export default function Places({ places, comparison }) {
                 <Heading
                   data={place}
                   subheading="Place"
-                  extraInfo={`Type: ${place.placeType.name}`}
+                  extraInfo={
+                    <>
+                      Type: {place.placeType.name}
+                      <br />
+                      Terrain: {place.terrain.name}
+                    </>
+                  }
                 />
               </li>
             ) : null
