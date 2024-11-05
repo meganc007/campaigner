@@ -9,6 +9,7 @@ export default function Regions({ regions }) {
           {regions.map((region) => (
             <li key={region.id}>
               <Heading
+                classType="region"
                 data={region}
                 subheading="Region"
                 extraInfo={`climate: ${region.climate.name}`}

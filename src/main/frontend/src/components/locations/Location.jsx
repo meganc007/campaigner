@@ -4,7 +4,7 @@ import Continents from "./flowchart/Continents";
 
 export default function Location({ continents }) {
   return (
-    <Container>
+    <Container fluid>
       <Row>
         <Col>
           <Row>

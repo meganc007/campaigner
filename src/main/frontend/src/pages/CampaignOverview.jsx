@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Location from "../components/locations/Location.jsx";
-import Continent from "../components/locations/Continent.jsx";
 import { Col, Container, Row } from "react-bootstrap";
 
 export default function CampaignOverview(props) {
@@ -33,7 +32,7 @@ export default function CampaignOverview(props) {
   }
 
   return (
-    <Container>
+    <Container fluid>
       <Row>
         <Col>
           <h1>Campaign Overview</h1>

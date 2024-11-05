@@ -7,7 +7,11 @@ export default function Continents({ continents }) {
       {continents &&
         continents.map((continent) => (
           <li key={continent.id}>
-            <Heading data={continent} subheading="Continent" />
+            <Heading
+              data={continent}
+              subheading="Continent"
+              classType="continent"
+            />
             {continent.countries.length > 0 && (
               <Countries countries={continent.countries} />
             )}
