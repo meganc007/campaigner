@@ -7,7 +7,11 @@ export default function Landmarks({ landmarks }) {
         <>
           {landmarks.map((landmark) => (
             <li key={landmark.id}>
-              <Heading data={landmark} subheading="Landmark" />
+              <Heading
+                data={landmark}
+                subheading="Landmark"
+                classType="landmark"
+              />
             </li>
           ))}
         </>

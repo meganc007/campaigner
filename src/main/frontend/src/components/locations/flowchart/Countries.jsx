@@ -6,7 +6,7 @@ export default function Countries({ countries }) {
     <ul>
       {countries.map((country) => (
         <li key={country.id}>
-          <Heading data={country} subheading="Country" />
+          <Heading data={country} subheading="Country" classType="country" />
           <Regions regions={country.regions} />
         </li>
       ))}

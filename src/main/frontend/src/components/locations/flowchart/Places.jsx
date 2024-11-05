@@ -9,6 +9,7 @@ export default function Places({ places, comparison }) {
             place.fk_city === comparison ? (
               <li key={place.id}>
                 <Heading
+                  classType="place"
                   data={place}
                   subheading="Place"
                   extraInfo={
