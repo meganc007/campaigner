@@ -1,30 +1,34 @@
 import { Col, Container, Row } from "react-bootstrap";
+import { useState } from "react";
 
 export default function Heading({ data, subheading, extraInfo, classType }) {
+  const [toggle, setToggle] = useState(true);
   function handleClick(event) {
     event.preventDefault();
-    alert(data.description);
-    extraInfo !== undefined && alert(extraInfo.extraInfo);
+    setToggle(!toggle);
   }
   return (
     <div className={classType}>
       <a href="" onClick={handleClick}>
         <h5>{data.name}</h5>
-        <h6>{subheading}</h6>
-        <Container fluid>
-          <Row>
-            <Col>
-              <span className="description">{data.description}</span>
-            </Col>
-          </Row>
-        </Container>
-        {extraInfo !== null && (
+        {toggle == true && (
           <>
-            <span>{extraInfo}</span>
+            <h6>{subheading}</h6>
+            <Container fluid>
+              <Row>
+                <Col>
+                  <span className="description">{data.description}</span>
+                </Col>
+                {extraInfo !== null && (
+                  <>
+                    <span>{extraInfo}</span>
+                  </>
+                )}
+              </Row>
+            </Container>
           </>
         )}
       </a>
     </div>
   );
 }
-//TODO: change extrainfo to accept and map through object of arrays
