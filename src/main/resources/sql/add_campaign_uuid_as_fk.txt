@@ -1,0 +1,5 @@
+hooks_places_people
+objectives_places_people_items_weapons
+outcomes_places_people_items_weapons
+conditionals
+quests
