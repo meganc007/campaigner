@@ -3,8 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
+  --white: #ffffff;
   --foreground: #171717;
+  --verdigris: #70a9a1;
+  --paynesgray: #3d5a6c;
+  --amber: #f3b700;
+  --oldrose: #b98389;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,9 +18,42 @@
   }
 }
 
+@layer base {
+  @font-face {
+    font-family: Lato;
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("./fonts/Lato/Lato-Regular.ttf");
+  }
+
+  @font-face {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("./fonts/Montserrat/Montserrat-Regular.ttf");
+  }
+
+  @font-face {
+    font-family: Oswald;
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("./fonts/Oswald/Oswald-VariableFont_wght.ttf");
+  }
+}
+
 body {
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paynesgray);
   padding: 1rem;
+  @apply font-Lato;
+  font-size: 1.25rem;
+}
+
+body h1 {
+  @apply font-Oswald;
+  font-weight: 400;
+  font-size: 3rem;
 }

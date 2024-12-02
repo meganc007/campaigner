@@ -13,6 +13,11 @@ export default {
         foreground: "var(--foreground)",
       },
     },
+    fontFamily: {
+      Lato: ["Lato", "sans-serif"],
+      Montserrat: ["Montserrat", "sans-serif"],
+      Oswald: ["Oswald", "sans-serif"],
+    },
   },
   plugins: [],
 } satisfies Config;

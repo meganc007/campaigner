@@ -1,7 +1,7 @@
-export default function Overview() {
+export default function AllCampaigns() {
   return (
     <div>
-      <h1>Campaign Overview</h1>
+      <h1>Choose a campaign to view/edit</h1>
     </div>
   );
 }
