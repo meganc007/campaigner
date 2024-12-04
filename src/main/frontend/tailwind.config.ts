@@ -12,11 +12,18 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
-    },
-    fontFamily: {
-      Lato: ["Lato", "sans-serif"],
-      Montserrat: ["Montserrat", "sans-serif"],
-      Oswald: ["Oswald", "sans-serif"],
+      fontFamily: {
+        Lato: ["Lato", "sans-serif"],
+        Montserrat: ["Montserrat", "sans-serif"],
+        Oswald: ["Oswald", "sans-serif"],
+      },
+      fontWeight: {
+        extralight: "100",
+        light: "300",
+        medium: "400",
+        bold: "700",
+        extrabold: "900",
+      },
     },
   },
   plugins: [],

@@ -22,9 +22,65 @@
   @font-face {
     font-family: Lato;
     font-style: normal;
+    font-weight: 100;
+    font-display: swap;
+    src: url("./fonts/Lato/Lato-Thin.ttf");
+  }
+
+  @font-face {
+    font-family: Lato;
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url("./fonts/Lato/Lato-Light.ttf");
+  }
+
+  @font-face {
+    font-family: Lato;
+    font-style: normal;
     font-weight: 400;
     font-display: swap;
     src: url("./fonts/Lato/Lato-Regular.ttf");
+  }
+
+  @font-face {
+    font-family: Lato;
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("./fonts/Lato/Lato-Bold.ttf");
+  }
+
+  @font-face {
+    font-family: Lato;
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("./fonts/Lato/Lato-Black.ttf");
+  }
+
+  @font-face {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 100;
+    font-display: swap;
+    src: url("./fonts/Montserrat/Montserrat-Thin.ttf");
+  }
+
+  @font-face {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 200;
+    font-display: swap;
+    src: url("./fonts/Montserrat/Montserrat-ExtraLight.ttf");
+  }
+
+  @font-face {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url("./fonts/Montserrat/Montserrat-Light.ttf");
   }
 
   @font-face {
@@ -36,12 +92,67 @@
   }
 
   @font-face {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("./fonts/Montserrat/Montserrat-Medium.ttf");
+  }
+
+  @font-face {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("./fonts/Montserrat/Montserrat-SemiBold.ttf");
+  }
+
+  @font-face {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("./fonts/Montserrat/Montserrat-Bold.ttf");
+  }
+
+  @font-face {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url("./fonts/Montserrat/Montserrat-ExtraBold.ttf");
+  }
+
+  @font-face {
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 900;
+    font-display: swap;
+    src: url("./fonts/Montserrat/Montserrat-Black.ttf");
+  }
+
+  @font-face {
     font-family: Oswald;
     font-style: normal;
     font-weight: 400;
     font-display: swap;
     src: url("./fonts/Oswald/Oswald-VariableFont_wght.ttf");
   }
+}
+
+.bg-amber {
+  --tw-bg-opacity: 1;
+  background-color: var(--amber);
+}
+
+.bg-old-rose {
+  --tw-bg-opacity: 1;
+  background-color: var(--oldrose);
+}
+
+.bg-verdigris {
+  --tw-bg-opacity: 1;
+  background-color: var(--verdigris);
 }
 
 body {
@@ -53,7 +164,11 @@ body {
 }
 
 body h1 {
-  @apply font-Oswald;
-  font-weight: 400;
+  @apply font-Oswald font-medium p-5;
   font-size: 3rem;
+}
+
+body h2 {
+  @apply font-Montserrat font-medium uppercase tracking-wider;
+  font-size: 2rem;
 }
