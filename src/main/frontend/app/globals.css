@@ -5,10 +5,13 @@
 :root {
   --white: #ffffff;
   --foreground: #171717;
+  --silver: #bfbfbf;
+  --platinum: #e8e8e8;
+  --orange_wheel: #ff7d00;
+  --celestial_blue: #5398be;
   --verdigris: #70a9a1;
-  --paynesgray: #3d5a6c;
-  --amber: #f3b700;
-  --oldrose: #b98389;
+  --spring_green: #00ff7d;
+  --black: #000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,155 +23,81 @@
 
 @layer base {
   @font-face {
-    font-family: Lato;
-    font-style: normal;
-    font-weight: 100;
-    font-display: swap;
-    src: url("./fonts/Lato/Lato-Thin.ttf");
-  }
-
-  @font-face {
-    font-family: Lato;
-    font-style: normal;
-    font-weight: 300;
-    font-display: swap;
-    src: url("./fonts/Lato/Lato-Light.ttf");
-  }
-
-  @font-face {
-    font-family: Lato;
+    font-family: CabinCondensed;
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url("./fonts/Lato/Lato-Regular.ttf");
+    src: url("./fonts/Cabin_Condensed/CabinCondensed-Regular.ttf");
   }
 
   @font-face {
-    font-family: Lato;
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url("./fonts/Lato/Lato-Bold.ttf");
-  }
-
-  @font-face {
-    font-family: Lato;
-    font-style: normal;
-    font-weight: 800;
-    font-display: swap;
-    src: url("./fonts/Lato/Lato-Black.ttf");
-  }
-
-  @font-face {
-    font-family: Montserrat;
-    font-style: normal;
-    font-weight: 100;
-    font-display: swap;
-    src: url("./fonts/Montserrat/Montserrat-Thin.ttf");
-  }
-
-  @font-face {
-    font-family: Montserrat;
-    font-style: normal;
-    font-weight: 200;
-    font-display: swap;
-    src: url("./fonts/Montserrat/Montserrat-ExtraLight.ttf");
-  }
-
-  @font-face {
-    font-family: Montserrat;
-    font-style: normal;
-    font-weight: 300;
-    font-display: swap;
-    src: url("./fonts/Montserrat/Montserrat-Light.ttf");
-  }
-
-  @font-face {
-    font-family: Montserrat;
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url("./fonts/Montserrat/Montserrat-Regular.ttf");
-  }
-
-  @font-face {
-    font-family: Montserrat;
+    font-family: CabinCondensed;
     font-style: normal;
     font-weight: 500;
     font-display: swap;
-    src: url("./fonts/Montserrat/Montserrat-Medium.ttf");
+    src: url("./fonts/Cabin_Condensed/CabinCondensed-Medium.ttf");
   }
 
   @font-face {
-    font-family: Montserrat;
+    font-family: CabinCondensed;
     font-style: normal;
     font-weight: 600;
     font-display: swap;
-    src: url("./fonts/Montserrat/Montserrat-SemiBold.ttf");
+    src: url("./fonts/Cabin_Condensed/CabinCondensed-SemiBold.ttf");
   }
 
   @font-face {
-    font-family: Montserrat;
+    font-family: CabinCondensed;
     font-style: normal;
     font-weight: 700;
     font-display: swap;
-    src: url("./fonts/Montserrat/Montserrat-Bold.ttf");
+    src: url("./fonts/Cabin_Condensed/CabinCondensed-Bold.ttf");
   }
 
   @font-face {
-    font-family: Montserrat;
-    font-style: normal;
-    font-weight: 800;
-    font-display: swap;
-    src: url("./fonts/Montserrat/Montserrat-ExtraBold.ttf");
-  }
-
-  @font-face {
-    font-family: Montserrat;
-    font-style: normal;
-    font-weight: 900;
-    font-display: swap;
-    src: url("./fonts/Montserrat/Montserrat-Black.ttf");
-  }
-
-  @font-face {
-    font-family: Oswald;
+    font-family: JetBrainsMono;
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url("./fonts/Oswald/Oswald-VariableFont_wght.ttf");
+    src: url("./fonts/JetBrains_Mono/JetBrainsMono-Regular.ttf");
   }
-}
 
-.bg-amber {
-  --tw-bg-opacity: 1;
-  background-color: var(--amber);
-}
+  @font-face {
+    font-family: Grenze;
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("./fonts/Grenze/Grenze-Regular.ttf");
+  }
 
-.bg-old-rose {
-  --tw-bg-opacity: 1;
-  background-color: var(--oldrose);
-}
+  body {
+    color: var(--black);
+    background: var(--white);
+    @apply font-CabinCondensed text-base;
+  }
 
-.bg-verdigris {
-  --tw-bg-opacity: 1;
-  background-color: var(--verdigris);
-}
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-Grenze font-medium;
+  }
 
-body {
-  color: var(--foreground);
-  background: var(--paynesgray);
-  padding: 1rem;
-  @apply font-Lato;
-  font-size: 1.25rem;
-}
+  h1 {
+    @apply text-6xl;
+  }
 
-body h1 {
-  @apply font-Oswald font-medium p-5;
-  font-size: 3rem;
-}
+  h2 {
+    @apply text-2xl;
+  }
 
-body h2 {
-  @apply font-Montserrat font-medium uppercase tracking-wider;
-  font-size: 2rem;
+  h3 {
+    @apply text-xl;
+  }
+
+  #header ul li {
+    @apply font-JetBrainsMono font-medium;
+  }
 }

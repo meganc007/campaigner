@@ -11,11 +11,17 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        silver: "#bfbfbf",
+        platinum: "#e8e8e8",
+        orange_wheel: "#FF7D00",
+        celestial_blue: "#5398BE",
+        verdigris: "#70A9A1",
+        spring_green: "#00FF7D",
       },
       fontFamily: {
-        Lato: ["Lato", "sans-serif"],
-        Montserrat: ["Montserrat", "sans-serif"],
-        Oswald: ["Oswald", "sans-serif"],
+        CabinCondensed: ["CabinCondensed", "sans-serif"],
+        JetBrainsMono: ["JetBrainsMono", "sans-serif"],
+        Grenze: ["Grenze", "sans-serif"],
       },
       fontWeight: {
         extralight: "100",
