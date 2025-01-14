@@ -1,6 +1,6 @@
 export default function HomeGrid() {
   return (
-    <div className="flex flex-col p-4 md:p-12">
+    <div className="flex flex-col p-4 md:p-6 lg:p-12">
       <p className="text-lg pb-4 w-fit text-center mx-auto">
         Forget mountains of notebooks. Campaigner is your ultimate campaign
         management tool, featuring:

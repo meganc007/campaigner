@@ -5,9 +5,9 @@ export default function Home() {
   return (
     <div className="md:text-lg">
       <div className="flex flex-col justify-between md:flex-row">
-        <div className="flex flex-col p-2 bg-orange_wheel md:w-6/12">
-          <h1 className="md:text-8xl z-10">Campaigner</h1>
-          <h2 className="md:text-4xl px-2 max-w-xl">
+        <div className="flex flex-col p-2 bg-orange_wheel md:justify-center md:w-6/12">
+          <h1 className="md:text-7xl lg:text-8xl">Campaigner</h1>
+          <h2 className="px-2 max-w-xl md:text-3xl lg:text-4xl">
             A new way to organize your ttrpg campaign
           </h2>
         </div>

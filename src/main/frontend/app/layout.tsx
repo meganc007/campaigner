@@ -14,8 +14,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>
-        <header>
+      <body className={`antialiased h-screen`}>
+        <header className="sticky w-full z-10 top-0 left-0 items-center">
           <MenuTop />
         </header>
         {children}

@@ -10,6 +10,7 @@
   --orange_wheel: #ff7d00;
   --celestial_blue: #5398be;
   --verdigris: #70a9a1;
+  --mantis: #6db84c;
   --spring_green: #00ff7d;
   --black: #000;
 }
@@ -95,9 +96,5 @@
 
   h3 {
     @apply text-xl;
-  }
-
-  #header ul li {
-    @apply font-JetBrainsMono font-medium;
   }
 }

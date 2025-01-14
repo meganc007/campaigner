@@ -16,6 +16,7 @@ export default {
         orange_wheel: "#FF7D00",
         celestial_blue: "#5398BE",
         verdigris: "#70A9A1",
+        mantis: "#6DB84C",
         spring_green: "#00FF7D",
       },
       fontFamily: {
