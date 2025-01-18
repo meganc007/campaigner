@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "../globals.css";
+import MenuTop from "../components/nav/menu-top";
 
 export const metadata: Metadata = {
   title: "Campaigner",
@@ -13,7 +14,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased h-screen`}>{children}</body>
+      <body className={`antialiased h-screen`}>
+        <MenuTop />
+        {children}
+      </body>
     </html>
   );
 }
