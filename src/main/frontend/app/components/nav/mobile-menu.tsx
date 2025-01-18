@@ -1,4 +1,3 @@
-import Link from "next/link";
 import MobileNavItem from "./mobile-nav-item";
 
 export default function MobileMenu({
