@@ -9,9 +9,9 @@
   --platinum: #e8e8e8;
   --orange_wheel: #ff7d00;
   --celestial_blue: #5398be;
-  --verdigris: #70a9a1;
+  --icterine: #faf33e;
+  --gunmetal: #1f363d;
   --mantis: #6db84c;
-  --spring_green: #00ff7d;
   --black: #000;
 }
 
@@ -24,7 +24,7 @@
 
 @layer base {
   @font-face {
-    font-family: CabinCondensed;
+    font-family: "CabinCondensed";
     font-style: normal;
     font-weight: 400;
     font-display: swap;
@@ -32,7 +32,7 @@
   }
 
   @font-face {
-    font-family: CabinCondensed;
+    font-family: "CabinCondensed";
     font-style: normal;
     font-weight: 500;
     font-display: swap;
@@ -40,7 +40,7 @@
   }
 
   @font-face {
-    font-family: CabinCondensed;
+    font-family: "CabinCondensed";
     font-style: normal;
     font-weight: 600;
     font-display: swap;
@@ -48,7 +48,7 @@
   }
 
   @font-face {
-    font-family: CabinCondensed;
+    font-family: "CabinCondensed";
     font-style: normal;
     font-weight: 700;
     font-display: swap;
@@ -56,7 +56,7 @@
   }
 
   @font-face {
-    font-family: JetBrainsMono;
+    font-family: "JetBrainsMono";
     font-style: normal;
     font-weight: 400;
     font-display: swap;
@@ -64,7 +64,7 @@
   }
 
   @font-face {
-    font-family: Grenze;
+    font-family: "Grenze";
     font-style: normal;
     font-weight: 400;
     font-display: swap;
@@ -75,6 +75,14 @@
     color: var(--black);
     background: var(--white);
     @apply font-CabinCondensed text-base;
+  }
+
+  a {
+    @apply underline bg-icterine hover:bg-celestial_blue hover:no-underline;
+  }
+
+  header a {
+    @apply no-underline bg-transparent hover:bg-transparent;
   }
 
   h1,
@@ -141,5 +149,9 @@
 
   .open .hamburger-bottom {
     transform: rotate(-45deg) translateY(6px) translateX(-6px);
+  }
+
+  .mobile-nav-item {
+    @apply p-2 rounded-r-sm border-l-4 border-transparent hover:border-l-4 hover:border-gunmetal hover:bg-icterine transition ease-in-out duration-150;
   }
 }

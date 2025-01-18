@@ -15,9 +15,9 @@ export default {
         platinum: "#e8e8e8",
         orange_wheel: "#FF7D00",
         celestial_blue: "#5398BE",
-        verdigris: "#70A9A1",
+        icterine: "#faf33e",
+        gunmetal: "#1F363D",
         mantis: "#6DB84C",
-        spring_green: "#00FF7D",
       },
       fontFamily: {
         CabinCondensed: ["CabinCondensed", "sans-serif"],
