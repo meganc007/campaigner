@@ -18,15 +18,23 @@ import static com.mcommings.campaigner.enums.ErrorMessage.*;
 public class CampaignService implements ICampaign {
     
     private final ICampaignRepository campaignRepository;
-    
+
     @Autowired
     public CampaignService(ICampaignRepository campaignRepository) {
         this.campaignRepository = campaignRepository;
     }
-    
+
     @Override
     public List<Campaign> getCampaigns() {
         return campaignRepository.findAll();
+    }
+
+    @Override
+    public Campaign getCampaign(UUID uuid) {
+        if (cannotFindUuid(uuid)) {
+            throw new IllegalArgumentException(ID_NOT_FOUND.message);
+        }
+        return getByUuid(uuid);
     }
 
     @Override

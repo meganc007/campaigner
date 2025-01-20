@@ -53,6 +53,25 @@ public class CampaignTest {
     }
 
     @Test
+    public void whenCampaignUUIDIsValid_getCampaign_ReturnsCampaign() {
+        Campaign campaign = new Campaign("City 1", "Description 1");
+        UUID uuid = campaign.getUuid();
+
+        when(campaignRepository.findByUuid(uuid)).thenReturn(Optional.of(campaign));
+
+        Campaign result = campaignService.getCampaign(uuid);
+
+        Assertions.assertNotNull(campaign);
+        Assertions.assertEquals(campaign, result);
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getCampaign_ThrowsIllegalArgumentException() {
+        UUID uuid = UUID.randomUUID();
+        assertThrows(IllegalArgumentException.class, () -> campaignService.getCampaign(uuid));
+    }
+
+    @Test
     public void whenCampaignIsValid_saveCampaign_SavesTheCampaign() {
         Campaign campaign = new Campaign("Campaign 1", "Description 1");
         when(campaignRepository.saveAndFlush(campaign)).thenReturn(campaign);

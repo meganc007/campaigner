@@ -13,22 +13,27 @@ import java.util.UUID;
 public class CampaignController {
     
     private final CampaignService campaignService;
-    
+
     @Autowired
-    public CampaignController (CampaignService campaignService) {
+    public CampaignController(CampaignService campaignService) {
         this.campaignService = campaignService;
     }
-    
+
     @GetMapping
     public List<Campaign> getCampaigns() {
         return campaignService.getCampaigns();
+    }
+
+    @GetMapping(path = "/{uuid}")
+    public Campaign getCampaign(@PathVariable("uuid") UUID uuid) {
+        return campaignService.getCampaign(uuid);
     }
 
     @PostMapping
     public void saveCampaign(@RequestBody Campaign campaign) {
         campaignService.saveCampaign(campaign);
     }
-    
+
     @DeleteMapping(path = "{uuid}")
     public void deleteCampaign(@PathVariable("uuid") UUID uuid) {
         campaignService.deleteCampaign(uuid);
