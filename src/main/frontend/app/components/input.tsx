@@ -12,7 +12,7 @@ export default function Input({
   errorMessage?: string;
 }) {
   return (
-    <div>
+    <div className="flex flex-col">
       <label htmlFor={inputId}>{labelText}</label>
       <input
         id={inputId}

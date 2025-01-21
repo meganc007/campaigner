@@ -9,6 +9,8 @@ public interface ICampaign {
 
     List<Campaign> getCampaigns();
 
+    Campaign getCampaign(UUID uuid);
+
     void saveCampaign(Campaign campaign);
 
     void deleteCampaign(UUID uuid);
