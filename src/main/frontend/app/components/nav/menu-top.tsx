@@ -2,6 +2,7 @@
 import { useState } from "react";
 import NavItem from "./nav-item";
 import MobileMenu from "./mobile-menu";
+import HamburgerButton from "./hamburger-btn";
 
 export default function MenuTop() {
   const [toggleMenuButton, setToggleMenuButton] = useState(false);
@@ -13,7 +14,7 @@ export default function MenuTop() {
   };
 
   return (
-    <header className="sticky w-full z-10 top-0 left-0 items-center">
+    <div className="sticky w-full z-10 top-0 left-0 items-center">
       <div className="bg-silver border-b-4 border-gunmetal drop-shadow-md shadow-gray-800 p-4">
         {/* <!-- Desktop Menu --> */}
         <nav className="flex justify-center font-JetBrainsMono font-medium text-base">
@@ -26,24 +27,13 @@ export default function MenuTop() {
             <NavItem linkTo="#" src="/globe.svg" itemText="Events" />
             <NavItem linkTo="#" src="/globe.svg" itemText="Monsters" />
           </div>
-          {/* <!-- Hamburger Button --> */}
-          <div className="md:hidden">
-            <button
-              type="button"
-              className={`z-40 block hamburger md:hidden ${
-                toggleMenuButton ? "open" : ""
-              }`}
-              onClick={handleClick}
-            >
-              <span className="hamburger-top"></span>
-              <span className="hamburger-middle"></span>
-              <span className="hamburger-bottom"></span>
-            </button>
-          </div>
+          <HamburgerButton
+            toggleMenuButton={toggleMenuButton}
+            onClick={handleClick}
+          />
         </nav>
-        {/* <!-- Mobile Menu --> */}
         <MobileMenu toggleMenuMobile={toggleMenuMobile} />
       </div>
-    </header>
+    </div>
   );
 }
