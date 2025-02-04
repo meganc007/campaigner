@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.people;
 
-import com.mcommings.campaigner.models.people.EventPlacePerson;
+import com.mcommings.campaigner.entities.people.EventPlacePerson;
 
 import java.util.List;
 import java.util.UUID;

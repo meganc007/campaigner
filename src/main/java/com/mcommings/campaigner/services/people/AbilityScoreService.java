@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.people;
 
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.people.AbilityScore;
 import com.mcommings.campaigner.interfaces.people.IAbilityScore;
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.people.AbilityScore;
 import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
 import com.mcommings.campaigner.repositories.people.IGenericMonsterRepository;
 import com.mcommings.campaigner.repositories.people.INamedMonsterRepository;

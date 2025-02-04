@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.calendar;
 
-import com.mcommings.campaigner.models.calendar.Day;
+import com.mcommings.campaigner.entities.calendar.Day;
 
 import java.util.List;
 import java.util.UUID;

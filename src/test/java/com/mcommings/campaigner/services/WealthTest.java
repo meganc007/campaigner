@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.services;
 
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.Wealth;
-import com.mcommings.campaigner.models.locations.City;
-import com.mcommings.campaigner.models.people.NamedMonster;
-import com.mcommings.campaigner.models.people.Person;
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.Wealth;
+import com.mcommings.campaigner.entities.locations.City;
+import com.mcommings.campaigner.entities.people.NamedMonster;
+import com.mcommings.campaigner.entities.people.Person;
 import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
 import com.mcommings.campaigner.repositories.people.INamedMonsterRepository;

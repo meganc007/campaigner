@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.repositories.calendar;
 
-import com.mcommings.campaigner.models.calendar.Day;
+import com.mcommings.campaigner.entities.calendar.Day;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

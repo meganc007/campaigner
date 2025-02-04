@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.people.Job;
-import com.mcommings.campaigner.models.people.JobAssignment;
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.people.Job;
+import com.mcommings.campaigner.entities.people.JobAssignment;
 import com.mcommings.campaigner.repositories.people.IJobAssignmentRepository;
 import com.mcommings.campaigner.repositories.people.IJobRepository;
 import org.junit.jupiter.api.Assertions;

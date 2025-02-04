@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.repositories;
 
-import com.mcommings.campaigner.models.Climate;
+import com.mcommings.campaigner.entities.Climate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

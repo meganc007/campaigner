@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.repositories.admin;
 
-import com.mcommings.campaigner.models.admin.Role;
+import com.mcommings.campaigner.entities.admin.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

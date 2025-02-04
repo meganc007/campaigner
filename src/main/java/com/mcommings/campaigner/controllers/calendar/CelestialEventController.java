@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers.calendar;
 
-import com.mcommings.campaigner.models.calendar.CelestialEvent;
+import com.mcommings.campaigner.entities.calendar.CelestialEvent;
 import com.mcommings.campaigner.services.calendar.CelestialEventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

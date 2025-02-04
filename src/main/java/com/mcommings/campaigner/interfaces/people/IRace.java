@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.people;
 
-import com.mcommings.campaigner.models.people.Race;
+import com.mcommings.campaigner.entities.people.Race;
 
 import java.util.List;
 

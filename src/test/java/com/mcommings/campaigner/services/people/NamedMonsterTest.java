@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.models.people.NamedMonster;
+import com.mcommings.campaigner.entities.people.NamedMonster;
 import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
 import com.mcommings.campaigner.repositories.people.IGenericMonsterRepository;

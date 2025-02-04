@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.quests;
 
-import com.mcommings.campaigner.models.quests.Reward;
+import com.mcommings.campaigner.entities.quests.Reward;
 import com.mcommings.campaigner.repositories.items.IItemRepository;
 import com.mcommings.campaigner.repositories.items.IWeaponRepository;
 import com.mcommings.campaigner.repositories.quests.IRewardRepository;

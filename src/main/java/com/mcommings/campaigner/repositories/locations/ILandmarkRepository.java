@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.repositories.locations;
 
-import com.mcommings.campaigner.models.locations.Landmark;
+import com.mcommings.campaigner.entities.locations.Landmark;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.calendar;
 
-import com.mcommings.campaigner.models.calendar.Sun;
+import com.mcommings.campaigner.entities.calendar.Sun;
 
 import java.util.List;
 import java.util.UUID;

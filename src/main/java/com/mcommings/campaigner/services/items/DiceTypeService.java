@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.items;
 
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.items.DiceType;
 import com.mcommings.campaigner.interfaces.items.IDiceType;
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.items.DiceType;
 import com.mcommings.campaigner.repositories.items.IDiceTypeRepository;
 import com.mcommings.campaigner.repositories.items.IWeaponRepository;
 import jakarta.transaction.Transactional;

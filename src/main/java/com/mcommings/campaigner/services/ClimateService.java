@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services;
 
+import com.mcommings.campaigner.entities.Climate;
+import com.mcommings.campaigner.entities.RepositoryHelper;
 import com.mcommings.campaigner.interfaces.IClimate;
-import com.mcommings.campaigner.models.Climate;
-import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.repositories.IClimateRepository;
 import com.mcommings.campaigner.repositories.locations.IRegionRepository;
 import jakarta.transaction.Transactional;

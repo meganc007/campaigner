@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.items;
 
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.items.Inventory;
 import com.mcommings.campaigner.interfaces.items.IInventory;
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.items.Inventory;
 import com.mcommings.campaigner.repositories.items.IInventoryRepository;
 import com.mcommings.campaigner.repositories.items.IItemRepository;
 import com.mcommings.campaigner.repositories.items.IWeaponRepository;

@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.repositories.people;
 
-import com.mcommings.campaigner.models.people.GenericMonster;
+import com.mcommings.campaigner.entities.people.GenericMonster;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.quests;
 
-import com.mcommings.campaigner.models.quests.Outcome;
+import com.mcommings.campaigner.entities.quests.Outcome;
 import com.mcommings.campaigner.repositories.quests.IOutcomeRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

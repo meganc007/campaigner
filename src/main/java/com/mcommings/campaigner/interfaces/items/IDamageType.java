@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.items;
 
-import com.mcommings.campaigner.models.items.DamageType;
+import com.mcommings.campaigner.entities.items.DamageType;
 
 import java.util.List;
 

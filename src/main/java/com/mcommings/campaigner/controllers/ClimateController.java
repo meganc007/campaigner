@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers;
 
-import com.mcommings.campaigner.models.Climate;
+import com.mcommings.campaigner.entities.Climate;
 import com.mcommings.campaigner.services.ClimateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

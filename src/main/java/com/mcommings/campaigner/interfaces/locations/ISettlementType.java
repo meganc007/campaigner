@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.locations;
 
-import com.mcommings.campaigner.models.locations.SettlementType;
+import com.mcommings.campaigner.entities.locations.SettlementType;
 
 import java.util.List;
 

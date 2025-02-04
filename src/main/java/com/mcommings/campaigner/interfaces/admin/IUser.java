@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.admin;
 
-import com.mcommings.campaigner.models.admin.User;
+import com.mcommings.campaigner.entities.admin.User;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers.items;
 
-import com.mcommings.campaigner.models.items.ItemType;
+import com.mcommings.campaigner.entities.items.ItemType;
 import com.mcommings.campaigner.services.items.ItemTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

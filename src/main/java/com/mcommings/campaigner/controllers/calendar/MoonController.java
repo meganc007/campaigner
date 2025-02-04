@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers.calendar;
 
-import com.mcommings.campaigner.models.calendar.Moon;
+import com.mcommings.campaigner.entities.calendar.Moon;
 import com.mcommings.campaigner.services.calendar.MoonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

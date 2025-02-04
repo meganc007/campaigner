@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.repositories.items;
 
-import com.mcommings.campaigner.models.items.DiceType;
+import com.mcommings.campaigner.entities.items.DiceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

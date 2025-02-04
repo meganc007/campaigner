@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.locations.Place;
-import com.mcommings.campaigner.models.locations.Terrain;
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.locations.Place;
+import com.mcommings.campaigner.entities.locations.Terrain;
 import com.mcommings.campaigner.repositories.locations.IPlaceRepository;
 import com.mcommings.campaigner.repositories.locations.ITerrainRepository;
 import org.junit.jupiter.api.Assertions;

@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.quests;
 
-import com.mcommings.campaigner.models.quests.Hook;
+import com.mcommings.campaigner.entities.quests.Hook;
 import com.mcommings.campaigner.repositories.quests.IHookRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

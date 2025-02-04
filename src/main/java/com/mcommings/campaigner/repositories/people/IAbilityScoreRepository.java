@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.repositories.people;
 
-import com.mcommings.campaigner.models.people.AbilityScore;
+import com.mcommings.campaigner.entities.people.AbilityScore;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

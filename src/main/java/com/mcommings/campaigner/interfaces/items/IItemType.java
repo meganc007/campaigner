@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.items;
 
-import com.mcommings.campaigner.models.items.ItemType;
+import com.mcommings.campaigner.entities.items.ItemType;
 
 import java.util.List;
 

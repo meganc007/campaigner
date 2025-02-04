@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers.locations;
 
-import com.mcommings.campaigner.models.locations.SettlementType;
+import com.mcommings.campaigner.entities.locations.SettlementType;
 import com.mcommings.campaigner.services.locations.SettlementTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

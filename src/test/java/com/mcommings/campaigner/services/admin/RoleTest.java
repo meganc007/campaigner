@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.admin;
 
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.admin.Role;
-import com.mcommings.campaigner.models.admin.User;
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.admin.Role;
+import com.mcommings.campaigner.entities.admin.User;
 import com.mcommings.campaigner.repositories.admin.IRoleRepository;
 import com.mcommings.campaigner.repositories.admin.IUserRepository;
 import org.junit.jupiter.api.Assertions;

@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.repositories;
 
-import com.mcommings.campaigner.models.Wealth;
+import com.mcommings.campaigner.entities.Wealth;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

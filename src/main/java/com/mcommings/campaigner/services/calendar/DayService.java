@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.calendar;
 
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.calendar.Day;
 import com.mcommings.campaigner.interfaces.calendar.IDay;
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.calendar.Day;
 import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.repositories.calendar.IDayRepository;

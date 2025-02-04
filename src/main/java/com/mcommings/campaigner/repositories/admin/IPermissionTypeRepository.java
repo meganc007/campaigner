@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.repositories.admin;
 
-import com.mcommings.campaigner.models.admin.PermissionType;
+import com.mcommings.campaigner.entities.admin.PermissionType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
