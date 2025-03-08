@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.1.1</version>
+		<version>3.4.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.mcommings</groupId>
@@ -14,7 +14,7 @@
 	<name>campaigner</name>
 	<description>Organize and plan your ttrpg campaign</description>
 	<properties>
-		<java.version>20</java.version>
+		<java.version>23</java.version>
 		<org.mapstruct.version>1.6.3</org.mapstruct.version>
 		<org.projectlombok.version>1.18.36</org.projectlombok.version>
 	</properties>
