@@ -54,7 +54,6 @@ public class ContinentController {
         if (continentService.updateContinent(continentId, continent).isEmpty()) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        ;
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 

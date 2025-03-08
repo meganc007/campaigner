@@ -76,7 +76,6 @@ class ContinentControllerTest {
         mockMvc.perform(get("/api/locations/continents/{continentId}", continentId))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Unable to update; This item was not found."));
-        ;
     }
 
     @Test
