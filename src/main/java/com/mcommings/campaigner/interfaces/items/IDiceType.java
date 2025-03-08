@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.items;
 
-import com.mcommings.campaigner.models.items.DiceType;
+import com.mcommings.campaigner.entities.items.DiceType;
 
 import java.util.List;
 

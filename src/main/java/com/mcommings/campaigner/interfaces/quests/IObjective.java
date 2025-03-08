@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.quests;
 
-import com.mcommings.campaigner.models.quests.Objective;
+import com.mcommings.campaigner.entities.quests.Objective;
 
 import java.util.List;
 import java.util.UUID;

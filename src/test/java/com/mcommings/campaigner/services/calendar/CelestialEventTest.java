@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.models.calendar.CelestialEvent;
+import com.mcommings.campaigner.entities.calendar.CelestialEvent;
 import com.mcommings.campaigner.repositories.calendar.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

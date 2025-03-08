@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services.admin;
 
+import com.mcommings.campaigner.entities.admin.User;
 import com.mcommings.campaigner.interfaces.admin.IUser;
-import com.mcommings.campaigner.models.admin.User;
 import com.mcommings.campaigner.repositories.admin.IUserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

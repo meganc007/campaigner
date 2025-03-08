@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.calendar;
 
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.calendar.Moon;
 import com.mcommings.campaigner.interfaces.calendar.IMoon;
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.calendar.Moon;
 import com.mcommings.campaigner.repositories.calendar.ICelestialEventRepository;
 import com.mcommings.campaigner.repositories.calendar.IMoonRepository;
 import jakarta.transaction.Transactional;

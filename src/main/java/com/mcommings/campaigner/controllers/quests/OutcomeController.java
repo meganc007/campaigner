@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers.quests;
 
-import com.mcommings.campaigner.models.quests.Outcome;
+import com.mcommings.campaigner.entities.quests.Outcome;
 import com.mcommings.campaigner.services.quests.OutcomeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

@@ -1,97 +1,75 @@
 package com.mcommings.campaigner.services.locations;
 
+import com.mcommings.campaigner.dtos.ContinentDTO;
 import com.mcommings.campaigner.interfaces.locations.IContinent;
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.locations.Continent;
-import com.mcommings.campaigner.repositories.IEventRepository;
+import com.mcommings.campaigner.mappers.ContinentMapper;
 import com.mcommings.campaigner.repositories.locations.IContinentRepository;
-import com.mcommings.campaigner.repositories.locations.ICountryRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_CONTINENT;
+import java.util.stream.Collectors;
 
 @Service
+@Primary
+@RequiredArgsConstructor
 public class ContinentService implements IContinent {
-
     private final IContinentRepository continentRepository;
-    private final ICountryRepository countryRepository;
-    private final IEventRepository eventRepository;
+    private final ContinentMapper continentMapper;
 
-    @Autowired
-    public ContinentService(IContinentRepository continentRepository, ICountryRepository countryRepository, IEventRepository eventRepository) {
-        this.continentRepository = continentRepository;
-        this.countryRepository = countryRepository;
-        this.eventRepository = eventRepository;
+    @Override
+    public List<ContinentDTO> getContinents() {
+        return continentRepository.findAll()
+                .stream()
+                .map(continentMapper::continentToContinentDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Continent> getContinents() {
-        return continentRepository.findAll();
+    public Optional<ContinentDTO> getContinent(int continentId) {
+
+        return continentRepository.findById(continentId)
+                .map(continentMapper::continentToContinentDto);
     }
 
     @Override
-    public Continent getContinent(int continentId) {
-        return RepositoryHelper.getById(continentRepository, continentId);
+    public List<ContinentDTO> getContinentsByCampaignUUID(UUID uuid) {
+
+        return continentRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(continentMapper::continentToContinentDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Continent> getContinentsByCampaignUUID(UUID uuid) {
-        return continentRepository.findByfk_campaign_uuid(uuid);
+    public void saveContinent(ContinentDTO continent) {
+        continentMapper.continentToContinentDto(
+                continentRepository.save(
+                        continentMapper.continentDtotoContinent(continent)
+                ));
     }
 
     @Override
-    @Transactional
-    public void saveContinent(Continent continent) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(continent)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+    public Boolean deleteContinent(int continentId) {
+        if (continentRepository.existsById(continentId)) {
+            continentRepository.deleteById(continentId);
+            return true;
         }
-        if (RepositoryHelper.nameAlreadyExists(continentRepository, continent)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        continentRepository.saveAndFlush(continent);
+        return false;
     }
 
     @Override
-    @Transactional
-    public void deleteContinent(int continentId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(continentRepository, continentId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.isForeignKey(getReposWhereContinentIsAForeignKey(), FK_CONTINENT.columnName, continentId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-        }
+    public Optional<ContinentDTO> updateContinent(int continentId, ContinentDTO continent) {
+        return continentRepository.findById(continentId).map(foundContinent -> {
+            if (continent.getName() != null) foundContinent.setName(continent.getName());
+            if (continent.getDescription() != null) foundContinent.setDescription(continent.getDescription());
+            if (continent.getFk_campaign_uuid() != null)
+                foundContinent.setFk_campaign_uuid(continent.getFk_campaign_uuid());
 
-        continentRepository.deleteById(continentId);
-    }
-
-    @Override
-    @Transactional
-    public void updateContinent(int continentId, Continent continent)
-            throws IllegalArgumentException, DataIntegrityViolationException {
-
-        if (RepositoryHelper.cannotFindId(continentRepository, continentId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-
-        Continent continentToUpdate = RepositoryHelper.getById(continentRepository, continentId);
-        if (continent.getName() != null) continentToUpdate.setName(continent.getName());
-        if (continent.getDescription() != null) continentToUpdate.setDescription(continent.getDescription());
-        if (continent.getFk_campaign_uuid() != null)
-            continentToUpdate.setFk_campaign_uuid(continent.getFk_campaign_uuid());
-    }
-
-    private List<CrudRepository> getReposWhereContinentIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(countryRepository, eventRepository));
+            return continentMapper.continentToContinentDto(continentRepository.save(foundContinent));
+        });
     }
 }

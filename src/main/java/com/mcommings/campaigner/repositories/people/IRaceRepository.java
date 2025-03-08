@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.repositories.people;
 
-import com.mcommings.campaigner.models.people.Race;
+import com.mcommings.campaigner.entities.people.Race;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

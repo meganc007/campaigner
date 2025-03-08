@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services;
 
+import com.mcommings.campaigner.entities.Government;
+import com.mcommings.campaigner.entities.RepositoryHelper;
 import com.mcommings.campaigner.interfaces.IGovernment;
-import com.mcommings.campaigner.models.Government;
-import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
 import com.mcommings.campaigner.repositories.locations.ICountryRepository;

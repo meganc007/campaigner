@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers.calendar;
 
-import com.mcommings.campaigner.models.calendar.Sun;
+import com.mcommings.campaigner.entities.calendar.Sun;
 import com.mcommings.campaigner.services.calendar.SunService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

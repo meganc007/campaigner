@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.locations;
 
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.locations.SettlementType;
 import com.mcommings.campaigner.interfaces.locations.ISettlementType;
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.locations.SettlementType;
 import com.mcommings.campaigner.repositories.locations.ICityRepository;
 import com.mcommings.campaigner.repositories.locations.ISettlementTypeRepository;
 import jakarta.transaction.Transactional;

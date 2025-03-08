@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.items;
 
-import com.mcommings.campaigner.models.items.Inventory;
+import com.mcommings.campaigner.entities.items.Inventory;
 
 import java.util.List;
 import java.util.UUID;

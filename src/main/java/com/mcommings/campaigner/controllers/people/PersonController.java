@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers.people;
 
-import com.mcommings.campaigner.models.people.Person;
+import com.mcommings.campaigner.entities.people.Person;
 import com.mcommings.campaigner.services.people.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

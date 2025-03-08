@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.people;
 
-import com.mcommings.campaigner.models.people.AbilityScore;
+import com.mcommings.campaigner.entities.people.AbilityScore;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers.admin;
 
-import com.mcommings.campaigner.models.admin.Permission;
+import com.mcommings.campaigner.entities.admin.Permission;
 import com.mcommings.campaigner.services.CampaignService;
 import com.mcommings.campaigner.services.admin.PermissionService;
 import com.mcommings.campaigner.services.admin.UserService;

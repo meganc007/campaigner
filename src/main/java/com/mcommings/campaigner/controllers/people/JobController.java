@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers.people;
 
-import com.mcommings.campaigner.models.people.Job;
+import com.mcommings.campaigner.entities.people.Job;
 import com.mcommings.campaigner.services.people.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

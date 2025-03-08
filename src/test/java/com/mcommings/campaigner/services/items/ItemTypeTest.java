@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.items;
 
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.items.Item;
-import com.mcommings.campaigner.models.items.ItemType;
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.items.Item;
+import com.mcommings.campaigner.entities.items.ItemType;
 import com.mcommings.campaigner.repositories.items.IItemRepository;
 import com.mcommings.campaigner.repositories.items.IItemTypeRepository;
 import org.junit.jupiter.api.Assertions;

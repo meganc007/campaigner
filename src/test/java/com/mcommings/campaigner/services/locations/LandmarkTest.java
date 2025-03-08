@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.models.locations.Landmark;
+import com.mcommings.campaigner.entities.locations.Landmark;
 import com.mcommings.campaigner.repositories.locations.ILandmarkRepository;
 import com.mcommings.campaigner.repositories.locations.IRegionRepository;
 import org.junit.jupiter.api.Assertions;

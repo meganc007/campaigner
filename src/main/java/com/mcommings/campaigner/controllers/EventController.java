@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers;
 
-import com.mcommings.campaigner.models.Event;
+import com.mcommings.campaigner.entities.Event;
 import com.mcommings.campaigner.services.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

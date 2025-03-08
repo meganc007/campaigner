@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.calendar;
 
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.calendar.CelestialEvent;
 import com.mcommings.campaigner.interfaces.calendar.ICelestialEvent;
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.calendar.CelestialEvent;
 import com.mcommings.campaigner.repositories.calendar.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

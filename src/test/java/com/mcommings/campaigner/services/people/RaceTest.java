@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.people.Person;
-import com.mcommings.campaigner.models.people.Race;
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.people.Person;
+import com.mcommings.campaigner.entities.people.Race;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import com.mcommings.campaigner.repositories.people.IRaceRepository;
 import org.junit.jupiter.api.Assertions;

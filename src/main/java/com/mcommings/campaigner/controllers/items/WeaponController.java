@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers.items;
 
-import com.mcommings.campaigner.models.items.Weapon;
+import com.mcommings.campaigner.entities.items.Weapon;
 import com.mcommings.campaigner.services.items.WeaponService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

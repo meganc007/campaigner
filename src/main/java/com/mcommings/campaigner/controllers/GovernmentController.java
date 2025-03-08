@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.controllers;
 
-import com.mcommings.campaigner.models.Government;
+import com.mcommings.campaigner.entities.Government;
 import com.mcommings.campaigner.services.GovernmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.people;
 
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.people.EventPlacePerson;
 import com.mcommings.campaigner.interfaces.people.IEventPlacePerson;
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.people.EventPlacePerson;
 import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.locations.IPlaceRepository;
 import com.mcommings.campaigner.repositories.people.IEventPlacePersonRepository;

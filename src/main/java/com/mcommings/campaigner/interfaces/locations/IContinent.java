@@ -1,21 +1,22 @@
 package com.mcommings.campaigner.interfaces.locations;
 
-import com.mcommings.campaigner.models.locations.Continent;
+import com.mcommings.campaigner.dtos.ContinentDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IContinent {
-    List<Continent> getContinents();
+    List<ContinentDTO> getContinents();
 
-    Continent getContinent(int continentId);
+    Optional<ContinentDTO> getContinent(int continentId);
 
-    List<Continent> getContinentsByCampaignUUID(UUID uuid);
+    List<ContinentDTO> getContinentsByCampaignUUID(UUID uuid);
 
-    void saveContinent(Continent continent);
+    void saveContinent(ContinentDTO continent);
 
-    void deleteContinent(int continentId);
+    Boolean deleteContinent(int continentId);
 
-    void updateContinent(int continentId, Continent continent);
+    Optional<ContinentDTO> updateContinent(int continentId, ContinentDTO continent);
 
 }

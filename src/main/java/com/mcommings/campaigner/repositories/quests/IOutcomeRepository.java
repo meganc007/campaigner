@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.repositories.quests;
 
-import com.mcommings.campaigner.models.quests.Outcome;
+import com.mcommings.campaigner.entities.quests.Outcome;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services;
 
+import com.mcommings.campaigner.entities.Campaign;
+import com.mcommings.campaigner.entities.RepositoryHelper;
 import com.mcommings.campaigner.interfaces.ICampaign;
-import com.mcommings.campaigner.models.Campaign;
-import com.mcommings.campaigner.models.RepositoryHelper;
 import com.mcommings.campaigner.repositories.ICampaignRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

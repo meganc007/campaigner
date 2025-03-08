@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces;
 
-import com.mcommings.campaigner.models.Government;
+import com.mcommings.campaigner.entities.Government;
 
 import java.util.List;
 

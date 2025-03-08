@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.people;
 
-import com.mcommings.campaigner.models.people.NamedMonster;
+import com.mcommings.campaigner.entities.people.NamedMonster;
 
 import java.util.List;
 import java.util.UUID;

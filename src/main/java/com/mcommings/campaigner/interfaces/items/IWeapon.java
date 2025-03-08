@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.interfaces.items;
 
-import com.mcommings.campaigner.models.items.Weapon;
+import com.mcommings.campaigner.entities.items.Weapon;
 
 import java.util.List;
 import java.util.UUID;

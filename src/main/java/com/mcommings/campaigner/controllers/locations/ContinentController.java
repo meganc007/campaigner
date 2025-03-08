@@ -1,52 +1,66 @@
 package com.mcommings.campaigner.controllers.locations;
 
-import com.mcommings.campaigner.models.locations.Continent;
+import com.mcommings.campaigner.dtos.ContinentDTO;
 import com.mcommings.campaigner.services.locations.ContinentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.UPDATE_NOT_FOUND;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "api/locations/continents")
 public class ContinentController {
 
     private final ContinentService continentService;
 
-    @Autowired
-    public ContinentController(ContinentService continentService) {
-        this.continentService = continentService;
-    }
-
     @GetMapping
-    public List<Continent> getContinents() {
+    public List<ContinentDTO> getContinents() {
         return continentService.getContinents();
     }
 
     @GetMapping(path = "/{continentId}")
-    public Continent getContinent(@PathVariable("continentId") int continentId) {
-        return continentService.getContinent(continentId);
+    public ContinentDTO getContinent(@PathVariable("continentId") int continentId) {
+        return continentService.getContinent(continentId).orElseThrow(() -> new IllegalArgumentException(UPDATE_NOT_FOUND.message));
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<Continent> getContinentsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ContinentDTO> getContinentsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
         return continentService.getContinentsByCampaignUUID(uuid);
     }
 
     @PostMapping
-    public void saveContinent(@RequestBody Continent continent) {
+    public ResponseEntity saveContinent(@Valid @RequestBody ContinentDTO continent) {
         continentService.saveContinent(continent);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(path = "{continentId}")
-    public void deleteContinent(@PathVariable("continentId") int continentId) {
-        continentService.deleteContinent(continentId);
+    public ResponseEntity deleteContinent(@PathVariable("continentId") int continentId) {
+        if (!continentService.deleteContinent(continentId)) {
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
+        }
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping(path = "{continentId}")
-    public void updateContinent(@PathVariable("continentId") int continentId, @RequestBody Continent continent) {
-        continentService.updateContinent(continentId, continent);
+    public ResponseEntity updateContinent(@PathVariable("continentId") int continentId, @RequestBody ContinentDTO continent) {
+        if (continentService.updateContinent(continentId, continent).isEmpty()) {
+            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
+        }
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        // Return BadRequest with the error message
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
 }

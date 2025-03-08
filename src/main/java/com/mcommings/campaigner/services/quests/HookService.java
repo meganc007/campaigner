@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.quests;
 
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.quests.Hook;
 import com.mcommings.campaigner.interfaces.quests.IHook;
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.quests.Hook;
 import com.mcommings.campaigner.repositories.quests.IHookRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

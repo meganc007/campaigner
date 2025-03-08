@@ -1,9 +1,9 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.models.Event;
-import com.mcommings.campaigner.models.RepositoryHelper;
-import com.mcommings.campaigner.models.locations.City;
-import com.mcommings.campaigner.models.locations.Place;
+import com.mcommings.campaigner.entities.Event;
+import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.entities.locations.City;
+import com.mcommings.campaigner.entities.locations.Place;
 import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.repositories.IWealthRepository;
