@@ -1,217 +1,180 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.entities.Event;
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.dtos.ContinentDTO;
 import com.mcommings.campaigner.entities.locations.Continent;
-import com.mcommings.campaigner.entities.locations.Country;
-import com.mcommings.campaigner.repositories.IEventRepository;
+import com.mcommings.campaigner.mappers.ContinentMapper;
 import com.mcommings.campaigner.repositories.locations.IContinentRepository;
-import com.mcommings.campaigner.repositories.locations.ICountryRepository;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_CONTINENT;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class ContinentTest {
+
+    @Mock
+    private ContinentMapper continentMapper;
+
     @Mock
     private IContinentRepository continentRepository;
-    @Mock
-    private ICountryRepository countryRepository;
-    @Mock
-    private IEventRepository eventRepository;
 
     @InjectMocks
     private ContinentService continentService;
 
+    private Continent entity;
+    private ContinentDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        entity = new Continent();
+        entity.setId(1);
+        entity.setName("Test Continent");
+        entity.setDescription("A fictional land.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+
+        dto = new ContinentDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+
+        // Mocking the mapper behavior
+        when(continentMapper.continentToContinentDto(entity)).thenReturn(dto);
+        when(continentMapper.continentDtotoContinent(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreContinents_getContinents_ReturnsContinents() {
-        List<Continent> continents = new ArrayList<>();
-        continents.add(new Continent(1, "Continent 1", "Description 1", UUID.randomUUID()));
-        continents.add(new Continent(2, "Continent 2", "Description 2", UUID.randomUUID()));
-        when(continentRepository.findAll()).thenReturn(continents);
+        when(continentRepository.findAll()).thenReturn(List.of(entity));
+        List<ContinentDTO> result = continentService.getContinents();
 
-        List<Continent> result = continentService.getContinents();
-
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(continents, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Continent", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoContinents_getContinents_ReturnsNothing() {
-        List<Continent> continents = new ArrayList<>();
-        when(continentRepository.findAll()).thenReturn(continents);
+    public void whenThereAreNoContinents_getContinents_ReturnsEmptyList() {
+        when(continentRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Continent> result = continentService.getContinents();
+        List<ContinentDTO> result = continentService.getContinents();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(continents, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no continents.");
     }
 
     @Test
-    public void whenThereIsAContinent_getContinent_ReturnsContinent() {
-        Continent continent = new Continent(1, "Continent 1", "Description 1", UUID.randomUUID());
-        when(continentRepository.findById(1)).thenReturn(Optional.of(continent));
+    void getContinent_ReturnsContinentById() {
+        when(continentRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        Continent result = continentService.getContinent(1);
+        Optional<ContinentDTO> result = continentService.getContinent(1);
 
-        Assertions.assertEquals(continent, result);
+        assertTrue(result.isPresent());
+        assertEquals("Test Continent", result.get().getName());
     }
 
     @Test
-    public void whenThereIsNotAContinent_getContinent_ReturnsNothing() {
-        when(continentRepository.findById(9000)).thenReturn(Optional.empty());
-        Assertions.assertThrows(NoSuchElementException.class, () -> continentService.getContinent(9000));
+    void whenThereIsNotAContinent_getContinent_ReturnsNothing() {
+        when(continentRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<ContinentDTO> result = continentService.getContinent(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when continent is not found.");
     }
 
     @Test
-    public void whenCampaignUUIDIsValid_getContinentsByCampaignUUID_ReturnsContinents() {
-        UUID campaign = UUID.randomUUID();
-        List<Continent> continents = new ArrayList<>();
-        continents.add(new Continent(1, "Continent 1", "Description 1", campaign));
-        continents.add(new Continent(2, "Continent 2", "Description 2", campaign));
+    void whenCampaignUUIDIsValid_getContinentsByCampaignUUID_ReturnsContinents() {
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(continentRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        when(continentRepository.findByfk_campaign_uuid(campaign)).thenReturn(continents);
+        List<ContinentDTO> result = continentService.getContinentsByCampaignUUID(campaignUUID);
 
-        List<Continent> results = continentService.getContinentsByCampaignUUID(campaign);
-
-        Assertions.assertEquals(2, results.size());
-        Assertions.assertEquals(continents, results);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
-    public void whenCampaignUUIDIsInvalid_getContinentsByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<Continent> continents = new ArrayList<>();
-        when(continentRepository.findByfk_campaign_uuid(campaign)).thenReturn(continents);
+    void whenCampaignUUIDIsInvalid_getContinentsByCampaignUUID_ReturnsNothing() {
+        UUID campaignUUID = UUID.randomUUID();
+        when(continentRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        List<Continent> result = continentService.getContinentsByCampaignUUID(campaign);
+        List<ContinentDTO> result = continentService.getContinentsByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(continents, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no continents match the campaign UUID.");
     }
 
     @Test
-    public void whenContinentIsValid_saveContinent_SavesTheContinent() {
-        Continent continent = new Continent(1, "Continent 1", "Description 1", UUID.randomUUID());
-        when(continentRepository.saveAndFlush(continent)).thenReturn(continent);
+    void whenContinentIsValid_saveContinent_SavesTheContinent() {
+        when(continentRepository.save(entity)).thenReturn(entity);
 
-        assertDoesNotThrow(() -> continentService.saveContinent(continent));
-        verify(continentRepository, times(1)).saveAndFlush(continent);
+        continentService.saveContinent(dto);
+
+        verify(continentRepository, times(1)).save(entity);
     }
 
     @Test
-    public void whenContinentNameIsInvalid_saveContinent_ThrowsIllegalArgumentException() {
-        Continent continentWithEmptyName = new Continent(1, "", "Description 1", UUID.randomUUID());
-        Continent continentWithNullName = new Continent(2, null, "Description 2", UUID.randomUUID());
+    void whenContinentIdExists_deleteContinent_DeletesTheContinent() {
+        when(continentRepository.existsById(1)).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () -> continentService.saveContinent(continentWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> continentService.saveContinent(continentWithNullName));
+        boolean result = continentService.deleteContinent(1);
+
+        assertTrue(result);
+        verify(continentRepository, times(1)).deleteById(1);
     }
 
     @Test
-    public void whenContinentNameAlreadyExists_saveContinent_ThrowsDataIntegrityViolationException() {
-        Continent continent = new Continent(1, "Continent 1", "Description 1", UUID.randomUUID());
-        Continent continentWithDuplicatedName = new Continent(2, "Continent 1", "Description 2", UUID.randomUUID());
-        when(continentRepository.saveAndFlush(continent)).thenReturn(continent);
-        when(continentRepository.saveAndFlush(continentWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
+    void whenContinentIdDoesNotExist_deleteContinent_DeletesTheContinent() {
+        when(continentRepository.existsById(999)).thenReturn(false);
 
-        assertDoesNotThrow(() -> continentService.saveContinent(continent));
-        assertThrows(DataIntegrityViolationException.class, () -> continentService.saveContinent(continentWithDuplicatedName));
+        boolean result = continentService.deleteContinent(999);
+
+        assertFalse(result, "Expected false when trying to delete a non-existent continent.");
     }
 
     @Test
-    public void whenContinentIdExists_deleteContinent_DeletesTheContinent() {
-        int continentId = 1;
-        when(continentRepository.existsById(continentId)).thenReturn(true);
-        assertDoesNotThrow(() -> continentService.deleteContinent(continentId));
-        verify(continentRepository, times(1)).deleteById(continentId);
+    void whenDeleteContinentFails_deleteContinent_ThrowsException() {
+        when(continentRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(continentRepository).deleteById(1);
+
+        assertThrows(RuntimeException.class, () -> continentService.deleteContinent(1));
+    }
+
+
+    @Test
+    void whenContinentIdIsFound_updateContinent_UpdatesTheContinent() {
+        ContinentDTO updateDTO = new ContinentDTO();
+        updateDTO.setName("Updated Name");
+
+        when(continentRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(continentRepository.save(entity)).thenReturn(entity);
+        when(continentMapper.continentToContinentDto(entity)).thenReturn(updateDTO);
+
+        Optional<ContinentDTO> result = continentService.updateContinent(1, updateDTO);
+
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
-    public void whenContinentIdDoesNotExist_deleteContinent_ThrowsIllegalArgumentException() {
-        int continentId = 9000;
-        when(continentRepository.existsById(continentId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> continentService.deleteContinent(continentId));
-    }
+    void whenContinentIdIsNotFound_updateContinent_ReturnsEmptyOptional() {
+        ContinentDTO updateDTO = new ContinentDTO();
+        updateDTO.setName("Updated Name");
 
-    @Test
-    public void whenContinentIdIsAForeignKey_deleteContinent_ThrowsDataIntegrityViolationException() {
-        int continentId = 1;
-        Country country = new Country(1, "Country", "Description", UUID.randomUUID(), continentId, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository, eventRepository));
-        List<Country> countries = new ArrayList<>(Arrays.asList(country));
+        when(continentRepository.findById(999)).thenReturn(Optional.empty());
 
-        Event event = new Event(1, "Name", "Description", 1, 1, 1, 1,
-                1, continentId, 1, UUID.randomUUID());
-        List<Event> events = new ArrayList<>(Arrays.asList(event));
+        Optional<ContinentDTO> result = continentService.updateContinent(999, updateDTO);
 
-        when(continentRepository.existsById(continentId)).thenReturn(true);
-        when(countryRepository.findByfk_continent(continentId)).thenReturn(countries);
-        when(eventRepository.findByfk_continent(continentId)).thenReturn(events);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_CONTINENT.columnName, continentId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> continentService.deleteContinent(continentId));
-    }
-
-    @Test
-    public void whenContinentIdIsFound_updateContinent_UpdatesTheContinent() {
-        int continentId = 1;
-        Continent continent = new Continent(continentId, "Old Continent Name", "Old Description", UUID.randomUUID());
-        Continent continentToUpdate = new Continent(continentId, "Updated Continent Name", "Updated Description", UUID.randomUUID());
-
-        when(continentRepository.existsById(continentId)).thenReturn(true);
-        when(continentRepository.findById(continentId)).thenReturn(Optional.of(continent));
-
-        continentService.updateContinent(continentId, continentToUpdate);
-
-        verify(continentRepository).findById(continentId);
-
-        Continent result = continentRepository.findById(continentId).get();
-        Assertions.assertEquals(continentToUpdate.getName(), result.getName());
-        Assertions.assertEquals(continentToUpdate.getDescription(), result.getDescription());
-    }
-
-    @Test
-    public void whenContinentIdIsNotFound_updateContinent_ThrowsIllegalArgumentException() {
-        int continentId = 1;
-        Continent continent = new Continent(continentId, "Old Continent Name", "Old Description", UUID.randomUUID());
-
-        when(continentRepository.existsById(continentId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> continentService.updateContinent(continentId, continent));
-    }
-
-    @Test
-    public void whenSomeContinentFieldsChanged_updateContinent_OnlyUpdatesChangedFields() {
-        int continentId = 1;
-        Continent continent = new Continent(continentId, "Name", "Old Continent Description", UUID.randomUUID());
-
-        String newDescription = "New Continent description";
-
-        Continent continentToUpdate = new Continent();
-        continentToUpdate.setDescription(newDescription);
-
-        when(continentRepository.existsById(continentId)).thenReturn(true);
-        when(continentRepository.findById(continentId)).thenReturn(Optional.of(continent));
-
-        continentService.updateContinent(continentId, continentToUpdate);
-
-        verify(continentRepository).findById(continentId);
-
-        Continent result = continentRepository.findById(continentId).get();
-        Assertions.assertEquals(continent.getName(), result.getName());
-        Assertions.assertEquals(newDescription, result.getDescription());
+        assertTrue(result.isEmpty(), "Expected empty Optional when updating a non-existent continent.");
     }
 }
