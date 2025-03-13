@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.repositories.locations;
+package com.mcommings.campaigner.locations.repositories;
 
-import com.mcommings.campaigner.entities.locations.Country;
+import com.mcommings.campaigner.locations.entities.Country;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
