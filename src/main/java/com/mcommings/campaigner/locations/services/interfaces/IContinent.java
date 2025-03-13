@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.interfaces.locations;
+package com.mcommings.campaigner.locations.services.interfaces;
 
-import com.mcommings.campaigner.dtos.ContinentDTO;
+import com.mcommings.campaigner.locations.dtos.ContinentDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +15,7 @@ public interface IContinent {
 
     void saveContinent(ContinentDTO continent);
 
-    Boolean deleteContinent(int continentId);
+    void deleteContinent(int continentId);
 
     Optional<ContinentDTO> updateContinent(int continentId, ContinentDTO continent);
 
