@@ -1,133 +1,160 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.entities.Event;
-import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.locations.City;
-import com.mcommings.campaigner.entities.locations.Place;
-import com.mcommings.campaigner.repositories.IEventRepository;
-import com.mcommings.campaigner.repositories.IGovernmentRepository;
-import com.mcommings.campaigner.repositories.IWealthRepository;
-import com.mcommings.campaigner.repositories.locations.*;
-import org.junit.jupiter.api.Assertions;
+import com.mcommings.campaigner.locations.dtos.CityDTO;
+import com.mcommings.campaigner.locations.entities.City;
+import com.mcommings.campaigner.locations.mappers.CityMapper;
+import com.mcommings.campaigner.locations.repositories.ICityRepository;
+import com.mcommings.campaigner.locations.services.CityService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.*;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_CITY;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
 @SpringBootTest
 public class CityTest {
-    
+
+    @Mock
+    private CityMapper cityMapper;
+
     @Mock
     private ICityRepository cityRepository;
-    @Mock
-    private IWealthRepository wealthRepository;
-    @Mock
-    private ICountryRepository countryRepository;
-    @Mock
-    private ISettlementTypeRepository settlementTypeRepository;
-    @Mock
-    private IPlaceRepository placeRepository;
-    @Mock
-    private IGovernmentRepository governmentRepository;
-    @Mock
-    private IRegionRepository regionRepository;
-    @Mock
-    private IEventRepository eventRepository;
 
     @InjectMocks
     private CityService cityService;
 
+    private City entity;
+    private CityDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new City();
+        entity.setId(1);
+        entity.setName("Test City");
+        entity.setDescription("A fictional city.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+        entity.setFk_wealth(random.nextInt(100) + 1);
+        entity.setFk_country(random.nextInt(100) + 1);
+        entity.setFk_settlement(random.nextInt(100) + 1);
+        entity.setFk_government(random.nextInt(100) + 1);
+        entity.setFk_region(random.nextInt(100) + 1);
+
+        dto = new CityDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+        dto.setFk_wealth(entity.getFk_wealth());
+        dto.setFk_country(entity.getFk_country());
+        dto.setFk_settlement(entity.getFk_settlement());
+        dto.setFk_government(entity.getFk_government());
+        dto.setFk_region(entity.getFk_region());
+
+        when(cityMapper.mapToCityDto(entity)).thenReturn(dto);
+        when(cityMapper.mapFromCityDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreCities_getCities_ReturnsCities() {
-        List<City> cities = new ArrayList<>();
-        cities.add(new City(1, "City 1", "Description 1", UUID.randomUUID()));
-        cities.add(new City(2, "City 2", "Description 2", UUID.randomUUID()));
-        cities.add(new City(3, "City 3", "Description 3", UUID.randomUUID(), 1, 2, 3, 4, 5));
-        when(cityRepository.findAll()).thenReturn(cities);
+        when(cityRepository.findAll()).thenReturn(List.of(entity));
+        List<CityDTO> result = cityService.getCities();
 
-        List<City> result = cityService.getCities();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(cities, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test City", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoCities_getCities_ReturnsNothing() {
-        List<City> cities = new ArrayList<>();
-        when(cityRepository.findAll()).thenReturn(cities);
+    public void whenThereAreNoCities_getCities_ReturnsEmptyList() {
+        when(cityRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<City> result = cityService.getCities();
+        List<CityDTO> result = cityService.getCities();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(cities, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no cities.");
     }
 
     @Test
-    public void whenCampaignUUIDIsValid_getCitiesByCampaignUUID_ReturnsCities() {
-        UUID campaign = UUID.randomUUID();
-        List<City> cities = new ArrayList<>();
-        cities.add(new City(1, "City 1", "Description 1", campaign));
-        cities.add(new City(2, "City 2", "Description 2", campaign));
-        cities.add(new City(3, "City 3", "Description 3", campaign, 1, 2, 3, 4, 5));
+    void whenThereIsACity_getCity_ReturnsCityById() {
+        when(cityRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        when(cityRepository.findByfk_campaign_uuid(campaign)).thenReturn(cities);
+        Optional<CityDTO> result = cityService.getCity(1);
 
-        List<City> results = cityService.getCitiesByCampaignUUID(campaign);
-
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(cities, results);
+        assertTrue(result.isPresent());
+        assertEquals("Test City", result.get().getName());
     }
 
     @Test
-    public void whenCampaignUUIDIsInvalid_getCitiesByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<City> cities = new ArrayList<>();
-        when(cityRepository.findByfk_campaign_uuid(campaign)).thenReturn(cities);
+    void whenThereIsNotACity_getCity_ReturnsNothing() {
+        when(cityRepository.findById(999)).thenReturn(Optional.empty());
 
-        List<City> result = cityService.getCitiesByCampaignUUID(campaign);
+        Optional<CityDTO> result = cityService.getCity(999);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(cities, result);
+        assertTrue(result.isEmpty(), "Expected empty Optional when city is not found.");
     }
 
     @Test
-    public void whenCityWithNoForeignKeysIsValid_saveCity_SavesTheCity() {
-        City city = new City(1, "City 1", "Description 1", UUID.randomUUID());
-        when(cityRepository.saveAndFlush(city)).thenReturn(city);
+    void whenCampaignUUIDIsValid_getCitiesByCampaignUUID_ReturnsCities() {
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(cityRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        assertDoesNotThrow(() -> cityService.saveCity(city));
+        List<CityDTO> result = cityService.getCitiesByCampaignUUID(campaignUUID);
 
-        verify(cityRepository, times(1)).saveAndFlush(city);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
-    public void whenCityWithForeignKeysIsValid_saveCity_SavesTheCity() {
-        City city = new City(1, "City 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
+    void whenCampaignUUIDIsInvalid_getCitiesByCampaignUUID_ReturnsNothing() {
+        UUID campaignUUID = UUID.randomUUID();
+        when(cityRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        when(wealthRepository.existsById(1)).thenReturn(true);
-        when(countryRepository.existsById(2)).thenReturn(true);
-        when(settlementTypeRepository.existsById(3)).thenReturn(true);
-        when(governmentRepository.existsById(4)).thenReturn(true);
-        when(regionRepository.existsById(5)).thenReturn(true);
-        when(cityRepository.saveAndFlush(city)).thenReturn(city);
+        List<CityDTO> result = cityService.getCitiesByCampaignUUID(campaignUUID);
 
-        assertDoesNotThrow(() -> cityService.saveCity(city));
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no cities match the campaign UUID.");
+    }
 
-        verify(cityRepository, times(1)).saveAndFlush(city);
+    @Test
+    void whenCityIsValid_saveCity_SavesTheCity() {
+        when(cityRepository.save(entity)).thenReturn(entity);
+
+        cityService.saveCity(dto);
+
+        verify(cityRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenCityNameIsInvalid_saveCity_ThrowsIllegalArgumentException() {
-        City cityWithEmptyName = new City(1, "", "Description 1", UUID.randomUUID());
-        City cityWithNullName = new City(2, null, "Description 2", UUID.randomUUID());
+        CityDTO cityWithEmptyName = new CityDTO();
+        cityWithEmptyName.setId(1);
+        cityWithEmptyName.setName("");
+        cityWithEmptyName.setDescription("A fictional city.");
+        cityWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
+        cityWithEmptyName.setFk_wealth(1);
+        cityWithEmptyName.setFk_country(1);
+        cityWithEmptyName.setFk_settlement(1);
+        cityWithEmptyName.setFk_government(1);
+        cityWithEmptyName.setFk_region(1);
+
+        CityDTO cityWithNullName = new CityDTO();
+        cityWithNullName.setId(1);
+        cityWithNullName.setName(null);
+        cityWithNullName.setDescription("A fictional city.");
+        cityWithNullName.setFk_campaign_uuid(UUID.randomUUID());
+        cityWithNullName.setFk_wealth(1);
+        cityWithNullName.setFk_country(1);
+        cityWithNullName.setFk_settlement(1);
+        cityWithNullName.setFk_government(1);
+        cityWithNullName.setFk_region(1);
 
         assertThrows(IllegalArgumentException.class, () -> cityService.saveCity(cityWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> cityService.saveCity(cityWithNullName));
@@ -135,157 +162,76 @@ public class CityTest {
 
     @Test
     public void whenCityNameAlreadyExists_saveCity_ThrowsDataIntegrityViolationException() {
-        City city = new City(1, "City 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
-        City cityWithDuplicatedName = new City(2, "City 1", "Description 2", UUID.randomUUID(), 5, 6, 7, 8, 9);
+        when(cityRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> cityService.saveCity(dto));
+        verify(cityRepository, times(1)).findByName(dto.getName());
+        verify(cityRepository, never()).save(any(City.class));
+    }
+
+    @Test
+    void whenCityIdExists_deleteCity_DeletesTheCity() {
+        when(cityRepository.existsById(1)).thenReturn(true);
+        cityService.deleteCity(1);
+        verify(cityRepository, times(1)).deleteById(1);
+    }
+
+    @Test
+    void whenCityIdDoesNotExist_deleteCity_ThrowsIllegalArgumentException() {
+        when(cityRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> cityService.deleteCity(999));
+    }
+
+    @Test
+    void whenDeleteCityFails_deleteCity_ThrowsException() {
+        when(cityRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(cityRepository).deleteById(1);
+
+        assertThrows(RuntimeException.class, () -> cityService.deleteCity(1));
+    }
+
+    @Test
+    void whenCityIdIsFound_updateCity_UpdatesTheCity() {
+        CityDTO updateDTO = new CityDTO();
+        updateDTO.setName("Updated Name");
+
+        when(cityRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(cityRepository.existsById(1)).thenReturn(true);
+        when(cityRepository.save(entity)).thenReturn(entity);
+        when(cityMapper.mapToCityDto(entity)).thenReturn(updateDTO);
+
+        Optional<CityDTO> result = cityService.updateCity(1, updateDTO);
+
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
+    }
+
+    @Test
+    void whenCityIdIsNotFound_updateCity_ReturnsEmptyOptional() {
+        CityDTO updateDTO = new CityDTO();
+        updateDTO.setName("Updated Name");
+
+        when(cityRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> cityService.updateCity(999, updateDTO));
+    }
+
+    @Test
+    public void whenCityNameIsInvalid_updateCity_ThrowsIllegalArgumentException() {
+        CityDTO updateEmptyName = new CityDTO();
+        updateEmptyName.setName("");
+
+        CityDTO updateNullName = new CityDTO();
+        updateNullName.setName(null);
 
         when(cityRepository.existsById(1)).thenReturn(true);
-        when(wealthRepository.existsById(1)).thenReturn(true);
-        when(countryRepository.existsById(2)).thenReturn(true);
-        when(settlementTypeRepository.existsById(3)).thenReturn(true);
-        when(governmentRepository.existsById(4)).thenReturn(true);
-        when(regionRepository.existsById(5)).thenReturn(true);
 
-        when(cityRepository.existsById(2)).thenReturn(true);
-        when(wealthRepository.existsById(5)).thenReturn(true);
-        when(countryRepository.existsById(6)).thenReturn(true);
-        when(settlementTypeRepository.existsById(7)).thenReturn(true);
-        when(governmentRepository.existsById(8)).thenReturn(true);
-        when(regionRepository.existsById(9)).thenReturn(true);
-
-        when(cityRepository.saveAndFlush(city)).thenReturn(city);
-        when(cityRepository.saveAndFlush(cityWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> cityService.saveCity(city));
-        assertThrows(DataIntegrityViolationException.class, () -> cityService.saveCity(cityWithDuplicatedName));
+        assertThrows(IllegalArgumentException.class, () -> cityService.updateCity(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> cityService.updateCity(1, updateNullName));
     }
 
     @Test
-    public void whenCityHasInvalidForeignKeys_saveCity_ThrowsDataIntegrityViolationException() {
-        City city = new City(1, "City 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
+    public void whenCityNameAlreadyExists_updateCity_ThrowsDataIntegrityViolationException() {
+        when(cityRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
 
-        when(wealthRepository.existsById(1)).thenReturn(true);
-        when(countryRepository.existsById(3)).thenReturn(false);
-        when(settlementTypeRepository.existsById(3)).thenReturn(false);
-        when(governmentRepository.existsById(3)).thenReturn(true);
-        when(regionRepository.existsById(3)).thenReturn(false);
-        when(cityRepository.saveAndFlush(city)).thenReturn(city);
-
-        assertThrows(DataIntegrityViolationException.class, () -> cityService.saveCity(city));
-
-    }
-
-    @Test
-    public void whenCityIdExists_deleteCity_DeletesTheCity() {
-        int cityId = 1;
-        when(cityRepository.existsById(cityId)).thenReturn(true);
-        assertDoesNotThrow(() -> cityService.deleteCity(cityId));
-        verify(cityRepository, times(1)).deleteById(cityId);
-    }
-
-    @Test
-    public void whenCityIdDoesNotExist_deleteCity_ThrowsIllegalArgumentException() {
-        int cityId = 9000;
-        when(cityRepository.existsById(cityId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> cityService.deleteCity(cityId));
-    }
-
-    @Test
-    public void whenCityIdIsAForeignKey_deleteCity_ThrowsDataIntegrityViolationException() {
-        int cityId = 1;
-        Place place = new Place(1, "Place", "Description", UUID.randomUUID(), 1, cityId, 1, 1, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository, eventRepository));
-        List<Place> places = new ArrayList<>(Arrays.asList(place));
-
-        Event event = new Event(1, "Event", "Description", 1, 1, 1, 1, cityId, 1, 1, UUID.randomUUID());
-        List<Event> events = new ArrayList<>(Arrays.asList(event));
-
-        when(cityRepository.existsById(cityId)).thenReturn(true);
-        when(placeRepository.findByfk_city(cityId)).thenReturn(places);
-        when(eventRepository.findByfk_city(cityId)).thenReturn(events);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_CITY.columnName, cityId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> cityService.deleteCity(cityId));
-    }
-
-    @Test
-    public void whenCityIdWithNoFKIsFound_updateCity_UpdatesTheCity() {
-        int cityId1 = 1;
-        UUID campaign = UUID.randomUUID();
-
-        City city = new City(cityId1, "Old City Name", "Old Description", campaign);
-        City cityToUpdateNoFK = new City(cityId1, "Updated City Name", "Updated Description", campaign);
-
-        when(cityRepository.existsById(cityId1)).thenReturn(true);
-        when(cityRepository.findById(cityId1)).thenReturn(Optional.of(city));
-
-        cityService.updateCity(cityId1, cityToUpdateNoFK);
-
-        verify(cityRepository).findById(cityId1);
-
-        City result1 = cityRepository.findById(cityId1).get();
-        Assertions.assertEquals(cityToUpdateNoFK.getName(), result1.getName());
-        Assertions.assertEquals(cityToUpdateNoFK.getDescription(), result1.getDescription());
-    }
-    @Test
-    public void whenCityIdWithValidFKIsFound_updateCity_UpdatesTheCity() {
-        int cityId = 2;
-        UUID campaign = UUID.randomUUID();
-
-        City city = new City(cityId, "Test City Name", "Test Description", campaign);
-        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", campaign, 1, 2, 3, 4, 5);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(wealthRepository, countryRepository,
-                settlementTypeRepository, governmentRepository, regionRepository));
-
-        when(cityRepository.existsById(cityId)).thenReturn(true);
-        when(cityRepository.findById(cityId)).thenReturn(Optional.of(city));
-        when(wealthRepository.existsById(1)).thenReturn(true);
-        when(countryRepository.existsById(2)).thenReturn(true);
-        when(settlementTypeRepository.existsById(3)).thenReturn(true);
-        when(governmentRepository.existsById(4)).thenReturn(true);
-        when(regionRepository.existsById(5)).thenReturn(true);
-
-        cityService.updateCity(cityId, cityToUpdate);
-
-        verify(cityRepository).findById(cityId);
-
-        City result = cityRepository.findById(cityId).get();
-        Assertions.assertEquals(cityToUpdate.getName(), result.getName());
-        Assertions.assertEquals(cityToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(cityToUpdate.getFk_wealth(), result.getFk_wealth());
-        Assertions.assertEquals(cityToUpdate.getFk_country(), result.getFk_country());
-        Assertions.assertEquals(cityToUpdate.getFk_settlement(), result.getFk_settlement());
-        Assertions.assertEquals(cityToUpdate.getFk_government(), result.getFk_government());
-        Assertions.assertEquals(cityToUpdate.getFk_region(), result.getFk_region());
-    }
-
-    @Test
-    public void whenCityIdWithInvalidFKIsFound_updateCity_ThrowsDataIntegrityViolationException() {
-        int cityId = 2;
-        UUID campaign = UUID.randomUUID();
-
-        City city = new City(cityId, "Test City Name", "Test Description", campaign);
-        City cityToUpdate = new City(cityId, "Updated City Name", "Updated Description", campaign, 1, 2, 3, 4, 5);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(wealthRepository, countryRepository, settlementTypeRepository, governmentRepository));
-
-        when(cityRepository.existsById(cityId)).thenReturn(true);
-        when(cityRepository.findById(cityId)).thenReturn(Optional.of(city));
-        when(wealthRepository.existsById(1)).thenReturn(true);
-        when(countryRepository.existsById(2)).thenReturn(false);
-        when(settlementTypeRepository.existsById(3)).thenReturn(true);
-        when(governmentRepository.existsById(4)).thenReturn(false);
-        when(governmentRepository.existsById(5)).thenReturn(false);
-
-        assertThrows(DataIntegrityViolationException.class, () -> cityService.updateCity(cityId, cityToUpdate));
-    }
-
-    @Test
-    public void whenCityIdIsNotFound_updateCity_ThrowsIllegalArgumentException() {
-        int cityId = 1;
-        City city = new City(cityId, "Old City Name", "Old Description", UUID.randomUUID());
-
-        when(cityRepository.existsById(cityId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> cityService.updateCity(cityId, city));
+        assertThrows(IllegalArgumentException.class, () -> cityService.updateCity(entity.getId(), dto));
     }
 }

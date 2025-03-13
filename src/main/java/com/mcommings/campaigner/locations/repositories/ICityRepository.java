@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.repositories.locations;
+package com.mcommings.campaigner.locations.repositories;
 
-import com.mcommings.campaigner.entities.locations.City;
+import com.mcommings.campaigner.locations.entities.City;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Repository
 public interface ICityRepository extends JpaRepository<City, Integer> {
-
     Optional<City> findByName(String name);
 
     @Query("SELECT c FROM City c WHERE c.fk_campaign_uuid = :uuid")
