@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.entities.locations;
+package com.mcommings.campaigner.locations.entities;
 
 import jakarta.persistence.*;
 import lombok.*;

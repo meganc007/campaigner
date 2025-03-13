@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.dtos;
+package com.mcommings.campaigner.locations.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

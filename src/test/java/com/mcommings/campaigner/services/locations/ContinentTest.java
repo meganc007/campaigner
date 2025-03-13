@@ -1,14 +1,16 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.dtos.ContinentDTO;
-import com.mcommings.campaigner.entities.locations.Continent;
-import com.mcommings.campaigner.mappers.ContinentMapper;
-import com.mcommings.campaigner.repositories.locations.IContinentRepository;
+import com.mcommings.campaigner.locations.dtos.ContinentDTO;
+import com.mcommings.campaigner.locations.entities.Continent;
+import com.mcommings.campaigner.locations.mappers.ContinentMapper;
+import com.mcommings.campaigner.locations.repositories.IContinentRepository;
+import com.mcommings.campaigner.locations.services.ContinentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,8 +50,8 @@ public class ContinentTest {
         dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
 
         // Mocking the mapper behavior
-        when(continentMapper.continentToContinentDto(entity)).thenReturn(dto);
-        when(continentMapper.continentDtotoContinent(dto)).thenReturn(entity);
+        when(continentMapper.mapToContinentDto(entity)).thenReturn(dto);
+        when(continentMapper.mapFromContinentDto(dto)).thenReturn(entity);
     }
 
     @Test
@@ -124,22 +126,42 @@ public class ContinentTest {
     }
 
     @Test
+    public void whenContinentNameIsInvalid_saveContinent_ThrowsIllegalArgumentException() {
+        ContinentDTO continentWithEmptyName = new ContinentDTO();
+        continentWithEmptyName.setId(1);
+        continentWithEmptyName.setName("");
+        continentWithEmptyName.setDescription("A fictional continent.");
+        continentWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
+
+        ContinentDTO continentWithNullName = new ContinentDTO();
+        continentWithNullName.setId(1);
+        continentWithNullName.setName(null);
+        continentWithNullName.setDescription("A fictional continent.");
+        continentWithNullName.setFk_campaign_uuid(UUID.randomUUID());
+
+        assertThrows(IllegalArgumentException.class, () -> continentService.saveContinent(continentWithEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> continentService.saveContinent(continentWithNullName));
+    }
+
+    @Test
+    public void whenContinentNameAlreadyExists_saveContinent_ThrowsDataIntegrityViolationException() {
+        when(continentRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> continentService.saveContinent(dto));
+        verify(continentRepository, times(1)).findByName(dto.getName());
+        verify(continentRepository, never()).save(any(Continent.class));
+    }
+
+    @Test
     void whenContinentIdExists_deleteContinent_DeletesTheContinent() {
         when(continentRepository.existsById(1)).thenReturn(true);
-
-        boolean result = continentService.deleteContinent(1);
-
-        assertTrue(result);
+        continentService.deleteContinent(1);
         verify(continentRepository, times(1)).deleteById(1);
     }
 
     @Test
-    void whenContinentIdDoesNotExist_deleteContinent_DeletesTheContinent() {
+    void whenContinentIdDoesNotExist_deleteContinent_ThrowsIllegalArgumentException() {
         when(continentRepository.existsById(999)).thenReturn(false);
-
-        boolean result = continentService.deleteContinent(999);
-
-        assertFalse(result, "Expected false when trying to delete a non-existent continent.");
+        assertThrows(IllegalArgumentException.class, () -> continentService.deleteContinent(999));
     }
 
     @Test
@@ -150,15 +172,15 @@ public class ContinentTest {
         assertThrows(RuntimeException.class, () -> continentService.deleteContinent(1));
     }
 
-
     @Test
     void whenContinentIdIsFound_updateContinent_UpdatesTheContinent() {
         ContinentDTO updateDTO = new ContinentDTO();
         updateDTO.setName("Updated Name");
 
         when(continentRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(continentRepository.existsById(1)).thenReturn(true);
         when(continentRepository.save(entity)).thenReturn(entity);
-        when(continentMapper.continentToContinentDto(entity)).thenReturn(updateDTO);
+        when(continentMapper.mapToContinentDto(entity)).thenReturn(updateDTO);
 
         Optional<ContinentDTO> result = continentService.updateContinent(1, updateDTO);
 
@@ -172,9 +194,27 @@ public class ContinentTest {
         updateDTO.setName("Updated Name");
 
         when(continentRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> continentService.updateContinent(999, updateDTO));
+    }
 
-        Optional<ContinentDTO> result = continentService.updateContinent(999, updateDTO);
+    @Test
+    public void whenContinentNameIsInvalid_updateContinent_ThrowsIllegalArgumentException() {
+        ContinentDTO updateEmptyName = new ContinentDTO();
+        updateEmptyName.setName("");
 
-        assertTrue(result.isEmpty(), "Expected empty Optional when updating a non-existent continent.");
+        ContinentDTO updateNullName = new ContinentDTO();
+        updateNullName.setName(null);
+
+        when(continentRepository.existsById(1)).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> continentService.updateContinent(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> continentService.updateContinent(1, updateNullName));
+    }
+
+    @Test
+    public void whenContinentNameAlreadyExists_updateContinent_ThrowsDataIntegrityViolationException() {
+        when(continentRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> continentService.updateContinent(entity.getId(), dto));
     }
 }
