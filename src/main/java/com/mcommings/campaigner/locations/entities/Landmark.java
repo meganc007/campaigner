@@ -24,5 +24,4 @@ public class Landmark {
     private UUID fk_campaign_uuid;
     private Integer fk_region;
 
-
 }

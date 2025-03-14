@@ -2,7 +2,7 @@ package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.entities.Climate;
 import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.locations.Region;
+import com.mcommings.campaigner.locations.entities.Region;
 import com.mcommings.campaigner.locations.repositories.IRegionRepository;
 import com.mcommings.campaigner.repositories.IClimateRepository;
 import org.junit.jupiter.api.Assertions;
@@ -142,7 +142,7 @@ public class ClimateTest {
 
         assertThrows(IllegalArgumentException.class, () -> climateService.updateClimate(climateId, climate));
     }
-    
+
     @Test
     public void whenSomeClimateFieldsChanged_updateClimate_OnlyUpdatesChangedFields() {
         int climateId = 1;

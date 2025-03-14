@@ -2,11 +2,11 @@ package com.mcommings.campaigner.services;
 
 import com.mcommings.campaigner.entities.RepositoryHelper;
 import com.mcommings.campaigner.entities.Wealth;
-import com.mcommings.campaigner.entities.locations.City;
 import com.mcommings.campaigner.entities.people.NamedMonster;
 import com.mcommings.campaigner.entities.people.Person;
+import com.mcommings.campaigner.locations.entities.City;
+import com.mcommings.campaigner.locations.repositories.ICityRepository;
 import com.mcommings.campaigner.repositories.IWealthRepository;
-import com.mcommings.campaigner.repositories.locations.ICityRepository;
 import com.mcommings.campaigner.repositories.people.INamedMonsterRepository;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import org.junit.jupiter.api.Assertions;

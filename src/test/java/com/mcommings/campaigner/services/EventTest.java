@@ -3,13 +3,13 @@ package com.mcommings.campaigner.services;
 import com.mcommings.campaigner.entities.Event;
 import com.mcommings.campaigner.entities.RepositoryHelper;
 import com.mcommings.campaigner.entities.people.EventPlacePerson;
+import com.mcommings.campaigner.locations.repositories.ICityRepository;
+import com.mcommings.campaigner.locations.repositories.IContinentRepository;
+import com.mcommings.campaigner.locations.repositories.ICountryRepository;
 import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.calendar.IDayRepository;
 import com.mcommings.campaigner.repositories.calendar.IMonthRepository;
 import com.mcommings.campaigner.repositories.calendar.IWeekRepository;
-import com.mcommings.campaigner.repositories.locations.ICityRepository;
-import com.mcommings.campaigner.repositories.locations.IContinentRepository;
-import com.mcommings.campaigner.repositories.locations.ICountryRepository;
 import com.mcommings.campaigner.repositories.people.IEventPlacePersonRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -300,7 +300,7 @@ public class EventTest {
 
         assertThrows(IllegalArgumentException.class, () -> eventService.updateEvent(eventId, event));
     }
-    
+
     @Test
     public void whenSomeEventFieldsChanged_updateEvent_OnlyUpdatesChangedFields() {
         int eventId = 1;
