@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.repositories.locations;
+package com.mcommings.campaigner.locations.repositories;
 
-import com.mcommings.campaigner.entities.locations.PlaceType;
+import com.mcommings.campaigner.locations.entities.PlaceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
