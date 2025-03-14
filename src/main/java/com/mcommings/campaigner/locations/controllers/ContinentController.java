@@ -4,8 +4,6 @@ import com.mcommings.campaigner.locations.dtos.ContinentDTO;
 import com.mcommings.campaigner.locations.services.interfaces.IContinent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,9 +34,8 @@ public class ContinentController {
     }
 
     @PostMapping
-    public ResponseEntity saveContinent(@Valid @RequestBody ContinentDTO continent) {
+    public void saveContinent(@Valid @RequestBody ContinentDTO continent) {
         continentService.saveContinent(continent);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(path = "{continentId}")

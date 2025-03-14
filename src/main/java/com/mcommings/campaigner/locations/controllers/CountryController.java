@@ -4,8 +4,6 @@ import com.mcommings.campaigner.locations.dtos.CountryDTO;
 import com.mcommings.campaigner.locations.services.interfaces.ICountry;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,9 +39,8 @@ public class CountryController {
     }
 
     @PostMapping
-    public ResponseEntity saveCountry(@Valid @RequestBody CountryDTO country) {
+    public void saveCountry(@Valid @RequestBody CountryDTO country) {
         countryService.saveCountry(country);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping(path = "{countryId}")
@@ -52,8 +49,7 @@ public class CountryController {
     }
 
     @PutMapping(path = "{countryId}")
-    public ResponseEntity updateCountry(@PathVariable("countryId") int countryId, @RequestBody CountryDTO country) {
+    public void updateCountry(@PathVariable("countryId") int countryId, @RequestBody CountryDTO country) {
         countryService.updateCountry(countryId, country);
-        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 }
