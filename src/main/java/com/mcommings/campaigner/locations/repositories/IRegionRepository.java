@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.repositories.locations;
+package com.mcommings.campaigner.locations.repositories;
 
 import com.mcommings.campaigner.entities.locations.Region;
 import org.springframework.data.jpa.repository.JpaRepository;

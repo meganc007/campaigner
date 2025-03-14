@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.people;
 
 import com.mcommings.campaigner.entities.people.EventPlacePerson;
+import com.mcommings.campaigner.locations.repositories.IPlaceRepository;
 import com.mcommings.campaigner.repositories.IEventRepository;
-import com.mcommings.campaigner.repositories.locations.IPlaceRepository;
 import com.mcommings.campaigner.repositories.people.IEventPlacePersonRepository;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import org.junit.jupiter.api.Assertions;
