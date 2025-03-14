@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 @Mapper
 public interface SettlementTypeMapper {
 
-    SettlementType mapFromSettlementType(SettlementTypeDTO dto);
+    SettlementType mapFromSettlementTypeDto(SettlementTypeDTO dto);
 
     SettlementTypeDTO mapToSettlementTypeDto(SettlementType settlementType);
 }

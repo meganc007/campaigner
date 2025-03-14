@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 @Mapper
 public interface PlaceMapper {
 
-    Place mapFromPlace(PlaceDTO dto);
+    Place mapFromPlaceDto(PlaceDTO dto);
 
     PlaceDTO mapToPlaceDto(Place place);
 }

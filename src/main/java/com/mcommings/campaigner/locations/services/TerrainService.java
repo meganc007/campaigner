@@ -49,7 +49,7 @@ public class TerrainService implements ITerrain {
 
         terrainMapper.mapToTerrainDto(
                 terrainRepository.save(
-                        terrainMapper.mapFromTerrain(terrain)
+                        terrainMapper.mapFromTerrainDto(terrain)
                 ));
     }
 

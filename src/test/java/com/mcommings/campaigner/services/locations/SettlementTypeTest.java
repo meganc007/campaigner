@@ -48,7 +48,7 @@ public class SettlementTypeTest {
 
         // Mocking the mapper behavior
         when(settlementTypeMapper.mapToSettlementTypeDto(entity)).thenReturn(dto);
-        when(settlementTypeMapper.mapFromSettlementType(dto)).thenReturn(entity);
+        when(settlementTypeMapper.mapFromSettlementTypeDto(dto)).thenReturn(entity);
     }
 
     @Test

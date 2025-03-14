@@ -48,7 +48,7 @@ public class TerrainTest {
 
         // Mocking the mapper behavior
         when(terrainMapper.mapToTerrainDto(entity)).thenReturn(dto);
-        when(terrainMapper.mapFromTerrain(dto)).thenReturn(entity);
+        when(terrainMapper.mapFromTerrainDto(dto)).thenReturn(entity);
     }
 
     @Test

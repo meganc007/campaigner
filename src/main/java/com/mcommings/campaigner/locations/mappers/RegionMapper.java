@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 @Mapper
 public interface RegionMapper {
 
-    Region mapFromRegion(RegionDTO dto);
+    Region mapFromRegionDto(RegionDTO dto);
 
     RegionDTO mapToRegionDto(Region region);
 }

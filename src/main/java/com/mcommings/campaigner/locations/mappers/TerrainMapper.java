@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 @Mapper
 public interface TerrainMapper {
 
-    Terrain mapFromTerrain(TerrainDTO dto);
+    Terrain mapFromTerrainDto(TerrainDTO dto);
 
     TerrainDTO mapToTerrainDto(Terrain terrain);
 }
