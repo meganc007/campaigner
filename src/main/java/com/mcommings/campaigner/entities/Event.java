@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.entities;
 
-import com.mcommings.campaigner.entities.calendar.Day;
-import com.mcommings.campaigner.entities.calendar.Month;
-import com.mcommings.campaigner.entities.calendar.Week;
+import com.mcommings.campaigner.calendar.entities.Day;
+import com.mcommings.campaigner.calendar.entities.Month;
+import com.mcommings.campaigner.calendar.entities.Week;
 import com.mcommings.campaigner.locations.entities.City;
 import com.mcommings.campaigner.locations.entities.Continent;
 import com.mcommings.campaigner.locations.entities.Country;
