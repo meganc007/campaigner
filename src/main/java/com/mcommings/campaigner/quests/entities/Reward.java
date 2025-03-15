@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.entities.quests;
+package com.mcommings.campaigner.quests.entities;
 
 import com.mcommings.campaigner.common.entities.Campaign;
 import com.mcommings.campaigner.items.entities.Item;

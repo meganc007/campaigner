@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.repositories.quests;
+package com.mcommings.campaigner.quests.repositories;
 
-import com.mcommings.campaigner.entities.quests.Hook;
+import com.mcommings.campaigner.quests.entities.Hook;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

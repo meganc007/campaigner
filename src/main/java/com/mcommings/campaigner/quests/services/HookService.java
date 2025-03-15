@@ -1,9 +1,9 @@
-package com.mcommings.campaigner.services.quests;
+package com.mcommings.campaigner.quests.services;
 
 import com.mcommings.campaigner.common.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.quests.Hook;
-import com.mcommings.campaigner.interfaces.quests.IHook;
-import com.mcommings.campaigner.repositories.quests.IHookRepository;
+import com.mcommings.campaigner.quests.entities.Hook;
+import com.mcommings.campaigner.quests.repositories.IHookRepository;
+import com.mcommings.campaigner.quests.services.interfaces.IHook;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

@@ -1,7 +1,7 @@
-package com.mcommings.campaigner.controllers.quests;
+package com.mcommings.campaigner.quests.controllers;
 
-import com.mcommings.campaigner.entities.quests.Outcome;
-import com.mcommings.campaigner.services.quests.OutcomeService;
+import com.mcommings.campaigner.quests.entities.Outcome;
+import com.mcommings.campaigner.quests.services.OutcomeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

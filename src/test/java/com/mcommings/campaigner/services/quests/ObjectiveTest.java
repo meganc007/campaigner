@@ -1,7 +1,8 @@
 package com.mcommings.campaigner.services.quests;
 
-import com.mcommings.campaigner.entities.quests.Objective;
-import com.mcommings.campaigner.repositories.quests.IObjectiveRepository;
+import com.mcommings.campaigner.quests.entities.Objective;
+import com.mcommings.campaigner.quests.repositories.IObjectiveRepository;
+import com.mcommings.campaigner.quests.services.ObjectiveService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

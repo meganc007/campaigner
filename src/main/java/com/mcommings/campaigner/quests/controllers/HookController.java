@@ -1,7 +1,7 @@
-package com.mcommings.campaigner.controllers.quests;
+package com.mcommings.campaigner.quests.controllers;
 
-import com.mcommings.campaigner.entities.quests.Hook;
-import com.mcommings.campaigner.services.quests.HookService;
+import com.mcommings.campaigner.quests.entities.Hook;
+import com.mcommings.campaigner.quests.services.HookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

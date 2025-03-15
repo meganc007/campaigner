@@ -1,7 +1,7 @@
-package com.mcommings.campaigner.controllers.quests;
+package com.mcommings.campaigner.quests.controllers;
 
-import com.mcommings.campaigner.entities.quests.Reward;
-import com.mcommings.campaigner.services.quests.RewardService;
+import com.mcommings.campaigner.quests.entities.Reward;
+import com.mcommings.campaigner.quests.services.RewardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

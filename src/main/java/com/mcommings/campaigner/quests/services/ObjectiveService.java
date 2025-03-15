@@ -1,9 +1,9 @@
-package com.mcommings.campaigner.services.quests;
+package com.mcommings.campaigner.quests.services;
 
 import com.mcommings.campaigner.common.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.quests.Objective;
-import com.mcommings.campaigner.interfaces.quests.IObjective;
-import com.mcommings.campaigner.repositories.quests.IObjectiveRepository;
+import com.mcommings.campaigner.quests.entities.Objective;
+import com.mcommings.campaigner.quests.repositories.IObjectiveRepository;
+import com.mcommings.campaigner.quests.services.interfaces.IObjective;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
