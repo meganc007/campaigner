@@ -1,69 +1,70 @@
 package com.mcommings.campaigner.modules.calendar.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.calendar.entities.Week;
-import com.mcommings.campaigner.modules.calendar.repositories.ICelestialEventRepository;
-import com.mcommings.campaigner.modules.calendar.repositories.IDayRepository;
-import com.mcommings.campaigner.modules.calendar.repositories.IMonthRepository;
+import com.mcommings.campaigner.modules.calendar.dtos.WeekDTO;
+import com.mcommings.campaigner.modules.calendar.mappers.WeekMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.IWeekRepository;
 import com.mcommings.campaigner.modules.calendar.services.interfaces.IWeek;
-import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_WEEK;
 
 @Service
+@RequiredArgsConstructor
 public class WeekService implements IWeek {
 
     private final IWeekRepository weekRepository;
-    private final IDayRepository dayRepository;
-    private final IMonthRepository monthRepository;
-    private final ICelestialEventRepository celestialEventRepository;
-    private final IEventRepository eventRepository;
+    private final WeekMapper weekMapper;
 
-    @Autowired
-    public WeekService(IWeekRepository weekRepository, IDayRepository dayRepository, IMonthRepository monthRepository,
-                       ICelestialEventRepository celestialEventRepository, IEventRepository eventRepository) {
-        this.weekRepository = weekRepository;
-        this.dayRepository = dayRepository;
-        this.monthRepository = monthRepository;
-        this.celestialEventRepository = celestialEventRepository;
-        this.eventRepository = eventRepository;
+    @Override
+    public List<WeekDTO> getWeeks() {
+        return weekRepository.findAll()
+                .stream()
+                .map(weekMapper::mapToWeekDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Week> getWeeks() {
-        return weekRepository.findAll();
+    public Optional<WeekDTO> getWeek(int weekId) {
+        return weekRepository.findById(weekId)
+                .map(weekMapper::mapToWeekDto);
     }
 
     @Override
-    public List<Week> getWeeksByCampaignUUID(UUID uuid) {
-        return weekRepository.findByfk_campaign_uuid(uuid);
+    public List<WeekDTO> getWeeksByCampaignUUID(UUID uuid) {
+        return weekRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(weekMapper::mapToWeekDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Week> getWeeksByMonth(int monthId) {
-        return weekRepository.findByfk_month(monthId);
+    public List<WeekDTO> getWeeksByMonth(int monthId) {
+
+        return weekRepository.findByfk_month(monthId)
+                .stream()
+                .map(weekMapper::mapToWeekDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public void saveWeek(Week week) throws DataIntegrityViolationException {
-        if (RepositoryHelper.foreignKeyIsNotValid(weekRepository, getListOfForeignKeyRepositories(), week)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
+    public void saveWeek(WeekDTO week) throws DataIntegrityViolationException {
+        if (RepositoryHelper.nameIsNullOrEmpty(week)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
 
-        weekRepository.saveAndFlush(week);
+        weekMapper.mapToWeekDto(
+                weekRepository.save(weekMapper.mapFromWeekDto(week)
+                ));
     }
 
     @Override
@@ -72,33 +73,26 @@ public class WeekService implements IWeek {
         if (RepositoryHelper.cannotFindId(weekRepository, weekId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.isForeignKey(getReposWhereWeekIsAForeignKey(), FK_WEEK.columnName, weekId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-        }
-
         weekRepository.deleteById(weekId);
     }
 
     @Override
     @Transactional
-    public void updateWeek(int weekId, Week week) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<WeekDTO> updateWeek(int weekId, WeekDTO week) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(weekRepository, weekId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.foreignKeyIsNotValid(weekRepository, getListOfForeignKeyRepositories(), week)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+        if (RepositoryHelper.nameIsNullOrEmpty(week)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        Week weekToUpdate = RepositoryHelper.getById(weekRepository, weekId);
-        if (week.getDescription() != null) weekToUpdate.setDescription(week.getDescription());
-        if (week.getWeek_number() != null) weekToUpdate.setWeek_number(week.getWeek_number());
-        if (week.getFk_month() != null) weekToUpdate.setFk_month(week.getFk_month());
-    }
 
-    private List<CrudRepository> getReposWhereWeekIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(dayRepository, celestialEventRepository, eventRepository));
-    }
+        return weekRepository.findById(weekId).map(foundWeek -> {
+            if (week.getDescription() != null) foundWeek.setDescription(week.getDescription());
+            if (week.getFk_campaign_uuid() != null) foundWeek.setFk_campaign_uuid(week.getFk_campaign_uuid());
+            if (week.getWeek_number() != null) foundWeek.setWeek_number(week.getWeek_number());
+            if (week.getFk_month() != null) foundWeek.setFk_month(week.getFk_month());
 
-    private List<CrudRepository> getListOfForeignKeyRepositories() {
-        return new ArrayList<>(Arrays.asList(monthRepository));
+            return weekMapper.mapToWeekDto(weekRepository.save(foundWeek));
+        });
     }
 }

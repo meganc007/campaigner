@@ -1,64 +1,63 @@
 package com.mcommings.campaigner.modules.calendar.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.calendar.entities.Month;
-import com.mcommings.campaigner.modules.calendar.repositories.ICelestialEventRepository;
+import com.mcommings.campaigner.modules.calendar.dtos.MonthDTO;
+import com.mcommings.campaigner.modules.calendar.mappers.MonthMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.IMonthRepository;
-import com.mcommings.campaigner.modules.calendar.repositories.IWeekRepository;
 import com.mcommings.campaigner.modules.calendar.services.interfaces.IMonth;
-import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_MONTH;
 
 @Service
+@RequiredArgsConstructor
 public class MonthService implements IMonth {
 
     private final IMonthRepository monthRepository;
-    private final IWeekRepository weekRepository;
-    private final ICelestialEventRepository celestialEventRepository;
-    private final IEventRepository eventRepository;
+    private final MonthMapper monthMapper;
 
-    @Autowired
-    public MonthService(IMonthRepository monthRepository, IWeekRepository weekRepository,
-                        ICelestialEventRepository celestialEventRepository, IEventRepository eventRepository) {
-        this.monthRepository = monthRepository;
-        this.weekRepository = weekRepository;
-        this.celestialEventRepository = celestialEventRepository;
-        this.eventRepository = eventRepository;
+    @Override
+    public List<MonthDTO> getMonths() {
+        return monthRepository.findAll()
+                .stream()
+                .map(monthMapper::mapToMonthDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Month> getMonths() {
-        return monthRepository.findAll();
+    public Optional<MonthDTO> getMonth(int monthId) {
+        return monthRepository.findById(monthId)
+                .map(monthMapper::mapToMonthDto);
     }
 
     @Override
-    public List<Month> getMonthsByCampaignUUID(UUID uuid) {
-        return monthRepository.findByfk_campaign_uuid(uuid);
+    public List<MonthDTO> getMonthsByCampaignUUID(UUID uuid) {
+        return monthRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(monthMapper::mapToMonthDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public void saveMonth(Month month) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveMonth(MonthDTO month) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(month)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(monthRepository, month)) {
+        if (RepositoryHelper.nameAlreadyExists(monthRepository, month.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-
-        monthRepository.saveAndFlush(month);
+        monthMapper.mapToMonthDto(
+                monthRepository.save(monthMapper.mapFromMonthDto(month)
+                ));
     }
 
     @Override
@@ -67,26 +66,30 @@ public class MonthService implements IMonth {
         if (RepositoryHelper.cannotFindId(monthRepository, monthId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.isForeignKey(getReposWhereMonthIsAForeignKey(), FK_MONTH.columnName, monthId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-        }
-
         monthRepository.deleteById(monthId);
     }
 
     @Override
     @Transactional
-    public void updateMonth(int monthId, Month month) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<MonthDTO> updateMonth(int monthId, MonthDTO month) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(monthRepository, monthId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        Month monthToUpdate = RepositoryHelper.getById(monthRepository, monthId);
-        if (month.getName() != null) monthToUpdate.setName(month.getName());
-        if (month.getDescription() != null) monthToUpdate.setDescription(month.getDescription());
-        if (month.getSeason() != null) monthToUpdate.setSeason(month.getSeason());
+        if (RepositoryHelper.nameIsNullOrEmpty(month)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (RepositoryHelper.nameAlreadyExists(monthRepository, month.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
+
+        return monthRepository.findById(monthId).map(foundMonth -> {
+            if (month.getName() != null) foundMonth.setName(month.getName());
+            if (month.getDescription() != null) foundMonth.setDescription(month.getDescription());
+            if (month.getFk_campaign_uuid() != null) foundMonth.setFk_campaign_uuid(month.getFk_campaign_uuid());
+            if (month.getSeason() != null) foundMonth.setSeason(month.getSeason());
+
+            return monthMapper.mapToMonthDto(monthRepository.save(foundMonth));
+        });
     }
 
-    private List<CrudRepository> getReposWhereMonthIsAForeignKey() {
-       return new ArrayList<>(Arrays.asList(weekRepository, celestialEventRepository, eventRepository));
-    }
 }
