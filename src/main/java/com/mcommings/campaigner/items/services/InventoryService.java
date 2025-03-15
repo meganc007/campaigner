@@ -7,7 +7,7 @@ import com.mcommings.campaigner.items.repositories.IItemRepository;
 import com.mcommings.campaigner.items.repositories.IWeaponRepository;
 import com.mcommings.campaigner.items.services.interfaces.IInventory;
 import com.mcommings.campaigner.locations.repositories.IPlaceRepository;
-import com.mcommings.campaigner.repositories.people.IPersonRepository;
+import com.mcommings.campaigner.people.repositories.IPersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

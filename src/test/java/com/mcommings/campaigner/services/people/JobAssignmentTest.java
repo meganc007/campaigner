@@ -1,9 +1,10 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.entities.people.JobAssignment;
-import com.mcommings.campaigner.repositories.people.IJobAssignmentRepository;
-import com.mcommings.campaigner.repositories.people.IJobRepository;
-import com.mcommings.campaigner.repositories.people.IPersonRepository;
+import com.mcommings.campaigner.people.entities.JobAssignment;
+import com.mcommings.campaigner.people.repositories.IJobAssignmentRepository;
+import com.mcommings.campaigner.people.repositories.IJobRepository;
+import com.mcommings.campaigner.people.repositories.IPersonRepository;
+import com.mcommings.campaigner.people.services.JobAssignmentService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

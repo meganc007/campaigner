@@ -10,7 +10,7 @@ import com.mcommings.campaigner.common.services.interfaces.IEvent;
 import com.mcommings.campaigner.locations.repositories.ICityRepository;
 import com.mcommings.campaigner.locations.repositories.IContinentRepository;
 import com.mcommings.campaigner.locations.repositories.ICountryRepository;
-import com.mcommings.campaigner.repositories.people.IEventPlacePersonRepository;
+import com.mcommings.campaigner.people.repositories.IEventPlacePersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
