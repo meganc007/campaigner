@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.quests;
 
-import com.mcommings.campaigner.quests.entities.Outcome;
-import com.mcommings.campaigner.quests.repositories.IOutcomeRepository;
-import com.mcommings.campaigner.quests.services.OutcomeService;
+import com.mcommings.campaigner.modules.quests.entities.Outcome;
+import com.mcommings.campaigner.modules.quests.repositories.IOutcomeRepository;
+import com.mcommings.campaigner.modules.quests.services.OutcomeService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

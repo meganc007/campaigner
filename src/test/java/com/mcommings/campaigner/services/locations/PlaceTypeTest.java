@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.locations.dtos.PlaceTypeDTO;
-import com.mcommings.campaigner.locations.entities.PlaceType;
-import com.mcommings.campaigner.locations.mappers.PlaceTypeMapper;
-import com.mcommings.campaigner.locations.repositories.IPlaceTypesRepository;
-import com.mcommings.campaigner.locations.services.PlaceTypeService;
+import com.mcommings.campaigner.modules.locations.dtos.PlaceTypeDTO;
+import com.mcommings.campaigner.modules.locations.entities.PlaceType;
+import com.mcommings.campaigner.modules.locations.mappers.PlaceTypeMapper;
+import com.mcommings.campaigner.modules.locations.repositories.IPlaceTypesRepository;
+import com.mcommings.campaigner.modules.locations.services.PlaceTypeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

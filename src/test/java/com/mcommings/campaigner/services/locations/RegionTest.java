@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.locations.dtos.RegionDTO;
-import com.mcommings.campaigner.locations.entities.Region;
-import com.mcommings.campaigner.locations.mappers.RegionMapper;
-import com.mcommings.campaigner.locations.repositories.IRegionRepository;
-import com.mcommings.campaigner.locations.services.RegionService;
+import com.mcommings.campaigner.modules.locations.dtos.RegionDTO;
+import com.mcommings.campaigner.modules.locations.entities.Region;
+import com.mcommings.campaigner.modules.locations.mappers.RegionMapper;
+import com.mcommings.campaigner.modules.locations.repositories.IRegionRepository;
+import com.mcommings.campaigner.modules.locations.services.RegionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

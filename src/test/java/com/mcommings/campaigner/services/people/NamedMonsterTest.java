@@ -1,11 +1,11 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.common.repositories.IWealthRepository;
-import com.mcommings.campaigner.people.entities.NamedMonster;
-import com.mcommings.campaigner.people.repositories.IAbilityScoreRepository;
-import com.mcommings.campaigner.people.repositories.IGenericMonsterRepository;
-import com.mcommings.campaigner.people.repositories.INamedMonsterRepository;
-import com.mcommings.campaigner.people.services.NamedMonsterService;
+import com.mcommings.campaigner.modules.common.repositories.IWealthRepository;
+import com.mcommings.campaigner.modules.people.entities.NamedMonster;
+import com.mcommings.campaigner.modules.people.repositories.IAbilityScoreRepository;
+import com.mcommings.campaigner.modules.people.repositories.IGenericMonsterRepository;
+import com.mcommings.campaigner.modules.people.repositories.INamedMonsterRepository;
+import com.mcommings.campaigner.modules.people.services.NamedMonsterService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -1,11 +1,11 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.common.repositories.IEventRepository;
-import com.mcommings.campaigner.locations.repositories.IPlaceRepository;
-import com.mcommings.campaigner.people.entities.EventPlacePerson;
-import com.mcommings.campaigner.people.repositories.IEventPlacePersonRepository;
-import com.mcommings.campaigner.people.repositories.IPersonRepository;
-import com.mcommings.campaigner.people.services.EventPlacePersonService;
+import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
+import com.mcommings.campaigner.modules.locations.repositories.IPlaceRepository;
+import com.mcommings.campaigner.modules.people.entities.EventPlacePerson;
+import com.mcommings.campaigner.modules.people.repositories.IEventPlacePersonRepository;
+import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
+import com.mcommings.campaigner.modules.people.services.EventPlacePersonService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

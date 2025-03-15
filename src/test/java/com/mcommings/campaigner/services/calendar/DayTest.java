@@ -1,14 +1,14 @@
 package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.calendar.entities.CelestialEvent;
-import com.mcommings.campaigner.calendar.entities.Day;
-import com.mcommings.campaigner.calendar.repositories.ICelestialEventRepository;
-import com.mcommings.campaigner.calendar.repositories.IDayRepository;
-import com.mcommings.campaigner.calendar.repositories.IWeekRepository;
-import com.mcommings.campaigner.calendar.services.DayService;
-import com.mcommings.campaigner.common.entities.Event;
-import com.mcommings.campaigner.common.entities.RepositoryHelper;
-import com.mcommings.campaigner.common.repositories.IEventRepository;
+import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
+import com.mcommings.campaigner.modules.calendar.entities.Day;
+import com.mcommings.campaigner.modules.calendar.repositories.ICelestialEventRepository;
+import com.mcommings.campaigner.modules.calendar.repositories.IDayRepository;
+import com.mcommings.campaigner.modules.calendar.repositories.IWeekRepository;
+import com.mcommings.campaigner.modules.calendar.services.DayService;
+import com.mcommings.campaigner.modules.common.entities.Event;
+import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

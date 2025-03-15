@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.services.quests;
 
-import com.mcommings.campaigner.items.repositories.IItemRepository;
-import com.mcommings.campaigner.items.repositories.IWeaponRepository;
-import com.mcommings.campaigner.quests.entities.Reward;
-import com.mcommings.campaigner.quests.repositories.IRewardRepository;
-import com.mcommings.campaigner.quests.services.RewardService;
+import com.mcommings.campaigner.modules.items.repositories.IItemRepository;
+import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
+import com.mcommings.campaigner.modules.quests.entities.Reward;
+import com.mcommings.campaigner.modules.quests.repositories.IRewardRepository;
+import com.mcommings.campaigner.modules.quests.services.RewardService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

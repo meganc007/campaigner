@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.calendar.entities.CelestialEvent;
-import com.mcommings.campaigner.calendar.repositories.*;
-import com.mcommings.campaigner.calendar.services.CelestialEventService;
+import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
+import com.mcommings.campaigner.modules.calendar.repositories.*;
+import com.mcommings.campaigner.modules.calendar.services.CelestialEventService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
