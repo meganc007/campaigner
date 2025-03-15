@@ -1,36 +1,40 @@
 package com.mcommings.campaigner.modules.calendar.controllers;
 
-import com.mcommings.campaigner.modules.calendar.entities.Month;
-import com.mcommings.campaigner.modules.calendar.services.MonthService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.calendar.dtos.MonthDTO;
+import com.mcommings.campaigner.modules.calendar.services.interfaces.IMonth;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "api/calendar/months")
 public class MonthController {
 
-    private final MonthService monthService;
-
-    @Autowired
-    public MonthController(MonthService monthService) {
-        this.monthService = monthService;
-    }
+    private final IMonth monthService;
 
     @GetMapping
-    public List<Month> getMonths() {
+    public List<MonthDTO> getMonths() {
         return monthService.getMonths();
     }
 
+    @GetMapping(path = "/{monthId}")
+    public MonthDTO getMonth(@PathVariable("monthId") int monthId) {
+        return monthService.getMonth(monthId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @GetMapping(path = "/campaign/{uuid}")
-    public List<Month> getMonthsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<MonthDTO> getMonthsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
         return monthService.getMonthsByCampaignUUID(uuid);
     }
 
     @PostMapping
-    public void saveMonth(@RequestBody Month month) {
+    public void saveMonth(@Valid @RequestBody MonthDTO month) {
         monthService.saveMonth(month);
     }
 
@@ -40,7 +44,7 @@ public class MonthController {
     }
 
     @PutMapping(path = "{monthId}")
-    public void updateMonth(@PathVariable("monthId") int monthId, @RequestBody Month month) {
+    public void updateMonth(@PathVariable("monthId") int monthId, @RequestBody MonthDTO month) {
         monthService.updateMonth(monthId, month);
     }
 }
