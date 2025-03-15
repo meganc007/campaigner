@@ -1,11 +1,12 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.people.GenericMonster;
-import com.mcommings.campaigner.entities.people.NamedMonster;
-import com.mcommings.campaigner.repositories.people.IAbilityScoreRepository;
-import com.mcommings.campaigner.repositories.people.IGenericMonsterRepository;
-import com.mcommings.campaigner.repositories.people.INamedMonsterRepository;
+import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.modules.people.entities.GenericMonster;
+import com.mcommings.campaigner.modules.people.entities.NamedMonster;
+import com.mcommings.campaigner.modules.people.repositories.IAbilityScoreRepository;
+import com.mcommings.campaigner.modules.people.repositories.IGenericMonsterRepository;
+import com.mcommings.campaigner.modules.people.repositories.INamedMonsterRepository;
+import com.mcommings.campaigner.modules.people.services.GenericMonsterService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

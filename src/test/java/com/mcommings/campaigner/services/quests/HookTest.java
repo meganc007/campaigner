@@ -1,7 +1,8 @@
 package com.mcommings.campaigner.services.quests;
 
-import com.mcommings.campaigner.entities.quests.Hook;
-import com.mcommings.campaigner.repositories.quests.IHookRepository;
+import com.mcommings.campaigner.modules.quests.entities.Hook;
+import com.mcommings.campaigner.modules.quests.repositories.IHookRepository;
+import com.mcommings.campaigner.modules.quests.services.HookService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

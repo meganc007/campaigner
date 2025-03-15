@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.locations.dtos.TerrainDTO;
-import com.mcommings.campaigner.locations.entities.Terrain;
-import com.mcommings.campaigner.locations.mappers.TerrainMapper;
-import com.mcommings.campaigner.locations.repositories.ITerrainRepository;
-import com.mcommings.campaigner.locations.services.TerrainService;
+import com.mcommings.campaigner.modules.locations.dtos.TerrainDTO;
+import com.mcommings.campaigner.modules.locations.entities.Terrain;
+import com.mcommings.campaigner.modules.locations.mappers.TerrainMapper;
+import com.mcommings.campaigner.modules.locations.repositories.ITerrainRepository;
+import com.mcommings.campaigner.modules.locations.services.TerrainService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

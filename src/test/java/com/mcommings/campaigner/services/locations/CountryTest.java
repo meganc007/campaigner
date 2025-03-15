@@ -1,11 +1,11 @@
 package com.mcommings.campaigner.services.locations;
 
 
-import com.mcommings.campaigner.locations.dtos.CountryDTO;
-import com.mcommings.campaigner.locations.entities.Country;
-import com.mcommings.campaigner.locations.mappers.CountryMapper;
-import com.mcommings.campaigner.locations.repositories.ICountryRepository;
-import com.mcommings.campaigner.locations.services.CountryService;
+import com.mcommings.campaigner.modules.locations.dtos.CountryDTO;
+import com.mcommings.campaigner.modules.locations.entities.Country;
+import com.mcommings.campaigner.modules.locations.mappers.CountryMapper;
+import com.mcommings.campaigner.modules.locations.repositories.ICountryRepository;
+import com.mcommings.campaigner.modules.locations.services.CountryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

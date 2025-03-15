@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.locations.dtos.LandmarkDTO;
-import com.mcommings.campaigner.locations.entities.Landmark;
-import com.mcommings.campaigner.locations.mappers.LandmarkMapper;
-import com.mcommings.campaigner.locations.repositories.ILandmarkRepository;
-import com.mcommings.campaigner.locations.services.LandmarkService;
+import com.mcommings.campaigner.modules.locations.dtos.LandmarkDTO;
+import com.mcommings.campaigner.modules.locations.entities.Landmark;
+import com.mcommings.campaigner.modules.locations.mappers.LandmarkMapper;
+import com.mcommings.campaigner.modules.locations.repositories.ILandmarkRepository;
+import com.mcommings.campaigner.modules.locations.services.LandmarkService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

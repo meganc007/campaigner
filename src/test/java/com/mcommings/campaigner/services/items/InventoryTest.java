@@ -1,11 +1,12 @@
 package com.mcommings.campaigner.services.items;
 
-import com.mcommings.campaigner.entities.items.Inventory;
-import com.mcommings.campaigner.locations.repositories.IPlaceRepository;
-import com.mcommings.campaigner.repositories.items.IInventoryRepository;
-import com.mcommings.campaigner.repositories.items.IItemRepository;
-import com.mcommings.campaigner.repositories.items.IWeaponRepository;
-import com.mcommings.campaigner.repositories.people.IPersonRepository;
+import com.mcommings.campaigner.modules.items.entities.Inventory;
+import com.mcommings.campaigner.modules.items.repositories.IInventoryRepository;
+import com.mcommings.campaigner.modules.items.repositories.IItemRepository;
+import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
+import com.mcommings.campaigner.modules.items.services.InventoryService;
+import com.mcommings.campaigner.modules.locations.repositories.IPlaceRepository;
+import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -1,10 +1,11 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.people.Person;
-import com.mcommings.campaigner.entities.people.Race;
-import com.mcommings.campaigner.repositories.people.IPersonRepository;
-import com.mcommings.campaigner.repositories.people.IRaceRepository;
+import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.modules.people.entities.Person;
+import com.mcommings.campaigner.modules.people.entities.Race;
+import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
+import com.mcommings.campaigner.modules.people.repositories.IRaceRepository;
+import com.mcommings.campaigner.modules.people.services.RaceService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
