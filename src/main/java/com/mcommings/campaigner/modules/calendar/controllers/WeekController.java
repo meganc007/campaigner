@@ -1,41 +1,45 @@
 package com.mcommings.campaigner.modules.calendar.controllers;
 
-import com.mcommings.campaigner.modules.calendar.entities.Week;
-import com.mcommings.campaigner.modules.calendar.services.WeekService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.calendar.dtos.WeekDTO;
+import com.mcommings.campaigner.modules.calendar.services.interfaces.IWeek;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/calendar/weeks")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/weeks")
 public class WeekController {
 
-    private final WeekService weekService;
-
-    @Autowired
-    public WeekController(WeekService weekService) {
-        this.weekService = weekService;
-    }
+    private final IWeek weekService;
 
     @GetMapping
-    public List<Week> getWeeks() {
+    public List<WeekDTO> getWeeks() {
         return weekService.getWeeks();
     }
 
+    @GetMapping(path = "/{weekId}")
+    public WeekDTO getWeek(@PathVariable("weekId") int weekId) {
+        return weekService.getWeek(weekId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @GetMapping(path = "/campaign/{uuid}")
-    public List<Week> getWeeksByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<WeekDTO> getWeeksByCampaignUUID(@PathVariable("uuid") UUID uuid) {
         return weekService.getWeeksByCampaignUUID(uuid);
     }
 
     @GetMapping(path = "/month/{monthId}")
-    public List<Week> getWeeksByMonth(@PathVariable("monthId") int monthId) {
+    public List<WeekDTO> getWeeksByMonth(@PathVariable("monthId") int monthId) {
         return weekService.getWeeksByMonth(monthId);
     }
 
     @PostMapping
-    public void saveWeek(@RequestBody Week week) {
+    public void saveWeek(@Valid @RequestBody WeekDTO week) {
         weekService.saveWeek(week);
     }
 
@@ -45,7 +49,7 @@ public class WeekController {
     }
 
     @PutMapping(path = "{weekId}")
-    public void updateWeek(@PathVariable("weekId") int weekId, @RequestBody Week week) {
+    public void updateWeek(@PathVariable("weekId") int weekId, @RequestBody WeekDTO week) {
         weekService.updateWeek(weekId, week);
     }
 }
