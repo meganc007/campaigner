@@ -10,6 +10,8 @@ public interface IWeek {
 
     List<WeekDTO> getWeeks();
 
+    Optional<WeekDTO> getWeek(int weekId);
+
     List<WeekDTO> getWeeksByCampaignUUID(UUID uuid);
 
     List<WeekDTO> getWeeksByMonth(int monthId);

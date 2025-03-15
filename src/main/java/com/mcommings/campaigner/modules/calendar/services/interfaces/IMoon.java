@@ -10,6 +10,8 @@ public interface IMoon {
 
     List<MoonDTO> getMoons();
 
+    Optional<MoonDTO> getMoon(int moonId);
+
     List<MoonDTO> getMoonsByCampaignUUID(UUID uuid);
 
     void saveMoon(MoonDTO moon);

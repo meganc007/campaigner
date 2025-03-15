@@ -10,6 +10,8 @@ public interface IMonth {
 
     List<MonthDTO> getMonths();
 
+    Optional<MonthDTO> getMonth(int monthId);
+
     List<MonthDTO> getMonthsByCampaignUUID(UUID uuid);
 
     void saveMonth(MonthDTO month);

@@ -9,6 +9,8 @@ import java.util.UUID;
 public interface ISun {
     List<SunDTO> getSuns();
 
+    Optional<SunDTO> getSun(int sunId);
+
     List<SunDTO> getSunsByCampaignUUID(UUID uuid);
 
     void saveSun(SunDTO sun);

@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface IMoonRepository extends JpaRepository<Moon, Integer> {
 
-    Optional<Moon> getByName(String name);
+    Optional<Moon> findByName(String name);
 
     @Query("SELECT m FROM Moon m WHERE m.fk_campaign_uuid = :uuid")
     List<Moon> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
