@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.modules.common.services;
 
+import com.mcommings.campaigner.modules.RepositoryHelper;
 import com.mcommings.campaigner.modules.common.entities.Campaign;
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
 import com.mcommings.campaigner.modules.common.services.interfaces.ICampaign;
 import jakarta.transaction.Transactional;

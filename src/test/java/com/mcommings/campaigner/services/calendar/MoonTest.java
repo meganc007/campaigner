@@ -1,11 +1,11 @@
 package com.mcommings.campaigner.services.calendar;
 
+import com.mcommings.campaigner.modules.RepositoryHelper;
 import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
 import com.mcommings.campaigner.modules.calendar.entities.Moon;
 import com.mcommings.campaigner.modules.calendar.repositories.ICelestialEventRepository;
 import com.mcommings.campaigner.modules.calendar.repositories.IMoonRepository;
 import com.mcommings.campaigner.modules.calendar.services.MoonService;
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

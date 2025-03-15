@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.common.entities;
+package com.mcommings.campaigner.modules;
 
 import lombok.SneakyThrows;
 import org.springframework.data.repository.CrudRepository;

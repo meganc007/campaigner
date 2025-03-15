@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services.common;
 
+import com.mcommings.campaigner.modules.RepositoryHelper;
 import com.mcommings.campaigner.modules.common.entities.Government;
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.modules.common.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.modules.common.services.GovernmentService;
 import com.mcommings.campaigner.modules.locations.entities.City;

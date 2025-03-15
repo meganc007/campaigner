@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.modules.calendar.services;
 
+import com.mcommings.campaigner.modules.RepositoryHelper;
 import com.mcommings.campaigner.modules.calendar.entities.Sun;
 import com.mcommings.campaigner.modules.calendar.repositories.ICelestialEventRepository;
 import com.mcommings.campaigner.modules.calendar.repositories.ISunRepository;
 import com.mcommings.campaigner.modules.calendar.services.interfaces.ISun;
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

@@ -1,5 +1,6 @@
 package com.mcommings.campaigner.services.calendar;
 
+import com.mcommings.campaigner.modules.RepositoryHelper;
 import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
 import com.mcommings.campaigner.modules.calendar.entities.Day;
 import com.mcommings.campaigner.modules.calendar.entities.Week;
@@ -9,7 +10,6 @@ import com.mcommings.campaigner.modules.calendar.repositories.IMonthRepository;
 import com.mcommings.campaigner.modules.calendar.repositories.IWeekRepository;
 import com.mcommings.campaigner.modules.calendar.services.WeekService;
 import com.mcommings.campaigner.modules.common.entities.Event;
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

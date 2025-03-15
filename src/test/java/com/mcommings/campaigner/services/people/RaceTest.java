@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.modules.RepositoryHelper;
 import com.mcommings.campaigner.modules.people.entities.Person;
 import com.mcommings.campaigner.modules.people.entities.Race;
 import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;

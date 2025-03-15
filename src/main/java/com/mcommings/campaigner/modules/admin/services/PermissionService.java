@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.modules.admin.services;
 
+import com.mcommings.campaigner.modules.RepositoryHelper;
 import com.mcommings.campaigner.modules.admin.entities.Permission;
 import com.mcommings.campaigner.modules.admin.repositories.IPermissionRepository;
 import com.mcommings.campaigner.modules.admin.repositories.IUserRepository;
 import com.mcommings.campaigner.modules.admin.services.interfaces.IPermission;
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

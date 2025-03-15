@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.modules.locations.services;
 
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.modules.RepositoryHelper;
 import com.mcommings.campaigner.modules.locations.dtos.TerrainDTO;
 import com.mcommings.campaigner.modules.locations.mappers.TerrainMapper;
 import com.mcommings.campaigner.modules.locations.repositories.ITerrainRepository;
