@@ -10,6 +10,8 @@ public interface IDay {
 
     List<DayDTO> getDays();
 
+    Optional<DayDTO> getDay(int dayId);
+
     List<DayDTO> getDaysByCampaignUUID(UUID uuid);
 
     List<DayDTO> getDaysByWeek(int weekId);

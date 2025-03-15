@@ -1,69 +1,71 @@
 package com.mcommings.campaigner.modules.calendar.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.calendar.entities.Day;
-import com.mcommings.campaigner.modules.calendar.repositories.ICelestialEventRepository;
+import com.mcommings.campaigner.modules.calendar.dtos.DayDTO;
+import com.mcommings.campaigner.modules.calendar.mappers.DayMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.IDayRepository;
-import com.mcommings.campaigner.modules.calendar.repositories.IWeekRepository;
 import com.mcommings.campaigner.modules.calendar.services.interfaces.IDay;
-import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_DAY;
 
 @Service
+@RequiredArgsConstructor
 public class DayService implements IDay {
 
     private final IDayRepository dayRepository;
-    private final IWeekRepository weekRepository;
-    private final ICelestialEventRepository celestialEventRepository;
-    private final IEventRepository eventRepository;
+    private final DayMapper dayMapper;
 
-    @Autowired
-    public DayService(IDayRepository dayRepository, IWeekRepository weekRepository,
-                      ICelestialEventRepository celestialEventRepository, IEventRepository eventRepository) {
-        this.dayRepository = dayRepository;
-        this.weekRepository = weekRepository;
-        this.celestialEventRepository = celestialEventRepository;
-        this.eventRepository = eventRepository;
+    @Override
+    public List<DayDTO> getDays() {
+        return dayRepository.findAll()
+                .stream()
+                .map(dayMapper::mapToDayDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Day> getDays() {
-        return dayRepository.findAll();
+    public Optional<DayDTO> getDay(int dayId) {
+        return dayRepository.findById(dayId)
+                .map(dayMapper::mapToDayDto);
     }
 
     @Override
-    public List<Day> getDaysByCampaignUUID(UUID uuid) {
-        return dayRepository.findByfk_campaign_uuid(uuid);
+    public List<DayDTO> getDaysByCampaignUUID(UUID uuid) {
+        return dayRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(dayMapper::mapToDayDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Day> getDaysByWeek(int weekId) {
-        return dayRepository.findByfk_week(weekId);
+    public List<DayDTO> getDaysByWeek(int weekId) {
+        return dayRepository.findByfk_week(weekId)
+                .stream()
+                .map(dayMapper::mapToDayDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public void saveDay(Day day) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveDay(DayDTO day) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(day)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.foreignKeyIsNotValid(dayRepository, getListOfForeignKeyRepositories(), day)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
+        if (RepositoryHelper.nameAlreadyExists(dayRepository, day.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-
-        dayRepository.saveAndFlush(day);
+        dayMapper.mapToDayDto(
+                dayRepository.save(dayMapper.mapFromDayDto(day)
+                ));
     }
 
     @Override
@@ -72,32 +74,30 @@ public class DayService implements IDay {
         if (RepositoryHelper.cannotFindId(dayRepository, dayId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.isForeignKey(getReposWhereDayIsAForeignKey(), FK_DAY.columnName, dayId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-        }
         dayRepository.deleteById(dayId);
     }
 
     @Override
     @Transactional
-    public void updateDay(int dayId, Day day) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<DayDTO> updateDay(int dayId, DayDTO day) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(dayRepository, dayId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.foreignKeyIsNotValid(dayRepository, getListOfForeignKeyRepositories(), day)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+        if (RepositoryHelper.nameIsNullOrEmpty(day)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        Day dayToUpdate = RepositoryHelper.getById(dayRepository, dayId);
-        if (day.getName() != null) dayToUpdate.setName(day.getName());
-        if (day.getDescription() != null) dayToUpdate.setDescription(day.getDescription());
-        if (day.getFk_week() != null) dayToUpdate.setFk_week(day.getFk_week());
+        if (RepositoryHelper.nameAlreadyExists(dayRepository, day.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
+
+        return dayRepository.findById(dayId).map(foundDay -> {
+            if (day.getName() != null) foundDay.setName(day.getName());
+            if (day.getDescription() != null) foundDay.setDescription(day.getDescription());
+            if (day.getFk_campaign_uuid() != null) foundDay.setFk_campaign_uuid(day.getFk_campaign_uuid());
+            if (day.getFk_week() != null) foundDay.setFk_week(day.getFk_week());
+
+            return dayMapper.mapToDayDto(dayRepository.save(foundDay));
+        });
     }
 
-    private List<CrudRepository> getReposWhereDayIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(celestialEventRepository, eventRepository));
-    }
-
-    private List<CrudRepository> getListOfForeignKeyRepositories() {
-        return new ArrayList<>(Arrays.asList(weekRepository));
-    }
 }
