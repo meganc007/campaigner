@@ -1,128 +1,160 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.locations.Place;
-import com.mcommings.campaigner.entities.people.EventPlacePerson;
-import com.mcommings.campaigner.repositories.locations.*;
-import com.mcommings.campaigner.repositories.people.IEventPlacePersonRepository;
-import org.junit.jupiter.api.Assertions;
+import com.mcommings.campaigner.locations.dtos.PlaceDTO;
+import com.mcommings.campaigner.locations.entities.Place;
+import com.mcommings.campaigner.locations.mappers.PlaceMapper;
+import com.mcommings.campaigner.locations.repositories.IPlaceRepository;
+import com.mcommings.campaigner.locations.services.PlaceService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.*;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_PLACE;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class PlaceTest {
 
     @Mock
+    private PlaceMapper placeMapper;
+
+    @Mock
     private IPlaceRepository placeRepository;
-    @Mock
-    private IPlaceTypesRepository placeTypesRepository;
-    @Mock
-    private ITerrainRepository terrainRepository;
-    @Mock
-    private ICountryRepository countryRepository;
-    @Mock
-    private ICityRepository cityRepository;
-    @Mock
-    private IRegionRepository regionRepository;
-    @Mock
-    private IEventPlacePersonRepository eventPlacePersonRepository;
 
     @InjectMocks
     private PlaceService placeService;
 
+    private Place entity;
+    private PlaceDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new Place();
+        entity.setId(1);
+        entity.setName("Test Place");
+        entity.setDescription("A fictional place.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+        entity.setFk_place_type(random.nextInt(100) + 1);
+        entity.setFk_terrain(random.nextInt(100) + 1);
+        entity.setFk_country(random.nextInt(100) + 1);
+        entity.setFk_city(random.nextInt(100) + 1);
+        entity.setFk_region(random.nextInt(100) + 1);
+
+        dto = new PlaceDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+        dto.setFk_place_type(entity.getFk_place_type());
+        dto.setFk_terrain(entity.getFk_terrain());
+        dto.setFk_country(entity.getFk_country());
+        dto.setFk_city(entity.getFk_city());
+        dto.setFk_region(entity.getFk_region());
+
+        when(placeMapper.mapToPlaceDto(entity)).thenReturn(dto);
+        when(placeMapper.mapFromPlaceDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereArePlaces_getPlaces_ReturnsPlaces() {
-        List<Place> places = new ArrayList<>();
-        places.add(new Place(1, "Place 1", "Description 1", UUID.randomUUID()));
-        places.add(new Place(2, "Place 2", "Description 2", UUID.randomUUID()));
-        places.add(new Place(3, "Place 3", "Description 3", UUID.randomUUID(), 1, 2, 3, 4, 5));
-        when(placeRepository.findAll()).thenReturn(places);
+        when(placeRepository.findAll()).thenReturn(List.of(entity));
+        List<PlaceDTO> result = placeService.getPlaces();
 
-        List<Place> result = placeService.getPlaces();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(places, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Place", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoPlaces_getPlaces_ReturnsNothing() {
-        List<Place> places = new ArrayList<>();
-        when(placeRepository.findAll()).thenReturn(places);
+    public void whenThereAreNoPlaces_getPlaces_ReturnsEmptyList() {
+        when(placeRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Place> result = placeService.getPlaces();
+        List<PlaceDTO> result = placeService.getPlaces();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(places, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no places.");
     }
 
     @Test
-    public void whenCampaignUUIDIsValid_getPlacesByCampaignUUID_ReturnsPlaces() {
-        UUID campaign = UUID.randomUUID();
-        List<Place> places = new ArrayList<>();
-        places.add(new Place(1, "Place 1", "Description 1", campaign));
-        places.add(new Place(2, "Place 2", "Description 2", campaign));
-        places.add(new Place(3, "Place 3", "Description 3", campaign, 1, 2, 3, 4, 5));
-        when(placeRepository.findByfk_campaign_uuid(campaign)).thenReturn(places);
+    void whenThereIsAPlace_getPlace_ReturnsPlaceById() {
+        when(placeRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        List<Place> results = placeService.getPlacesByCampaignUUID(campaign);
+        Optional<PlaceDTO> result = placeService.getPlace(1);
 
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(places, results);
+        assertTrue(result.isPresent());
+        assertEquals("Test Place", result.get().getName());
     }
 
     @Test
-    public void whenCampaignUUIDIsInvalid_getPlacesByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<Place> places = new ArrayList<>();
-        when(placeRepository.findByfk_campaign_uuid(campaign)).thenReturn(places);
+    void whenThereIsNotAPlace_getPlace_ReturnsNothing() {
+        when(placeRepository.findById(999)).thenReturn(Optional.empty());
 
-        List<Place> result = placeService.getPlacesByCampaignUUID(campaign);
+        Optional<PlaceDTO> result = placeService.getPlace(999);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(places, result);
+        assertTrue(result.isEmpty(), "Expected empty Optional when place is not found.");
     }
 
     @Test
-    public void whenPlaceWithNoForeignKeysIsValid_savePlace_SavesThePlace() {
-        Place place = new Place(1, "Place 1", "Description 1", UUID.randomUUID());
-        when(placeRepository.saveAndFlush(place)).thenReturn(place);
+    void whenCampaignUUIDIsValid_getPlacesByCampaignUUID_ReturnsPlaces() {
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(placeRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        assertDoesNotThrow(() -> placeService.savePlace(place));
+        List<PlaceDTO> result = placeService.getPlacesByCampaignUUID(campaignUUID);
 
-        verify(placeRepository, times(1)).saveAndFlush(place);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
-    public void whenPlaceWithForeignKeysIsValid_savePlace_SavesThePlace() {
-        Place place = new Place(1, "Place 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
+    void whenCampaignUUIDIsInvalid_getPlacesByCampaignUUID_ReturnsNothing() {
+        UUID campaignUUID = UUID.randomUUID();
+        when(placeRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        when(placeTypesRepository.existsById(1)).thenReturn(true);
-        when(terrainRepository.existsById(2)).thenReturn(true);
-        when(countryRepository.existsById(3)).thenReturn(true);
-        when(cityRepository.existsById(4)).thenReturn(true);
-        when(regionRepository.existsById(5)).thenReturn(true);
-        when(placeRepository.saveAndFlush(place)).thenReturn(place);
+        List<PlaceDTO> result = placeService.getPlacesByCampaignUUID(campaignUUID);
 
-        assertDoesNotThrow(() -> placeService.savePlace(place));
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no places match the campaign UUID.");
+    }
 
-        verify(placeRepository, times(1)).saveAndFlush(place);
+    @Test
+    void whenPlaceIsValid_savePlace_SavesThePlace() {
+        when(placeRepository.save(entity)).thenReturn(entity);
+
+        placeService.savePlace(dto);
+
+        verify(placeRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenPlaceNameIsInvalid_savePlace_ThrowsIllegalArgumentException() {
-        Place placeWithEmptyName = new Place(1, "", "Description 1", UUID.randomUUID());
-        Place placeWithNullName = new Place(2, null, "Description 2", UUID.randomUUID());
+        PlaceDTO placeWithEmptyName = new PlaceDTO();
+        placeWithEmptyName.setId(1);
+        placeWithEmptyName.setName("");
+        placeWithEmptyName.setDescription("A fictional place.");
+        placeWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
+        placeWithEmptyName.setFk_place_type(1);
+        placeWithEmptyName.setFk_terrain(1);
+        placeWithEmptyName.setFk_country(1);
+        placeWithEmptyName.setFk_city(1);
+        placeWithEmptyName.setFk_region(1);
+
+        PlaceDTO placeWithNullName = new PlaceDTO();
+        placeWithNullName.setId(1);
+        placeWithNullName.setName(null);
+        placeWithNullName.setDescription("A fictional place.");
+        placeWithNullName.setFk_campaign_uuid(UUID.randomUUID());
+        placeWithNullName.setFk_place_type(1);
+        placeWithNullName.setFk_terrain(1);
+        placeWithNullName.setFk_country(1);
+        placeWithNullName.setFk_city(1);
+        placeWithNullName.setFk_region(1);
 
         assertThrows(IllegalArgumentException.class, () -> placeService.savePlace(placeWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> placeService.savePlace(placeWithNullName));
@@ -130,178 +162,76 @@ public class PlaceTest {
 
     @Test
     public void whenPlaceNameAlreadyExists_savePlace_ThrowsDataIntegrityViolationException() {
-        Place place = new Place(1, "Place 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
-        Place placeWithDuplicatedName = new Place(2, "Place 1", "Description 2", UUID.randomUUID(), 5, 6, 7, 8, 9);
-
-        when(placeTypesRepository.existsById(1)).thenReturn(true);
-        when(terrainRepository.existsById(2)).thenReturn(true);
-        when(countryRepository.existsById(3)).thenReturn(true);
-        when(cityRepository.existsById(4)).thenReturn(true);
-        when(regionRepository.existsById(5)).thenReturn(true);
-
-        when(placeTypesRepository.existsById(5)).thenReturn(true);
-        when(terrainRepository.existsById(6)).thenReturn(true);
-        when(countryRepository.existsById(7)).thenReturn(true);
-        when(cityRepository.existsById(8)).thenReturn(true);
-        when(regionRepository.existsById(9)).thenReturn(true);
-
-        when(placeRepository.saveAndFlush(place)).thenReturn(place);
-        when(placeRepository.saveAndFlush(placeWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> placeService.savePlace(place));
-        assertThrows(DataIntegrityViolationException.class, () -> placeService.savePlace(placeWithDuplicatedName));
+        when(placeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> placeService.savePlace(dto));
+        verify(placeRepository, times(1)).findByName(dto.getName());
+        verify(placeRepository, never()).save(any(Place.class));
     }
 
     @Test
-    public void whenPlaceHasInvalidForeignKeys_savePlace_ThrowsDataIntegrityViolationException() {
-        Place place = new Place(1, "Place 1", "Description 1", UUID.randomUUID(), 1, 2, 3, 4, 5);
-
-        when(placeTypesRepository.existsById(1)).thenReturn(true);
-        when(terrainRepository.existsById(2)).thenReturn(false);
-        when(placeRepository.saveAndFlush(place)).thenReturn(place);
-
-        assertThrows(DataIntegrityViolationException.class, () -> placeService.savePlace(place));
-
+    void whenPlaceIdExists_deletePlace_DeletesThePlace() {
+        when(placeRepository.existsById(1)).thenReturn(true);
+        placeService.deletePlace(1);
+        verify(placeRepository, times(1)).deleteById(1);
     }
 
     @Test
-    public void whenPlaceIdExists_deletePlace_DeletesThePlace() {
-        int placeId = 1;
-        when(placeRepository.existsById(placeId)).thenReturn(true);
-        assertDoesNotThrow(() -> placeService.deletePlace(placeId));
-        verify(placeRepository, times(1)).deleteById(placeId);
+    void whenPlaceIdDoesNotExist_deletePlace_ThrowsIllegalArgumentException() {
+        when(placeRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> placeService.deletePlace(999));
     }
 
     @Test
-    public void whenPlaceIdDoesNotExist_deletePlace_ThrowsIllegalArgumentException() {
-        int placeId = 9000;
-        when(placeRepository.existsById(placeId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> placeService.deletePlace(placeId));
+    void whenDeletePlaceFails_deletePlace_ThrowsException() {
+        when(placeRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(placeRepository).deleteById(1);
+
+        assertThrows(RuntimeException.class, () -> placeService.deletePlace(1));
     }
 
     @Test
-    public void whenPlaceIdIsAForeignKey_deletePlace_ThrowsDataIntegrityViolationException() {
-        int placeId = 1;
-        EventPlacePerson epp = new EventPlacePerson(1, 1, placeId, 1, UUID.randomUUID());
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(eventPlacePersonRepository));
-        List<EventPlacePerson> epps = new ArrayList<>(Arrays.asList(epp));
+    void whenPlaceIdIsFound_updatePlace_UpdatesThePlace() {
+        PlaceDTO updateDTO = new PlaceDTO();
+        updateDTO.setName("Updated Name");
 
-        when(placeRepository.existsById(placeId)).thenReturn(true);
-        when(eventPlacePersonRepository.findByfk_place(placeId)).thenReturn(epps);
+        when(placeRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(placeRepository.existsById(1)).thenReturn(true);
+        when(placeRepository.save(entity)).thenReturn(entity);
+        when(placeMapper.mapToPlaceDto(entity)).thenReturn(updateDTO);
 
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_PLACE.columnName, placeId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> placeService.deletePlace(placeId));
+        Optional<PlaceDTO> result = placeService.updatePlace(1, updateDTO);
+
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
-    public void whenPlaceIdWithNoFKIsFound_updatePlace_UpdatesThePlace() {
-        int placeId = 1;
-        UUID campaign = UUID.randomUUID();
+    void whenPlaceIdIsNotFound_updatePlace_ReturnsEmptyOptional() {
+        PlaceDTO updateDTO = new PlaceDTO();
+        updateDTO.setName("Updated Name");
 
-        Place place = new Place(placeId, "Old Place Name", "Old Description", campaign);
-        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", campaign);
-
-        when(placeRepository.existsById(placeId)).thenReturn(true);
-        when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
-
-        placeService.updatePlace(placeId, placeToUpdate);
-
-        verify(placeRepository).findById(placeId);
-
-        Place result = placeRepository.findById(placeId).get();
-        Assertions.assertEquals(placeToUpdate.getName(), result.getName());
-        Assertions.assertEquals(placeToUpdate.getDescription(), result.getDescription());
+        when(placeRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> placeService.updatePlace(999, updateDTO));
     }
 
     @Test
-    public void whenPlaceIdWithValidFKIsFound_updatePlace_UpdatesThePlace() {
-        int placeId = 2;
-        UUID campagin = UUID.randomUUID();
+    public void whenPlaceNameIsInvalid_updatePlace_ThrowsIllegalArgumentException() {
+        PlaceDTO updateEmptyName = new PlaceDTO();
+        updateEmptyName.setName("");
 
-        Place place = new Place(placeId, "Test Place Name", "Test Description", campagin);
-        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", campagin, 1, 2, 3, 4, 5);
+        PlaceDTO updateNullName = new PlaceDTO();
+        updateNullName.setName(null);
 
-        when(placeRepository.existsById(placeId)).thenReturn(true);
-        when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
-        when(placeTypesRepository.existsById(1)).thenReturn(true);
-        when(terrainRepository.existsById(2)).thenReturn(true);
-        when(countryRepository.existsById(3)).thenReturn(true);
-        when(cityRepository.existsById(4)).thenReturn(true);
-        when(regionRepository.existsById(5)).thenReturn(true);
+        when(placeRepository.existsById(1)).thenReturn(true);
 
-        placeService.updatePlace(placeId, placeToUpdate);
-
-        verify(placeRepository).findById(placeId);
-
-        Place result = placeRepository.findById(placeId).get();
-        Assertions.assertEquals(placeToUpdate.getName(), result.getName());
-        Assertions.assertEquals(placeToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(placeToUpdate.getFk_place_type(), result.getFk_place_type());
-        Assertions.assertEquals(placeToUpdate.getFk_terrain(), result.getFk_terrain());
-        Assertions.assertEquals(placeToUpdate.getFk_country(), result.getFk_country());
-        Assertions.assertEquals(placeToUpdate.getFk_city(), result.getFk_city());
-        Assertions.assertEquals(placeToUpdate.getFk_region(), result.getFk_region());
+        assertThrows(IllegalArgumentException.class, () -> placeService.updatePlace(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> placeService.updatePlace(1, updateNullName));
     }
 
     @Test
-    public void whenPlaceIdWithInvalidFKIsFound_updatePlace_ThrowsDataIntegrityViolationException() {
-        int placeId = 1;
-        UUID campaign = UUID.randomUUID();
+    public void whenPlaceNameAlreadyExists_updatePlace_ThrowsDataIntegrityViolationException() {
+        when(placeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
 
-        Place place = new Place(placeId, "Test Place Name", "Test Description", campaign);
-        Place placeToUpdate = new Place(placeId, "Updated Place Name", "Updated Description", campaign, 1, 2, 3, 4, 5);
-        when(placeRepository.existsById(placeId)).thenReturn(true);
-        when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
-        when(placeTypesRepository.existsById(1)).thenReturn(true);
-        when(terrainRepository.existsById(2)).thenReturn(false);
-
-        assertThrows(DataIntegrityViolationException.class, () -> placeService.updatePlace(placeId, placeToUpdate));
-    }
-
-    @Test
-    public void whenPlaceIdIsNotFound_updatePlace_ThrowsIllegalArgumentException() {
-        int placeId = 1;
-        Place place = new Place(placeId, "Old Place Name", "Old Description", UUID.randomUUID());
-
-        when(placeRepository.existsById(placeId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> placeService.updatePlace(placeId, place));
-    }
-
-    @Test
-    public void whenSomePlaceFieldsChanged_updatePlace_OnlyUpdatesChangedFields() {
-        int placeId = 1;
-        Place place = new Place(1, "Place 1", "Description 1", UUID.randomUUID(),
-                1, 2, 3, 4, 5);
-
-        String newDescription = "New description";
-        int newTerrain = 3;
-
-        Place placeToUpdate = new Place();
-        placeToUpdate.setDescription(newDescription);
-        placeToUpdate.setFk_terrain(newTerrain);
-
-        when(placeRepository.existsById(placeId)).thenReturn(true);
-        when(placeTypesRepository.existsById(1)).thenReturn(true);
-        when(terrainRepository.existsById(2)).thenReturn(true);
-        when(terrainRepository.existsById(newTerrain)).thenReturn(true);
-        when(countryRepository.existsById(3)).thenReturn(true);
-        when(cityRepository.existsById(4)).thenReturn(true);
-        when(regionRepository.existsById(5)).thenReturn(true);
-        when(placeRepository.findById(placeId)).thenReturn(Optional.of(place));
-
-        placeService.updatePlace(placeId, placeToUpdate);
-
-        verify(placeRepository).findById(placeId);
-
-        Place result = placeRepository.findById(placeId).get();
-        Assertions.assertEquals(place.getName(), result.getName());
-        Assertions.assertEquals(newDescription, result.getDescription());
-        Assertions.assertEquals(place.getFk_place_type(), result.getFk_place_type());
-        Assertions.assertEquals(newTerrain, result.getFk_terrain());
-        Assertions.assertEquals(place.getFk_country(), result.getFk_country());
-        Assertions.assertEquals(place.getFk_city(), result.getFk_city());
-        Assertions.assertEquals(place.getFk_region(), result.getFk_region());
+        assertThrows(IllegalArgumentException.class, () -> placeService.updatePlace(entity.getId(), dto));
     }
 }

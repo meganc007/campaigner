@@ -34,6 +34,16 @@ public class RepositoryHelper {
         }
     }
 
+    public static <T> boolean nameAlreadyExists(CrudRepository<T, Integer> repository, String name) {
+        try {
+            Method findByNameMethod = getRepoMethod(repository, "findByName");
+            Optional<T> existingRecord = (Optional<T>) findByNameMethod.invoke(repository, name);
+            return existingRecord.isPresent();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static <T> boolean nameIsNullOrEmpty(T object) {
         try {
             return isNull(getNameValueAsObject(object)) || getNameValueAsString(object).isEmpty();

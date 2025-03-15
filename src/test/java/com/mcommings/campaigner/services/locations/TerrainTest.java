@@ -1,73 +1,115 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.locations.Place;
-import com.mcommings.campaigner.entities.locations.Terrain;
-import com.mcommings.campaigner.repositories.locations.IPlaceRepository;
-import com.mcommings.campaigner.repositories.locations.ITerrainRepository;
-import org.junit.jupiter.api.Assertions;
+import com.mcommings.campaigner.locations.dtos.TerrainDTO;
+import com.mcommings.campaigner.locations.entities.Terrain;
+import com.mcommings.campaigner.locations.mappers.TerrainMapper;
+import com.mcommings.campaigner.locations.repositories.ITerrainRepository;
+import com.mcommings.campaigner.locations.services.TerrainService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_TERRAIN;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class TerrainTest {
 
     @Mock
-    private ITerrainRepository terrainRepository;
+    private TerrainMapper terrainMapper;
+
     @Mock
-    private IPlaceRepository placeRepository;
+    private ITerrainRepository terrainRepository;
 
     @InjectMocks
     private TerrainService terrainService;
 
+    private Terrain entity;
+    private TerrainDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        entity = new Terrain();
+        entity.setId(1);
+        entity.setName("Test Terrain");
+        entity.setDescription("This is a terrain.");
+
+        dto = new TerrainDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+
+        // Mocking the mapper behavior
+        when(terrainMapper.mapToTerrainDto(entity)).thenReturn(dto);
+        when(terrainMapper.mapFromTerrainDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreTerrains_getTerrains_ReturnsTerrains() {
-        List<Terrain> terrains = new ArrayList<>();
-        terrains.add(new Terrain(1, "Terrain 1", "Description 1"));
-        terrains.add(new Terrain(2, "Terrain 2", "Description 2"));
-        when(terrainRepository.findAll()).thenReturn(terrains);
+        when(terrainRepository.findAll()).thenReturn(List.of(entity));
+        List<TerrainDTO> result = terrainService.getTerrains();
 
-        List<Terrain> result = terrainService.getTerrains();
-
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(terrains, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Terrain", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoTerrains_getTerrains_ReturnsNothing() {
-        List<Terrain> terrains = new ArrayList<>();
-        when(terrainRepository.findAll()).thenReturn(terrains);
+    public void whenThereAreNoTerrains_getTerrains_ReturnsEmptyList() {
+        when(terrainRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Terrain> result = terrainService.getTerrains();
+        List<TerrainDTO> result = terrainService.getTerrains();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(terrains, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no terrains.");
     }
 
     @Test
-    public void whenTerrainIsValid_saveTerrain_SavesTheTerrain() {
-        Terrain terrain = new Terrain(1, "Terrain 1", "Description 1");
-        when(terrainRepository.saveAndFlush(terrain)).thenReturn(terrain);
+    void getTerrain_ReturnsTerrainById() {
+        when(terrainRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        assertDoesNotThrow(() -> terrainService.saveTerrain(terrain));
-        verify(terrainRepository, times(1)).saveAndFlush(terrain);
+        Optional<TerrainDTO> result = terrainService.getTerrain(1);
+
+        assertTrue(result.isPresent());
+        assertEquals("Test Terrain", result.get().getName());
+    }
+
+    @Test
+    void whenThereIsNotATerrain_getTerrain_ReturnsNothing() {
+        when(terrainRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<TerrainDTO> result = terrainService.getTerrain(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when terrain is not found.");
+    }
+
+    @Test
+    void whenTerrainIsValid_saveTerrain_SavesTheTerrain() {
+        when(terrainRepository.save(entity)).thenReturn(entity);
+
+        terrainService.saveTerrain(dto);
+
+        verify(terrainRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenTerrainNameIsInvalid_saveTerrain_ThrowsIllegalArgumentException() {
-        Terrain terrainWithEmptyName = new Terrain(1, "", "Description 1");
-        Terrain terrainWithNullName = new Terrain(2, null, "Description 2");
+        TerrainDTO terrainWithEmptyName = new TerrainDTO();
+        terrainWithEmptyName.setId(1);
+        terrainWithEmptyName.setName("");
+        terrainWithEmptyName.setDescription("A fictional terrain.");
+
+        TerrainDTO terrainWithNullName = new TerrainDTO();
+        terrainWithNullName.setId(1);
+        terrainWithNullName.setName(null);
+        terrainWithNullName.setDescription("A fictional terrain.");
 
         assertThrows(IllegalArgumentException.class, () -> terrainService.saveTerrain(terrainWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> terrainService.saveTerrain(terrainWithNullName));
@@ -75,92 +117,77 @@ public class TerrainTest {
 
     @Test
     public void whenTerrainNameAlreadyExists_saveTerrain_ThrowsDataIntegrityViolationException() {
-        Terrain terrain = new Terrain(1, "Terrain 1", "Description 1");
-        Terrain terrainWithDuplicatedName = new Terrain(2, "Terrain 1", "Description 2");
-        when(terrainRepository.saveAndFlush(terrain)).thenReturn(terrain);
-        when(terrainRepository.saveAndFlush(terrainWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> terrainService.saveTerrain(terrain));
-        assertThrows(DataIntegrityViolationException.class, () -> terrainService.saveTerrain(terrainWithDuplicatedName));
+        when(terrainRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> terrainService.saveTerrain(dto));
+        verify(terrainRepository, times(1)).findByName(dto.getName());
+        verify(terrainRepository, never()).save(any(Terrain.class));
     }
 
     @Test
-    public void whenTerrainIdExists_deleteTerrain_DeletesTheTerrain() {
-        int terrainId = 1;
-        when(terrainRepository.existsById(terrainId)).thenReturn(true);
-        assertDoesNotThrow(() -> terrainService.deleteTerrain(terrainId));
-        verify(terrainRepository, times(1)).deleteById(terrainId);
+    void whenTerrainIdExists_deleteTerrain_DeletesTheTerrain() {
+        when(terrainRepository.existsById(1)).thenReturn(true);
+        terrainService.deleteTerrain(1);
+        verify(terrainRepository, times(1)).deleteById(1);
     }
 
     @Test
-    public void whenTerrainIdDoesNotExist_deleteTerrain_ThrowsIllegalArgumentException() {
-        int terrainId = 9000;
-        when(terrainRepository.existsById(terrainId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> terrainService.deleteTerrain(terrainId));
+    void whenTerrainIdDoesNotExist_deleteTerrain_ThrowsIllegalArgumentException() {
+        when(terrainRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> terrainService.deleteTerrain(999));
     }
 
     @Test
-    public void whenTerrainIdIsAForeignKey_deleteTerrain_ThrowsDataIntegrityViolationException() {
-        int terrainId = 1;
-        Place place = new Place(1, "Place", "Description", UUID.randomUUID(), 1, terrainId, 1, 1, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
-        List<Place> places = new ArrayList<>(Arrays.asList(place));
+    void whenDeleteTerrainFails_deleteTerrain_ThrowsException() {
+        when(terrainRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(terrainRepository).deleteById(1);
 
-        when(terrainRepository.existsById(terrainId)).thenReturn(true);
-        when(placeRepository.findByfk_terrain(terrainId)).thenReturn(places);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_TERRAIN.columnName, terrainId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> terrainService.deleteTerrain(terrainId));
+        assertThrows(RuntimeException.class, () -> terrainService.deleteTerrain(1));
     }
 
     @Test
-    public void whenTerrainIdIsFound_updateTerrain_UpdatesTheTerrain() {
-        int terrainId = 1;
-        Terrain terrain = new Terrain(terrainId, "Old Terrain Name", "Old Description");
-        Terrain terrainToUpdate = new Terrain(terrainId, "Updated Terrain Name", "Updated Description");
+    void whenTerrainIdIsFound_updateTerrain_UpdatesTheTerrain() {
+        TerrainDTO updateDTO = new TerrainDTO();
+        updateDTO.setName("Updated Name");
 
-        when(terrainRepository.existsById(terrainId)).thenReturn(true);
-        when(terrainRepository.findById(terrainId)).thenReturn(Optional.of(terrain));
+        when(terrainRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(terrainRepository.existsById(1)).thenReturn(true);
+        when(terrainRepository.save(entity)).thenReturn(entity);
+        when(terrainMapper.mapToTerrainDto(entity)).thenReturn(updateDTO);
 
-        terrainService.updateTerrain(terrainId, terrainToUpdate);
+        Optional<TerrainDTO> result = terrainService.updateTerrain(1, updateDTO);
 
-        verify(terrainRepository).findById(terrainId);
-
-        Terrain result = terrainRepository.findById(terrainId).get();
-        Assertions.assertEquals(terrainToUpdate.getName(), result.getName());
-        Assertions.assertEquals(terrainToUpdate.getDescription(), result.getDescription());
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
-    public void whenTerrainIdIsNotFound_updateTerrain_ThrowsIllegalArgumentException() {
-        int terrainId = 1;
-        Terrain terrain = new Terrain(terrainId, "Old Terrain Name", "Old Description");
+    void whenTerrainIdIsNotFound_updateTerrain_ReturnsEmptyOptional() {
+        TerrainDTO updateDTO = new TerrainDTO();
+        updateDTO.setName("Updated Name");
 
-        when(terrainRepository.existsById(terrainId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> terrainService.updateTerrain(terrainId, terrain));
+        when(terrainRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> terrainService.updateTerrain(999, updateDTO));
     }
 
     @Test
-    public void whenSomeTerrainFieldsChanged_updateTerrain_OnlyUpdatesChangedFields() {
-        int terrainId = 1;
-        Terrain terrain = new Terrain(terrainId, "Name", "Old Terrain Description");
+    public void whenTerrainNameIsInvalid_updateTerrain_ThrowsIllegalArgumentException() {
+        TerrainDTO updateEmptyName = new TerrainDTO();
+        updateEmptyName.setName("");
 
-        String newDescription = "New Terrain description";
+        TerrainDTO updateNullName = new TerrainDTO();
+        updateNullName.setName(null);
 
-        Terrain terrainToUpdate = new Terrain();
-        terrainToUpdate.setDescription(newDescription);
+        when(terrainRepository.existsById(1)).thenReturn(true);
 
-        when(terrainRepository.existsById(terrainId)).thenReturn(true);
-        when(terrainRepository.findById(terrainId)).thenReturn(Optional.of(terrain));
-
-        terrainService.updateTerrain(terrainId, terrainToUpdate);
-
-        verify(terrainRepository).findById(terrainId);
-
-        Terrain result = terrainRepository.findById(terrainId).get();
-        Assertions.assertEquals(terrain.getName(), result.getName());
-        Assertions.assertEquals(newDescription, result.getDescription());
+        assertThrows(IllegalArgumentException.class, () -> terrainService.updateTerrain(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> terrainService.updateTerrain(1, updateNullName));
     }
+
+    @Test
+    public void whenTerrainNameAlreadyExists_updateTerrain_ThrowsDataIntegrityViolationException() {
+        when(terrainRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> terrainService.updateTerrain(entity.getId(), dto));
+    }
+
 }

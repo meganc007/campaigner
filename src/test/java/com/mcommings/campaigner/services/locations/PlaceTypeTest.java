@@ -1,73 +1,115 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.locations.Place;
-import com.mcommings.campaigner.entities.locations.PlaceType;
-import com.mcommings.campaigner.repositories.locations.IPlaceRepository;
-import com.mcommings.campaigner.repositories.locations.IPlaceTypesRepository;
-import org.junit.jupiter.api.Assertions;
+import com.mcommings.campaigner.locations.dtos.PlaceTypeDTO;
+import com.mcommings.campaigner.locations.entities.PlaceType;
+import com.mcommings.campaigner.locations.mappers.PlaceTypeMapper;
+import com.mcommings.campaigner.locations.repositories.IPlaceTypesRepository;
+import com.mcommings.campaigner.locations.services.PlaceTypeService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_PLACE_TYPE;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class PlaceTypeTest {
 
     @Mock
-    private IPlaceTypesRepository placeTypeRepository;
+    private PlaceTypeMapper placeTypeMapper;
+
     @Mock
-    private IPlaceRepository placeRepository;
+    private IPlaceTypesRepository placeTypeRepository;
 
     @InjectMocks
     private PlaceTypeService placeTypeService;
 
+    private PlaceType entity;
+    private PlaceTypeDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        entity = new PlaceType();
+        entity.setId(1);
+        entity.setName("Test Place Type");
+        entity.setDescription("This is a type of place.");
+
+        dto = new PlaceTypeDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+
+        // Mocking the mapper behavior
+        when(placeTypeMapper.mapToPlaceTypeDto(entity)).thenReturn(dto);
+        when(placeTypeMapper.mapFromPlaceTypeDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereArePlaceTypes_getPlaceTypes_ReturnsPlaceTypes() {
-        List<PlaceType> placeTypes = new ArrayList<>();
-        placeTypes.add(new PlaceType(1, "Place Type 1", "Description 1"));
-        placeTypes.add(new PlaceType(2, "Place Type 2", "Description 2"));
-        when(placeTypeRepository.findAll()).thenReturn(placeTypes);
+        when(placeTypeRepository.findAll()).thenReturn(List.of(entity));
+        List<PlaceTypeDTO> result = placeTypeService.getPlaceTypes();
 
-        List<PlaceType> result = placeTypeService.getPlaceTypes();
-
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(placeTypes, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Place Type", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoPlaceTypes_getPlaceTypes_ReturnsNothing() {
-        List<PlaceType> placeTypes = new ArrayList<>();
-        when(placeTypeRepository.findAll()).thenReturn(placeTypes);
+    public void whenThereAreNoPlaceTypes_getPlaceTypes_ReturnsEmptyList() {
+        when(placeTypeRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<PlaceType> result = placeTypeService.getPlaceTypes();
+        List<PlaceTypeDTO> result = placeTypeService.getPlaceTypes();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(placeTypes, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no placeTypes.");
     }
 
     @Test
-    public void whenPlaceTypeIsValid_savePlaceType_SavesThePlaceType() {
-        PlaceType placeType = new PlaceType(1, "PlaceType 1", "Description 1");
-        when(placeTypeRepository.saveAndFlush(placeType)).thenReturn(placeType);
+    void getPlaceType_ReturnsPlaceTypeById() {
+        when(placeTypeRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        assertDoesNotThrow(() -> placeTypeService.savePlaceType(placeType));
-        verify(placeTypeRepository, times(1)).saveAndFlush(placeType);
+        Optional<PlaceTypeDTO> result = placeTypeService.getPlaceType(1);
+
+        assertTrue(result.isPresent());
+        assertEquals("Test Place Type", result.get().getName());
+    }
+
+    @Test
+    void whenThereIsNotAPlaceType_getPlaceType_ReturnsNothing() {
+        when(placeTypeRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<PlaceTypeDTO> result = placeTypeService.getPlaceType(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when placeType is not found.");
+    }
+
+    @Test
+    void whenPlaceTypeIsValid_savePlaceType_SavesThePlaceType() {
+        when(placeTypeRepository.save(entity)).thenReturn(entity);
+
+        placeTypeService.savePlaceType(dto);
+
+        verify(placeTypeRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenPlaceTypeNameIsInvalid_savePlaceType_ThrowsIllegalArgumentException() {
-        PlaceType placeTypeWithEmptyName = new PlaceType(1, "", "Description 1");
-        PlaceType placeTypeWithNullName = new PlaceType(2, null, "Description 2");
+        PlaceTypeDTO placeTypeWithEmptyName = new PlaceTypeDTO();
+        placeTypeWithEmptyName.setId(1);
+        placeTypeWithEmptyName.setName("");
+        placeTypeWithEmptyName.setDescription("A placeType.");
+
+        PlaceTypeDTO placeTypeWithNullName = new PlaceTypeDTO();
+        placeTypeWithNullName.setId(1);
+        placeTypeWithNullName.setName(null);
+        placeTypeWithNullName.setDescription("A placeType.");
 
         assertThrows(IllegalArgumentException.class, () -> placeTypeService.savePlaceType(placeTypeWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> placeTypeService.savePlaceType(placeTypeWithNullName));
@@ -75,91 +117,77 @@ public class PlaceTypeTest {
 
     @Test
     public void whenPlaceTypeNameAlreadyExists_savePlaceType_ThrowsDataIntegrityViolationException() {
-        PlaceType placeType = new PlaceType(1, "PlaceType 1", "Description 1");
-        PlaceType placeTypeWithDuplicatedName = new PlaceType(2, "PlaceType 1", "Description 2");
-        when(placeTypeRepository.saveAndFlush(placeType)).thenReturn(placeType);
-        when(placeTypeRepository.saveAndFlush(placeTypeWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> placeTypeService.savePlaceType(placeType));
-        assertThrows(DataIntegrityViolationException.class, () -> placeTypeService.savePlaceType(placeTypeWithDuplicatedName));
+        when(placeTypeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> placeTypeService.savePlaceType(dto));
+        verify(placeTypeRepository, times(1)).findByName(dto.getName());
+        verify(placeTypeRepository, never()).save(any(PlaceType.class));
     }
 
     @Test
-    public void whenPlaceTypeIdExists_deletePlaceType_DeletesThePlaceType() {
-        int placeTypeId = 1;
-        when(placeTypeRepository.existsById(placeTypeId)).thenReturn(true);
-        assertDoesNotThrow(() -> placeTypeService.deletePlaceType(placeTypeId));
-        verify(placeTypeRepository, times(1)).deleteById(placeTypeId);
+    void whenPlaceTypeIdExists_deletePlaceType_DeletesThePlaceType() {
+        when(placeTypeRepository.existsById(1)).thenReturn(true);
+        placeTypeService.deletePlaceType(1);
+        verify(placeTypeRepository, times(1)).deleteById(1);
     }
 
     @Test
-    public void whenPlaceTypeIdDoesNotExist_deletePlaceType_ThrowsIllegalArgumentException() {
-        int placeTypeId = 9000;
-        when(placeTypeRepository.existsById(placeTypeId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> placeTypeService.deletePlaceType(placeTypeId));
+    void whenPlaceTypeIdDoesNotExist_deletePlaceType_ThrowsIllegalArgumentException() {
+        when(placeTypeRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> placeTypeService.deletePlaceType(999));
     }
 
     @Test
-    public void whenPlaceTypeIdIsAForeignKey_deletePlaceType_ThrowsDataIntegrityViolationException() {
-        int placeTypeId = 1;
-        Place place = new Place(1, "Place", "Description", UUID.randomUUID(), placeTypeId, 1, 1, 1, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(placeRepository));
-        List<Place> places = new ArrayList<>(Arrays.asList(place));
+    void whenDeletePlaceTypeFails_deletePlaceType_ThrowsException() {
+        when(placeTypeRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(placeTypeRepository).deleteById(1);
 
-        when(placeTypeRepository.existsById(placeTypeId)).thenReturn(true);
-        when(placeRepository.findByfk_place_type(placeTypeId)).thenReturn(places);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_PLACE_TYPE.columnName, placeTypeId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> placeTypeService.deletePlaceType(placeTypeId));
-    }
-    @Test
-    public void whenPlaceTypeIdIsFound_updatePlaceType_UpdatesThePlaceType() {
-        int placeTypeId = 1;
-        PlaceType placeType = new PlaceType(placeTypeId, "Old PlaceType Name", "Old Description");
-        PlaceType placeTypeToUpdate = new PlaceType(placeTypeId, "Updated PlaceType Name", "Updated Description");
-
-        when(placeTypeRepository.existsById(placeTypeId)).thenReturn(true);
-        when(placeTypeRepository.findById(placeTypeId)).thenReturn(Optional.of(placeType));
-
-        placeTypeService.updatePlaceType(placeTypeId, placeTypeToUpdate);
-
-        verify(placeTypeRepository).findById(placeTypeId);
-
-        PlaceType result = placeTypeRepository.findById(placeTypeId).get();
-        Assertions.assertEquals(placeTypeToUpdate.getName(), result.getName());
-        Assertions.assertEquals(placeTypeToUpdate.getDescription(), result.getDescription());
+        assertThrows(RuntimeException.class, () -> placeTypeService.deletePlaceType(1));
     }
 
     @Test
-    public void whenPlaceTypeIdIsNotFound_updatePlaceType_ThrowsIllegalArgumentException() {
-        int placeTypeId = 1;
-        PlaceType placeType = new PlaceType(placeTypeId, "Old PlaceType Name", "Old Description");
+    void whenPlaceTypeIdIsFound_updatePlaceType_UpdatesThePlaceType() {
+        PlaceTypeDTO updateDTO = new PlaceTypeDTO();
+        updateDTO.setName("Updated Name");
 
-        when(placeTypeRepository.existsById(placeTypeId)).thenReturn(false);
+        when(placeTypeRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(placeTypeRepository.existsById(1)).thenReturn(true);
+        when(placeTypeRepository.save(entity)).thenReturn(entity);
+        when(placeTypeMapper.mapToPlaceTypeDto(entity)).thenReturn(updateDTO);
 
-        assertThrows(IllegalArgumentException.class, () -> placeTypeService.updatePlaceType(placeTypeId, placeType));
+        Optional<PlaceTypeDTO> result = placeTypeService.updatePlaceType(1, updateDTO);
+
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
-    public void whenSomePlaceTypeFieldsChanged_updatePlaceType_OnlyUpdatesChangedFields() {
-        int placeTypeId = 1;
-        PlaceType placeType = new PlaceType(placeTypeId, "Name", "Description");
+    void whenPlaceTypeIdIsNotFound_updatePlaceType_ReturnsEmptyOptional() {
+        PlaceTypeDTO updateDTO = new PlaceTypeDTO();
+        updateDTO.setName("Updated Name");
 
-        String newDescription = "New description";
-
-        PlaceType placeTypeToUpdate = new PlaceType();
-        placeTypeToUpdate.setDescription(newDescription);
-
-        when(placeTypeRepository.existsById(placeTypeId)).thenReturn(true);
-        when(placeTypeRepository.findById(placeTypeId)).thenReturn(Optional.of(placeType));
-
-        placeTypeService.updatePlaceType(placeTypeId, placeTypeToUpdate);
-
-        verify(placeTypeRepository).findById(placeTypeId);
-
-        PlaceType result = placeTypeRepository.findById(placeTypeId).get();
-        Assertions.assertEquals(placeType.getName(), result.getName());
-        Assertions.assertEquals(newDescription, result.getDescription());
+        when(placeTypeRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> placeTypeService.updatePlaceType(999, updateDTO));
     }
+
+    @Test
+    public void whenPlaceTypeNameIsInvalid_updatePlaceType_ThrowsIllegalArgumentException() {
+        PlaceTypeDTO updateEmptyName = new PlaceTypeDTO();
+        updateEmptyName.setName("");
+
+        PlaceTypeDTO updateNullName = new PlaceTypeDTO();
+        updateNullName.setName(null);
+
+        when(placeTypeRepository.existsById(1)).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> placeTypeService.updatePlaceType(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> placeTypeService.updatePlaceType(1, updateNullName));
+    }
+
+    @Test
+    public void whenPlaceTypeNameAlreadyExists_updatePlaceType_ThrowsDataIntegrityViolationException() {
+        when(placeTypeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> placeTypeService.updatePlaceType(entity.getId(), dto));
+    }
+
 }

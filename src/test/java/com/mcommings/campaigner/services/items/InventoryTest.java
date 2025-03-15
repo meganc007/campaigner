@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.services.items;
 
 import com.mcommings.campaigner.entities.items.Inventory;
+import com.mcommings.campaigner.locations.repositories.IPlaceRepository;
 import com.mcommings.campaigner.repositories.items.IInventoryRepository;
 import com.mcommings.campaigner.repositories.items.IItemRepository;
 import com.mcommings.campaigner.repositories.items.IWeaponRepository;
-import com.mcommings.campaigner.repositories.locations.IPlaceRepository;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

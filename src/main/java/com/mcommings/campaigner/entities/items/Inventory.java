@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.entities.items;
 
 import com.mcommings.campaigner.entities.Campaign;
-import com.mcommings.campaigner.entities.locations.Place;
 import com.mcommings.campaigner.entities.people.Person;
+import com.mcommings.campaigner.locations.entities.Place;
 import jakarta.persistence.*;
 import lombok.Data;
 
