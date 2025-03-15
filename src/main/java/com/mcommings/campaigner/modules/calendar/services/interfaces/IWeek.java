@@ -1,21 +1,22 @@
 package com.mcommings.campaigner.modules.calendar.services.interfaces;
 
-import com.mcommings.campaigner.modules.calendar.entities.Week;
+import com.mcommings.campaigner.modules.calendar.dtos.WeekDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IWeek {
 
-    List<Week> getWeeks();
+    List<WeekDTO> getWeeks();
 
-    List<Week> getWeeksByCampaignUUID(UUID uuid);
+    List<WeekDTO> getWeeksByCampaignUUID(UUID uuid);
 
-    List<Week> getWeeksByMonth(int monthId);
+    List<WeekDTO> getWeeksByMonth(int monthId);
 
-    void saveWeek(Week week);
+    void saveWeek(WeekDTO week);
 
     void deleteWeek(int weekId);
 
-    void updateWeek(int weekId, Week week);
+    Optional<WeekDTO> updateWeek(int weekId, WeekDTO week);
 }

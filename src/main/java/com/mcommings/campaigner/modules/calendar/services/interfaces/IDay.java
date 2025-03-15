@@ -1,21 +1,22 @@
 package com.mcommings.campaigner.modules.calendar.services.interfaces;
 
-import com.mcommings.campaigner.modules.calendar.entities.Day;
+import com.mcommings.campaigner.modules.calendar.dtos.DayDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IDay {
 
-    List<Day> getDays();
+    List<DayDTO> getDays();
 
-    List<Day> getDaysByCampaignUUID(UUID uuid);
+    List<DayDTO> getDaysByCampaignUUID(UUID uuid);
 
-    List<Day> getDaysByWeek(int weekId);
+    List<DayDTO> getDaysByWeek(int weekId);
 
-    void saveDay(Day day);
+    void saveDay(DayDTO day);
 
     void deleteDay(int dayId);
 
-    void updateDay(int dayId, Day day);
+    Optional<DayDTO> updateDay(int dayId, DayDTO day);
 }
