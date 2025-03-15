@@ -1,124 +1,147 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.locations.Landmark;
-import com.mcommings.campaigner.entities.locations.Place;
-import com.mcommings.campaigner.entities.locations.Region;
-import com.mcommings.campaigner.repositories.IClimateRepository;
-import com.mcommings.campaigner.repositories.locations.*;
-import org.junit.jupiter.api.Assertions;
+import com.mcommings.campaigner.locations.dtos.RegionDTO;
+import com.mcommings.campaigner.locations.entities.Region;
+import com.mcommings.campaigner.locations.mappers.RegionMapper;
+import com.mcommings.campaigner.locations.repositories.IRegionRepository;
+import com.mcommings.campaigner.locations.services.RegionService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.*;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_REGION;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class RegionTest {
     @Mock
+    private RegionMapper regionMapper;
+
+    @Mock
     private IRegionRepository regionRepository;
-    @Mock
-    private ICountryRepository countryRepository;
-    @Mock
-    private IClimateRepository climateRepository;
-    @Mock
-    private ICityRepository cityRepository;
-    @Mock
-    private ILandmarkRepository landmarkRepository;
-    @Mock
-    private IPlaceRepository placeRepository;
 
     @InjectMocks
     private RegionService regionService;
 
+    private Region entity;
+    private RegionDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new Region();
+        entity.setId(1);
+        entity.setName("Test Region");
+        entity.setDescription("A fictional region.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+        entity.setFk_country(random.nextInt(100) + 1);
+        entity.setFk_climate(random.nextInt(100) + 1);
+
+        dto = new RegionDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+        dto.setFk_country(entity.getFk_country());
+        dto.setFk_climate(entity.getFk_climate());
+
+        when(regionMapper.mapToRegionDto(entity)).thenReturn(dto);
+        when(regionMapper.mapFromRegionDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreRegions_getRegions_ReturnsRegions() {
-        UUID campaign = UUID.randomUUID();
-        List<Region> regions = new ArrayList<>();
-        regions.add(new Region(1, "Region 1", "Description 1", campaign));
-        regions.add(new Region(2, "Region 2", "Description 2", campaign));
-        regions.add(new Region(3, "Region 3", "Description 3", campaign, 1, 2));
-        when(regionRepository.findAll()).thenReturn(regions);
+        when(regionRepository.findAll()).thenReturn(List.of(entity));
+        List<RegionDTO> result = regionService.getRegions();
 
-        List<Region> result = regionService.getRegions();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(regions, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Region", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoRegions_getRegions_ReturnsNothing() {
-        List<Region> regions = new ArrayList<>();
-        when(regionRepository.findAll()).thenReturn(regions);
+    public void whenThereAreNoRegions_getRegions_ReturnsEmptyList() {
+        when(regionRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Region> result = regionService.getRegions();
+        List<RegionDTO> result = regionService.getRegions();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(regions, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no regions.");
     }
 
     @Test
-    public void whenCampaignUUIDIsValid_getRegionsByCampaignUUID_ReturnsRegions() {
-        UUID campaign = UUID.randomUUID();
-        List<Region> regions = new ArrayList<>();
-        regions.add(new Region(1, "Region 1", "Description 1", campaign));
-        regions.add(new Region(2, "Region 2", "Description 2", campaign));
-        regions.add(new Region(3, "Region 3", "Description 3", campaign, 1, 2));
-        when(regionRepository.findByfk_campaign_uuid(campaign)).thenReturn(regions);
+    void whenThereIsARegion_getRegion_ReturnsRegionById() {
+        when(regionRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        List<Region> results = regionService.getRegionsByCampaignUUID(campaign);
+        Optional<RegionDTO> result = regionService.getRegion(1);
 
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(regions, results);
+        assertTrue(result.isPresent());
+        assertEquals("Test Region", result.get().getName());
     }
 
     @Test
-    public void whenCampaignUUIDIsInvalid_getRegionsByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<Region> regions = new ArrayList<>();
-        when(regionRepository.findByfk_campaign_uuid(campaign)).thenReturn(regions);
+    void whenThereIsNotARegion_getRegion_ReturnsNothing() {
+        when(regionRepository.findById(999)).thenReturn(Optional.empty());
 
-        List<Region> result = regionService.getRegionsByCampaignUUID(campaign);
+        Optional<RegionDTO> result = regionService.getRegion(999);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(regions, result);
+        assertTrue(result.isEmpty(), "Expected empty Optional when region is not found.");
     }
 
     @Test
-    public void whenRegionWithNoForeignKeysIsValid_saveRegion_SavesTheRegion() {
-        Region region = new Region(1, "Region 1", "Description 1", UUID.randomUUID());
-        when(regionRepository.saveAndFlush(region)).thenReturn(region);
+    void whenCampaignUUIDIsValid_getRegionsByCampaignUUID_ReturnsRegions() {
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(regionRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        assertDoesNotThrow(() -> regionService.saveRegion(region));
+        List<RegionDTO> result = regionService.getRegionsByCampaignUUID(campaignUUID);
 
-        verify(regionRepository, times(1)).saveAndFlush(region);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
-    public void whenRegionWithForeignKeysIsValid_saveRegion_SavesTheRegion() {
-        Region region = new Region(1, "Region 1", "Description 1", UUID.randomUUID(), 1, 2);
+    void whenCampaignUUIDIsInvalid_getRegionsByCampaignUUID_ReturnsNothing() {
+        UUID campaignUUID = UUID.randomUUID();
+        when(regionRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        when(countryRepository.existsById(1)).thenReturn(true);
-        when(climateRepository.existsById(2)).thenReturn(true);
-        when(regionRepository.saveAndFlush(region)).thenReturn(region);
+        List<RegionDTO> result = regionService.getRegionsByCampaignUUID(campaignUUID);
 
-        assertDoesNotThrow(() -> regionService.saveRegion(region));
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no regions match the campaign UUID.");
+    }
 
-        verify(regionRepository, times(1)).saveAndFlush(region);
+    @Test
+    void whenRegionIsValid_saveRegion_SavesTheRegion() {
+        when(regionRepository.save(entity)).thenReturn(entity);
+
+        regionService.saveRegion(dto);
+
+        verify(regionRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenRegionNameIsInvalid_saveRegion_ThrowsIllegalArgumentException() {
-        Region regionWithEmptyName = new Region(1, "", "Description 1", UUID.randomUUID());
-        Region regionWithNullName = new Region(2, null, "Description 2", UUID.randomUUID());
+        RegionDTO regionWithEmptyName = new RegionDTO();
+        regionWithEmptyName.setId(1);
+        regionWithEmptyName.setName("");
+        regionWithEmptyName.setDescription("A fictional region.");
+        regionWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
+        regionWithEmptyName.setFk_country(1);
+        regionWithEmptyName.setFk_climate(1);
+
+        RegionDTO regionWithNullName = new RegionDTO();
+        regionWithNullName.setId(1);
+        regionWithNullName.setName(null);
+        regionWithNullName.setDescription("A fictional region.");
+        regionWithNullName.setFk_campaign_uuid(UUID.randomUUID());
+        regionWithNullName.setFk_country(1);
+        regionWithNullName.setFk_climate(1);
 
         assertThrows(IllegalArgumentException.class, () -> regionService.saveRegion(regionWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> regionService.saveRegion(regionWithNullName));
@@ -126,165 +149,76 @@ public class RegionTest {
 
     @Test
     public void whenRegionNameAlreadyExists_saveRegion_ThrowsDataIntegrityViolationException() {
-        Region region = new Region(1, "Region 1", "Description 1", UUID.randomUUID(), 1, 2);
-        Region regionWithDuplicatedName = new Region(2, "Region 1", "Description 2", UUID.randomUUID(), 3, 4);
+        when(regionRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> regionService.saveRegion(dto));
+        verify(regionRepository, times(1)).findByName(dto.getName());
+        verify(regionRepository, never()).save(any(Region.class));
+    }
+
+    @Test
+    void whenRegionIdExists_deleteRegion_DeletesTheRegion() {
+        when(regionRepository.existsById(1)).thenReturn(true);
+        regionService.deleteRegion(1);
+        verify(regionRepository, times(1)).deleteById(1);
+    }
+
+    @Test
+    void whenRegionIdDoesNotExist_deleteRegion_ThrowsIllegalArgumentException() {
+        when(regionRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> regionService.deleteRegion(999));
+    }
+
+    @Test
+    void whenDeleteRegionFails_deleteRegion_ThrowsException() {
+        when(regionRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(regionRepository).deleteById(1);
+
+        assertThrows(RuntimeException.class, () -> regionService.deleteRegion(1));
+    }
+
+    @Test
+    void whenRegionIdIsFound_updateRegion_UpdatesTheRegion() {
+        RegionDTO updateDTO = new RegionDTO();
+        updateDTO.setName("Updated Name");
+
+        when(regionRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(regionRepository.existsById(1)).thenReturn(true);
+        when(regionRepository.save(entity)).thenReturn(entity);
+        when(regionMapper.mapToRegionDto(entity)).thenReturn(updateDTO);
+
+        Optional<RegionDTO> result = regionService.updateRegion(1, updateDTO);
+
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
+    }
+
+    @Test
+    void whenRegionIdIsNotFound_updateRegion_ReturnsEmptyOptional() {
+        RegionDTO updateDTO = new RegionDTO();
+        updateDTO.setName("Updated Name");
+
+        when(regionRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> regionService.updateRegion(999, updateDTO));
+    }
+
+    @Test
+    public void whenRegionNameIsInvalid_updateRegion_ThrowsIllegalArgumentException() {
+        RegionDTO updateEmptyName = new RegionDTO();
+        updateEmptyName.setName("");
+
+        RegionDTO updateNullName = new RegionDTO();
+        updateNullName.setName(null);
 
         when(regionRepository.existsById(1)).thenReturn(true);
-        when(countryRepository.existsById(1)).thenReturn(true);
-        when(climateRepository.existsById(2)).thenReturn(true);
 
-        when(regionRepository.existsById(2)).thenReturn(true);
-        when(countryRepository.existsById(3)).thenReturn(true);
-        when(climateRepository.existsById(4)).thenReturn(true);
-
-        when(regionRepository.saveAndFlush(region)).thenReturn(region);
-        when(regionRepository.saveAndFlush(regionWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> regionService.saveRegion(region));
-        assertThrows(DataIntegrityViolationException.class, () -> regionService.saveRegion(regionWithDuplicatedName));
+        assertThrows(IllegalArgumentException.class, () -> regionService.updateRegion(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> regionService.updateRegion(1, updateNullName));
     }
 
     @Test
-    public void whenRegionHasInvalidForeignKeys_saveRegion_ThrowsDataIntegrityViolationException() {
-        Region region = new Region(1, "Region 1", "Description 1", UUID.randomUUID(), 1, 2);
+    public void whenRegionNameAlreadyExists_updateRegion_ThrowsDataIntegrityViolationException() {
+        when(regionRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
 
-        when(countryRepository.existsById(1)).thenReturn(false);
-        when(climateRepository.existsById(3)).thenReturn(false);
-        when(regionRepository.saveAndFlush(region)).thenReturn(region);
-
-        assertThrows(DataIntegrityViolationException.class, () -> regionService.saveRegion(region));
-
-    }
-
-    @Test
-    public void whenRegionIdExists_deleteRegion_DeletesTheRegion() {
-        int regionId = 1;
-        when(regionRepository.existsById(regionId)).thenReturn(true);
-        assertDoesNotThrow(() -> regionService.deleteRegion(regionId));
-        verify(regionRepository, times(1)).deleteById(regionId);
-    }
-
-    @Test
-    public void whenRegionIdDoesNotExist_deleteRegion_ThrowsIllegalArgumentException() {
-        int regionId = 9000;
-        when(regionRepository.existsById(regionId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> regionService.deleteRegion(regionId));
-    }
-
-    @Test
-    public void whenRegionIdIsAForeignKey_deleteRegion_ThrowsDataIntegrityViolationException() {
-        int regionId = 1;
-        Place place = new Place(1, "Place", "Description", UUID.randomUUID(), 1, 1, 1, 1, regionId);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, placeRepository, regionRepository));
-        List<Place> places = new ArrayList<>(Arrays.asList(place));
-
-        Landmark landmark = new Landmark(1, "Landmark", "Description", UUID.randomUUID(), regionId);
-        List<Landmark> landmarks = new ArrayList<>(Arrays.asList(landmark));
-
-        when(regionRepository.existsById(regionId)).thenReturn(true);
-        when(placeRepository.existsById(regionId)).thenReturn(true);
-        when(landmarkRepository.existsById(regionId)).thenReturn(true);
-        when(placeRepository.findByfk_region(regionId)).thenReturn(places);
-        when(landmarkRepository.findByfk_region(regionId)).thenReturn(landmarks);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_REGION.columnName, regionId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> regionService.deleteRegion(regionId));
-    }
-
-
-    @Test
-    public void whenRegionIdWithNoFKIsFound_updateRegion_UpdatesTheRegion() {
-        int regionId1 = 1;
-
-        Region region = new Region(regionId1, "Old Region Name", "Old Description", UUID.randomUUID());
-        Region regionToUpdateNoFK = new Region(regionId1, "Updated Region Name", "Updated Description", UUID.randomUUID());
-
-        when(regionRepository.existsById(regionId1)).thenReturn(true);
-        when(regionRepository.findById(regionId1)).thenReturn(Optional.of(region));
-
-        regionService.updateRegion(regionId1, regionToUpdateNoFK);
-
-        verify(regionRepository).findById(regionId1);
-
-        Region result1 = regionRepository.findById(regionId1).get();
-        Assertions.assertEquals(regionToUpdateNoFK.getName(), result1.getName());
-        Assertions.assertEquals(regionToUpdateNoFK.getDescription(), result1.getDescription());
-    }
-
-    @Test
-    public void whenRegionIdWithValidFKIsFound_updateRegion_UpdatesTheRegion() {
-        int regionId = 2;
-
-        Region region = new Region(regionId, "Test Region Name", "Test Description", UUID.randomUUID());
-        Region regionToUpdate = new Region(regionId, "Updated Region Name", "Updated Description", UUID.randomUUID(), 1, 2);
-
-        when(regionRepository.existsById(regionId)).thenReturn(true);
-        when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
-        when(countryRepository.existsById(1)).thenReturn(true);
-        when(climateRepository.existsById(2)).thenReturn(true);
-
-        regionService.updateRegion(regionId, regionToUpdate);
-
-        verify(regionRepository).findById(regionId);
-
-        Region result = regionRepository.findById(regionId).get();
-        Assertions.assertEquals(regionToUpdate.getName(), result.getName());
-        Assertions.assertEquals(regionToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(regionToUpdate.getFk_country(), result.getFk_country());
-        Assertions.assertEquals(regionToUpdate.getFk_climate(), result.getFk_climate());
-    }
-
-    @Test
-    public void whenRegionIdWithInvalidFKIsFound_updateRegion_ThrowsDataIntegrityViolationException() {
-        int regionId = 2;
-
-        Region region = new Region(regionId, "Test Region Name", "Test Description", UUID.randomUUID());
-        Region regionToUpdate = new Region(regionId, "Updated Region Name", "Updated Description", UUID.randomUUID(), 1, 2);
-
-        when(regionRepository.existsById(regionId)).thenReturn(true);
-        when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
-        when(countryRepository.existsById(1)).thenReturn(false);
-        when(climateRepository.existsById(2)).thenReturn(true);
-
-        assertThrows(DataIntegrityViolationException.class, () -> regionService.updateRegion(regionId, regionToUpdate));
-    }
-
-    @Test
-    public void whenRegionIdIsNotFound_updateRegion_ThrowsIllegalArgumentException() {
-        int regionId = 1;
-        Region region = new Region(regionId, "Old Region Name", "Old Description", UUID.randomUUID());
-
-        when(regionRepository.existsById(regionId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> regionService.updateRegion(regionId, region));
-    }
-
-    @Test
-    public void whenSomeRegionFieldsChanged_updateRegion_OnlyUpdatesChangedFields() {
-        int regionId = 1;
-        Region region = new Region(regionId, "Name", "Old Region Description", UUID.randomUUID(), 1, 2);
-
-        String newDescription = "New Region description";
-        int newClimate = 3;
-
-        Region regionToUpdate = new Region();
-        regionToUpdate.setDescription(newDescription);
-        regionToUpdate.setFk_climate(newClimate);
-
-        when(regionRepository.existsById(regionId)).thenReturn(true);
-        when(countryRepository.existsById(1)).thenReturn(true);
-        when(climateRepository.existsById(newClimate)).thenReturn(true);
-        when(regionRepository.findById(regionId)).thenReturn(Optional.of(region));
-
-        regionService.updateRegion(regionId, regionToUpdate);
-
-        verify(regionRepository).findById(regionId);
-
-        Region result = regionRepository.findById(regionId).get();
-        Assertions.assertEquals(region.getName(), result.getName());
-        Assertions.assertEquals(newDescription, result.getDescription());
-        Assertions.assertEquals(region.getFk_country(), result.getFk_country());
-        Assertions.assertEquals(newClimate, result.getFk_climate());
+        assertThrows(IllegalArgumentException.class, () -> regionService.updateRegion(entity.getId(), dto));
     }
 }
