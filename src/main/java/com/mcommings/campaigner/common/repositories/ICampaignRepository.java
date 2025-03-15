@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.repositories;
+package com.mcommings.campaigner.common.repositories;
 
-import com.mcommings.campaigner.entities.Campaign;
+import com.mcommings.campaigner.common.entities.Campaign;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

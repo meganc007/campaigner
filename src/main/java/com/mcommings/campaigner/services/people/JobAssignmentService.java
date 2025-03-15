@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.entities.people.JobAssignment;
 import com.mcommings.campaigner.interfaces.people.IJobAssignment;
 import com.mcommings.campaigner.repositories.people.IJobAssignmentRepository;

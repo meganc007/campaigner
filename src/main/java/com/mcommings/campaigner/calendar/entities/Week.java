@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.calendar.entities;
 
-import com.mcommings.campaigner.entities.Campaign;
+import com.mcommings.campaigner.common.entities.Campaign;
 import jakarta.persistence.*;
 import lombok.Data;
 

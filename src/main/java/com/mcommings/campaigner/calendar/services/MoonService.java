@@ -4,7 +4,7 @@ import com.mcommings.campaigner.calendar.entities.Moon;
 import com.mcommings.campaigner.calendar.repositories.ICelestialEventRepository;
 import com.mcommings.campaigner.calendar.repositories.IMoonRepository;
 import com.mcommings.campaigner.calendar.services.interfaces.IMoon;
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

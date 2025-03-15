@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.quests;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.entities.quests.Outcome;
 import com.mcommings.campaigner.interfaces.quests.IOutcome;
 import com.mcommings.campaigner.repositories.quests.IOutcomeRepository;

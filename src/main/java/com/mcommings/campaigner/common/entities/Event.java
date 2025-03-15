@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.entities;
+package com.mcommings.campaigner.common.entities;
 
 import com.mcommings.campaigner.calendar.entities.Day;
 import com.mcommings.campaigner.calendar.entities.Month;

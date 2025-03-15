@@ -3,7 +3,7 @@ package com.mcommings.campaigner.calendar.services;
 import com.mcommings.campaigner.calendar.entities.CelestialEvent;
 import com.mcommings.campaigner.calendar.repositories.*;
 import com.mcommings.campaigner.calendar.services.interfaces.ICelestialEvent;
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

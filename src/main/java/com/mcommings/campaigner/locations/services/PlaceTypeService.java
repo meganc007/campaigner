@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.locations.services;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.locations.dtos.PlaceTypeDTO;
 import com.mcommings.campaigner.locations.mappers.PlaceTypeMapper;
 import com.mcommings.campaigner.locations.repositories.IPlaceTypesRepository;

@@ -1,12 +1,13 @@
 package com.mcommings.campaigner.services;
 
-import com.mcommings.campaigner.entities.Government;
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.Government;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.repositories.IGovernmentRepository;
+import com.mcommings.campaigner.common.services.GovernmentService;
 import com.mcommings.campaigner.locations.entities.City;
 import com.mcommings.campaigner.locations.entities.Country;
 import com.mcommings.campaigner.locations.repositories.ICityRepository;
 import com.mcommings.campaigner.locations.repositories.ICountryRepository;
-import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

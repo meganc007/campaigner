@@ -1,10 +1,11 @@
 package com.mcommings.campaigner.services;
 
-import com.mcommings.campaigner.entities.Climate;
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.Climate;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.repositories.IClimateRepository;
+import com.mcommings.campaigner.common.services.ClimateService;
 import com.mcommings.campaigner.locations.entities.Region;
 import com.mcommings.campaigner.locations.repositories.IRegionRepository;
-import com.mcommings.campaigner.repositories.IClimateRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

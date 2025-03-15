@@ -1,9 +1,9 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.repositories.IWealthRepository;
 import com.mcommings.campaigner.entities.people.Person;
 import com.mcommings.campaigner.interfaces.people.IPerson;
-import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.people.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

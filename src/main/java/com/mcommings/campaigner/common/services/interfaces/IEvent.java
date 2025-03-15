@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.interfaces;
+package com.mcommings.campaigner.common.services.interfaces;
 
-import com.mcommings.campaigner.entities.Event;
+import com.mcommings.campaigner.common.entities.Event;
 
 import java.util.List;
 import java.util.UUID;

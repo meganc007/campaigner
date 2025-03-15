@@ -5,7 +5,7 @@ import com.mcommings.campaigner.calendar.entities.Sun;
 import com.mcommings.campaigner.calendar.repositories.ICelestialEventRepository;
 import com.mcommings.campaigner.calendar.repositories.ISunRepository;
 import com.mcommings.campaigner.calendar.services.SunService;
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

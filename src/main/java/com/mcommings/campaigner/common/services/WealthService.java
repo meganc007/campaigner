@@ -1,10 +1,10 @@
-package com.mcommings.campaigner.services;
+package com.mcommings.campaigner.common.services;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.Wealth;
-import com.mcommings.campaigner.interfaces.IWealth;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.Wealth;
+import com.mcommings.campaigner.common.repositories.IWealthRepository;
+import com.mcommings.campaigner.common.services.interfaces.IWealth;
 import com.mcommings.campaigner.locations.repositories.ICityRepository;
-import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.people.INamedMonsterRepository;
 import com.mcommings.campaigner.repositories.people.IPersonRepository;
 import jakarta.transaction.Transactional;

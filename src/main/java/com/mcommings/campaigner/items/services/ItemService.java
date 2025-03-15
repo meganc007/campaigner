@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.items.services;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.items.entities.Item;
 import com.mcommings.campaigner.items.repositories.IItemRepository;
 import com.mcommings.campaigner.items.repositories.IItemTypeRepository;

@@ -1,15 +1,15 @@
-package com.mcommings.campaigner.services;
+package com.mcommings.campaigner.common.services;
 
 import com.mcommings.campaigner.calendar.repositories.IDayRepository;
 import com.mcommings.campaigner.calendar.repositories.IMonthRepository;
 import com.mcommings.campaigner.calendar.repositories.IWeekRepository;
-import com.mcommings.campaigner.entities.Event;
-import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.interfaces.IEvent;
+import com.mcommings.campaigner.common.entities.Event;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.repositories.IEventRepository;
+import com.mcommings.campaigner.common.services.interfaces.IEvent;
 import com.mcommings.campaigner.locations.repositories.ICityRepository;
 import com.mcommings.campaigner.locations.repositories.IContinentRepository;
 import com.mcommings.campaigner.locations.repositories.ICountryRepository;
-import com.mcommings.campaigner.repositories.IEventRepository;
 import com.mcommings.campaigner.repositories.people.IEventPlacePersonRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

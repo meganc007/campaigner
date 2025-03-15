@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.entities.people;
 
-import com.mcommings.campaigner.entities.Campaign;
-import com.mcommings.campaigner.entities.Wealth;
+import com.mcommings.campaigner.common.entities.Campaign;
+import com.mcommings.campaigner.common.entities.Wealth;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;

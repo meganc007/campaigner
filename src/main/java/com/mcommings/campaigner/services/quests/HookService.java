@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.quests;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.entities.quests.Hook;
 import com.mcommings.campaigner.interfaces.quests.IHook;
 import com.mcommings.campaigner.repositories.quests.IHookRepository;

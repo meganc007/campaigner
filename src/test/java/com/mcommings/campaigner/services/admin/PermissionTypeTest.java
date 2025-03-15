@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.admin;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.entities.admin.Permission;
 import com.mcommings.campaigner.entities.admin.PermissionType;
 import com.mcommings.campaigner.repositories.admin.IPermissionRepository;

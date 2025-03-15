@@ -1,7 +1,7 @@
-package com.mcommings.campaigner.controllers;
+package com.mcommings.campaigner.common.controllers;
 
-import com.mcommings.campaigner.entities.Wealth;
-import com.mcommings.campaigner.services.WealthService;
+import com.mcommings.campaigner.common.entities.Wealth;
+import com.mcommings.campaigner.common.services.WealthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

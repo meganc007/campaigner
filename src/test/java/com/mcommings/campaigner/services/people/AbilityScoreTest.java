@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.entities.people.AbilityScore;
 import com.mcommings.campaigner.entities.people.GenericMonster;
 import com.mcommings.campaigner.entities.people.NamedMonster;

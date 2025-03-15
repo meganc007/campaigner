@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services.admin;
 
+import com.mcommings.campaigner.common.repositories.ICampaignRepository;
 import com.mcommings.campaigner.entities.admin.Permission;
-import com.mcommings.campaigner.repositories.ICampaignRepository;
 import com.mcommings.campaigner.repositories.admin.IPermissionRepository;
 import com.mcommings.campaigner.repositories.admin.IUserRepository;
 import org.junit.jupiter.api.Assertions;

@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.repositories.IWealthRepository;
 import com.mcommings.campaigner.entities.people.EventPlacePerson;
 import com.mcommings.campaigner.entities.people.JobAssignment;
 import com.mcommings.campaigner.entities.people.Person;
-import com.mcommings.campaigner.repositories.IWealthRepository;
 import com.mcommings.campaigner.repositories.people.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

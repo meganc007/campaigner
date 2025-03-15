@@ -1,10 +1,10 @@
-package com.mcommings.campaigner.services;
+package com.mcommings.campaigner.common.services;
 
-import com.mcommings.campaigner.entities.Climate;
-import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.interfaces.IClimate;
+import com.mcommings.campaigner.common.entities.Climate;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.repositories.IClimateRepository;
+import com.mcommings.campaigner.common.services.interfaces.IClimate;
 import com.mcommings.campaigner.locations.repositories.IRegionRepository;
-import com.mcommings.campaigner.repositories.IClimateRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

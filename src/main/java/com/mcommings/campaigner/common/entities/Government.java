@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.entities;
+package com.mcommings.campaigner.common.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -6,22 +6,22 @@ import lombok.ToString;
 
 @Data
 @Entity
-@Table(name = "climates")
+@Table(name = "governments")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @ToString(callSuper = true)
-public class Climate extends BaseEntity {
-
+public class Government extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    public Climate () {
+    public Government () {
         super();
     }
 
-    public Climate(int id, String name, String description) {
+    public Government(int id, String name, String description) {
         this.id = id;
-        super.setName(name);
-        super.setDescription(description);
+        this.setName(name);
+        this.setDescription(description);
     }
+
 }

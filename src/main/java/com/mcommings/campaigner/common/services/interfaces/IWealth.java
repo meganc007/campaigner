@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.interfaces;
+package com.mcommings.campaigner.common.services.interfaces;
 
-import com.mcommings.campaigner.entities.Wealth;
+import com.mcommings.campaigner.common.entities.Wealth;
 
 import java.util.List;
 

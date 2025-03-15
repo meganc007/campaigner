@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.items;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.items.entities.DiceType;
 import com.mcommings.campaigner.items.entities.Weapon;
 import com.mcommings.campaigner.items.repositories.IDiceTypeRepository;

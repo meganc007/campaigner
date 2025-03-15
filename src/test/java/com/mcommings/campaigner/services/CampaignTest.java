@@ -1,7 +1,8 @@
 package com.mcommings.campaigner.services;
 
-import com.mcommings.campaigner.entities.Campaign;
-import com.mcommings.campaigner.repositories.ICampaignRepository;
+import com.mcommings.campaigner.common.entities.Campaign;
+import com.mcommings.campaigner.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.common.services.CampaignService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

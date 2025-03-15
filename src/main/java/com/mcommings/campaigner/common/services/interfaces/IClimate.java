@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.interfaces;
+package com.mcommings.campaigner.common.services.interfaces;
 
-import com.mcommings.campaigner.entities.Climate;
+import com.mcommings.campaigner.common.entities.Climate;
 
 import java.util.List;
 

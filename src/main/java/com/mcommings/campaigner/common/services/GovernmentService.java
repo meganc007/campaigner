@@ -1,11 +1,11 @@
-package com.mcommings.campaigner.services;
+package com.mcommings.campaigner.common.services;
 
-import com.mcommings.campaigner.entities.Government;
-import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.interfaces.IGovernment;
+import com.mcommings.campaigner.common.entities.Government;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.repositories.IGovernmentRepository;
+import com.mcommings.campaigner.common.services.interfaces.IGovernment;
 import com.mcommings.campaigner.locations.repositories.ICityRepository;
 import com.mcommings.campaigner.locations.repositories.ICountryRepository;
-import com.mcommings.campaigner.repositories.IGovernmentRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

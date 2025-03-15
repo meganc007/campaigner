@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.entities;
+package com.mcommings.campaigner.common.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

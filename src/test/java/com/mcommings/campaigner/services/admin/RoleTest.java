@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.services.admin;
 
-import com.mcommings.campaigner.entities.RepositoryHelper;
+import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.entities.admin.Role;
 import com.mcommings.campaigner.entities.admin.User;
 import com.mcommings.campaigner.repositories.admin.IRoleRepository;
