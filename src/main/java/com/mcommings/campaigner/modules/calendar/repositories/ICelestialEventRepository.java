@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface ICelestialEventRepository extends JpaRepository<CelestialEvent, Integer> {
 
-    Optional<CelestialEvent> getByName(String name);
+    Optional<CelestialEvent> findByName(String name);
 
     @Query("SELECT ce FROM CelestialEvent ce WHERE ce.fk_campaign_uuid = :uuid")
     List<CelestialEvent> findByfk_campaign_uuid(@Param("uuid") UUID uuid);

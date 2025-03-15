@@ -10,6 +10,8 @@ public interface ICelestialEvent {
 
     List<CelestialEventDTO> getCelestialEvents();
 
+    Optional<CelestialEventDTO> getCelestialEvent(int celestialEventId);
+
     List<CelestialEventDTO> getCelestialEventsByCampaignUUID(UUID uuid);
 
     List<CelestialEventDTO> getCelestialEventsByMoon(int moonId);
