@@ -1,36 +1,40 @@
 package com.mcommings.campaigner.modules.calendar.controllers;
 
-import com.mcommings.campaigner.modules.calendar.entities.Moon;
-import com.mcommings.campaigner.modules.calendar.services.MoonService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.calendar.dtos.MoonDTO;
+import com.mcommings.campaigner.modules.calendar.services.interfaces.IMoon;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "api/calendar/moons")
 public class MoonController {
 
-    private final MoonService moonService;
-
-    @Autowired
-    public MoonController(MoonService moonService) {
-        this.moonService = moonService;
-    }
+    private final IMoon moonService;
 
     @GetMapping
-    public List<Moon> getMoons() {
+    public List<MoonDTO> getMoons() {
         return moonService.getMoons();
     }
 
+    @GetMapping(path = "/{moonId}")
+    public MoonDTO getMoon(@PathVariable("moonId") int moonId) {
+        return moonService.getMoon(moonId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @GetMapping(path = "/campaign/{uuid}")
-    public List<Moon> getMoonsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<MoonDTO> getMoonsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
         return moonService.getMoonsByCampaignUUID(uuid);
     }
 
     @PostMapping
-    public void saveMoon(@RequestBody Moon moon) {
+    public void saveMoon(@Valid @RequestBody MoonDTO moon) {
         moonService.saveMoon(moon);
     }
 
@@ -40,7 +44,7 @@ public class MoonController {
     }
 
     @PutMapping(path = "{moonId}")
-    public void updateMoon(@PathVariable("moonId") int moonId, @RequestBody Moon moon) {
+    public void updateMoon(@PathVariable("moonId") int moonId, @RequestBody MoonDTO moon) {
         moonService.updateMoon(moonId, moon);
     }
 }

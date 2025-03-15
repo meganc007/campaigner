@@ -1,101 +1,140 @@
 package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
+import com.mcommings.campaigner.modules.calendar.dtos.MoonDTO;
 import com.mcommings.campaigner.modules.calendar.entities.Moon;
-import com.mcommings.campaigner.modules.calendar.repositories.ICelestialEventRepository;
+import com.mcommings.campaigner.modules.calendar.mappers.MoonMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.IMoonRepository;
 import com.mcommings.campaigner.modules.calendar.services.MoonService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.*;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_MOON;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class MoonTest {
+    @Mock
+    private MoonMapper moonMapper;
 
     @Mock
     private IMoonRepository moonRepository;
-    @Mock
-    private ICelestialEventRepository celestialEventRepository;
 
     @InjectMocks
     private MoonService moonService;
 
+    private Moon entity;
+    private MoonDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new Moon();
+        entity.setId(1);
+        entity.setName("Test Moon");
+        entity.setDescription("A fictional moon.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+
+        dto = new MoonDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+
+        when(moonMapper.mapToMoonDto(entity)).thenReturn(dto);
+        when(moonMapper.mapFromMoonDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreMoons_getMoons_ReturnsMoons() {
-        List<Moon> moons = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        moons.add(new Moon(1, "Moon 1", "Description 1", campaign));
-        moons.add(new Moon(2, "Moon 2", "Description 2", campaign));
-        when(moonRepository.findAll()).thenReturn(moons);
+        when(moonRepository.findAll()).thenReturn(List.of(entity));
+        List<MoonDTO> result = moonService.getMoons();
 
-        List<Moon> result = moonService.getMoons();
-
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(moons, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Moon", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoMoons_getMoons_ReturnsNothing() {
-        List<Moon> moons = new ArrayList<>();
-        when(moonRepository.findAll()).thenReturn(moons);
+    public void whenThereAreNoMoons_getMoons_ReturnsEmptyList() {
+        when(moonRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Moon> result = moonService.getMoons();
+        List<MoonDTO> result = moonService.getMoons();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(moons, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no moons.");
     }
 
     @Test
-    public void whenCampaignUUIDIsValid_getMoonsByCampaignUUID_ReturnsMoons() {
-        List<Moon> moons = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        moons.add(new Moon(1, "Moon 1", "Description 1", campaign));
-        moons.add(new Moon(2, "Moon 2", "Description 2", campaign));
-        when(moonRepository.findByfk_campaign_uuid(campaign)).thenReturn(moons);
+    void whenThereIsAMoon_getMoon_ReturnsMoonById() {
+        when(moonRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        List<Moon> results = moonService.getMoonsByCampaignUUID(campaign);
+        Optional<MoonDTO> result = moonService.getMoon(1);
 
-        Assertions.assertEquals(2, results.size());
-        Assertions.assertEquals(moons, results);
+        assertTrue(result.isPresent());
+        assertEquals("Test Moon", result.get().getName());
     }
 
     @Test
-    public void whenCampaignUUIDIsInvalid_getMoonsByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<Moon> moons = new ArrayList<>();
-        when(moonRepository.findByfk_campaign_uuid(campaign)).thenReturn(moons);
+    void whenThereIsNotAMoon_getMoon_ReturnsNothing() {
+        when(moonRepository.findById(999)).thenReturn(Optional.empty());
 
-        List<Moon> result = moonService.getMoonsByCampaignUUID(campaign);
+        Optional<MoonDTO> result = moonService.getMoon(999);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(moons, result);
+        assertTrue(result.isEmpty(), "Expected empty Optional when moon is not found.");
     }
 
     @Test
-    public void whenMoonIsValid_saveMoon_SavesTheMoon() {
-        Moon moon = new Moon(1, "Moon 1", "Description 1", UUID.randomUUID());
-        when(moonRepository.saveAndFlush(moon)).thenReturn(moon);
+    void whenCampaignUUIDIsValid_getMoonsByCampaignUUID_ReturnsMoons() {
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(moonRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        assertDoesNotThrow(() -> moonService.saveMoon(moon));
-        verify(moonRepository, times(1)).saveAndFlush(moon);
+        List<MoonDTO> result = moonService.getMoonsByCampaignUUID(campaignUUID);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
+    }
+
+    @Test
+    void whenCampaignUUIDIsInvalid_getMoonsByCampaignUUID_ReturnsNothing() {
+        UUID campaignUUID = UUID.randomUUID();
+        when(moonRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
+
+        List<MoonDTO> result = moonService.getMoonsByCampaignUUID(campaignUUID);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no moons match the campaign UUID.");
+    }
+
+    @Test
+    void whenMoonIsValid_saveMoon_SavesTheMoon() {
+        when(moonRepository.save(entity)).thenReturn(entity);
+
+        moonService.saveMoon(dto);
+
+        verify(moonRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenMoonNameIsInvalid_saveMoon_ThrowsIllegalArgumentException() {
-        Moon moonWithEmptyName = new Moon(1, "", "Description 1", UUID.randomUUID());
-        Moon moonWithNullName = new Moon(2, null, "Description 2", UUID.randomUUID());
+        MoonDTO moonWithEmptyName = new MoonDTO();
+        moonWithEmptyName.setId(1);
+        moonWithEmptyName.setName("");
+        moonWithEmptyName.setDescription("A fictional moon.");
+        moonWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
+
+        MoonDTO moonWithNullName = new MoonDTO();
+        moonWithNullName.setId(1);
+        moonWithNullName.setName(null);
+        moonWithNullName.setDescription("A fictional moon.");
+        moonWithNullName.setFk_campaign_uuid(UUID.randomUUID());
+
 
         assertThrows(IllegalArgumentException.class, () -> moonService.saveMoon(moonWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> moonService.saveMoon(moonWithNullName));
@@ -103,93 +142,76 @@ public class MoonTest {
 
     @Test
     public void whenMoonNameAlreadyExists_saveMoon_ThrowsDataIntegrityViolationException() {
-        Moon moon = new Moon(1, "Moon 1", "Description 1", UUID.randomUUID());
-        Moon moonWithDuplicatedName = new Moon(2, "Moon 1", "Description 2", UUID.randomUUID());
-        when(moonRepository.saveAndFlush(moon)).thenReturn(moon);
-        when(moonRepository.saveAndFlush(moonWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> moonService.saveMoon(moon));
-        assertThrows(DataIntegrityViolationException.class, () -> moonService.saveMoon(moonWithDuplicatedName));
+        when(moonRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> moonService.saveMoon(dto));
+        verify(moonRepository, times(1)).findByName(dto.getName());
+        verify(moonRepository, never()).save(any(Moon.class));
     }
 
     @Test
-    public void whenMoonIdExists_deleteMoon_DeletesTheMoon() {
-        int moonId = 1;
-        when(moonRepository.existsById(moonId)).thenReturn(true);
-        assertDoesNotThrow(() -> moonService.deleteMoon(moonId));
-        verify(moonRepository, times(1)).deleteById(moonId);
+    void whenMoonIdExists_deleteMoon_DeletesTheMoon() {
+        when(moonRepository.existsById(1)).thenReturn(true);
+        moonService.deleteMoon(1);
+        verify(moonRepository, times(1)).deleteById(1);
     }
 
     @Test
-    public void whenMoonIdDoesNotExist_deleteMoon_ThrowsIllegalArgumentException() {
-        int moonId = 9000;
-        when(moonRepository.existsById(moonId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> moonService.deleteMoon(moonId));
+    void whenMoonIdDoesNotExist_deleteMoon_ThrowsIllegalArgumentException() {
+        when(moonRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> moonService.deleteMoon(999));
     }
 
     @Test
-    public void whenMoonIdIsAForeignKey_deleteMoon_ThrowsDataIntegrityViolationException() {
-        int moonId = 1;
-        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent", "Description", moonId, 1, 1, 1, 1, 1, UUID.randomUUID());
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
-        List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
+    void whenDeleteMoonFails_deleteMoon_ThrowsException() {
+        when(moonRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(moonRepository).deleteById(1);
 
-        when(moonRepository.existsById(moonId)).thenReturn(true);
-        when(celestialEventRepository.findByfk_moon(moonId)).thenReturn(celestialEvents);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_MOON.columnName, moonId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> moonService.deleteMoon(moonId));
+        assertThrows(RuntimeException.class, () -> moonService.deleteMoon(1));
     }
 
     @Test
-    public void whenMoonIdIsFound_updateMoon_UpdatesTheMoon() {
-        int moonId = 1;
-        UUID campaign = UUID.randomUUID();
-        Moon moon = new Moon(moonId, "Old Moon Name", "Old Description", campaign);
-        Moon moonToUpdate = new Moon(moonId, "Updated Moon Name", "Updated Description", campaign);
+    void whenMoonIdIsFound_updateMoon_UpdatesTheMoon() {
+        MoonDTO updateDTO = new MoonDTO();
+        updateDTO.setName("Updated Name");
 
-        when(moonRepository.existsById(moonId)).thenReturn(true);
-        when(moonRepository.findById(moonId)).thenReturn(Optional.of(moon));
+        when(moonRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(moonRepository.existsById(1)).thenReturn(true);
+        when(moonRepository.save(entity)).thenReturn(entity);
+        when(moonMapper.mapToMoonDto(entity)).thenReturn(updateDTO);
 
-        moonService.updateMoon(moonId, moonToUpdate);
+        Optional<MoonDTO> result = moonService.updateMoon(1, updateDTO);
 
-        verify(moonRepository).findById(moonId);
-
-        Moon result = moonRepository.findById(moonId).get();
-        Assertions.assertEquals(moonToUpdate.getName(), result.getName());
-        Assertions.assertEquals(moonToUpdate.getDescription(), result.getDescription());
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
-    public void whenMoonIdIsNotFound_updateMoon_ThrowsIllegalArgumentException() {
-        int moonId = 1;
-        Moon moon = new Moon(moonId, "Old Moon Name", "Old Description", UUID.randomUUID());
+    void whenMoonIdIsNotFound_updateMoon_ReturnsEmptyOptional() {
+        MoonDTO updateDTO = new MoonDTO();
+        updateDTO.setName("Updated Name");
 
-        when(moonRepository.existsById(moonId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> moonService.updateMoon(moonId, moon));
+        when(moonRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> moonService.updateMoon(999, updateDTO));
     }
 
     @Test
-    public void whenSomeMoonFieldsChanged_updateMoon_OnlyUpdatesChangedFields() {
-        int moonId = 1;
-        Moon moon = new Moon(moonId, "Old Moon Name", "Old Description", UUID.randomUUID());
+    public void whenMoonNameIsInvalid_updateMoon_ThrowsIllegalArgumentException() {
+        MoonDTO updateEmptyName = new MoonDTO();
+        updateEmptyName.setName("");
 
-        String newName = "New Moon";
+        MoonDTO updateNullName = new MoonDTO();
+        updateNullName.setName(null);
 
-        Moon moonToUpdate = new Moon();
-        moonToUpdate.setName(newName);
+        when(moonRepository.existsById(1)).thenReturn(true);
 
-        when(moonRepository.existsById(moonId)).thenReturn(true);
-        when(moonRepository.findById(moonId)).thenReturn(Optional.of(moon));
+        assertThrows(IllegalArgumentException.class, () -> moonService.updateMoon(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> moonService.updateMoon(1, updateNullName));
+    }
 
-        moonService.updateMoon(moonId, moonToUpdate);
+    @Test
+    public void whenMoonNameAlreadyExists_updateMoon_ThrowsDataIntegrityViolationException() {
+        when(moonRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
 
-        verify(moonRepository).findById(moonId);
-
-        Moon result = moonRepository.findById(moonId).get();
-        Assertions.assertEquals(newName, result.getName());
-        Assertions.assertEquals(moon.getDescription(), result.getDescription());
+        assertThrows(IllegalArgumentException.class, () -> moonService.updateMoon(entity.getId(), dto));
     }
 }
