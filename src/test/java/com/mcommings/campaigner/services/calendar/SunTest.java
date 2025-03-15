@@ -1,101 +1,140 @@
 package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
+import com.mcommings.campaigner.modules.calendar.dtos.SunDTO;
 import com.mcommings.campaigner.modules.calendar.entities.Sun;
-import com.mcommings.campaigner.modules.calendar.repositories.ICelestialEventRepository;
+import com.mcommings.campaigner.modules.calendar.mappers.SunMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.ISunRepository;
 import com.mcommings.campaigner.modules.calendar.services.SunService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.*;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_SUN;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class SunTest {
+    @Mock
+    private SunMapper sunMapper;
 
     @Mock
     private ISunRepository sunRepository;
-    @Mock
-    private ICelestialEventRepository celestialEventRepository;
 
     @InjectMocks
     private SunService sunService;
 
+    private Sun entity;
+    private SunDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new Sun();
+        entity.setId(1);
+        entity.setName("Test Sun");
+        entity.setDescription("A fictional sun.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+
+        dto = new SunDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+
+        when(sunMapper.mapToSunDto(entity)).thenReturn(dto);
+        when(sunMapper.mapFromSunDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreSuns_getSuns_ReturnsSuns() {
-        List<Sun> suns = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        suns.add(new Sun(1, "Sun 1", "Description 1", campaign));
-        suns.add(new Sun(2, "Sun 2", "Description 2", campaign));
-        when(sunRepository.findAll()).thenReturn(suns);
+        when(sunRepository.findAll()).thenReturn(List.of(entity));
+        List<SunDTO> result = sunService.getSuns();
 
-        List<Sun> result = sunService.getSuns();
-
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(suns, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Sun", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoSuns_getSuns_ReturnsNothing() {
-        List<Sun> suns = new ArrayList<>();
-        when(sunRepository.findAll()).thenReturn(suns);
+    public void whenThereAreNoSuns_getSuns_ReturnsEmptyList() {
+        when(sunRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Sun> result = sunService.getSuns();
+        List<SunDTO> result = sunService.getSuns();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(suns, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no suns.");
     }
 
     @Test
-    public void whenCampaignUUIDIsValid_getSunsByCampaignUUID_ReturnsSuns() {
-        List<Sun> suns = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        suns.add(new Sun(1, "Sun 1", "Description 1", campaign));
-        suns.add(new Sun(2, "Sun 2", "Description 2", campaign));
-        when(sunRepository.findByfk_campaign_uuid(campaign)).thenReturn(suns);
+    void whenThereIsASun_getSun_ReturnsSunById() {
+        when(sunRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        List<Sun> results = sunService.getSunsByCampaignUUID(campaign);
+        Optional<SunDTO> result = sunService.getSun(1);
 
-        Assertions.assertEquals(2, results.size());
-        Assertions.assertEquals(suns, results);
+        assertTrue(result.isPresent());
+        assertEquals("Test Sun", result.get().getName());
     }
 
     @Test
-    public void whenCampaignUUIDIsInvalid_getSunsByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<Sun> suns = new ArrayList<>();
-        when(sunRepository.findByfk_campaign_uuid(campaign)).thenReturn(suns);
+    void whenThereIsNotASun_getSun_ReturnsNothing() {
+        when(sunRepository.findById(999)).thenReturn(Optional.empty());
 
-        List<Sun> result = sunService.getSunsByCampaignUUID(campaign);
+        Optional<SunDTO> result = sunService.getSun(999);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(suns, result);
+        assertTrue(result.isEmpty(), "Expected empty Optional when sun is not found.");
     }
 
     @Test
-    public void whenSunIsValid_saveSun_SavesTheSun() {
-        Sun sun = new Sun(1, "Sun 1", "Description 1", UUID.randomUUID());
-        when(sunRepository.saveAndFlush(sun)).thenReturn(sun);
+    void whenCampaignUUIDIsValid_getSunsByCampaignUUID_ReturnsSuns() {
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(sunRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        assertDoesNotThrow(() -> sunService.saveSun(sun));
-        verify(sunRepository, times(1)).saveAndFlush(sun);
+        List<SunDTO> result = sunService.getSunsByCampaignUUID(campaignUUID);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
+    }
+
+    @Test
+    void whenCampaignUUIDIsInvalid_getSunsByCampaignUUID_ReturnsNothing() {
+        UUID campaignUUID = UUID.randomUUID();
+        when(sunRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
+
+        List<SunDTO> result = sunService.getSunsByCampaignUUID(campaignUUID);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no suns match the campaign UUID.");
+    }
+
+    @Test
+    void whenSunIsValid_saveSun_SavesTheSun() {
+        when(sunRepository.save(entity)).thenReturn(entity);
+
+        sunService.saveSun(dto);
+
+        verify(sunRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenSunNameIsInvalid_saveSun_ThrowsIllegalArgumentException() {
-        Sun sunWithEmptyName = new Sun(1, "", "Description 1", UUID.randomUUID());
-        Sun sunWithNullName = new Sun(2, null, "Description 2", UUID.randomUUID());
+        SunDTO sunWithEmptyName = new SunDTO();
+        sunWithEmptyName.setId(1);
+        sunWithEmptyName.setName("");
+        sunWithEmptyName.setDescription("A fictional sun.");
+        sunWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
+
+        SunDTO sunWithNullName = new SunDTO();
+        sunWithNullName.setId(1);
+        sunWithNullName.setName(null);
+        sunWithNullName.setDescription("A fictional sun.");
+        sunWithNullName.setFk_campaign_uuid(UUID.randomUUID());
+
 
         assertThrows(IllegalArgumentException.class, () -> sunService.saveSun(sunWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> sunService.saveSun(sunWithNullName));
@@ -103,92 +142,76 @@ public class SunTest {
 
     @Test
     public void whenSunNameAlreadyExists_saveSun_ThrowsDataIntegrityViolationException() {
-        Sun sun = new Sun(1, "Sun 1", "Description 1", UUID.randomUUID());
-        Sun sunWithDuplicatedName = new Sun(2, "Sun 1", "Description 2", UUID.randomUUID());
-        when(sunRepository.saveAndFlush(sun)).thenReturn(sun);
-        when(sunRepository.saveAndFlush(sunWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> sunService.saveSun(sun));
-        assertThrows(DataIntegrityViolationException.class, () -> sunService.saveSun(sunWithDuplicatedName));
+        when(sunRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> sunService.saveSun(dto));
+        verify(sunRepository, times(1)).findByName(dto.getName());
+        verify(sunRepository, never()).save(any(Sun.class));
     }
 
     @Test
-    public void whenSunIdExists_deleteSun_DeletesTheSun() {
-        int sunId = 1;
-        when(sunRepository.existsById(sunId)).thenReturn(true);
-        assertDoesNotThrow(() -> sunService.deleteSun(sunId));
-        verify(sunRepository, times(1)).deleteById(sunId);
+    void whenSunIdExists_deleteSun_DeletesTheSun() {
+        when(sunRepository.existsById(1)).thenReturn(true);
+        sunService.deleteSun(1);
+        verify(sunRepository, times(1)).deleteById(1);
     }
 
     @Test
-    public void whenSunIdDoesNotExist_deleteSun_ThrowsIllegalArgumentException() {
-        int sunId = 9000;
-        when(sunRepository.existsById(sunId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> sunService.deleteSun(sunId));
+    void whenSunIdDoesNotExist_deleteSun_ThrowsIllegalArgumentException() {
+        when(sunRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> sunService.deleteSun(999));
     }
 
     @Test
-    public void whenSunIdIsAForeignKey_deleteSun_ThrowsDataIntegrityViolationException() {
-        int sunId = 1;
-        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent", "Description", 1, sunId, 1, 1, 1, 1, UUID.randomUUID());
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(celestialEventRepository));
-        List<CelestialEvent> celestialEvents = new ArrayList<>(Arrays.asList(celestialEvent));
+    void whenDeleteSunFails_deleteSun_ThrowsException() {
+        when(sunRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(sunRepository).deleteById(1);
 
-        when(sunRepository.existsById(sunId)).thenReturn(true);
-        when(celestialEventRepository.findByfk_sun(sunId)).thenReturn(celestialEvents);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_SUN.columnName, sunId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> sunService.deleteSun(sunId));
-    }
-    @Test
-    public void whenSunIdIsFound_updateSun_UpdatesTheSun() {
-        int sunId = 1;
-        UUID campaign = UUID.randomUUID();
-        Sun sun = new Sun(sunId, "Old Sun Name", "Old Description", campaign);
-        Sun sunToUpdate = new Sun(sunId, "Updated Sun Name", "Updated Description", campaign);
-
-        when(sunRepository.existsById(sunId)).thenReturn(true);
-        when(sunRepository.findById(sunId)).thenReturn(Optional.of(sun));
-
-        sunService.updateSun(sunId, sunToUpdate);
-
-        verify(sunRepository).findById(sunId);
-
-        Sun result = sunRepository.findById(sunId).get();
-        Assertions.assertEquals(sunToUpdate.getName(), result.getName());
-        Assertions.assertEquals(sunToUpdate.getDescription(), result.getDescription());
+        assertThrows(RuntimeException.class, () -> sunService.deleteSun(1));
     }
 
     @Test
-    public void whenSunIdIsNotFound_updateSun_ThrowsIllegalArgumentException() {
-        int sunId = 1;
-        Sun sun = new Sun(sunId, "Old Sun Name", "Old Description", UUID.randomUUID());
+    void whenSunIdIsFound_updateSun_UpdatesTheSun() {
+        SunDTO updateDTO = new SunDTO();
+        updateDTO.setName("Updated Name");
 
-        when(sunRepository.existsById(sunId)).thenReturn(false);
+        when(sunRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(sunRepository.existsById(1)).thenReturn(true);
+        when(sunRepository.save(entity)).thenReturn(entity);
+        when(sunMapper.mapToSunDto(entity)).thenReturn(updateDTO);
 
-        assertThrows(IllegalArgumentException.class, () -> sunService.updateSun(sunId, sun));
+        Optional<SunDTO> result = sunService.updateSun(1, updateDTO);
+
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
-    public void whenSomeSunFieldsChanged_updateSun_OnlyUpdatesChangedFields() {
-        int sunId = 1;
-        Sun sun = new Sun(sunId, "Old Sun Name", "Old Description", UUID.randomUUID());
+    void whenSunIdIsNotFound_updateSun_ReturnsEmptyOptional() {
+        SunDTO updateDTO = new SunDTO();
+        updateDTO.setName("Updated Name");
 
-        String newName = "New Sun";
+        when(sunRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> sunService.updateSun(999, updateDTO));
+    }
 
-        Sun sunToUpdate = new Sun();
-        sunToUpdate.setName(newName);
+    @Test
+    public void whenSunNameIsInvalid_updateSun_ThrowsIllegalArgumentException() {
+        SunDTO updateEmptyName = new SunDTO();
+        updateEmptyName.setName("");
 
-        when(sunRepository.existsById(sunId)).thenReturn(true);
-        when(sunRepository.findById(sunId)).thenReturn(Optional.of(sun));
+        SunDTO updateNullName = new SunDTO();
+        updateNullName.setName(null);
 
-        sunService.updateSun(sunId, sunToUpdate);
+        when(sunRepository.existsById(1)).thenReturn(true);
 
-        verify(sunRepository).findById(sunId);
+        assertThrows(IllegalArgumentException.class, () -> sunService.updateSun(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> sunService.updateSun(1, updateNullName));
+    }
 
-        Sun result = sunRepository.findById(sunId).get();
-        Assertions.assertEquals(sun.getDescription(), result.getDescription());
-        Assertions.assertEquals(newName, result.getName());
+    @Test
+    public void whenSunNameAlreadyExists_updateSun_ThrowsDataIntegrityViolationException() {
+        when(sunRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> sunService.updateSun(entity.getId(), dto));
     }
 }

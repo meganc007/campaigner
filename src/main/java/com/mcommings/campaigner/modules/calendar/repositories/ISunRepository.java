@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ISunRepository extends JpaRepository<Sun, Integer> {
-    Optional<Sun> getByName(String name);
+    Optional<Sun> findByName(String name);
 
     @Query("SELECT s FROM Sun s WHERE s.fk_campaign_uuid = :uuid")
     List<Sun> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
