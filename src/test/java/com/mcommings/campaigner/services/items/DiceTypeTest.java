@@ -1,10 +1,11 @@
 package com.mcommings.campaigner.services.items;
 
 import com.mcommings.campaigner.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.items.DiceType;
-import com.mcommings.campaigner.entities.items.Weapon;
-import com.mcommings.campaigner.repositories.items.IDiceTypeRepository;
-import com.mcommings.campaigner.repositories.items.IWeaponRepository;
+import com.mcommings.campaigner.items.entities.DiceType;
+import com.mcommings.campaigner.items.entities.Weapon;
+import com.mcommings.campaigner.items.repositories.IDiceTypeRepository;
+import com.mcommings.campaigner.items.repositories.IWeaponRepository;
+import com.mcommings.campaigner.items.services.DiceTypeService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

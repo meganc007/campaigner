@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.entities.quests;
 
 import com.mcommings.campaigner.entities.Campaign;
-import com.mcommings.campaigner.entities.items.Item;
-import com.mcommings.campaigner.entities.items.Weapon;
+import com.mcommings.campaigner.items.entities.Item;
+import com.mcommings.campaigner.items.entities.Weapon;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;

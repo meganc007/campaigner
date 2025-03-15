@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.services.quests;
 
 import com.mcommings.campaigner.entities.quests.Reward;
-import com.mcommings.campaigner.repositories.items.IItemRepository;
-import com.mcommings.campaigner.repositories.items.IWeaponRepository;
+import com.mcommings.campaigner.items.repositories.IItemRepository;
+import com.mcommings.campaigner.items.repositories.IWeaponRepository;
 import com.mcommings.campaigner.repositories.quests.IRewardRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
