@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.services.common;
 
+import com.mcommings.campaigner.modules.RepositoryHelper;
 import com.mcommings.campaigner.modules.common.entities.Climate;
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.modules.common.repositories.IClimateRepository;
 import com.mcommings.campaigner.modules.common.services.ClimateService;
 import com.mcommings.campaigner.modules.locations.entities.Region;

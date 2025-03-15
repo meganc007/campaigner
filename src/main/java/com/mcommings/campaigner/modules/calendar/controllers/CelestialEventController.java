@@ -1,51 +1,55 @@
 package com.mcommings.campaigner.modules.calendar.controllers;
 
-import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
-import com.mcommings.campaigner.modules.calendar.services.CelestialEventService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.calendar.dtos.CelestialEventDTO;
+import com.mcommings.campaigner.modules.calendar.services.interfaces.ICelestialEvent;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
-@RestController
-@RequestMapping(path = "api/calendar/celestial-events")
-public class CelestialEventController {
-    
-    private final CelestialEventService celestialEventService;
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
 
-    @Autowired
-    public CelestialEventController(CelestialEventService celestialEventService) {
-        this.celestialEventService = celestialEventService;
-    }
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(path = "api/celestialevents")
+public class CelestialEventController {
+
+    private final ICelestialEvent celestialEventService;
 
     @GetMapping
-    public List<CelestialEvent> getCelestialEvents() {
+    public List<CelestialEventDTO> getCelestialEvents() {
         return celestialEventService.getCelestialEvents();
     }
 
+    @GetMapping(path = "/{celestialEventId}")
+    public CelestialEventDTO getCelestialEvent(@PathVariable("celestialEventId") int celestialEventId) {
+        return celestialEventService.getCelestialEvent(celestialEventId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @GetMapping(path = "/campaign/{uuid}")
-    public List<CelestialEvent> getCelestialEventsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<CelestialEventDTO> getCelestialEventsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
         return celestialEventService.getCelestialEventsByCampaignUUID(uuid);
     }
 
     @GetMapping(path = "/moon/{moonId}")
-    public List<CelestialEvent> getCelestialEventsByMoon(@PathVariable("moonId") int moonId) {
+    public List<CelestialEventDTO> getCelestialEventsByMoon(@PathVariable("moonId") int moonId) {
         return celestialEventService.getCelestialEventsByMoon(moonId);
     }
 
     @GetMapping(path = "/sun/{sunId}")
-    public List<CelestialEvent> getCelestialEventsBySun(@PathVariable("sunId") int sunId) {
+    public List<CelestialEventDTO> getCelestialEventsBySun(@PathVariable("sunId") int sunId) {
         return celestialEventService.getCelestialEventsBySun(sunId);
     }
 
     @GetMapping(path = "/month/{monthId}")
-    public List<CelestialEvent> getCelestialEventsByMonth(@PathVariable("monthId") int monthId) {
+    public List<CelestialEventDTO> getCelestialEventsByMonth(@PathVariable("monthId") int monthId) {
         return celestialEventService.getCelestialEventsByMonth(monthId);
     }
 
     @PostMapping
-    public void saveCelestialEvent(@RequestBody CelestialEvent celestialEvent) {
+    public void saveCelestialEvent(@Valid @RequestBody CelestialEventDTO celestialEvent) {
         celestialEventService.saveCelestialEvent(celestialEvent);
     }
 
@@ -55,7 +59,7 @@ public class CelestialEventController {
     }
 
     @PutMapping(path = "{celestialEventId}")
-    public void updateCelestialEvent(@PathVariable("celestialEventId") int celestialEventId, @RequestBody CelestialEvent celestialEvent) {
+    public void updateCelestialEvent(@PathVariable("celestialEventId") int celestialEventId, @RequestBody CelestialEventDTO celestialEvent) {
         celestialEventService.updateCelestialEvent(celestialEventId, celestialEvent);
     }
 }

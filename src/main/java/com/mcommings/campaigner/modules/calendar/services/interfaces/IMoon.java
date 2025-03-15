@@ -1,19 +1,22 @@
 package com.mcommings.campaigner.modules.calendar.services.interfaces;
 
-import com.mcommings.campaigner.modules.calendar.entities.Moon;
+import com.mcommings.campaigner.modules.calendar.dtos.MoonDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IMoon {
 
-    List<Moon> getMoons();
+    List<MoonDTO> getMoons();
 
-    List<Moon> getMoonsByCampaignUUID(UUID uuid);
+    Optional<MoonDTO> getMoon(int moonId);
 
-    void saveMoon(Moon moon);
+    List<MoonDTO> getMoonsByCampaignUUID(UUID uuid);
+
+    void saveMoon(MoonDTO moon);
 
     void deleteMoon(int moonId);
 
-    void updateMoon(int moonId, Moon moon);
+    Optional<MoonDTO> updateMoon(int moonId, MoonDTO moon);
 }

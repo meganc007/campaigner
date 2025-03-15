@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.services.common;
 
+import com.mcommings.campaigner.modules.RepositoryHelper;
 import com.mcommings.campaigner.modules.calendar.repositories.IDayRepository;
 import com.mcommings.campaigner.modules.calendar.repositories.IMonthRepository;
 import com.mcommings.campaigner.modules.calendar.repositories.IWeekRepository;
 import com.mcommings.campaigner.modules.common.entities.Event;
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
 import com.mcommings.campaigner.modules.common.services.EventService;
 import com.mcommings.campaigner.modules.locations.repositories.ICityRepository;

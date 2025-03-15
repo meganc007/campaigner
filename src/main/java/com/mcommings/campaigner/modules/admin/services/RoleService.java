@@ -1,10 +1,10 @@
 package com.mcommings.campaigner.modules.admin.services;
 
+import com.mcommings.campaigner.modules.RepositoryHelper;
 import com.mcommings.campaigner.modules.admin.entities.Role;
 import com.mcommings.campaigner.modules.admin.repositories.IRoleRepository;
 import com.mcommings.campaigner.modules.admin.repositories.IUserRepository;
 import com.mcommings.campaigner.modules.admin.services.interfaces.IRole;
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

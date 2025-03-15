@@ -1,25 +1,28 @@
 package com.mcommings.campaigner.modules.calendar.services.interfaces;
 
-import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
+import com.mcommings.campaigner.modules.calendar.dtos.CelestialEventDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ICelestialEvent {
 
-    List<CelestialEvent> getCelestialEvents();
+    List<CelestialEventDTO> getCelestialEvents();
 
-    List<CelestialEvent> getCelestialEventsByCampaignUUID(UUID uuid);
+    Optional<CelestialEventDTO> getCelestialEvent(int celestialEventId);
 
-    List<CelestialEvent> getCelestialEventsByMoon(int moonId);
+    List<CelestialEventDTO> getCelestialEventsByCampaignUUID(UUID uuid);
 
-    List<CelestialEvent> getCelestialEventsBySun(int sunId);
+    List<CelestialEventDTO> getCelestialEventsByMoon(int moonId);
 
-    List<CelestialEvent> getCelestialEventsByMonth(int monthId);
+    List<CelestialEventDTO> getCelestialEventsBySun(int sunId);
 
-    void saveCelestialEvent(CelestialEvent celestialEvent);
+    List<CelestialEventDTO> getCelestialEventsByMonth(int monthId);
+
+    void saveCelestialEvent(CelestialEventDTO celestialEvent);
 
     void deleteCelestialEvent(int celestialEventId);
 
-    void updateCelestialEvent(int celestialEventId, CelestialEvent celestialEvent);
+    Optional<CelestialEventDTO> updateCelestialEvent(int celestialEventId, CelestialEventDTO celestialEvent);
 }

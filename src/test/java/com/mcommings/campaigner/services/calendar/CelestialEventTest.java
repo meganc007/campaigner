@@ -1,265 +1,240 @@
 package com.mcommings.campaigner.services.calendar;
 
+import com.mcommings.campaigner.modules.calendar.dtos.CelestialEventDTO;
 import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
-import com.mcommings.campaigner.modules.calendar.repositories.*;
+import com.mcommings.campaigner.modules.calendar.mappers.CelestialEventMapper;
+import com.mcommings.campaigner.modules.calendar.repositories.ICelestialEventRepository;
 import com.mcommings.campaigner.modules.calendar.services.CelestialEventService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class CelestialEventTest {
-    @Mock 
+    @Mock
+    private CelestialEventMapper celestialEventMapper;
+
+    @Mock
     private ICelestialEventRepository celestialEventRepository;
-    @Mock 
-    private IMoonRepository moonRepository;
-    @Mock 
-    private ISunRepository sunRepository;
-    @Mock 
-    private IMonthRepository monthRepository;
-    @Mock 
-    private IWeekRepository weekRepository;
-    @Mock 
-    private IDayRepository dayRepository;
-    
+
     @InjectMocks
     private CelestialEventService celestialEventService;
-    
-    @Test
-    public void whenThereAreCities_getCities_ReturnsCities() {
-        List<CelestialEvent> celestialEvents = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        celestialEvents.add(new CelestialEvent(1, "CelestialEvent 1", "Description 1", 1, campaign));
-        celestialEvents.add(new CelestialEvent(2, "CelestialEvent 2", "Description 2", 1, campaign));
-        celestialEvents.add(new CelestialEvent(3, "CelestialEvent 3", "Description 3", 1, 1, 3, 4, 5, 1, campaign));
-        when(celestialEventRepository.findAll()).thenReturn(celestialEvents);
 
-        List<CelestialEvent> result = celestialEventService.getCelestialEvents();
+    private CelestialEvent entity;
+    private CelestialEventDTO dto;
 
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(celestialEvents, result);
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new CelestialEvent();
+        entity.setId(1);
+        entity.setName("Test CelestialEvent");
+        entity.setDescription("A fictional celestialEvent.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+        entity.setFk_moon(random.nextInt(100) + 1);
+        entity.setFk_sun(random.nextInt(100) + 1);
+        entity.setFk_month(random.nextInt(100) + 1);
+        entity.setFk_week(random.nextInt(100) + 1);
+        entity.setFk_day(random.nextInt(100) + 1);
+        entity.setEvent_year(random.nextInt(100) + 1);
+
+        dto = new CelestialEventDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+        dto.setFk_moon(entity.getFk_moon());
+        dto.setFk_sun(entity.getFk_sun());
+        dto.setFk_month(entity.getFk_month());
+        dto.setFk_week(entity.getFk_week());
+        dto.setFk_day(entity.getFk_day());
+        dto.setEvent_year(entity.getEvent_year());
+
+        when(celestialEventMapper.mapToCelestialEventDto(entity)).thenReturn(dto);
+        when(celestialEventMapper.mapFromCelestialEventDto(dto)).thenReturn(entity);
     }
 
     @Test
-    public void whenThereAreNoCities_getCities_ReturnsNothing() {
-        List<CelestialEvent> celestialEvents = new ArrayList<>();
-        when(celestialEventRepository.findAll()).thenReturn(celestialEvents);
+    public void whenThereAreCelestialEvents_getCelestialEvents_ReturnsCelestialEvents() {
+        when(celestialEventRepository.findAll()).thenReturn(List.of(entity));
+        List<CelestialEventDTO> result = celestialEventService.getCelestialEvents();
 
-        List<CelestialEvent> result = celestialEventService.getCelestialEvents();
-
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(celestialEvents, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test CelestialEvent", result.get(0).getName());
     }
 
     @Test
-    public void whenCampaignUUIDIsValid_getCelestialEventsByCampaignUUID_ReturnsCelestialEvents() {
-        List<CelestialEvent> celestialEvents = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        celestialEvents.add(new CelestialEvent(1, "CelestialEvent 1", "Description 1", 1, campaign));
-        celestialEvents.add(new CelestialEvent(2, "CelestialEvent 2", "Description 2", 1, campaign));
-        celestialEvents.add(new CelestialEvent(3, "CelestialEvent 3", "Description 3", 1, 1, 3, 4, 5, 1, campaign));
-        when(celestialEventRepository.findByfk_campaign_uuid(campaign)).thenReturn(celestialEvents);
+    public void whenThereAreNoCelestialEvents_getCelestialEvents_ReturnsEmptyList() {
+        when(celestialEventRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<CelestialEvent> results = celestialEventService.getCelestialEventsByCampaignUUID(campaign);
+        List<CelestialEventDTO> result = celestialEventService.getCelestialEvents();
 
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(celestialEvents, results);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no celestialEvents.");
     }
 
     @Test
-    public void whenCampaignUUIDIsInvalid_getCelestialEventsByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<CelestialEvent> celestialEvents = new ArrayList<>();
-        when(celestialEventRepository.findByfk_campaign_uuid(campaign)).thenReturn(celestialEvents);
+    void whenThereIsACelestialEvent_getCelestialEvent_ReturnsCelestialEventById() {
+        when(celestialEventRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        List<CelestialEvent> result = celestialEventService.getCelestialEventsByCampaignUUID(campaign);
+        Optional<CelestialEventDTO> result = celestialEventService.getCelestialEvent(1);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(celestialEvents, result);
+        assertTrue(result.isPresent());
+        assertEquals("Test CelestialEvent", result.get().getName());
     }
 
     @Test
-    public void whenCelestialEventWithNoForeignKeysIsValid_saveCelestialEvent_SavesTheCelestialEvent() {
-        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent 1", "Description 1", 1, UUID.randomUUID());
-        when(celestialEventRepository.saveAndFlush(celestialEvent)).thenReturn(celestialEvent);
+    void whenThereIsNotACelestialEvent_getCelestialEvent_ReturnsNothing() {
+        when(celestialEventRepository.findById(999)).thenReturn(Optional.empty());
 
-        assertDoesNotThrow(() -> celestialEventService.saveCelestialEvent(celestialEvent));
+        Optional<CelestialEventDTO> result = celestialEventService.getCelestialEvent(999);
 
-        verify(celestialEventRepository, times(1)).saveAndFlush(celestialEvent);
+        assertTrue(result.isEmpty(), "Expected empty Optional when celestialEvent is not found.");
     }
 
     @Test
-    public void whenCelestialEventWithForeignKeysIsValid_saveCelestialEvent_SavesTheCelestialEvent() {
-        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent 1", "Description 1",
-                1, 2, 3, 4, 1, 1, UUID.randomUUID());
+    void whenCampaignUUIDIsValid_getCelestialEventsByCampaignUUID_ReturnsCelestialEvents() {
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(celestialEventRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        when(moonRepository.existsById(1)).thenReturn(true);
-        when(sunRepository.existsById(2)).thenReturn(true);
-        when(monthRepository.existsById(3)).thenReturn(true);
-        when(weekRepository.existsById(4)).thenReturn(true);
-        when(dayRepository.existsById(1)).thenReturn(true);
-        when(celestialEventRepository.saveAndFlush(celestialEvent)).thenReturn(celestialEvent);
+        List<CelestialEventDTO> result = celestialEventService.getCelestialEventsByCampaignUUID(campaignUUID);
 
-        assertDoesNotThrow(() -> celestialEventService.saveCelestialEvent(celestialEvent));
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
+    }
 
-        verify(celestialEventRepository, times(1)).saveAndFlush(celestialEvent);
+    @Test
+    void whenCampaignUUIDIsInvalid_getCelestialEventsByCampaignUUID_ReturnsNothing() {
+        UUID campaignUUID = UUID.randomUUID();
+        when(celestialEventRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
+
+        List<CelestialEventDTO> result = celestialEventService.getCelestialEventsByCampaignUUID(campaignUUID);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no celestialEvents match the campaign UUID.");
+    }
+
+    @Test
+    void whenCelestialEventIsValid_saveCelestialEvent_SavesTheCelestialEvent() {
+        when(celestialEventRepository.save(entity)).thenReturn(entity);
+
+        celestialEventService.saveCelestialEvent(dto);
+
+        verify(celestialEventRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenCelestialEventNameIsInvalid_saveCelestialEvent_ThrowsIllegalArgumentException() {
-        CelestialEvent celestialEventWithEmptyName = new CelestialEvent(1, "", "Description 1", 1, UUID.randomUUID());
-        CelestialEvent celestialEventWithNullName = new CelestialEvent(2, null, "Description 2", 1, UUID.randomUUID());
+        CelestialEventDTO celestialEventWithEmptyName = new CelestialEventDTO();
+        celestialEventWithEmptyName.setId(1);
+        celestialEventWithEmptyName.setName("");
+        celestialEventWithEmptyName.setDescription("A fictional celestialEvent.");
+        celestialEventWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
+        celestialEventWithEmptyName.setFk_moon(1);
+        celestialEventWithEmptyName.setFk_sun(1);
+        celestialEventWithEmptyName.setFk_month(1);
+        celestialEventWithEmptyName.setFk_week(1);
+        celestialEventWithEmptyName.setFk_day(1);
+        celestialEventWithEmptyName.setEvent_year(1);
+
+        CelestialEventDTO celestialEventWithNullName = new CelestialEventDTO();
+        celestialEventWithNullName.setId(1);
+        celestialEventWithNullName.setName(null);
+        celestialEventWithNullName.setDescription("A fictional celestialEvent.");
+        celestialEventWithNullName.setFk_campaign_uuid(UUID.randomUUID());
+        celestialEventWithNullName.setFk_moon(1);
+        celestialEventWithNullName.setFk_sun(1);
+        celestialEventWithNullName.setFk_month(1);
+        celestialEventWithNullName.setFk_week(1);
+        celestialEventWithNullName.setFk_day(1);
+        celestialEventWithNullName.setEvent_year(1);
 
         assertThrows(IllegalArgumentException.class, () -> celestialEventService.saveCelestialEvent(celestialEventWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> celestialEventService.saveCelestialEvent(celestialEventWithNullName));
     }
-    
+
     @Test
-    public void whenCelestialEventHasInvalidForeignKeys_saveCelestialEvent_ThrowsDataIntegrityViolationException() {
-        CelestialEvent celestialEvent = new CelestialEvent(1, "CelestialEvent 1", "Description 1",
-                1, 2, 3, 4, 1, 1, UUID.randomUUID());
-        when(moonRepository.existsById(1)).thenReturn(true);
-        when(sunRepository.existsById(2)).thenReturn(false);
-        when(monthRepository.existsById(3)).thenReturn(false);
-        when(weekRepository.existsById(3)).thenReturn(true);
-        when(dayRepository.existsById(1)).thenReturn(true);
-        when(celestialEventRepository.saveAndFlush(celestialEvent)).thenReturn(celestialEvent);
-
-        assertThrows(DataIntegrityViolationException.class, () -> celestialEventService.saveCelestialEvent(celestialEvent));
-
+    public void whenCelestialEventNameAlreadyExists_saveCelestialEvent_ThrowsDataIntegrityViolationException() {
+        when(celestialEventRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> celestialEventService.saveCelestialEvent(dto));
+        verify(celestialEventRepository, times(1)).findByName(dto.getName());
+        verify(celestialEventRepository, never()).save(any(CelestialEvent.class));
     }
 
     @Test
-    public void whenCelestialEventIdExists_deleteCelestialEvent_DeletesTheCelestialEvent() {
-        int celestialEventId = 1;
-        when(celestialEventRepository.existsById(celestialEventId)).thenReturn(true);
-        assertDoesNotThrow(() -> celestialEventService.deleteCelestialEvent(celestialEventId));
-        verify(celestialEventRepository, times(1)).deleteById(celestialEventId);
+    void whenCelestialEventIdExists_deleteCelestialEvent_DeletesTheCelestialEvent() {
+        when(celestialEventRepository.existsById(1)).thenReturn(true);
+        celestialEventService.deleteCelestialEvent(1);
+        verify(celestialEventRepository, times(1)).deleteById(1);
     }
 
     @Test
-    public void whenCelestialEventIdDoesNotExist_deleteCelestialEvent_ThrowsIllegalArgumentException() {
-        int celestialEventId = 9000;
-        when(celestialEventRepository.existsById(celestialEventId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> celestialEventService.deleteCelestialEvent(celestialEventId));
-    }
-    
-    @Test
-    public void whenCelestialEventIdWithNoFKIsFound_updateCelestialEvent_UpdatesTheCelestialEvent() {
-        int celestialEventId1 = 1;
-        UUID campaign = UUID.randomUUID();
-
-        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId1, "Old CelestialEvent Name", "Old Description", 1, campaign);
-        CelestialEvent celestialEventToUpdateNoFK = new CelestialEvent(celestialEventId1, "Updated CelestialEvent Name", "Updated Description", 2, campaign);
-
-        when(celestialEventRepository.existsById(celestialEventId1)).thenReturn(true);
-        when(celestialEventRepository.findById(celestialEventId1)).thenReturn(Optional.of(celestialEvent));
-
-        celestialEventService.updateCelestialEvent(celestialEventId1, celestialEventToUpdateNoFK);
-
-        verify(celestialEventRepository).findById(celestialEventId1);
-
-        CelestialEvent result1 = celestialEventRepository.findById(celestialEventId1).get();
-        Assertions.assertEquals(celestialEventToUpdateNoFK.getName(), result1.getName());
-        Assertions.assertEquals(celestialEventToUpdateNoFK.getDescription(), result1.getDescription());
-        Assertions.assertEquals(celestialEventToUpdateNoFK.getEvent_year(), result1.getEvent_year());
-    }
-    
-    @Test
-    public void whenCelestialEventIdWithValidFKIsFound_updateCelestialEvent_UpdatesTheCelestialEvent() {
-        int celestialEventId = 2;
-        UUID campaign = UUID.randomUUID();
-
-        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test CelestialEvent Name", "Test Description", 1, campaign);
-        CelestialEvent celestialEventToUpdate = new CelestialEvent(celestialEventId, "Updated CelestialEvent Name", "Updated Description",
-                1, 2, 3, 4, 5, 1, campaign);
-
-        when(celestialEventRepository.existsById(celestialEventId)).thenReturn(true);
-        when(celestialEventRepository.findById(celestialEventId)).thenReturn(Optional.of(celestialEvent));
-        when(moonRepository.existsById(1)).thenReturn(true);
-        when(sunRepository.existsById(2)).thenReturn(true);
-        when(monthRepository.existsById(3)).thenReturn(true);
-        when(weekRepository.existsById(4)).thenReturn(true);
-        when(dayRepository.existsById(5)).thenReturn(true);
-
-        celestialEventService.updateCelestialEvent(celestialEventId, celestialEventToUpdate);
-
-        verify(celestialEventRepository).findById(celestialEventId);
-
-        CelestialEvent result = celestialEventRepository.findById(celestialEventId).get();
-        Assertions.assertEquals(celestialEventToUpdate.getName(), result.getName());
-        Assertions.assertEquals(celestialEventToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(celestialEventToUpdate.getFk_moon(), result.getFk_moon());
-        Assertions.assertEquals(celestialEventToUpdate.getFk_sun(), result.getFk_sun());
-        Assertions.assertEquals(celestialEventToUpdate.getFk_month(), result.getFk_month());
-        Assertions.assertEquals(celestialEventToUpdate.getFk_week(), result.getFk_week());
-        Assertions.assertEquals(celestialEventToUpdate.getFk_day(), result.getFk_day());
-        Assertions.assertEquals(celestialEventToUpdate.getEvent_year(), result.getEvent_year());
+    void whenCelestialEventIdDoesNotExist_deleteCelestialEvent_ThrowsIllegalArgumentException() {
+        when(celestialEventRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> celestialEventService.deleteCelestialEvent(999));
     }
 
     @Test
-    public void whenCelestialEventIdWithInvalidFKIsFound_updateCelestialEvent_ThrowsDataIntegrityViolationException() {
-        int celestialEventId = 2;
-        UUID campaign = UUID.randomUUID();
+    void whenDeleteCelestialEventFails_deleteCelestialEvent_ThrowsException() {
+        when(celestialEventRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(celestialEventRepository).deleteById(1);
 
-        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test CelestialEvent Name", "Test Description", 1, campaign);
-        CelestialEvent celestialEventToUpdate = new CelestialEvent(celestialEventId, "Updated CelestialEvent Name", "Updated Description", 1, 2, 3, 4, 5, 1, campaign);
-
-        when(celestialEventRepository.existsById(celestialEventId)).thenReturn(true);
-        when(celestialEventRepository.findById(celestialEventId)).thenReturn(Optional.of(celestialEvent));
-        when(moonRepository.existsById(1)).thenReturn(true);
-        when(sunRepository.existsById(2)).thenReturn(false);
-        when(monthRepository.existsById(3)).thenReturn(true);
-        when(weekRepository.existsById(4)).thenReturn(false);
-        when(dayRepository.existsById(4)).thenReturn(true);
-
-        assertThrows(DataIntegrityViolationException.class, () -> celestialEventService.updateCelestialEvent(celestialEventId, celestialEventToUpdate));
+        assertThrows(RuntimeException.class, () -> celestialEventService.deleteCelestialEvent(1));
     }
 
     @Test
-    public void whenCelestialEventIdIsNotFound_updateCelestialEvent_ThrowsIllegalArgumentException() {
-        int celestialEventId = 1;
-        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Old CelestialEvent Name", "Old Description", 1, UUID.randomUUID());
+    void whenCelestialEventIdIsFound_updateCelestialEvent_UpdatesTheCelestialEvent() {
+        CelestialEventDTO updateDTO = new CelestialEventDTO();
+        updateDTO.setName("Updated Name");
 
-        when(celestialEventRepository.existsById(celestialEventId)).thenReturn(false);
+        when(celestialEventRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(celestialEventRepository.existsById(1)).thenReturn(true);
+        when(celestialEventRepository.save(entity)).thenReturn(entity);
+        when(celestialEventMapper.mapToCelestialEventDto(entity)).thenReturn(updateDTO);
 
-        assertThrows(IllegalArgumentException.class, () -> celestialEventService.updateCelestialEvent(celestialEventId, celestialEvent));
+        Optional<CelestialEventDTO> result = celestialEventService.updateCelestialEvent(1, updateDTO);
+
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
-    public void whenSomeCelestialEventFieldsChanged_updateCelestialEvent_OnlyUpdatesChangedFields() {
-        int celestialEventId = 1;
-        CelestialEvent celestialEvent = new CelestialEvent(celestialEventId, "Test Celestial Event Name", "Test Description", 1, UUID.randomUUID());
+    void whenCelestialEventIdIsNotFound_updateCelestialEvent_ReturnsEmptyOptional() {
+        CelestialEventDTO updateDTO = new CelestialEventDTO();
+        updateDTO.setName("Updated Name");
 
-        String newName = "Solar Eclipse";
-        int newYear = 122;
+        when(celestialEventRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> celestialEventService.updateCelestialEvent(999, updateDTO));
+    }
 
-        CelestialEvent celestialEventToUpdate = new CelestialEvent();
-        celestialEventToUpdate.setName(newName);
-        celestialEventToUpdate.setEvent_year(newYear);
+    @Test
+    public void whenCelestialEventNameIsInvalid_updateCelestialEvent_ThrowsIllegalArgumentException() {
+        CelestialEventDTO updateEmptyName = new CelestialEventDTO();
+        updateEmptyName.setName("");
 
-        when(celestialEventRepository.existsById(celestialEventId)).thenReturn(true);
-        when(celestialEventRepository.findById(celestialEventId)).thenReturn(Optional.of(celestialEvent));
+        CelestialEventDTO updateNullName = new CelestialEventDTO();
+        updateNullName.setName(null);
 
-        celestialEventService.updateCelestialEvent(celestialEventId, celestialEventToUpdate);
+        when(celestialEventRepository.existsById(1)).thenReturn(true);
 
-        verify(celestialEventRepository).findById(celestialEventId);
+        assertThrows(IllegalArgumentException.class, () -> celestialEventService.updateCelestialEvent(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> celestialEventService.updateCelestialEvent(1, updateNullName));
+    }
 
-        CelestialEvent result = celestialEventRepository.findById(celestialEventId).get();
-        Assertions.assertEquals(newName, result.getName());
-        Assertions.assertEquals(celestialEvent.getDescription(), result.getDescription());
-        Assertions.assertEquals(newYear, result.getEvent_year());
+    @Test
+    public void whenCelestialEventNameAlreadyExists_updateCelestialEvent_ThrowsDataIntegrityViolationException() {
+        when(celestialEventRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> celestialEventService.updateCelestialEvent(entity.getId(), dto));
     }
 }

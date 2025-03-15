@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface IDayRepository extends JpaRepository<Day, Integer> {
 
-    Optional<Day> getByName(String name);
+    Optional<Day> findByName(String name);
 
     @Query("SELECT d FROM Day d WHERE d.fk_week = :id")
     List<Day> findByfk_week(@Param("id") Integer id);

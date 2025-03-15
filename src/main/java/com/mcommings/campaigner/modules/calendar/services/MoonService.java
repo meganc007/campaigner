@@ -1,57 +1,65 @@
 package com.mcommings.campaigner.modules.calendar.services;
 
-import com.mcommings.campaigner.modules.calendar.entities.Moon;
-import com.mcommings.campaigner.modules.calendar.repositories.ICelestialEventRepository;
+import com.mcommings.campaigner.modules.RepositoryHelper;
+import com.mcommings.campaigner.modules.calendar.dtos.MoonDTO;
+import com.mcommings.campaigner.modules.calendar.mappers.MoonMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.IMoonRepository;
 import com.mcommings.campaigner.modules.calendar.services.interfaces.IMoon;
-import com.mcommings.campaigner.modules.common.entities.RepositoryHelper;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_MOON;
 
-@SuppressWarnings("rawtypes")
 @Service
+@RequiredArgsConstructor
 public class MoonService implements IMoon {
 
     private final IMoonRepository moonRepository;
-    private final ICelestialEventRepository celestialEventRepository;
+    private final MoonMapper moonMapper;
 
-    @Autowired
-    public MoonService(IMoonRepository moonRepository, ICelestialEventRepository celestialEventRepository) {
-        this.moonRepository = moonRepository;
-        this.celestialEventRepository = celestialEventRepository;
+    @Override
+    public List<MoonDTO> getMoons() {
+
+        return moonRepository.findAll()
+                .stream()
+                .map(moonMapper::mapToMoonDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Moon> getMoons() {
-        return moonRepository.findAll();
+    public Optional<MoonDTO> getMoon(int moonId) {
+        return moonRepository.findById(moonId)
+                .map(moonMapper::mapToMoonDto);
     }
 
     @Override
-    public List<Moon> getMoonsByCampaignUUID(UUID uuid) {
-        return moonRepository.findByfk_campaign_uuid(uuid);
+    public List<MoonDTO> getMoonsByCampaignUUID(UUID uuid) {
+
+        return moonRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(moonMapper::mapToMoonDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public void saveMoon(Moon moon) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveMoon(MoonDTO moon) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(moon)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(moonRepository, moon)) {
+        if (RepositoryHelper.nameAlreadyExists(moonRepository, moon.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-        moonRepository.saveAndFlush(moon);
+        moonMapper.mapToMoonDto(
+                moonRepository.save(moonMapper.mapFromMoonDto(moon)
+                ));
     }
 
     @Override
@@ -60,25 +68,29 @@ public class MoonService implements IMoon {
         if (RepositoryHelper.cannotFindId(moonRepository, moonId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.isForeignKey(getReposWhereMoonIsAForeignKey(), FK_MOON.columnName, moonId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-        }
-
         moonRepository.deleteById(moonId);
     }
 
     @Override
     @Transactional
-    public void updateMoon(int moonId, Moon moon) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<MoonDTO> updateMoon(int moonId, MoonDTO moon) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(moonRepository, moonId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        Moon moonToUpdate = RepositoryHelper.getById(moonRepository, moonId);
-        if (moon.getName() != null) moonToUpdate.setName(moon.getName());
-        if (moon.getDescription() != null) moonToUpdate.setDescription(moon.getDescription());
+        if (RepositoryHelper.nameIsNullOrEmpty(moon)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (RepositoryHelper.nameAlreadyExists(moonRepository, moon.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
+
+        return moonRepository.findById(moonId).map(foundMoon -> {
+            if (moon.getName() != null) foundMoon.setName(moon.getName());
+            if (moon.getDescription() != null) foundMoon.setDescription(moon.getDescription());
+            if (moon.getFk_campaign_uuid() != null) foundMoon.setFk_campaign_uuid(moon.getFk_campaign_uuid());
+
+            return moonMapper.mapToMoonDto(moonRepository.save(foundMoon));
+        });
     }
 
-    private List<CrudRepository> getReposWhereMoonIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(celestialEventRepository));
-    }
 }

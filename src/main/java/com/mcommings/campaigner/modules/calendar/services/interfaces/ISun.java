@@ -1,18 +1,21 @@
 package com.mcommings.campaigner.modules.calendar.services.interfaces;
 
-import com.mcommings.campaigner.modules.calendar.entities.Sun;
+import com.mcommings.campaigner.modules.calendar.dtos.SunDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ISun {
-    List<Sun> getSuns();
+    List<SunDTO> getSuns();
 
-    List<Sun> getSunsByCampaignUUID(UUID uuid);
+    Optional<SunDTO> getSun(int sunId);
 
-    void saveSun(Sun sun);
+    List<SunDTO> getSunsByCampaignUUID(UUID uuid);
+
+    void saveSun(SunDTO sun);
 
     void deleteSun(int sunId);
 
-    void updateSun(int sunId, Sun sun);
+    Optional<SunDTO> updateSun(int sunId, SunDTO sun);
 }
