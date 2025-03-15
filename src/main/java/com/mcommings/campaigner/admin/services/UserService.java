@@ -1,8 +1,8 @@
-package com.mcommings.campaigner.services.admin;
+package com.mcommings.campaigner.admin.services;
 
-import com.mcommings.campaigner.entities.admin.User;
-import com.mcommings.campaigner.interfaces.admin.IUser;
-import com.mcommings.campaigner.repositories.admin.IUserRepository;
+import com.mcommings.campaigner.admin.entities.User;
+import com.mcommings.campaigner.admin.repositories.IUserRepository;
+import com.mcommings.campaigner.admin.services.interfaces.IUser;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

@@ -1,7 +1,8 @@
 package com.mcommings.campaigner.services.admin;
 
-import com.mcommings.campaigner.entities.admin.User;
-import com.mcommings.campaigner.repositories.admin.IUserRepository;
+import com.mcommings.campaigner.admin.entities.User;
+import com.mcommings.campaigner.admin.repositories.IUserRepository;
+import com.mcommings.campaigner.admin.services.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

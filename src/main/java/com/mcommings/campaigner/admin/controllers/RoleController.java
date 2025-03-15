@@ -1,7 +1,7 @@
-package com.mcommings.campaigner.controllers.admin;
+package com.mcommings.campaigner.admin.controllers;
 
-import com.mcommings.campaigner.entities.admin.Role;
-import com.mcommings.campaigner.services.admin.RoleService;
+import com.mcommings.campaigner.admin.entities.Role;
+import com.mcommings.campaigner.admin.services.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

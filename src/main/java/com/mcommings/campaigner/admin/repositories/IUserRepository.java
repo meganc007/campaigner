@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.repositories.admin;
+package com.mcommings.campaigner.admin.repositories;
 
-import com.mcommings.campaigner.entities.admin.User;
+import com.mcommings.campaigner.admin.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

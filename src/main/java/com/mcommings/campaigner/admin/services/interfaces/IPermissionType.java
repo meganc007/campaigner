@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.interfaces.admin;
+package com.mcommings.campaigner.admin.services.interfaces;
 
-import com.mcommings.campaigner.entities.admin.PermissionType;
+import com.mcommings.campaigner.admin.entities.PermissionType;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
-package com.mcommings.campaigner.controllers.admin;
+package com.mcommings.campaigner.admin.controllers;
 
-import com.mcommings.campaigner.entities.admin.User;
-import com.mcommings.campaigner.services.admin.UserService;
+import com.mcommings.campaigner.admin.entities.User;
+import com.mcommings.campaigner.admin.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

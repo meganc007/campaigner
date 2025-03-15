@@ -1,11 +1,11 @@
-package com.mcommings.campaigner.services.admin;
+package com.mcommings.campaigner.admin.services;
 
+import com.mcommings.campaigner.admin.entities.Permission;
+import com.mcommings.campaigner.admin.repositories.IPermissionRepository;
+import com.mcommings.campaigner.admin.repositories.IUserRepository;
+import com.mcommings.campaigner.admin.services.interfaces.IPermission;
 import com.mcommings.campaigner.common.entities.RepositoryHelper;
 import com.mcommings.campaigner.common.repositories.ICampaignRepository;
-import com.mcommings.campaigner.entities.admin.Permission;
-import com.mcommings.campaigner.interfaces.admin.IPermission;
-import com.mcommings.campaigner.repositories.admin.IPermissionRepository;
-import com.mcommings.campaigner.repositories.admin.IUserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

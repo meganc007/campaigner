@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.entities.admin;
+package com.mcommings.campaigner.admin.entities;
 
 import com.mcommings.campaigner.common.entities.Campaign;
 import jakarta.persistence.*;

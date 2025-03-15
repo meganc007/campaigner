@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.entities.admin;
+package com.mcommings.campaigner.admin.entities;
 
 import com.mcommings.campaigner.common.entities.BaseEntity;
 import jakarta.persistence.*;
@@ -7,20 +7,20 @@ import lombok.ToString;
 
 @Data
 @Entity
-@Table(name = "permission_types")
+@Table(name = "roles")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @ToString(callSuper = true)
-public class PermissionType extends BaseEntity {
+public class Role extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    public PermissionType() {
+    public Role() {
         super();
     }
 
-    public PermissionType(int id, String name, String description) {
+    public Role(int id, String name, String description) {
         this.id = id;
         this.setName(name);
         this.setDescription(description);

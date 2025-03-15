@@ -1,9 +1,9 @@
-package com.mcommings.campaigner.controllers.admin;
+package com.mcommings.campaigner.admin.controllers;
 
+import com.mcommings.campaigner.admin.entities.Permission;
+import com.mcommings.campaigner.admin.services.PermissionService;
+import com.mcommings.campaigner.admin.services.UserService;
 import com.mcommings.campaigner.common.services.CampaignService;
-import com.mcommings.campaigner.entities.admin.Permission;
-import com.mcommings.campaigner.services.admin.PermissionService;
-import com.mcommings.campaigner.services.admin.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

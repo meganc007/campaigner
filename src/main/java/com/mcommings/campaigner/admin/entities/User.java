@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.entities.admin;
+package com.mcommings.campaigner.admin.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;

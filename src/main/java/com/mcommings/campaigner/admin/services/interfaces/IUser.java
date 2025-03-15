@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.interfaces.admin;
+package com.mcommings.campaigner.admin.services.interfaces;
 
-import com.mcommings.campaigner.entities.admin.User;
+import com.mcommings.campaigner.admin.entities.User;
 
 import java.util.List;
 import java.util.UUID;

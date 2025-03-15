@@ -1,10 +1,11 @@
 package com.mcommings.campaigner.services.admin;
 
+import com.mcommings.campaigner.admin.entities.Permission;
+import com.mcommings.campaigner.admin.entities.PermissionType;
+import com.mcommings.campaigner.admin.repositories.IPermissionRepository;
+import com.mcommings.campaigner.admin.repositories.IPermissionTypeRepository;
+import com.mcommings.campaigner.admin.services.PermissionTypeService;
 import com.mcommings.campaigner.common.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.admin.Permission;
-import com.mcommings.campaigner.entities.admin.PermissionType;
-import com.mcommings.campaigner.repositories.admin.IPermissionRepository;
-import com.mcommings.campaigner.repositories.admin.IPermissionTypeRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

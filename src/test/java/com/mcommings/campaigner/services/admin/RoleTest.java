@@ -1,10 +1,11 @@
 package com.mcommings.campaigner.services.admin;
 
+import com.mcommings.campaigner.admin.entities.Role;
+import com.mcommings.campaigner.admin.entities.User;
+import com.mcommings.campaigner.admin.repositories.IRoleRepository;
+import com.mcommings.campaigner.admin.repositories.IUserRepository;
+import com.mcommings.campaigner.admin.services.RoleService;
 import com.mcommings.campaigner.common.entities.RepositoryHelper;
-import com.mcommings.campaigner.entities.admin.Role;
-import com.mcommings.campaigner.entities.admin.User;
-import com.mcommings.campaigner.repositories.admin.IRoleRepository;
-import com.mcommings.campaigner.repositories.admin.IUserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

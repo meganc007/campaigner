@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.interfaces.admin;
+package com.mcommings.campaigner.admin.services.interfaces;
 
-import com.mcommings.campaigner.entities.admin.Role;
+import com.mcommings.campaigner.admin.entities.Role;
 
 import java.util.List;
 
