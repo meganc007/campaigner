@@ -1,30 +1,34 @@
 package com.mcommings.campaigner.modules.items.controllers;
 
-import com.mcommings.campaigner.modules.items.entities.ItemType;
-import com.mcommings.campaigner.modules.items.services.ItemTypeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.items.dtos.ItemTypeDTO;
+import com.mcommings.campaigner.modules.items.services.interfaces.IItemType;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/items/item-types")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/itemtypes")
 public class ItemTypeController {
 
-    private final ItemTypeService itemTypeService;
-
-    @Autowired
-    public ItemTypeController(ItemTypeService itemTypeService) {
-        this.itemTypeService = itemTypeService;
-    }
+    private final IItemType itemTypeService;
 
     @GetMapping
-    public List<ItemType> ItemType() {
+    public List<ItemTypeDTO> ItemType() {
         return itemTypeService.getItemTypes();
     }
 
+    @GetMapping(path = "/{itemTypeId}")
+    public ItemTypeDTO getItemType(@PathVariable("itemTypeId") int itemTypeId) {
+        return itemTypeService.getItemType(itemTypeId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @PostMapping
-    public void saveItemType(@RequestBody ItemType itemType) {
+    public void saveItemType(@Valid @RequestBody ItemTypeDTO itemType) {
         itemTypeService.saveItemType(itemType);
     }
 
@@ -34,7 +38,7 @@ public class ItemTypeController {
     }
 
     @PutMapping(path = "{itemTypeId}")
-    public void updateItemType(@PathVariable("itemTypeId") int itemTypeId, @RequestBody ItemType itemType) {
+    public void updateItemType(@PathVariable("itemTypeId") int itemTypeId, @RequestBody ItemTypeDTO itemType) {
         itemTypeService.updateItemType(itemTypeId, itemType);
     }
 }
