@@ -1,16 +1,19 @@
 package com.mcommings.campaigner.modules.items.services.interfaces;
 
-import com.mcommings.campaigner.modules.items.entities.ItemType;
+import com.mcommings.campaigner.modules.items.dtos.ItemTypeDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IItemType {
 
-    List<ItemType> getItemTypes();
+    List<ItemTypeDTO> getItemTypes();
 
-    void saveItemType(ItemType itemType);
+    Optional<ItemTypeDTO> getItemType(int itemTypeId);
+
+    void saveItemType(ItemTypeDTO itemType);
 
     void deleteItemType(int itemTypeId);
 
-    void updateItemType(int itemTypeId, ItemType itemType);
+    Optional<ItemTypeDTO> updateItemType(int itemTypeId, ItemTypeDTO itemType);
 }

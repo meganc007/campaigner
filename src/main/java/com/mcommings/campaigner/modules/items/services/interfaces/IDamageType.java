@@ -1,16 +1,19 @@
 package com.mcommings.campaigner.modules.items.services.interfaces;
 
-import com.mcommings.campaigner.modules.items.entities.DamageType;
+import com.mcommings.campaigner.modules.items.dtos.DamageTypeDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IDamageType {
 
-    List<DamageType> getDamageTypes();
+    List<DamageTypeDTO> getDamageTypes();
 
-    void saveDamageType(DamageType damageType);
+    Optional<DamageTypeDTO> getDamageType(int damageTypeId);
+
+    void saveDamageType(DamageTypeDTO damageType);
 
     void deleteDamageType(int damageTypeId);
 
-    void updateDamageType(int damageTypeId, DamageType damageType);
+    Optional<DamageTypeDTO> updateDamageType(int damageTypeId, DamageTypeDTO damageType);
 }

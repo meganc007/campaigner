@@ -1,19 +1,22 @@
 package com.mcommings.campaigner.modules.items.services.interfaces;
 
-import com.mcommings.campaigner.modules.items.entities.Item;
+import com.mcommings.campaigner.modules.items.dtos.ItemDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IItem {
 
-    List<Item> getItems();
+    List<ItemDTO> getItems();
 
-    List<Item> getItemsByCampaignUUID(UUID uuid);
+    Optional<ItemDTO> getItem(int itemId);
 
-    void saveItem(Item item);
+    List<ItemDTO> getItemsByCampaignUUID(UUID uuid);
+
+    void saveItem(ItemDTO item);
 
     void deleteItem(int itemId);
 
-    void updateItem(int itemId, Item item);
+    Optional<ItemDTO> updateItem(int itemId, ItemDTO item);
 }
