@@ -1,67 +1,64 @@
 package com.mcommings.campaigner.modules.items.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.entities.Weapon;
-import com.mcommings.campaigner.modules.items.repositories.IDamageTypeRepository;
-import com.mcommings.campaigner.modules.items.repositories.IDiceTypeRepository;
+import com.mcommings.campaigner.modules.items.dtos.WeaponDTO;
+import com.mcommings.campaigner.modules.items.mappers.WeaponMapper;
 import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
-import com.mcommings.campaigner.modules.items.repositories.IWeaponTypeRepository;
 import com.mcommings.campaigner.modules.items.services.interfaces.IWeapon;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
+@RequiredArgsConstructor
 public class WeaponService implements IWeapon {
 
     private final IWeaponRepository weaponRepository;
-    private final IWeaponTypeRepository weaponTypeRepository;
-    private final IDamageTypeRepository damageTypeRepository;
-    private final IDiceTypeRepository diceTypeRepository;
+    private final WeaponMapper weaponMapper;
 
-    @Autowired
-    public WeaponService(IWeaponRepository weaponRepository, IWeaponTypeRepository weaponTypeRepository,
-                         IDamageTypeRepository damageTypeRepository, IDiceTypeRepository diceTypeRepository) {
-        this.weaponRepository = weaponRepository;
-        this.weaponTypeRepository = weaponTypeRepository;
-        this.damageTypeRepository = damageTypeRepository;
-        this.diceTypeRepository = diceTypeRepository;
+    @Override
+    public List<WeaponDTO> getWeapons() {
+        return weaponRepository.findAll()
+                .stream()
+                .map(weaponMapper::mapToWeaponDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Weapon> getWeapons() {
-        return weaponRepository.findAll();
+    public Optional<WeaponDTO> getWeapon(int weaponId) {
+        return weaponRepository.findById(weaponId)
+                .map(weaponMapper::mapToWeaponDto);
     }
 
     @Override
-    public List<Weapon> getWeaponsByCampaignUUID(UUID uuid) {
-        return weaponRepository.findByfk_campaign_uuid(uuid);
+    public List<WeaponDTO> getWeaponsByCampaignUUID(UUID uuid) {
+
+        return weaponRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(weaponMapper::mapToWeaponDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public void saveWeapon(Weapon weapon) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveWeapon(WeaponDTO weapon) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(weapon)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(weaponRepository, weapon)) {
+        if (RepositoryHelper.nameAlreadyExists(weaponRepository, weapon.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-        if (hasForeignKeys(weapon) &&
-                RepositoryHelper.foreignKeyIsNotValid(weaponRepository, getListOfForeignKeyRepositories(), weapon)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
-        }
-
-        weaponRepository.saveAndFlush(weapon);
+        weaponMapper.mapToWeaponDto(
+                weaponRepository.save(weaponMapper.mapFromWeaponDto(weapon)
+                ));
     }
 
     @Override
@@ -70,54 +67,41 @@ public class WeaponService implements IWeapon {
         if (RepositoryHelper.cannotFindId(weaponRepository, weaponId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-// TODO: uncomment when class that uses Weapon as a fk is added
-//        if (RepositoryHelper.isForeignKey(getReposWhereWeaponIsAForeignKey(), FK_WEAPON.columnName, weaponId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
-
         weaponRepository.deleteById(weaponId);
     }
 
     @Override
     @Transactional
-    public void updateWeapon(int weaponId, Weapon weapon) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<WeaponDTO> updateWeapon(int weaponId, WeaponDTO weapon) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(weaponRepository, weaponId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (hasForeignKeys(weapon) &&
-                RepositoryHelper.foreignKeyIsNotValid(weaponRepository, getListOfForeignKeyRepositories(), weapon)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+        if (RepositoryHelper.nameIsNullOrEmpty(weapon)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        Weapon weaponToUpdate = RepositoryHelper.getById(weaponRepository, weaponId);
-        if (weapon.getName() != null) weaponToUpdate.setName(weapon.getName());
-        if (weapon.getDescription() != null) weaponToUpdate.setDescription(weapon.getDescription());
-        if (weapon.getRarity() != null) weaponToUpdate.setRarity(weapon.getRarity());
-        if (weapon.getGold_value() >= 0) weaponToUpdate.setGold_value(weapon.getGold_value());
-        if (weapon.getSilver_value() >= 0) weaponToUpdate.setSilver_value(weapon.getSilver_value());
-        if (weapon.getCopper_value() >= 0) weaponToUpdate.setCopper_value(weapon.getCopper_value());
-        if (weapon.getWeight() >= 0) weaponToUpdate.setWeight(weapon.getWeight());
-        if (weapon.getFk_weapon_type() != null) weaponToUpdate.setFk_weapon_type(weapon.getFk_weapon_type());
-        if (weapon.getFk_damage_type() != null) weaponToUpdate.setFk_damage_type(weapon.getFk_damage_type());
-        if (weapon.getFk_dice_type() != null) weaponToUpdate.setFk_dice_type(weapon.getFk_dice_type());
-        if (weapon.getNumber_of_dice() >= 1) weaponToUpdate.setNumber_of_dice(weapon.getNumber_of_dice());
-        if (weapon.getDamage_modifier() >= 0) weaponToUpdate.setDamage_modifier(weapon.getDamage_modifier());
-        if (weapon.getIsMagical() != null) weaponToUpdate.setIsMagical(weapon.getIsMagical());
-        if (weapon.getIsCursed() != null) weaponToUpdate.setIsCursed(weapon.getIsCursed());
-        if (weapon.getNotes() != null) weaponToUpdate.setNotes(weapon.getNotes());
-    }
+        if (RepositoryHelper.nameAlreadyExists(weaponRepository, weapon.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
 
-// TODO: uncomment when class that uses Weapon as a fk is added
-//    private List<CrudRepository> getReposWhereWeaponIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList());
-//    }
+        return weaponRepository.findById(weaponId).map(foundWeapon -> {
+            if (weapon.getName() != null) foundWeapon.setName(weapon.getName());
+            if (weapon.getDescription() != null) foundWeapon.setDescription(weapon.getDescription());
+            if (weapon.getFk_campaign_uuid() != null) foundWeapon.setFk_campaign_uuid(weapon.getFk_campaign_uuid());
+            if (weapon.getRarity() != null) foundWeapon.setRarity(weapon.getRarity());
+            if (weapon.getGold_value() >= 0) foundWeapon.setGold_value(weapon.getGold_value());
+            if (weapon.getSilver_value() >= 0) foundWeapon.setSilver_value(weapon.getSilver_value());
+            if (weapon.getCopper_value() >= 0) foundWeapon.setCopper_value(weapon.getCopper_value());
+            if (weapon.getWeight() >= 0) foundWeapon.setWeight(weapon.getWeight());
+            if (weapon.getFk_weapon_type() != null) foundWeapon.setFk_weapon_type(weapon.getFk_weapon_type());
+            if (weapon.getFk_damage_type() != null) foundWeapon.setFk_damage_type(weapon.getFk_damage_type());
+            if (weapon.getFk_dice_type() != null) foundWeapon.setFk_dice_type(weapon.getFk_dice_type());
+            if (weapon.getNumber_of_dice() >= 1) foundWeapon.setNumber_of_dice(weapon.getNumber_of_dice());
+            if (weapon.getDamage_modifier() >= 0) foundWeapon.setDamage_modifier(weapon.getDamage_modifier());
+            if (weapon.getIsMagical() != null) foundWeapon.setIsMagical(weapon.getIsMagical());
+            if (weapon.getIsCursed() != null) foundWeapon.setIsCursed(weapon.getIsCursed());
+            if (weapon.getNotes() != null) foundWeapon.setNotes(weapon.getNotes());
 
-    private boolean hasForeignKeys(Weapon weapon) {
-        return weapon.getFk_weapon_type() != null ||
-                weapon.getDamageType() != null ||
-                weapon.getDiceType() != null;
-    }
-
-    private List<CrudRepository> getListOfForeignKeyRepositories() {
-        return new ArrayList<>(Arrays.asList(weaponTypeRepository, damageTypeRepository, diceTypeRepository));
+            return weaponMapper.mapToWeaponDto(weaponRepository.save(foundWeapon));
+        });
     }
 }

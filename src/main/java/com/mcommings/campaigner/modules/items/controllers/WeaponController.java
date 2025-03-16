@@ -1,36 +1,40 @@
 package com.mcommings.campaigner.modules.items.controllers;
 
-import com.mcommings.campaigner.modules.items.entities.Weapon;
-import com.mcommings.campaigner.modules.items.services.WeaponService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.items.dtos.WeaponDTO;
+import com.mcommings.campaigner.modules.items.services.interfaces.IWeapon;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/items/weapons")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/weapons")
 public class WeaponController {
 
-    private final WeaponService weaponService;
-
-    @Autowired
-    public WeaponController(WeaponService weaponService) {
-        this.weaponService = weaponService;
-    }
+    private final IWeapon weaponService;
 
     @GetMapping
-    public List<Weapon> Weapon() {
+    public List<WeaponDTO> getWeapons() {
         return weaponService.getWeapons();
     }
 
+    @GetMapping(path = "/{weaponId}")
+    public WeaponDTO getWeapon(@PathVariable("weaponId") int weaponId) {
+        return weaponService.getWeapon(weaponId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @GetMapping(path = "/campaign/{uuid}")
-    public List<Weapon> getWeaponsByCampaignUUID(UUID uuid) {
+    public List<WeaponDTO> getWeaponsByCampaignUUID(UUID uuid) {
         return weaponService.getWeaponsByCampaignUUID(uuid);
     }
 
     @PostMapping
-    public void saveWeapon(@RequestBody Weapon weapon) {
+    public void saveWeapon(@Valid @RequestBody WeaponDTO weapon) {
         weaponService.saveWeapon(weapon);
     }
 
@@ -40,7 +44,7 @@ public class WeaponController {
     }
 
     @PutMapping(path = "{weaponId}")
-    public void updateWeapon(@PathVariable("weaponId") int weaponId, @RequestBody Weapon weapon) {
+    public void updateWeapon(@PathVariable("weaponId") int weaponId, @RequestBody WeaponDTO weapon) {
         weaponService.updateWeapon(weaponId, weapon);
     }
 }
