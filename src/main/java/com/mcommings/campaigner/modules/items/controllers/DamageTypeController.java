@@ -1,30 +1,34 @@
 package com.mcommings.campaigner.modules.items.controllers;
 
-import com.mcommings.campaigner.modules.items.entities.DamageType;
-import com.mcommings.campaigner.modules.items.services.DamageTypeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.items.dtos.DamageTypeDTO;
+import com.mcommings.campaigner.modules.items.services.interfaces.IDamageType;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/items/damage-types")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/damagetypes")
 public class DamageTypeController {
 
-    private final DamageTypeService damageTypeService;
-
-    @Autowired
-    public DamageTypeController(DamageTypeService damageTypeService) {
-        this.damageTypeService = damageTypeService;
-    }
+    private final IDamageType damageTypeService;
 
     @GetMapping
-    public List<DamageType> DamageType() {
+    public List<DamageTypeDTO> DamageType() {
         return damageTypeService.getDamageTypes();
     }
 
+    @GetMapping(path = "/{damageTypeId}")
+    public DamageTypeDTO getDamageType(@PathVariable("damageTypeId") int damageTypeId) {
+        return damageTypeService.getDamageType(damageTypeId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @PostMapping
-    public void saveDamageType(@RequestBody DamageType damageType) {
+    public void saveDamageType(@Valid @RequestBody DamageTypeDTO damageType) {
         damageTypeService.saveDamageType(damageType);
     }
 
@@ -34,7 +38,7 @@ public class DamageTypeController {
     }
 
     @PutMapping(path = "{damageTypeId}")
-    public void updateDamageType(@PathVariable("damageTypeId") int damageTypeId, @RequestBody DamageType damageType) {
+    public void updateDamageType(@PathVariable("damageTypeId") int damageTypeId, @RequestBody DamageTypeDTO damageType) {
         damageTypeService.updateDamageType(damageTypeId, damageType);
     }
 }
