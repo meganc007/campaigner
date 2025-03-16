@@ -1,87 +1,98 @@
 package com.mcommings.campaigner.modules.items.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.entities.Inventory;
+import com.mcommings.campaigner.modules.items.dtos.InventoryDTO;
+import com.mcommings.campaigner.modules.items.mappers.InventoryMapper;
 import com.mcommings.campaigner.modules.items.repositories.IInventoryRepository;
-import com.mcommings.campaigner.modules.items.repositories.IItemRepository;
-import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
 import com.mcommings.campaigner.modules.items.services.interfaces.IInventory;
-import com.mcommings.campaigner.modules.locations.repositories.IPlaceRepository;
-import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.*;
 
 @Service
+@RequiredArgsConstructor
 public class InventoryService implements IInventory {
 
     private final IInventoryRepository inventoryRepository;
-    private final IPersonRepository personRepository;
-    private final IItemRepository itemRepository;
-    private final IWeaponRepository weaponRepository;
-    private final IPlaceRepository placeRepository;
+    private final InventoryMapper inventoryMapper;
 
-    @Autowired
-    public InventoryService(IInventoryRepository inventoryRepository, IPersonRepository personRepository,
-                            IItemRepository itemRepository, IWeaponRepository weaponRepository, IPlaceRepository placeRepository) {
-        this.inventoryRepository = inventoryRepository;
-        this.personRepository = personRepository;
-        this.itemRepository = itemRepository;
-        this.weaponRepository = weaponRepository;
-        this.placeRepository = placeRepository;
+    @Override
+    public List<InventoryDTO> getInventories() {
+
+        return inventoryRepository.findAll()
+                .stream()
+                .map(inventoryMapper::mapToInventoryDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Inventory> getInventories() {
-        return inventoryRepository.findAll();
+    public Optional<InventoryDTO> getInventory(int inventoryId) {
+        return inventoryRepository.findById(inventoryId)
+                .map(inventoryMapper::mapToInventoryDto);
     }
 
     @Override
-    public List<Inventory> getInventoriesByCampaignUUID(UUID uuid) {
-        return inventoryRepository.findByfk_campaign_uuid(uuid);
+    public List<InventoryDTO> getInventoriesByCampaignUUID(UUID uuid) {
+        return inventoryRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(inventoryMapper::mapToInventoryDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Inventory> getInventoriesByItem(int itemId) {
-        return inventoryRepository.findByfk_item(itemId);
+    public List<InventoryDTO> getInventoriesByItem(int itemId) {
+
+        return inventoryRepository.findByfk_item(itemId)
+                .stream()
+                .map(inventoryMapper::mapToInventoryDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Inventory> getInventoriesByPerson(int personId) {
-        return inventoryRepository.findByfk_person(personId);
+    public List<InventoryDTO> getInventoriesByPerson(int personId) {
+        return inventoryRepository.findByfk_person(personId)
+                .stream()
+                .map(inventoryMapper::mapToInventoryDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Inventory> getInventoriesByPlace(int placeId) {
-        return inventoryRepository.findByfk_place(placeId);
+    public List<InventoryDTO> getInventoriesByPlace(int placeId) {
+
+        return inventoryRepository.findByfk_place(placeId)
+                .stream()
+                .map(inventoryMapper::mapToInventoryDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Inventory> getInventoriesByWeapon(int weaponId) {
-        return inventoryRepository.findByfk_weapon(weaponId);
+    public List<InventoryDTO> getInventoriesByWeapon(int weaponId) {
+        return inventoryRepository.findByfk_weapon(weaponId)
+                .stream()
+                .map(inventoryMapper::mapToInventoryDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public void saveInventory(Inventory inventory) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (inventoryAlreadyExists(inventory)) {
-            throw new DataIntegrityViolationException(INVENTORY_EXISTS.message);
+    public void saveInventory(InventoryDTO inventory) throws IllegalArgumentException, DataIntegrityViolationException {
+        if (RepositoryHelper.nameIsNullOrEmpty(inventory)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (hasForeignKeys(inventory) &&
-                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(inventory), inventory)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
+        if (RepositoryHelper.nameAlreadyExists(inventoryRepository, inventory.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-
-        inventoryRepository.saveAndFlush(inventory);
+        inventoryMapper.mapToInventoryDto(
+                inventoryRepository.save(inventoryMapper.mapFromInventoryDto(inventory)
+                ));
     }
 
     @Override
@@ -90,51 +101,33 @@ public class InventoryService implements IInventory {
         if (RepositoryHelper.cannotFindId(inventoryRepository, inventoryId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: fk check when Inventory is a fk
-
         inventoryRepository.deleteById(inventoryId);
     }
 
     @Override
     @Transactional
-    public void updateInventory(int inventoryId, Inventory inventory) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<InventoryDTO> updateInventory(int inventoryId, InventoryDTO inventory) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(inventoryRepository, inventoryId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (hasForeignKeys(inventory) &&
-                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(inventory), inventory)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
+        if (RepositoryHelper.nameIsNullOrEmpty(inventory)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        Inventory inventoryToUpdate = RepositoryHelper.getById(inventoryRepository, inventoryId);
-        if (inventory.getFk_person() != null) inventoryToUpdate.setFk_person(inventory.getFk_person());
-        if (inventory.getFk_item() != null) inventoryToUpdate.setFk_item(inventory.getFk_item());
-        if (inventory.getFk_weapon() != null) inventoryToUpdate.setFk_weapon(inventory.getFk_weapon());
-        if (inventory.getFk_place() != null) inventoryToUpdate.setFk_place(inventory.getFk_place());
-    }
-
-    private boolean inventoryAlreadyExists(Inventory inventory) {
-        return inventoryRepository.inventoryExists(inventory).isPresent();
-    }
-
-    private boolean hasForeignKeys(Inventory inventory) {
-        return inventory.getFk_person() != null ||
-                inventory.getFk_item() != null ||
-                inventory.getFk_weapon() != null ||
-                inventory.getFk_place() != null;
-    }
-
-    private HashMap<CrudRepository, String> buildReposAndColumnsHashMap(Inventory inventory) {
-        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
-
-        reposAndColumns.put(personRepository, FK_PERSON.columnName);
-        reposAndColumns.put(itemRepository, FK_ITEM.columnName);
-
-        if (inventory.getFk_weapon() != null) {
-            reposAndColumns.put(weaponRepository, FK_WEAPON.columnName);
+        if (RepositoryHelper.nameAlreadyExists(inventoryRepository, inventory.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-        if (inventory.getFk_place() != null) {
-            reposAndColumns.put(placeRepository, FK_PLACE.columnName);
-        }
-        return reposAndColumns;
+
+        return inventoryRepository.findById(inventoryId).map(foundInventory -> {
+            if (inventory.getName() != null) foundInventory.setName(inventory.getName());
+            if (inventory.getDescription() != null) foundInventory.setDescription(inventory.getDescription());
+            if (inventory.getFk_campaign_uuid() != null)
+                foundInventory.setFk_campaign_uuid(inventory.getFk_campaign_uuid());
+            if (inventory.getFk_person() != null) foundInventory.setFk_person(inventory.getFk_person());
+            if (inventory.getFk_item() != null) foundInventory.setFk_item(inventory.getFk_item());
+            if (inventory.getFk_weapon() != null) foundInventory.setFk_weapon(inventory.getFk_weapon());
+            if (inventory.getFk_place() != null) foundInventory.setFk_place(inventory.getFk_place());
+
+            return inventoryMapper.mapToInventoryDto(inventoryRepository.save(foundInventory));
+        });
     }
 }

@@ -13,6 +13,8 @@ import java.util.UUID;
 @Repository
 public interface IInventoryRepository extends JpaRepository<Inventory, Integer> {
 
+    Optional<Inventory> findByName(String name);
+
     @Query("SELECT i FROM Inventory i WHERE " +
             "i.fk_person = :#{#inventory.fk_person} AND " +
             "i.fk_item = :#{#inventory.fk_item} AND " +

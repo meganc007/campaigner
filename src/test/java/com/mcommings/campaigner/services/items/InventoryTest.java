@@ -1,240 +1,233 @@
 package com.mcommings.campaigner.services.items;
 
+import com.mcommings.campaigner.modules.items.dtos.InventoryDTO;
 import com.mcommings.campaigner.modules.items.entities.Inventory;
+import com.mcommings.campaigner.modules.items.mappers.InventoryMapper;
 import com.mcommings.campaigner.modules.items.repositories.IInventoryRepository;
-import com.mcommings.campaigner.modules.items.repositories.IItemRepository;
-import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
 import com.mcommings.campaigner.modules.items.services.InventoryService;
-import com.mcommings.campaigner.modules.locations.repositories.IPlaceRepository;
-import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class InventoryTest {
 
     @Mock
+    private InventoryMapper inventoryMapper;
+
+    @Mock
     private IInventoryRepository inventoryRepository;
-    @Mock
-    private IPersonRepository personRepository;
-    @Mock
-    private IItemRepository itemRepository;
-    @Mock
-    private IWeaponRepository weaponRepository;
-    @Mock
-    private IPlaceRepository placeRepository;
 
     @InjectMocks
     private InventoryService inventoryService;
 
+    private Inventory entity;
+    private InventoryDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new Inventory();
+        entity.setId(1);
+        entity.setName("Test Inventory");
+        entity.setDescription("A fictional inventory.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+        entity.setFk_person(random.nextInt(100) + 1);
+        entity.setFk_item(random.nextInt(100) + 1);
+        entity.setFk_weapon(random.nextInt(100) + 1);
+        entity.setFk_place(random.nextInt(100) + 1);
+
+        dto = new InventoryDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+        dto.setFk_person(entity.getFk_person());
+        dto.setFk_item(entity.getFk_item());
+        dto.setFk_weapon(entity.getFk_weapon());
+        dto.setFk_place(entity.getFk_place());
+
+        when(inventoryMapper.mapToInventoryDto(entity)).thenReturn(dto);
+        when(inventoryMapper.mapFromInventoryDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreInventories_getInventories_ReturnsInventories() {
-        List<Inventory> inventories = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        inventories.add(new Inventory(1, 1, 2, 3, 4, campaign));
-        inventories.add(new Inventory(2, 2, 3, 4, 5, campaign));
-        inventories.add(new Inventory(3, 3, 4, 5, 6, campaign));
-        when(inventoryRepository.findAll()).thenReturn(inventories);
+        when(inventoryRepository.findAll()).thenReturn(List.of(entity));
+        List<InventoryDTO> result = inventoryService.getInventories();
 
-        List<Inventory> result = inventoryService.getInventories();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(inventories, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Inventory", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoInventories_getInventories_ReturnsNothing() {
-        List<Inventory> inventories = new ArrayList<>();
-        when(inventoryRepository.findAll()).thenReturn(inventories);
+    public void whenThereAreNoInventories_getInventories_ReturnsEmptyList() {
+        when(inventoryRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Inventory> result = inventoryService.getInventories();
+        List<InventoryDTO> result = inventoryService.getInventories();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(inventories, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no inventories.");
     }
 
     @Test
-    public void whenCampaignUUIDIsValid_getInventoriesByCampaignUUID_ReturnsInventories() {
-        List<Inventory> inventories = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        inventories.add(new Inventory(1, 1, 2, 3, 4, campaign));
-        inventories.add(new Inventory(2, 2, 3, 4, 5, campaign));
-        inventories.add(new Inventory(3, 3, 4, 5, 6, campaign));
-        when(inventoryRepository.findByfk_campaign_uuid(campaign)).thenReturn(inventories);
+    void whenThereIsAInventory_getInventory_ReturnsInventoryById() {
+        when(inventoryRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        List<Inventory> results = inventoryService.getInventoriesByCampaignUUID(campaign);
+        Optional<InventoryDTO> result = inventoryService.getInventory(1);
 
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(inventories, results);
+        assertTrue(result.isPresent());
+        assertEquals("Test Inventory", result.get().getName());
     }
 
     @Test
-    public void whenCampaignUUIDIsInvalid_getInventoriesByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<Inventory> inventories = new ArrayList<>();
-        when(inventoryRepository.findByfk_campaign_uuid(campaign)).thenReturn(inventories);
+    void whenThereIsNotAInventory_getInventory_ReturnsNothing() {
+        when(inventoryRepository.findById(999)).thenReturn(Optional.empty());
 
-        List<Inventory> result = inventoryService.getInventoriesByCampaignUUID(campaign);
+        Optional<InventoryDTO> result = inventoryService.getInventory(999);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(inventories, result);
+        assertTrue(result.isEmpty(), "Expected empty Optional when inventory is not found.");
     }
 
     @Test
-    public void whenInventoryIsValid_saveInventory_SavesTheInventory() {
-        Inventory inventory = new Inventory(1, 2, 3, 4, 5, UUID.randomUUID());
+    void whenCampaignUUIDIsValid_getInventoriesByCampaignUUID_ReturnsInventories() {
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(inventoryRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        when(personRepository.existsById(2)).thenReturn(true);
-        when(itemRepository.existsById(3)).thenReturn(true);
-        when(weaponRepository.existsById(4)).thenReturn(true);
-        when(placeRepository.existsById(5)).thenReturn(true);
-        when(inventoryRepository.saveAndFlush(inventory)).thenReturn(inventory);
+        List<InventoryDTO> result = inventoryService.getInventoriesByCampaignUUID(campaignUUID);
 
-        assertDoesNotThrow(() -> inventoryService.saveInventory(inventory));
-
-        verify(inventoryRepository, times(1)).saveAndFlush(inventory);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
-    public void whenInventoryAlreadyExists_saveInventory_ThrowsDataIntegrityViolationException() {
-        Inventory inventory = new Inventory(1, 2, 3, 4, 5, UUID.randomUUID());
-        Inventory inventoryCopy = new Inventory(2, 2, 3, 4, 5, UUID.randomUUID());
+    void whenCampaignUUIDIsInvalid_getInventoriesByCampaignUUID_ReturnsNothing() {
+        UUID campaignUUID = UUID.randomUUID();
+        when(inventoryRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        when(personRepository.existsById(2)).thenReturn(true);
-        when(itemRepository.existsById(3)).thenReturn(true);
-        when(weaponRepository.existsById(4)).thenReturn(true);
-        when(placeRepository.existsById(5)).thenReturn(true);
+        List<InventoryDTO> result = inventoryService.getInventoriesByCampaignUUID(campaignUUID);
 
-        when(inventoryRepository.saveAndFlush(inventory)).thenReturn(inventory);
-        when(inventoryRepository.saveAndFlush(inventoryCopy)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> inventoryService.saveInventory(inventory));
-        assertThrows(DataIntegrityViolationException.class, () -> inventoryService.saveInventory(inventoryCopy));
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no inventories match the campaign UUID.");
     }
 
     @Test
-    public void whenInventoryIdExists_deleteInventory_DeletesTheInventory() {
-        int inventoryId = 1;
-        when(inventoryRepository.existsById(inventoryId)).thenReturn(true);
-        assertDoesNotThrow(() -> inventoryService.deleteInventory(inventoryId));
-        verify(inventoryRepository, times(1)).deleteById(inventoryId);
+    void whenInventoryIsValid_saveInventory_SavesTheInventory() {
+        when(inventoryRepository.save(entity)).thenReturn(entity);
+
+        inventoryService.saveInventory(dto);
+
+        verify(inventoryRepository, times(1)).save(entity);
     }
 
     @Test
-    public void whenInventoryIdDoesNotExist_deleteInventory_ThrowsIllegalArgumentException() {
-        int inventoryId = 9000;
-        when(inventoryRepository.existsById(inventoryId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> inventoryService.deleteInventory(inventoryId));
-    }
+    public void whenInventoryNameIsInvalid_saveInventory_ThrowsIllegalArgumentException() {
+        InventoryDTO inventoryWithEmptyName = new InventoryDTO();
+        inventoryWithEmptyName.setId(1);
+        inventoryWithEmptyName.setName("");
+        inventoryWithEmptyName.setDescription("A fictional inventory.");
+        inventoryWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
+        inventoryWithEmptyName.setFk_person(1);
+        inventoryWithEmptyName.setFk_item(1);
+        inventoryWithEmptyName.setFk_weapon(1);
+        inventoryWithEmptyName.setFk_place(1);
 
-    //TODO: test delete when Inventory is a fk
+        InventoryDTO inventoryWithNullName = new InventoryDTO();
+        inventoryWithNullName.setId(1);
+        inventoryWithNullName.setName(null);
+        inventoryWithNullName.setDescription("A fictional inventory.");
+        inventoryWithNullName.setFk_campaign_uuid(UUID.randomUUID());
+        inventoryWithNullName.setFk_person(1);
+        inventoryWithNullName.setFk_item(1);
+        inventoryWithNullName.setFk_weapon(1);
+        inventoryWithNullName.setFk_place(1);
 
-    @Test
-    public void whenInventoryIdWithValidFKIsFound_updateInventory_UpdatesTheInventory() {
-        int id = 1;
-        UUID campaign = UUID.randomUUID();
-
-        Inventory inventory = new Inventory(id, 2, 3, 4, 5, campaign);
-        Inventory update = new Inventory(id, 3, 4, 5, 6, campaign);
-
-        when(inventoryRepository.existsById(id)).thenReturn(true);
-        when(inventoryRepository.findById(id)).thenReturn(Optional.of(inventory));
-        when(personRepository.existsById(2)).thenReturn(true);
-        when(itemRepository.existsById(3)).thenReturn(true);
-        when(weaponRepository.existsById(4)).thenReturn(true);
-        when(placeRepository.existsById(5)).thenReturn(true);
-
-        when(personRepository.existsById(3)).thenReturn(true);
-        when(itemRepository.existsById(4)).thenReturn(true);
-        when(weaponRepository.existsById(5)).thenReturn(true);
-        when(placeRepository.existsById(6)).thenReturn(true);
-
-        inventoryService.updateInventory(id, update);
-
-        verify(inventoryRepository).findById(id);
-
-        Inventory result = inventoryRepository.findById(id).get();
-        Assertions.assertEquals(update.getId(), result.getId());
-        Assertions.assertEquals(update.getFk_person(), result.getFk_person());
-        Assertions.assertEquals(update.getFk_item(), result.getFk_item());
-        Assertions.assertEquals(update.getFk_weapon(), result.getFk_weapon());
-        Assertions.assertEquals(update.getFk_place(), result.getFk_place());
+        assertThrows(IllegalArgumentException.class, () -> inventoryService.saveInventory(inventoryWithEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> inventoryService.saveInventory(inventoryWithNullName));
     }
 
     @Test
-    public void whenInventoryIdWithInvalidFKIsFound_updateInventory_ThrowsDataIntegrityViolationException() {
-        int id = 1;
-        UUID campaign = UUID.randomUUID();
-
-        Inventory inventory = new Inventory(id, 2, 3, 4, 5, campaign);
-        Inventory update = new Inventory(id, 3, 4, 5, 6, campaign);
-
-        when(inventoryRepository.existsById(id)).thenReturn(true);
-        when(inventoryRepository.findById(id)).thenReturn(Optional.of(inventory));
-        when(personRepository.existsById(2)).thenReturn(true);
-        when(itemRepository.existsById(3)).thenReturn(false);
-        when(weaponRepository.existsById(4)).thenReturn(false);
-        when(placeRepository.existsById(5)).thenReturn(true);
-
-        when(personRepository.existsById(3)).thenReturn(false);
-        when(itemRepository.existsById(4)).thenReturn(true);
-        when(weaponRepository.existsById(5)).thenReturn(false);
-        when(placeRepository.existsById(6)).thenReturn(false);
-
-        assertThrows(DataIntegrityViolationException.class, () -> inventoryService.updateInventory(id, update));
+    public void whenInventoryNameAlreadyExists_saveInventory_ThrowsDataIntegrityViolationException() {
+        when(inventoryRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> inventoryService.saveInventory(dto));
+        verify(inventoryRepository, times(1)).findByName(dto.getName());
+        verify(inventoryRepository, never()).save(any(Inventory.class));
     }
 
     @Test
-    public void whenInventoryIdIsNotFound_updateInventory_ThrowsIllegalArgumentException() {
-        int id = 1;
-        Inventory inventory = new Inventory(id, 2, 3, 4, 5, UUID.randomUUID());
-
-        when(inventoryRepository.existsById(id)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> inventoryService.updateInventory(id, inventory));
+    void whenInventoryIdExists_deleteInventory_DeletesTheInventory() {
+        when(inventoryRepository.existsById(1)).thenReturn(true);
+        inventoryService.deleteInventory(1);
+        verify(inventoryRepository, times(1)).deleteById(1);
     }
 
     @Test
-    public void whenSomeInventoryFieldsChanged_updateInventory_OnlyUpdatesChangedFields() {
-        int inventoryId = 1;
-        Inventory inventory = new Inventory(inventoryId, 1, 1, 2, 3, UUID.randomUUID());
-
-        int newPerson = 3;
-
-        Inventory inventoryToUpdate = new Inventory();
-        inventoryToUpdate.setFk_person(newPerson);
-        inventoryToUpdate.setFk_item(1);
-
-        when(inventoryRepository.existsById(inventoryId)).thenReturn(true);
-        when(personRepository.existsById(1)).thenReturn(true);
-        when(personRepository.existsById(3)).thenReturn(true);
-        when(itemRepository.existsById(1)).thenReturn(true);
-        when(weaponRepository.existsById(2)).thenReturn(true);
-        when(placeRepository.existsById(3)).thenReturn(true);
-        when(inventoryRepository.findById(inventoryId)).thenReturn(Optional.of(inventory));
-
-        inventoryService.updateInventory(inventoryId, inventoryToUpdate);
-
-        verify(inventoryRepository).findById(inventoryId);
-
-        Inventory result = inventoryRepository.findById(inventoryId).get();
-        Assertions.assertEquals(newPerson, result.getFk_person());
-        Assertions.assertEquals(inventory.getFk_item(), result.getFk_item());
-        Assertions.assertEquals(inventory.getFk_weapon(), result.getFk_weapon());
-        Assertions.assertEquals(inventory.getFk_place(), result.getFk_place());
+    void whenInventoryIdDoesNotExist_deleteInventory_ThrowsIllegalArgumentException() {
+        when(inventoryRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> inventoryService.deleteInventory(999));
     }
 
+    @Test
+    void whenDeleteInventoryFails_deleteInventory_ThrowsException() {
+        when(inventoryRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(inventoryRepository).deleteById(1);
+
+        assertThrows(RuntimeException.class, () -> inventoryService.deleteInventory(1));
+    }
+
+    @Test
+    void whenInventoryIdIsFound_updateInventory_UpdatesTheInventory() {
+        InventoryDTO updateDTO = new InventoryDTO();
+        updateDTO.setName("Updated Name");
+
+        when(inventoryRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(inventoryRepository.existsById(1)).thenReturn(true);
+        when(inventoryRepository.save(entity)).thenReturn(entity);
+        when(inventoryMapper.mapToInventoryDto(entity)).thenReturn(updateDTO);
+
+        Optional<InventoryDTO> result = inventoryService.updateInventory(1, updateDTO);
+
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
+    }
+
+    @Test
+    void whenInventoryIdIsNotFound_updateInventory_ReturnsEmptyOptional() {
+        InventoryDTO updateDTO = new InventoryDTO();
+        updateDTO.setName("Updated Name");
+
+        when(inventoryRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> inventoryService.updateInventory(999, updateDTO));
+    }
+
+    @Test
+    public void whenInventoryNameIsInvalid_updateInventory_ThrowsIllegalArgumentException() {
+        InventoryDTO updateEmptyName = new InventoryDTO();
+        updateEmptyName.setName("");
+
+        InventoryDTO updateNullName = new InventoryDTO();
+        updateNullName.setName(null);
+
+        when(inventoryRepository.existsById(1)).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> inventoryService.updateInventory(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> inventoryService.updateInventory(1, updateNullName));
+    }
+
+    @Test
+    public void whenInventoryNameAlreadyExists_updateInventory_ThrowsDataIntegrityViolationException() {
+        when(inventoryRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> inventoryService.updateInventory(entity.getId(), dto));
+    }
 }
