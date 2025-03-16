@@ -1,30 +1,34 @@
 package com.mcommings.campaigner.modules.items.controllers;
 
-import com.mcommings.campaigner.modules.items.entities.WeaponType;
-import com.mcommings.campaigner.modules.items.services.WeaponTypeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.items.dtos.WeaponTypeDTO;
+import com.mcommings.campaigner.modules.items.services.interfaces.IWeaponType;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/items/weapon-types")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/weapontypes")
 public class WeaponTypeController {
 
-    private final WeaponTypeService weaponTypeService;
-
-    @Autowired
-    public WeaponTypeController(WeaponTypeService weaponTypeService) {
-        this.weaponTypeService = weaponTypeService;
-    }
+    private final IWeaponType weaponTypeService;
 
     @GetMapping
-    public List<WeaponType> WeaponType() {
+    public List<WeaponTypeDTO> WeaponType() {
         return weaponTypeService.getWeaponTypes();
     }
 
+    @GetMapping(path = "/{weaponTypeId}")
+    public WeaponTypeDTO getWeaponType(@PathVariable("weaponTypeId") int weaponTypeId) {
+        return weaponTypeService.getWeaponType(weaponTypeId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @PostMapping
-    public void saveWeaponType(@RequestBody WeaponType weaponType) {
+    public void saveWeaponType(@Valid @RequestBody WeaponTypeDTO weaponType) {
         weaponTypeService.saveWeaponType(weaponType);
     }
 
@@ -34,7 +38,7 @@ public class WeaponTypeController {
     }
 
     @PutMapping(path = "{weaponTypeId}")
-    public void updateWeaponType(@PathVariable("weaponTypeId") int weaponTypeId, @RequestBody WeaponType weaponType) {
+    public void updateWeaponType(@PathVariable("weaponTypeId") int weaponTypeId, @RequestBody WeaponTypeDTO weaponType) {
         weaponTypeService.updateWeaponType(weaponTypeId, weaponType);
     }
 
