@@ -1,51 +1,55 @@
 package com.mcommings.campaigner.modules.items.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.entities.ItemType;
-import com.mcommings.campaigner.modules.items.repositories.IItemRepository;
+import com.mcommings.campaigner.modules.items.dtos.ItemTypeDTO;
+import com.mcommings.campaigner.modules.items.mappers.ItemTypeMapper;
 import com.mcommings.campaigner.modules.items.repositories.IItemTypeRepository;
 import com.mcommings.campaigner.modules.items.services.interfaces.IItemType;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_ITEM_TYPE;
 
 @Service
+@RequiredArgsConstructor
 public class ItemTypeService implements IItemType {
 
     private final IItemTypeRepository itemTypeRepository;
-    private final IItemRepository itemRepository;
+    private final ItemTypeMapper itemTypeMapper;
 
-    @Autowired
-    public ItemTypeService(IItemTypeRepository itemTypeRepository, IItemRepository itemRepository) {
-        this.itemTypeRepository = itemTypeRepository;
-        this.itemRepository = itemRepository;
+    @Override
+    public List<ItemTypeDTO> getItemTypes() {
+
+        return itemTypeRepository.findAll()
+                .stream()
+                .map(itemTypeMapper::mapToItemTypeDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemType> getItemTypes() {
-        return itemTypeRepository.findAll();
+    public Optional<ItemTypeDTO> getItemType(int itemTypeId) {
+        return itemTypeRepository.findById(itemTypeId)
+                .map(itemTypeMapper::mapToItemTypeDto);
     }
 
     @Override
     @Transactional
-    public void saveItemType(ItemType itemType) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveItemType(ItemTypeDTO itemType) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(itemType)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(itemTypeRepository, itemType)) {
+        if (RepositoryHelper.nameAlreadyExists(itemTypeRepository, itemType.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-
-        itemTypeRepository.saveAndFlush(itemType);
+        itemTypeMapper.mapToItemTypeDto(
+                itemTypeRepository.save(itemTypeMapper.mapFromItemTypeDto(itemType)
+                ));
     }
 
     @Override
@@ -54,25 +58,28 @@ public class ItemTypeService implements IItemType {
         if (RepositoryHelper.cannotFindId(itemTypeRepository, itemTypeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.isForeignKey(getReposWhereItemTypeIsAForeignKey(), FK_ITEM_TYPE.columnName, itemTypeId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-        }
-
         itemTypeRepository.deleteById(itemTypeId);
     }
 
     @Override
     @Transactional
-    public void updateItemType(int itemTypeId, ItemType itemType) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<ItemTypeDTO> updateItemType(int itemTypeId, ItemTypeDTO itemType) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(itemTypeRepository, itemTypeId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        ItemType itemTypeToUpdate = RepositoryHelper.getById(itemTypeRepository, itemTypeId);
-        if (itemType.getName() != null) itemTypeToUpdate.setName(itemType.getName());
-        if (itemType.getDescription() != null) itemTypeToUpdate.setDescription(itemType.getDescription());
+        if (RepositoryHelper.nameIsNullOrEmpty(itemType)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (RepositoryHelper.nameAlreadyExists(itemTypeRepository, itemType.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
+
+        return itemTypeRepository.findById(itemTypeId).map(foundItemType -> {
+            if (itemType.getName() != null) foundItemType.setName(itemType.getName());
+            if (itemType.getDescription() != null) foundItemType.setDescription(itemType.getDescription());
+
+            return itemTypeMapper.mapToItemTypeDto(itemTypeRepository.save(foundItemType));
+        });
     }
 
-    private List<CrudRepository> getReposWhereItemTypeIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(itemRepository));
-    }
 }

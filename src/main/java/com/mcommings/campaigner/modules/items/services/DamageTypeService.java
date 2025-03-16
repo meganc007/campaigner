@@ -1,51 +1,55 @@
 package com.mcommings.campaigner.modules.items.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.entities.DamageType;
+import com.mcommings.campaigner.modules.items.dtos.DamageTypeDTO;
+import com.mcommings.campaigner.modules.items.mappers.DamageTypeMapper;
 import com.mcommings.campaigner.modules.items.repositories.IDamageTypeRepository;
-import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
 import com.mcommings.campaigner.modules.items.services.interfaces.IDamageType;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_DAMAGE_TYPE;
 
 @Service
+@RequiredArgsConstructor
 public class DamageTypeService implements IDamageType {
 
     private final IDamageTypeRepository damageTypeRepository;
-    private final IWeaponRepository weaponRepository;
+    private final DamageTypeMapper damageTypeMapper;
 
-    @Autowired
-    public DamageTypeService(IDamageTypeRepository damageTypeRepository, IWeaponRepository weaponRepository) {
-        this.damageTypeRepository = damageTypeRepository;
-        this.weaponRepository = weaponRepository;
+    @Override
+    public List<DamageTypeDTO> getDamageTypes() {
+
+        return damageTypeRepository.findAll()
+                .stream()
+                .map(damageTypeMapper::mapToDamageTypeDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<DamageType> getDamageTypes() {
-        return damageTypeRepository.findAll();
+    public Optional<DamageTypeDTO> getDamageType(int damageTypeId) {
+        return damageTypeRepository.findById(damageTypeId)
+                .map(damageTypeMapper::mapToDamageTypeDto);
     }
 
     @Override
     @Transactional
-    public void saveDamageType(DamageType damageType) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveDamageType(DamageTypeDTO damageType) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(damageType)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(damageTypeRepository, damageType)) {
+        if (RepositoryHelper.nameAlreadyExists(damageTypeRepository, damageType.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-
-        damageTypeRepository.saveAndFlush(damageType);
+        damageTypeMapper.mapToDamageTypeDto(
+                damageTypeRepository.save(damageTypeMapper.mapFromDamageTypeDto(damageType)
+                ));
     }
 
     @Override
@@ -54,25 +58,27 @@ public class DamageTypeService implements IDamageType {
         if (RepositoryHelper.cannotFindId(damageTypeRepository, damageTypeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.isForeignKey(getReposWhereDamageTypeIsAForeignKey(), FK_DAMAGE_TYPE.columnName, damageTypeId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-        }
-
         damageTypeRepository.deleteById(damageTypeId);
     }
 
     @Override
     @Transactional
-    public void updateDamageType(int damageTypeId, DamageType damageType) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<DamageTypeDTO> updateDamageType(int damageTypeId, DamageTypeDTO damageType) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(damageTypeRepository, damageTypeId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        DamageType damageTypeToUpdate = RepositoryHelper.getById(damageTypeRepository, damageTypeId);
-        if (damageType.getName() != null) damageTypeToUpdate.setName(damageType.getName());
-        if (damageType.getDescription() != null) damageTypeToUpdate.setDescription(damageType.getDescription());
-    }
+        if (RepositoryHelper.nameIsNullOrEmpty(damageType)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (RepositoryHelper.nameAlreadyExists(damageTypeRepository, damageType.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
 
-    private List<CrudRepository> getReposWhereDamageTypeIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(weaponRepository));
+        return damageTypeRepository.findById(damageTypeId).map(foundDamageType -> {
+            if (damageType.getName() != null) foundDamageType.setName(damageType.getName());
+            if (damageType.getDescription() != null) foundDamageType.setDescription(damageType.getDescription());
+
+            return damageTypeMapper.mapToDamageTypeDto(damageTypeRepository.save(foundDamageType));
+        });
     }
 }

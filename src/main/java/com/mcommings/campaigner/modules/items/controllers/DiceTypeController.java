@@ -1,30 +1,34 @@
 package com.mcommings.campaigner.modules.items.controllers;
 
-import com.mcommings.campaigner.modules.items.entities.DiceType;
-import com.mcommings.campaigner.modules.items.services.DiceTypeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.items.dtos.DiceTypeDTO;
+import com.mcommings.campaigner.modules.items.services.interfaces.IDiceType;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/items/dice-types")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/dicetypes")
 public class DiceTypeController {
 
-    private final DiceTypeService diceTypeService;
-
-    @Autowired
-    public DiceTypeController(DiceTypeService diceTypeService) {
-        this.diceTypeService = diceTypeService;
-    }
+    private final IDiceType diceTypeService;
 
     @GetMapping
-    public List<DiceType> DiceType() {
+    public List<DiceTypeDTO> DiceType() {
         return diceTypeService.getDiceTypes();
     }
 
+    @GetMapping(path = "/{diceTypeId}")
+    public DiceTypeDTO getDiceType(@PathVariable("diceTypeId") int diceTypeId) {
+        return diceTypeService.getDiceType(diceTypeId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @PostMapping
-    public void saveDiceType(@RequestBody DiceType diceType) {
+    public void saveDiceType(@Valid @RequestBody DiceTypeDTO diceType) {
         diceTypeService.saveDiceType(diceType);
     }
 
@@ -34,7 +38,7 @@ public class DiceTypeController {
     }
 
     @PutMapping(path = "{diceTypeId}")
-    public void updateDiceType(@PathVariable("diceTypeId") int diceTypeId, @RequestBody DiceType diceType) {
+    public void updateDiceType(@PathVariable("diceTypeId") int diceTypeId, @RequestBody DiceTypeDTO diceType) {
         diceTypeService.updateDiceType(diceTypeId, diceType);
     }
 }

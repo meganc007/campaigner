@@ -1,56 +1,60 @@
 package com.mcommings.campaigner.modules.items.controllers;
 
-import com.mcommings.campaigner.modules.items.entities.Inventory;
-import com.mcommings.campaigner.modules.items.services.InventoryService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.items.dtos.InventoryDTO;
+import com.mcommings.campaigner.modules.items.services.interfaces.IInventory;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/items/inventory")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/inventory")
 public class InventoryController {
 
-    private final InventoryService inventoryService;
-
-    @Autowired
-    public InventoryController(InventoryService inventoryService) {
-        this.inventoryService = inventoryService;
-    }
+    private final IInventory inventoryService;
 
     @GetMapping
-    public List<Inventory> Inventory() {
+    public List<InventoryDTO> Inventory() {
         return inventoryService.getInventories();
     }
 
+    @GetMapping(path = "/{inventoryId}")
+    public InventoryDTO getInventory(@PathVariable("inventoryId") int inventoryId) {
+        return inventoryService.getInventory(inventoryId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @GetMapping(path = "/campaign/{uuid}")
-    public List<Inventory> getInventoriesByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<InventoryDTO> getInventoriesByCampaignUUID(@PathVariable("uuid") UUID uuid) {
         return inventoryService.getInventoriesByCampaignUUID(uuid);
     }
 
     @GetMapping(path = "/item/{itemId}")
-    public List<Inventory> getInventoriesByItem(@PathVariable("itemId") int itemId) {
+    public List<InventoryDTO> getInventoriesByItem(@PathVariable("itemId") int itemId) {
         return inventoryService.getInventoriesByItem(itemId);
     }
 
     @GetMapping(path = "/person/{personId}")
-    public List<Inventory> getInventoriesByPerson(@PathVariable("personId") int personId) {
+    public List<InventoryDTO> getInventoriesByPerson(@PathVariable("personId") int personId) {
         return inventoryService.getInventoriesByPerson(personId);
     }
 
     @GetMapping(path = "/place/{placeId}")
-    public List<Inventory> getInventoriesByPlace(@PathVariable("placeId") int placeId) {
+    public List<InventoryDTO> getInventoriesByPlace(@PathVariable("placeId") int placeId) {
         return inventoryService.getInventoriesByPlace(placeId);
     }
 
     @GetMapping(path = "/weapon/{weaponId}")
-    public List<Inventory> getInventoriesByWeapon(@PathVariable("weaponId") int weaponId) {
+    public List<InventoryDTO> getInventoriesByWeapon(@PathVariable("weaponId") int weaponId) {
         return inventoryService.getInventoriesByWeapon(weaponId);
     }
 
     @PostMapping
-    public void saveInventory(@RequestBody Inventory inventory) {
+    public void saveInventory(@Valid @RequestBody InventoryDTO inventory) {
         inventoryService.saveInventory(inventory);
     }
 
@@ -60,7 +64,7 @@ public class InventoryController {
     }
 
     @PutMapping(path = "{inventoryId}")
-    public void updateInventory(@PathVariable("inventoryId") int inventoryId, @RequestBody Inventory inventory) {
+    public void updateInventory(@PathVariable("inventoryId") int inventoryId, @RequestBody InventoryDTO inventory) {
         inventoryService.updateInventory(inventoryId, inventory);
     }
 }

@@ -1,51 +1,55 @@
 package com.mcommings.campaigner.modules.items.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.entities.WeaponType;
-import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
+import com.mcommings.campaigner.modules.items.dtos.WeaponTypeDTO;
+import com.mcommings.campaigner.modules.items.mappers.WeaponTypeMapper;
 import com.mcommings.campaigner.modules.items.repositories.IWeaponTypeRepository;
 import com.mcommings.campaigner.modules.items.services.interfaces.IWeaponType;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_WEAPON_TYPE;
 
 @Service
+@RequiredArgsConstructor
 public class WeaponTypeService implements IWeaponType {
 
     private final IWeaponTypeRepository weaponTypeRepository;
-    private final IWeaponRepository weaponRepository;
+    private final WeaponTypeMapper weaponTypeMapper;
 
-    @Autowired
-    public WeaponTypeService(IWeaponTypeRepository weaponTypeRepository, IWeaponRepository weaponRepository) {
-        this.weaponTypeRepository = weaponTypeRepository;
-        this.weaponRepository = weaponRepository;
+    @Override
+    public List<WeaponTypeDTO> getWeaponTypes() {
+
+        return weaponTypeRepository.findAll()
+                .stream()
+                .map(weaponTypeMapper::mapToWeaponTypeDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<WeaponType> getWeaponTypes() {
-        return weaponTypeRepository.findAll();
+    public Optional<WeaponTypeDTO> getWeaponType(int weaponTypeId) {
+        return weaponTypeRepository.findById(weaponTypeId)
+                .map(weaponTypeMapper::mapToWeaponTypeDto);
     }
 
     @Override
     @Transactional
-    public void saveWeaponType(WeaponType weaponType) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveWeaponType(WeaponTypeDTO weaponType) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(weaponType)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(weaponTypeRepository, weaponType)) {
+        if (RepositoryHelper.nameAlreadyExists(weaponTypeRepository, weaponType.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-
-        weaponTypeRepository.saveAndFlush(weaponType);
+        weaponTypeMapper.mapToWeaponTypeDto(
+                weaponTypeRepository.save(weaponTypeMapper.mapFromWeaponTypeDto(weaponType)
+                ));
     }
 
     @Override
@@ -54,25 +58,27 @@ public class WeaponTypeService implements IWeaponType {
         if (RepositoryHelper.cannotFindId(weaponTypeRepository, weaponTypeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.isForeignKey(getReposWhereWeaponTypeIsAForeignKey(), FK_WEAPON_TYPE.columnName, weaponTypeId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-        }
-
         weaponTypeRepository.deleteById(weaponTypeId);
     }
 
     @Override
     @Transactional
-    public void updateWeaponType(int weaponTypeId, WeaponType weaponType) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<WeaponTypeDTO> updateWeaponType(int weaponTypeId, WeaponTypeDTO weaponType) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(weaponTypeRepository, weaponTypeId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        WeaponType weaponTypeToUpdate = RepositoryHelper.getById(weaponTypeRepository, weaponTypeId);
-        if (weaponType.getName() != null) weaponTypeToUpdate.setName(weaponType.getName());
-        if (weaponType.getDescription() != null) weaponTypeToUpdate.setDescription(weaponType.getDescription());
-    }
+        if (RepositoryHelper.nameIsNullOrEmpty(weaponType)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (RepositoryHelper.nameAlreadyExists(weaponTypeRepository, weaponType.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
 
-    private List<CrudRepository> getReposWhereWeaponTypeIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(weaponRepository));
+        return weaponTypeRepository.findById(weaponTypeId).map(foundWeaponType -> {
+            if (weaponType.getName() != null) foundWeaponType.setName(weaponType.getName());
+            if (weaponType.getDescription() != null) foundWeaponType.setDescription(weaponType.getDescription());
+
+            return weaponTypeMapper.mapToWeaponTypeDto(weaponTypeRepository.save(foundWeaponType));
+        });
     }
 }

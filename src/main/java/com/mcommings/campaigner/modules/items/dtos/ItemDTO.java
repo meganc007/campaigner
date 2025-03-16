@@ -1,24 +1,21 @@
-package com.mcommings.campaigner.modules.items.entities;
+package com.mcommings.campaigner.modules.items.dtos;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-@Getter
-@Setter
 @Builder
-@Entity
-@Table(name = "items")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
-public class Item {
+@NoArgsConstructor
+public class ItemDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(nullable = false, unique = true)
+    @NotBlank(message = "Item name cannot be empty")
     private String name;
     private String description;
     private UUID fk_campaign_uuid;

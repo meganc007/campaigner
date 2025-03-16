@@ -1,51 +1,55 @@
 package com.mcommings.campaigner.modules.items.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.entities.DiceType;
+import com.mcommings.campaigner.modules.items.dtos.DiceTypeDTO;
+import com.mcommings.campaigner.modules.items.mappers.DiceTypeMapper;
 import com.mcommings.campaigner.modules.items.repositories.IDiceTypeRepository;
-import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
 import com.mcommings.campaigner.modules.items.services.interfaces.IDiceType;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_DICE_TYPE;
 
 @Service
+@RequiredArgsConstructor
 public class DiceTypeService implements IDiceType {
 
     private final IDiceTypeRepository diceTypeRepository;
-    private final IWeaponRepository weaponRepository;
+    private final DiceTypeMapper diceTypeMapper;
 
-    @Autowired
-    public DiceTypeService(IDiceTypeRepository diceTypeRepository, IWeaponRepository weaponRepository) {
-        this.diceTypeRepository = diceTypeRepository;
-        this.weaponRepository = weaponRepository;
+    @Override
+    public List<DiceTypeDTO> getDiceTypes() {
+
+        return diceTypeRepository.findAll()
+                .stream()
+                .map(diceTypeMapper::mapToDiceTypeDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<DiceType> getDiceTypes() {
-        return diceTypeRepository.findAll();
+    public Optional<DiceTypeDTO> getDiceType(int diceTypeId) {
+        return diceTypeRepository.findById(diceTypeId)
+                .map(diceTypeMapper::mapToDiceTypeDto);
     }
 
     @Override
     @Transactional
-    public void saveDiceType(DiceType diceType) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveDiceType(DiceTypeDTO diceType) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(diceType)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(diceTypeRepository, diceType)) {
+        if (RepositoryHelper.nameAlreadyExists(diceTypeRepository, diceType.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-
-        diceTypeRepository.saveAndFlush(diceType);
+        diceTypeMapper.mapToDiceTypeDto(
+                diceTypeRepository.save(diceTypeMapper.mapFromDiceTypeDto(diceType)
+                ));
     }
 
     @Override
@@ -54,26 +58,28 @@ public class DiceTypeService implements IDiceType {
         if (RepositoryHelper.cannotFindId(diceTypeRepository, diceTypeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.isForeignKey(getReposWhereDiceTypeIsAForeignKey(), FK_DICE_TYPE.columnName, diceTypeId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-        }
-
         diceTypeRepository.deleteById(diceTypeId);
     }
 
     @Override
     @Transactional
-    public void updateDiceType(int diceTypeId, DiceType diceType) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<DiceTypeDTO> updateDiceType(int diceTypeId, DiceTypeDTO diceType) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(diceTypeRepository, diceTypeId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        DiceType diceTypeToUpdate = RepositoryHelper.getById(diceTypeRepository, diceTypeId);
-        if (diceType.getName() != null) diceTypeToUpdate.setName(diceType.getName());
-        if (diceType.getDescription() != null) diceTypeToUpdate.setDescription(diceType.getDescription());
-        if (diceType.getMax_roll() >= 0) diceTypeToUpdate.setMax_roll(diceType.getMax_roll());
-    }
+        if (RepositoryHelper.nameIsNullOrEmpty(diceType)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (RepositoryHelper.nameAlreadyExists(diceTypeRepository, diceType.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
 
-    private List<CrudRepository> getReposWhereDiceTypeIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(weaponRepository));
+        return diceTypeRepository.findById(diceTypeId).map(foundDiceType -> {
+            if (diceType.getName() != null) foundDiceType.setName(diceType.getName());
+            if (diceType.getDescription() != null) foundDiceType.setDescription(diceType.getDescription());
+            if (diceType.getMax_roll() >= 0) foundDiceType.setMax_roll(diceType.getMax_roll());
+
+            return diceTypeMapper.mapToDiceTypeDto(diceTypeRepository.save(foundDiceType));
+        });
     }
 }

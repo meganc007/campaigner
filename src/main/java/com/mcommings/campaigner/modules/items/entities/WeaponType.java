@@ -1,28 +1,22 @@
 package com.mcommings.campaigner.modules.items.entities;
 
-import com.mcommings.campaigner.modules.common.entities.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@Builder
 @Entity
 @Table(name = "weapon_types")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@ToString(callSuper = true)
-public class WeaponType extends BaseEntity {
+@NoArgsConstructor
+@AllArgsConstructor
+public class WeaponType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    public WeaponType() {
-        super();
-    }
-
-    public WeaponType(int id, String name, String description) {
-        this.id = id;
-        this.setName(name);
-        this.setDescription(description);
-    }
+    @Column(nullable = false, unique = true)
+    private String name;
+    private String description;
 }

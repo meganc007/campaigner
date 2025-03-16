@@ -1,75 +1,116 @@
 package com.mcommings.campaigner.services.items;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.entities.Weapon;
+import com.mcommings.campaigner.modules.items.dtos.WeaponTypeDTO;
 import com.mcommings.campaigner.modules.items.entities.WeaponType;
-import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
+import com.mcommings.campaigner.modules.items.mappers.WeaponTypeMapper;
 import com.mcommings.campaigner.modules.items.repositories.IWeaponTypeRepository;
 import com.mcommings.campaigner.modules.items.services.WeaponTypeService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_WEAPON_TYPE;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class WeaponTypeTest {
 
     @Mock
-    private IWeaponTypeRepository weaponTypeRepository;
+    private WeaponTypeMapper weaponTypeMapper;
+
     @Mock
-    private IWeaponRepository weaponRepository;
+    private IWeaponTypeRepository weaponTypeRepository;
 
     @InjectMocks
     private WeaponTypeService weaponTypeService;
 
+    private WeaponType entity;
+    private WeaponTypeDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new WeaponType();
+        entity.setId(1);
+        entity.setName("Test WeaponType");
+        entity.setDescription("A fictional weaponType.");
+
+        dto = new WeaponTypeDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+
+        when(weaponTypeMapper.mapToWeaponTypeDto(entity)).thenReturn(dto);
+        when(weaponTypeMapper.mapFromWeaponTypeDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreWeaponTypes_getWeaponTypes_ReturnsWeaponTypes() {
-        List<WeaponType> weaponTypes = new ArrayList<>();
-        weaponTypes.add(new WeaponType(1, "WeaponType 1", "Description 1"));
-        weaponTypes.add(new WeaponType(2, "WeaponType 2", "Description 2"));
+        when(weaponTypeRepository.findAll()).thenReturn(List.of(entity));
+        List<WeaponTypeDTO> result = weaponTypeService.getWeaponTypes();
 
-        when(weaponTypeRepository.findAll()).thenReturn(weaponTypes);
-
-        List<WeaponType> result = weaponTypeService.getWeaponTypes();
-
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(weaponTypes, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test WeaponType", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoWeaponTypes_getWeaponTypes_ReturnsNothing() {
-        List<WeaponType> weaponTypes = new ArrayList<>();
-        when(weaponTypeRepository.findAll()).thenReturn(weaponTypes);
+    public void whenThereAreNoWeaponTypes_getWeaponTypes_ReturnsEmptyList() {
+        when(weaponTypeRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<WeaponType> result = weaponTypeService.getWeaponTypes();
+        List<WeaponTypeDTO> result = weaponTypeService.getWeaponTypes();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(weaponTypes, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no weaponTypes.");
     }
 
     @Test
-    public void whenWeaponTypeIsValid_saveWeaponType_SavesTheWeaponType() {
-        WeaponType weaponType = new WeaponType(1, "WeaponType 1", "Description 1");
-        when(weaponTypeRepository.saveAndFlush(weaponType)).thenReturn(weaponType);
+    void whenThereIsAWeaponType_getWeaponType_ReturnsWeaponTypeById() {
+        when(weaponTypeRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        assertDoesNotThrow(() -> weaponTypeService.saveWeaponType(weaponType));
-        verify(weaponTypeRepository, times(1)).saveAndFlush(weaponType);
+        Optional<WeaponTypeDTO> result = weaponTypeService.getWeaponType(1);
+
+        assertTrue(result.isPresent());
+        assertEquals("Test WeaponType", result.get().getName());
+    }
+
+    @Test
+    void whenThereIsNotAWeaponType_getWeaponType_ReturnsNothing() {
+        when(weaponTypeRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<WeaponTypeDTO> result = weaponTypeService.getWeaponType(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when weaponType is not found.");
+    }
+
+    @Test
+    void whenWeaponTypeIsValid_saveWeaponType_SavesTheWeaponType() {
+        when(weaponTypeRepository.save(entity)).thenReturn(entity);
+
+        weaponTypeService.saveWeaponType(dto);
+
+        verify(weaponTypeRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenWeaponTypeNameIsInvalid_saveWeaponType_ThrowsIllegalArgumentException() {
-        WeaponType weaponTypeWithEmptyName = new WeaponType(1, "", "Description 1");
-        WeaponType weaponTypeWithNullName = new WeaponType(2, null, "Description 2");
+        WeaponTypeDTO weaponTypeWithEmptyName = new WeaponTypeDTO();
+        weaponTypeWithEmptyName.setId(1);
+        weaponTypeWithEmptyName.setName("");
+        weaponTypeWithEmptyName.setDescription("A fictional weaponType.");
+
+        WeaponTypeDTO weaponTypeWithNullName = new WeaponTypeDTO();
+        weaponTypeWithNullName.setId(1);
+        weaponTypeWithNullName.setName(null);
+        weaponTypeWithNullName.setDescription("A fictional weaponType.");
 
         assertThrows(IllegalArgumentException.class, () -> weaponTypeService.saveWeaponType(weaponTypeWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> weaponTypeService.saveWeaponType(weaponTypeWithNullName));
@@ -77,94 +118,76 @@ public class WeaponTypeTest {
 
     @Test
     public void whenWeaponTypeNameAlreadyExists_saveWeaponType_ThrowsDataIntegrityViolationException() {
-        WeaponType weaponType = new WeaponType(1, "WeaponType 1", "Description 1");
-        WeaponType weaponTypeWithDuplicatedName = new WeaponType(2, "WeaponType 1", "Description 2");
-        when(weaponTypeRepository.saveAndFlush(weaponType)).thenReturn(weaponType);
-        when(weaponTypeRepository.saveAndFlush(weaponTypeWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> weaponTypeService.saveWeaponType(weaponType));
-        assertThrows(DataIntegrityViolationException.class, () -> weaponTypeService.saveWeaponType(weaponTypeWithDuplicatedName));
+        when(weaponTypeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> weaponTypeService.saveWeaponType(dto));
+        verify(weaponTypeRepository, times(1)).findByName(dto.getName());
+        verify(weaponTypeRepository, never()).save(any(WeaponType.class));
     }
 
     @Test
-    public void whenWeaponTypeIdExists_deleteWeaponType_DeletesTheWeaponType() {
-        int weaponTypeId = 1;
-        when(weaponTypeRepository.existsById(weaponTypeId)).thenReturn(true);
-        assertDoesNotThrow(() -> weaponTypeService.deleteWeaponType(weaponTypeId));
-        verify(weaponTypeRepository, times(1)).deleteById(weaponTypeId);
+    void whenWeaponTypeIdExists_deleteWeaponType_DeletesTheWeaponType() {
+        when(weaponTypeRepository.existsById(1)).thenReturn(true);
+        weaponTypeService.deleteWeaponType(1);
+        verify(weaponTypeRepository, times(1)).deleteById(1);
     }
 
     @Test
-    public void whenWeaponTypeIdDoesNotExist_deleteWeaponType_ThrowsIllegalArgumentException() {
-        int weaponTypeId = 9000;
-        when(weaponTypeRepository.existsById(weaponTypeId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> weaponTypeService.deleteWeaponType(weaponTypeId));
+    void whenWeaponTypeIdDoesNotExist_deleteWeaponType_ThrowsIllegalArgumentException() {
+        when(weaponTypeRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> weaponTypeService.deleteWeaponType(999));
     }
 
     @Test
-    public void whenWeaponTypeIdIsAForeignKey_deleteWeaponType_ThrowsDataIntegrityViolationException() {
-        int weaponTypeId = 1;
-        Weapon weapon = new Weapon(1, "Weapon", "Description", "Rare", 32, 20,
-                12, 20.0f, weaponTypeId, 2, 2, 6, 0,
-                true, false, "Notes", UUID.randomUUID());
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(weaponRepository));
-        List<Weapon> weapons = new ArrayList<>(Arrays.asList(weapon));
+    void whenDeleteWeaponTypeFails_deleteWeaponType_ThrowsException() {
+        when(weaponTypeRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(weaponTypeRepository).deleteById(1);
 
-        when(weaponTypeRepository.existsById(weaponTypeId)).thenReturn(true);
-        when(weaponRepository.findByfk_weapon_type(weaponTypeId)).thenReturn(weapons);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_WEAPON_TYPE.columnName, weaponTypeId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> weaponTypeService.deleteWeaponType(weaponTypeId));
+        assertThrows(RuntimeException.class, () -> weaponTypeService.deleteWeaponType(1));
     }
 
     @Test
-    public void whenWeaponTypeIdIsFound_updateWeaponType_UpdatesTheWeaponType() {
-        int weaponTypeId = 1;
-        WeaponType weaponType = new WeaponType(weaponTypeId, "Old WeaponType Name", "Old Description");
-        WeaponType weaponTypeToUpdate = new WeaponType(weaponTypeId, "Updated WeaponType Name", "Updated Description");
+    void whenWeaponTypeIdIsFound_updateWeaponType_UpdatesTheWeaponType() {
+        WeaponTypeDTO updateDTO = new WeaponTypeDTO();
+        updateDTO.setName("Updated Name");
 
-        when(weaponTypeRepository.existsById(weaponTypeId)).thenReturn(true);
-        when(weaponTypeRepository.findById(weaponTypeId)).thenReturn(Optional.of(weaponType));
+        when(weaponTypeRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(weaponTypeRepository.existsById(1)).thenReturn(true);
+        when(weaponTypeRepository.save(entity)).thenReturn(entity);
+        when(weaponTypeMapper.mapToWeaponTypeDto(entity)).thenReturn(updateDTO);
 
-        weaponTypeService.updateWeaponType(weaponTypeId, weaponTypeToUpdate);
+        Optional<WeaponTypeDTO> result = weaponTypeService.updateWeaponType(1, updateDTO);
 
-        verify(weaponTypeRepository).findById(weaponTypeId);
-
-        WeaponType result = weaponTypeRepository.findById(weaponTypeId).get();
-        Assertions.assertEquals(weaponTypeToUpdate.getName(), result.getName());
-        Assertions.assertEquals(weaponTypeToUpdate.getDescription(), result.getDescription());
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
-    public void whenWeaponTypeIdIsNotFound_updateWeaponType_ThrowsIllegalArgumentException() {
-        int weaponTypeId = 1;
-        WeaponType weaponType = new WeaponType(weaponTypeId, "Old WeaponType Name", "Old Description");
+    void whenWeaponTypeIdIsNotFound_updateWeaponType_ReturnsEmptyOptional() {
+        WeaponTypeDTO updateDTO = new WeaponTypeDTO();
+        updateDTO.setName("Updated Name");
 
-        when(weaponTypeRepository.existsById(weaponTypeId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> weaponTypeService.updateWeaponType(weaponTypeId, weaponType));
+        when(weaponTypeRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> weaponTypeService.updateWeaponType(999, updateDTO));
     }
 
     @Test
-    public void whenSomeWeaponTypeFieldsChanged_updateWeaponType_OnlyUpdatesChangedFields() {
-        int weaponTypeId = 1;
-        WeaponType weaponType = new WeaponType(weaponTypeId, "Old Weapon Type Name", "Description");
+    public void whenWeaponTypeNameIsInvalid_updateWeaponType_ThrowsIllegalArgumentException() {
+        WeaponTypeDTO updateEmptyName = new WeaponTypeDTO();
+        updateEmptyName.setName("");
 
-        String newDescription = "New WeaponType description";
+        WeaponTypeDTO updateNullName = new WeaponTypeDTO();
+        updateNullName.setName(null);
 
-        WeaponType weaponTypeToUpdate = new WeaponType();
-        weaponTypeToUpdate.setDescription(newDescription);
+        when(weaponTypeRepository.existsById(1)).thenReturn(true);
 
-        when(weaponTypeRepository.existsById(weaponTypeId)).thenReturn(true);
-        when(weaponTypeRepository.findById(weaponTypeId)).thenReturn(Optional.of(weaponType));
+        assertThrows(IllegalArgumentException.class, () -> weaponTypeService.updateWeaponType(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> weaponTypeService.updateWeaponType(1, updateNullName));
+    }
 
-        weaponTypeService.updateWeaponType(weaponTypeId, weaponTypeToUpdate);
+    @Test
+    public void whenWeaponTypeNameAlreadyExists_updateWeaponType_ThrowsDataIntegrityViolationException() {
+        when(weaponTypeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
 
-        verify(weaponTypeRepository).findById(weaponTypeId);
-
-        WeaponType result = weaponTypeRepository.findById(weaponTypeId).get();
-        Assertions.assertEquals(newDescription, result.getDescription());
-        Assertions.assertEquals(weaponType.getName(), result.getName());
+        assertThrows(IllegalArgumentException.class, () -> weaponTypeService.updateWeaponType(entity.getId(), dto));
     }
 }

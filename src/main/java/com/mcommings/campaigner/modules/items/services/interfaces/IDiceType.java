@@ -1,16 +1,19 @@
 package com.mcommings.campaigner.modules.items.services.interfaces;
 
-import com.mcommings.campaigner.modules.items.entities.DiceType;
+import com.mcommings.campaigner.modules.items.dtos.DiceTypeDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IDiceType {
 
-    List<DiceType> getDiceTypes();
+    List<DiceTypeDTO> getDiceTypes();
 
-    void saveDiceType(DiceType diceType);
+    Optional<DiceTypeDTO> getDiceType(int diceTypeId);
+
+    void saveDiceType(DiceTypeDTO diceType);
 
     void deleteDiceType(int diceTypeId);
 
-    void updateDiceType(int diceTypeId, DiceType diceType);
+    Optional<DiceTypeDTO> updateDiceType(int diceTypeId, DiceTypeDTO diceType);
 }

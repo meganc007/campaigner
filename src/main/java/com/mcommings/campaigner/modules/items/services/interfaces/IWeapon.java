@@ -1,19 +1,22 @@
 package com.mcommings.campaigner.modules.items.services.interfaces;
 
-import com.mcommings.campaigner.modules.items.entities.Weapon;
+import com.mcommings.campaigner.modules.items.dtos.WeaponDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IWeapon {
 
-    List<Weapon> getWeapons();
+    List<WeaponDTO> getWeapons();
 
-    List<Weapon> getWeaponsByCampaignUUID(UUID uuid);
+    Optional<WeaponDTO> getWeapon(int weaponId);
 
-    void saveWeapon(Weapon weapon);
+    List<WeaponDTO> getWeaponsByCampaignUUID(UUID uuid);
+
+    void saveWeapon(WeaponDTO weapon);
 
     void deleteWeapon(int weaponId);
 
-    void updateWeapon(int weaponId, Weapon weapon);
+    Optional<WeaponDTO> updateWeapon(int weaponId, WeaponDTO weapon);
 }
