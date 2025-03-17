@@ -18,5 +18,6 @@ public class SunDTO {
     @NotBlank(message = "Sun name cannot be empty")
     private String name;
     private String description;
+    @NotNull
     private UUID fk_campaign_uuid;
 }
