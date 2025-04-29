@@ -19,11 +19,11 @@ import java.util.Random;
 import java.util.UUID;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(WeekController.class)
@@ -133,7 +133,7 @@ class WeekControllerTest {
 
         String response = objectMapper.writeValueAsString(List.of(dto));
 
-        mockMvc.perform(get(URI + "campaign/" + uuid))
+        mockMvc.perform(get(URI + "/campaign/" + uuid))
                 .andExpect(status().isOk())
                 .andExpect(content().json(response));
     }
@@ -143,7 +143,7 @@ class WeekControllerTest {
         UUID uuid = UUID.randomUUID();
         when(weekService.getWeeksByCampaignUUID(uuid)).thenReturn(List.of());
 
-        mockMvc.perform(get(URI + "campaign/" + uuid))
+        mockMvc.perform(get(URI + "/campaign/" + uuid))
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
     }
@@ -196,33 +196,109 @@ class WeekControllerTest {
         verify(weekService, times(1)).saveWeek(any(WeekDTO.class));
     }
 
-// TODO: modify once isCampaignUUIDNullOrEmpty() is created
-
-//    @Test
-//    void whenWeekIsNotValid_saveWeek_RespondsBadRequest() throws Exception {
-//        Map<String, Object> invalidWeek = new HashMap<>();
-//        invalidWeek.put("id", 1);
-//        invalidWeek.put("name", "Week 1");
-//
-//        String requestJson = objectMapper.writeValueAsString(invalidWeek);
-//
-//        mockMvc.perform(post("/api/weeks")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                .content(requestJson))
-//                .andExpect(status().isBadRequest());
-//
-//        verify(weekService, times(0)).saveWeek(any(WeekDTO.class));
-//    }
-
     @Test
-    void saveWeek() throws Exception {
+    void whenWeekIsNotValid_saveWeek_RespondsBadRequest() throws Exception {
+        WeekDTO invalidWeek = new WeekDTO();
+        invalidWeek.setId(2);
+        invalidWeek.setDescription("This is a description");
+        invalidWeek.setFk_campaign_uuid(null); // Invalid UUID
+        invalidWeek.setWeek_number(3);
+        invalidWeek.setFk_month(4);
+
+        String requestJson = objectMapper.writeValueAsString(invalidWeek);
+
+        doThrow(new IllegalArgumentException("Campaign UUID cannot be null or empty."))
+                .when(weekService).saveWeek(any(WeekDTO.class));
+
+        mockMvc.perform(post("/api/weeks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("[\"Campaign UUID cannot be null or empty.\"]"));
+
+        verify(weekService, times(0)).saveWeek(any(WeekDTO.class));
     }
 
     @Test
-    void deleteWeek() throws Exception {
+    void whenWeekIdIsValid_deleteWeek_RespondsOkRequest() throws Exception {
+        when(weekService.getWeek(VALID_WEEK_ID)).thenReturn(Optional.of(dto));
+
+        mockMvc.perform(delete(URI + "/" + VALID_WEEK_ID))
+                .andExpect(status().isOk());
+
+        verify(weekService, times(1)).deleteWeek(VALID_WEEK_ID);
     }
 
     @Test
-    void updateWeek() throws Exception {
+    void whenWeekIdIsInvalid_deleteWeek_RespondsBadRequest() throws Exception {
+        doThrow(new IllegalArgumentException("Unable to delete; This item was not found."))
+                .when(weekService).deleteWeek(INVALID_WEEK_ID);
+
+        mockMvc.perform(delete(URI + "/" + INVALID_WEEK_ID))
+                .andExpect(status().isBadRequest())  // Expecting 400 Bad Request
+                .andExpect(content().string("Unable to delete; This item was not found."));
+
+        verify(weekService, times(1)).deleteWeek(INVALID_WEEK_ID);
+    }
+
+    @Test
+    void whenWeekIdIsValid_updateWeek_RespondsOkRequest() throws Exception {
+        WeekDTO updatedDto = new WeekDTO();
+        updatedDto.setId(VALID_WEEK_ID);
+        updatedDto.setDescription("Updated description");
+        updatedDto.setFk_campaign_uuid(UUID.randomUUID());
+        updatedDto.setWeek_number(5);
+        updatedDto.setFk_month(2);
+
+        String json = objectMapper.writeValueAsString(updatedDto);
+
+        mockMvc.perform(put(URI + "/" + VALID_WEEK_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk());
+
+        verify(weekService, times(1)).updateWeek(eq(VALID_WEEK_ID), any(WeekDTO.class));
+    }
+
+    @Test
+    void whenWeekIdIsInvalid_updateWeek_RespondsBadRequest() throws Exception {
+        WeekDTO updatedDto = new WeekDTO();
+        updatedDto.setId(INVALID_WEEK_ID);
+        updatedDto.setDescription("Some update");
+        updatedDto.setFk_campaign_uuid(UUID.randomUUID());
+        updatedDto.setWeek_number(4);
+        updatedDto.setFk_month(1);
+
+        String json = objectMapper.writeValueAsString(updatedDto);
+
+        doThrow(new IllegalArgumentException("Unable to update; This item was not found."))
+                .when(weekService).updateWeek(eq(INVALID_WEEK_ID), any(WeekDTO.class));
+
+        mockMvc.perform(put(URI + "/" + INVALID_WEEK_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Unable to update; This item was not found.")));
+    }
+
+    @Test
+    void whenWeekNameIsInvalid_updateWeek_RespondsBadRequest() throws Exception {
+        WeekDTO invalidDto = new WeekDTO();
+        invalidDto.setId(VALID_WEEK_ID);
+        invalidDto.setDescription("");
+        invalidDto.setFk_campaign_uuid(UUID.randomUUID());
+        invalidDto.setWeek_number(4);
+        invalidDto.setFk_month(1);
+
+        String json = objectMapper.writeValueAsString(invalidDto);
+
+        when(weekService.updateWeek(eq(VALID_WEEK_ID), any(WeekDTO.class)))
+                .thenThrow(new IllegalArgumentException("Item name cannot be null or empty."));
+
+        mockMvc.perform(put(URI + "/" + VALID_WEEK_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Item name cannot be null or empty.")));
     }
 }
