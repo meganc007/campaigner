@@ -48,6 +48,30 @@ public class WeaponService implements IWeapon {
     }
 
     @Override
+    public List<WeaponDTO> getWeaponsByWeaponType(int weaponTypeId) {
+        return weaponRepository.findByfk_weapon_type(weaponTypeId)
+                .stream()
+                .map(weaponMapper::mapToWeaponDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<WeaponDTO> getWeaponsByDamageType(int damageTypeId) {
+        return weaponRepository.findByfk_damage_type(damageTypeId)
+                .stream()
+                .map(weaponMapper::mapToWeaponDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<WeaponDTO> getWeaponsByDiceType(int diceTypeId) {
+        return weaponRepository.findByfk_dice_type(diceTypeId)
+                .stream()
+                .map(weaponMapper::mapToWeaponDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public void saveWeapon(WeaponDTO weapon) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(weapon)) {

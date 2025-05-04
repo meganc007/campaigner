@@ -14,6 +14,12 @@ public interface IWeapon {
 
     List<WeaponDTO> getWeaponsByCampaignUUID(UUID uuid);
 
+    List<WeaponDTO> getWeaponsByWeaponType(int weaponTypeId);
+
+    List<WeaponDTO> getWeaponsByDamageType(int damageTypeId);
+
+    List<WeaponDTO> getWeaponsByDiceType(int diceTypeId);
+
     void saveWeapon(WeaponDTO weapon);
 
     void deleteWeapon(int weaponId);

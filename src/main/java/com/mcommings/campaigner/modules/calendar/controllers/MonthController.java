@@ -13,7 +13,7 @@ import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "api/calendar/months")
+@RequestMapping(path = "api/months")
 public class MonthController {
 
     private final IMonth monthService;

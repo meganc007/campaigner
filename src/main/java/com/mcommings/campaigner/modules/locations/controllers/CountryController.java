@@ -38,6 +38,11 @@ public class CountryController {
         return countryService.getCountriesByContinentId(continentId);
     }
 
+    @GetMapping(path = "/government/{governmentId}")
+    public List<CountryDTO> getCountriesByGovernmentId(@PathVariable("governmentId") int governmentId) {
+        return countryService.getCountriesByGovernmentId(governmentId);
+    }
+
     @PostMapping
     public void saveCountry(@Valid @RequestBody CountryDTO country) {
         countryService.saveCountry(country);

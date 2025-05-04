@@ -54,6 +54,14 @@ public class CountryService implements ICountry {
     }
 
     @Override
+    public List<CountryDTO> getCountriesByGovernmentId(int governmentId) {
+        return countryRepository.findByfk_government(governmentId)
+                .stream()
+                .map(countryMapper::mapToCountryDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void saveCountry(CountryDTO country) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(country)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);

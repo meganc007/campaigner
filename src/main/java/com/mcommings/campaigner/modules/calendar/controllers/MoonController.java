@@ -13,7 +13,7 @@ import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "api/calendar/moons")
+@RequestMapping(path = "api/moons")
 public class MoonController {
 
     private final IMoon moonService;

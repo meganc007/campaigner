@@ -16,6 +16,8 @@ public interface ICountry {
 
     List<CountryDTO> getCountriesByContinentId(int continentId);
 
+    List<CountryDTO> getCountriesByGovernmentId(int governmentId);
+
     void saveCountry(CountryDTO country);
 
     void deleteCountry(int countryId);

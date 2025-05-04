@@ -49,6 +49,14 @@ public class ItemService implements IItem {
     }
 
     @Override
+    public List<ItemDTO> getItemsByItemType(int itemTypeId) {
+        return itemRepository.findByfk_item_type(itemTypeId)
+                .stream()
+                .map(itemMapper::mapToItemDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public void saveItem(ItemDTO item) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(item)) {

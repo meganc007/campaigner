@@ -13,7 +13,7 @@ import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "api/calendar/suns")
+@RequestMapping(path = "api/suns")
 public class SunController {
 
     private final ISun sunService;

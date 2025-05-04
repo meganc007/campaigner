@@ -58,9 +58,10 @@ public class WeekService implements IWeek {
     @Override
     @Transactional
     public void saveWeek(WeekDTO week) throws DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(week)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
+        // TODO: Change this to check if UUID is null or empty
+//        if (RepositoryHelper.nameIsNullOrEmpty(week)) {
+//            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+//        }
 
         weekMapper.mapToWeekDto(
                 weekRepository.save(weekMapper.mapFromWeekDto(week)
