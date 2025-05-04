@@ -1,25 +1,36 @@
 package com.mcommings.campaigner.modules.common.services.interfaces;
 
-import com.mcommings.campaigner.modules.common.entities.Event;
+import com.mcommings.campaigner.modules.common.dtos.EventDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IEvent {
 
-    List<Event> getEvents();
+    List<EventDTO> getEvents();
 
-    List<Event> getEventsByCampaignUUID(UUID uuid);
+    Optional<EventDTO> getEvent(int eventId);
 
-    List<Event> getEventsByContinent(int continentId);
+    List<EventDTO> getEventsByCampaignUUID(UUID uuid);
 
-    List<Event> getEventsByCountry(int countryId);
+    List<EventDTO> getEventsByYear(int year);
 
-    List<Event> getEventsByCity(int cityId);
+    List<EventDTO> getEventsByMonth(int monthId);
 
-    void saveEvent(Event event);
+    List<EventDTO> getEventsByWeek(int weekId);
+
+    List<EventDTO> getEventsByDay(int dayId);
+
+    List<EventDTO> getEventsByContinent(int continentId);
+
+    List<EventDTO> getEventsByCountry(int countryId);
+
+    List<EventDTO> getEventsByCity(int cityId);
+
+    void saveEvent(EventDTO event);
 
     void deleteEvent(int eventId);
 
-    void updateEvent(int eventId, Event event);
+    Optional<EventDTO> updateEvent(int eventId, EventDTO event);
 }
