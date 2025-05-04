@@ -19,7 +19,7 @@ public class ItemDTO {
     @NotBlank(message = "Item name cannot be empty")
     private String name;
     private String description;
-    @NotNull
+    @NotNull(message = "Campaign UUID cannot be null or empty.")
     private UUID fk_campaign_uuid;
     private String rarity;
     private int gold_value;

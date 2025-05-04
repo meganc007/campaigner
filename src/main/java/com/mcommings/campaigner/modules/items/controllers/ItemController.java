@@ -33,6 +33,11 @@ public class ItemController {
         return itemService.getItemsByCampaignUUID(uuid);
     }
 
+    @GetMapping(path = "/itemtype/{itemTypeId}")
+    public List<ItemDTO> getItemsByItemTypeId(@PathVariable("itemTypeId") int itemTypeId) {
+        return itemService.getItemsByItemType(itemTypeId);
+    }
+
     @PostMapping
     public void saveItem(@Valid @RequestBody ItemDTO item) {
         itemService.saveItem(item);

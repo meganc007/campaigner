@@ -14,6 +14,8 @@ public interface IItem {
 
     List<ItemDTO> getItemsByCampaignUUID(UUID uuid);
 
+    List<ItemDTO> getItemsByItemType(int itemTypeId);
+
     void saveItem(ItemDTO item);
 
     void deleteItem(int itemId);
