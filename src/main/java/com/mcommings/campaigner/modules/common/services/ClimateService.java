@@ -1,78 +1,84 @@
 package com.mcommings.campaigner.modules.common.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.common.entities.Climate;
+import com.mcommings.campaigner.modules.common.dtos.ClimateDTO;
+import com.mcommings.campaigner.modules.common.mappers.ClimateMapper;
 import com.mcommings.campaigner.modules.common.repositories.IClimateRepository;
 import com.mcommings.campaigner.modules.common.services.interfaces.IClimate;
-import com.mcommings.campaigner.modules.locations.repositories.IRegionRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_CLIMATE;
 
 @Service
+@RequiredArgsConstructor
 public class ClimateService implements IClimate {
 
     private final IClimateRepository climateRepository;
-    private final IRegionRepository regionRepository;
+    private final ClimateMapper climateMapper;
 
-    @Autowired
-    public ClimateService(IClimateRepository climateRepository, IRegionRepository regionRepository) {
-        this.climateRepository = climateRepository;
-        this.regionRepository = regionRepository;
+    @Override
+    public List<ClimateDTO> getClimates() {
+
+        return climateRepository.findAll()
+                .stream()
+                .map(climateMapper::mapToClimateDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Climate> getClimates() {
-        return climateRepository.findAll();
+    public Optional<ClimateDTO> getClimate(int climateId) {
+        return climateRepository.findById(climateId)
+                .map(climateMapper::mapToClimateDto);
     }
 
     @Override
-    @Transactional
-    public void saveClimate(Climate climate) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveClimate(ClimateDTO climate) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(climate)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(climateRepository, climate)) {
+        if (RepositoryHelper.nameAlreadyExists(climateRepository, climate.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
-        climateRepository.saveAndFlush(climate);
+        climateMapper.mapToClimateDto(
+                climateRepository.save(
+                        climateMapper.mapFromClimateDto(climate)
+                ));
     }
 
     @Override
-    @Transactional
     public void deleteClimate(int climateId) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(climateRepository, climateId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.isForeignKey(getReposWhereClimateIsAForeignKey(), FK_CLIMATE.columnName, climateId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
 
         climateRepository.deleteById(climateId);
     }
 
     @Override
-    @Transactional
-    public void updateClimate(int climateId, Climate climate) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<ClimateDTO> updateClimate(int climateId, ClimateDTO climate) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(climateRepository, climateId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        Climate climateToUpdate = RepositoryHelper.getById(climateRepository, climateId);
-        if (climate.getName() != null) climateToUpdate.setName(climate.getName());
-        if (climate.getDescription() != null) climateToUpdate.setDescription(climate.getDescription());
+        if (RepositoryHelper.nameIsNullOrEmpty(climate)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (RepositoryHelper.nameAlreadyExists(climateRepository, climate.getName())) {
+            throw new IllegalArgumentException(NAME_EXISTS.message);
+        }
+
+        return climateRepository.findById(climateId).map(foundClimate -> {
+            if (climate.getName() != null) foundClimate.setName(climate.getName());
+            if (climate.getDescription() != null) foundClimate.setDescription(climate.getDescription());
+
+            return climateMapper.mapToClimateDto(climateRepository.save(foundClimate));
+        });
     }
 
-    private List<CrudRepository> getReposWhereClimateIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(regionRepository));
-    }
 }

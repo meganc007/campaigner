@@ -1,16 +1,19 @@
 package com.mcommings.campaigner.modules.common.services.interfaces;
 
-import com.mcommings.campaigner.modules.common.entities.Climate;
+import com.mcommings.campaigner.modules.common.dtos.ClimateDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IClimate {
 
-    List<Climate> getClimates();
+    List<ClimateDTO> getClimates();
 
-    void saveClimate(Climate climate);
+    Optional<ClimateDTO> getClimate(int climateId);
+
+    void saveClimate(ClimateDTO climate);
 
     void deleteClimate(int climateId);
 
-    void updateClimate(int climateId, Climate climate);
+    Optional<ClimateDTO> updateClimate(int climateId, ClimateDTO climate);
 }
