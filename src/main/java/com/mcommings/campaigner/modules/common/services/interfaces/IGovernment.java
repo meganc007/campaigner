@@ -1,16 +1,19 @@
 package com.mcommings.campaigner.modules.common.services.interfaces;
 
-import com.mcommings.campaigner.modules.common.entities.Government;
+import com.mcommings.campaigner.modules.common.dtos.GovernmentDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IGovernment {
 
-    List<Government> getGovernments();
+    List<GovernmentDTO> getGovernments();
 
-    void saveGovernment(Government government);
+    Optional<GovernmentDTO> getGovernment(int governmentId);
+
+    void saveGovernment(GovernmentDTO government);
 
     void deleteGovernment(int governmentId);
 
-    void updateGovernment(int governmentId, Government government);
+    Optional<GovernmentDTO> updateGovernment(int governmentId, GovernmentDTO government);
 }

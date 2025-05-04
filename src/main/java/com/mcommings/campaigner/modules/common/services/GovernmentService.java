@@ -1,84 +1,85 @@
 package com.mcommings.campaigner.modules.common.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.common.entities.Government;
+import com.mcommings.campaigner.modules.common.dtos.GovernmentDTO;
+import com.mcommings.campaigner.modules.common.mappers.GovernmentMapper;
 import com.mcommings.campaigner.modules.common.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.modules.common.services.interfaces.IGovernment;
-import com.mcommings.campaigner.modules.locations.repositories.ICityRepository;
-import com.mcommings.campaigner.modules.locations.repositories.ICountryRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_GOVERNMENT;
 
 @Service
+@RequiredArgsConstructor
 public class GovernmentService implements IGovernment {
 
     private final IGovernmentRepository governmentRepository;
-    private final ICountryRepository countryRepository;
+    private final GovernmentMapper governmentMapper;
 
-    private final ICityRepository cityRepository;
+    @Override
+    public List<GovernmentDTO> getGovernments() {
 
-    @Autowired
-    public GovernmentService(IGovernmentRepository governmentRepository, ICountryRepository countryRepository,
-                             ICityRepository cityRepository) {
-        this.governmentRepository = governmentRepository;
-        this.countryRepository = countryRepository;
-        this.cityRepository = cityRepository;
+        return governmentRepository.findAll()
+                .stream()
+                .map(governmentMapper::mapToGovernmentDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Government> getGovernments() {
-        return governmentRepository.findAll();
+    public Optional<GovernmentDTO> getGovernment(int governmentId) {
+
+        return governmentRepository.findById(governmentId)
+                .map(governmentMapper::mapToGovernmentDto);
     }
 
     @Override
-    @Transactional
-    public void saveGovernment(Government government) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveGovernment(GovernmentDTO government) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(government)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(governmentRepository, government)) {
+        if (RepositoryHelper.nameAlreadyExists(governmentRepository, government.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
-        governmentRepository.saveAndFlush(government);
+        governmentMapper.mapToGovernmentDto(
+                governmentRepository.save(
+                        governmentMapper.mapFromGovernmentDto(government)
+                ));
     }
 
     @Override
-    @Transactional
     public void deleteGovernment(int governmentId) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(governmentRepository, governmentId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.isForeignKey(getReposWhereGovernmentIsAForeignKey(), FK_GOVERNMENT.columnName, governmentId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-        }
-
         governmentRepository.deleteById(governmentId);
 
     }
 
     @Override
-    @Transactional
-    public void updateGovernment(int governmentId, Government government) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<GovernmentDTO> updateGovernment(int governmentId, GovernmentDTO government) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(governmentRepository, governmentId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        Government governmentToUpdate = RepositoryHelper.getById(governmentRepository, governmentId);
-        if(government.getName() != null) governmentToUpdate.setName(government.getName());
-        if(government.getDescription() != null) governmentToUpdate.setDescription(government.getDescription());
-    }
+        if (RepositoryHelper.nameIsNullOrEmpty(government)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (RepositoryHelper.nameAlreadyExists(governmentRepository, government.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
 
-    private List<CrudRepository> getReposWhereGovernmentIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(countryRepository, cityRepository));
+        return governmentRepository.findById(governmentId).map(foundGovernment -> {
+            if (government.getName() != null) foundGovernment.setName(government.getName());
+            if (government.getDescription() != null) foundGovernment.setDescription(government.getDescription());
+
+            return governmentMapper.mapToGovernmentDto(governmentRepository.save(foundGovernment));
+        });
+        
     }
 }
