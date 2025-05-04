@@ -19,7 +19,7 @@ public class CountryDTO {
     @NotBlank(message = "Country name cannot be empty")
     private String name;
     private String description;
-    @NotNull
+    @NotNull(message = "Campaign UUID cannot be null or empty.")
     private UUID fk_campaign_uuid;
     private Integer fk_continent;
     private Integer fk_government;
