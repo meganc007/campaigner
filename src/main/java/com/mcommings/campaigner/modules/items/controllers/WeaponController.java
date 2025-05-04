@@ -29,10 +29,25 @@ public class WeaponController {
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<WeaponDTO> getWeaponsByCampaignUUID(UUID uuid) {
+    public List<WeaponDTO> getWeaponsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
         return weaponService.getWeaponsByCampaignUUID(uuid);
     }
 
+    @GetMapping(path = "/weapontype/{weaponTypeId}")
+    public List<WeaponDTO> getWeaponsByWeaponType(@PathVariable("weaponTypeId") int weaponTypeId) {
+        return weaponService.getWeaponsByWeaponType(weaponTypeId);
+    }
+
+    @GetMapping(path = "/damagetype/{damageTypeId}")
+    public List<WeaponDTO> getWeaponsByDamageType(@PathVariable("damageTypeId") int damageTypeId) {
+        return weaponService.getWeaponsByDamageType(damageTypeId);
+    }
+
+    @GetMapping(path = "/dicetype/{diceTypeId}")
+    public List<WeaponDTO> getWeaponsByDiceType(@PathVariable("diceTypeId") int diceTypeId) {
+        return weaponService.getWeaponsByDiceType(diceTypeId);
+    }
+    
     @PostMapping
     public void saveWeapon(@Valid @RequestBody WeaponDTO weapon) {
         weaponService.saveWeapon(weapon);
