@@ -19,6 +19,6 @@ public class ContinentDTO {
     @NotBlank(message = "Continent name cannot be empty")
     private String name;
     private String description;
-    @NotNull
+    @NotNull(message = "Campaign UUID cannot be null or empty.")
     private UUID fk_campaign_uuid;
 }
