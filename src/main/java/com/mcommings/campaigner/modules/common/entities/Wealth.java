@@ -1,22 +1,20 @@
 package com.mcommings.campaigner.modules.common.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@Builder
 @Entity
 @Table(name = "wealth")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Wealth {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(nullable = false)
     private String name;
-
-    public Wealth() {}
-
-    public Wealth(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
 }

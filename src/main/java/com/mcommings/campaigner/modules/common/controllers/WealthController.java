@@ -1,27 +1,27 @@
 package com.mcommings.campaigner.modules.common.controllers;
 
-import com.mcommings.campaigner.modules.common.entities.Wealth;
-import com.mcommings.campaigner.modules.common.services.WealthService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.common.dtos.WealthDTO;
+import com.mcommings.campaigner.modules.common.services.interfaces.IWealth;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "api/common/wealth")
 public class WealthController {
-    private final WealthService wealthService;
-
-    @Autowired
-    public WealthController(WealthService wealthService) {this.wealthService = wealthService;}
+    private final IWealth wealthService;
 
     @GetMapping
-    public List<Wealth> getWealth() {
+    public List<WealthDTO> getWealth() {
+
         return wealthService.getWealth();
     }
 
     @PostMapping
-    public void saveWealth(@RequestBody Wealth wealth) {
+    public void saveWealth(@Valid @RequestBody WealthDTO wealth) {
         wealthService.saveWealth(wealth);
     }
 
@@ -31,7 +31,7 @@ public class WealthController {
     }
 
     @PutMapping(path = "{wealthId}")
-    public void updateWealth(@PathVariable int wealthId, @RequestBody Wealth wealth) {
+    public void updateWealth(@PathVariable int wealthId, @RequestBody WealthDTO wealth) {
         wealthService.updateWealth(wealthId, wealth);
     }
 }
