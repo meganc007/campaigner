@@ -33,22 +33,22 @@ public class EventController {
         return eventService.getEventsByCampaignUUID(uuid);
     }
 
-    @GetMapping(path = "/continent/{year}")
+    @GetMapping(path = "/year/{year}")
     public List<EventDTO> getEventsByYear(@PathVariable("year") int year) {
         return eventService.getEventsByYear(year);
     }
 
-    @GetMapping(path = "/continent/{monthId}")
+    @GetMapping(path = "/month/{monthId}")
     public List<EventDTO> getEventsByMonth(@PathVariable("monthId") int monthId) {
         return eventService.getEventsByMonth(monthId);
     }
 
-    @GetMapping(path = "/continent/{weekId}")
+    @GetMapping(path = "/week/{weekId}")
     public List<EventDTO> getEventsByWeek(@PathVariable("weekId") int weekId) {
         return eventService.getEventsByWeek(weekId);
     }
 
-    @GetMapping(path = "/continent/{dayId}")
+    @GetMapping(path = "/day/{dayId}")
     public List<EventDTO> getEventsByDay(@PathVariable("dayId") int dayId) {
         return eventService.getEventsByDay(dayId);
     }

@@ -73,7 +73,7 @@ public class CityControllerTest {
     }
 
     @Test
-    void whenThereAreCitys_getCitys_ReturnsCities() throws Exception {
+    void whenThereAreCities_getCities_ReturnsCities() throws Exception {
         when(cityService.getCities()).thenReturn(List.of(dto));
 
         String response = objectMapper.writeValueAsString(List.of(dto));
@@ -84,7 +84,7 @@ public class CityControllerTest {
     }
 
     @Test
-    void whenThereAreCitys_getCitys_ReturnsEmptyList() throws Exception {
+    void whenThereAreCities_getCities_ReturnsEmptyList() throws Exception {
         when(cityService.getCities()).thenReturn(List.of());
 
         mockMvc.perform(get(URI))
