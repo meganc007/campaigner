@@ -1,30 +1,26 @@
 package com.mcommings.campaigner.modules.common.entities;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.*;
 
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
+@Builder
 @Entity
 @Table(name = "campaigns")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@ToString(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Campaign extends BaseEntity {
 
     @Id
     @Column(name = "campaign_uuid", nullable = false, unique = true, columnDefinition = "varchar(36) default gen_random_uuid()")
     private UUID uuid;
-
-    public Campaign () {
-        super();
-        this.uuid = UUID.randomUUID();
-    }
-
-    public Campaign(String name, String description) {
-        this();
-        this.setName(name);;
-        this.setDescription(description);
-    }
+    @Column(nullable = false)
+    private String name;
+    private String description;
 }

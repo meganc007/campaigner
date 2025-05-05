@@ -18,6 +18,8 @@ public interface IEventRepository extends JpaRepository<Event, Integer> {
     @Query("SELECT e FROM Event e WHERE e.fk_campaign_uuid = :uuid")
     List<Event> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
 
+    List<Event> findByEventYear(int eventYear);
+
     @Query("SELECT e FROM Event e WHERE e.fk_month = :id")
     List<Event> findByfk_month(@Param("id") Integer id);
 

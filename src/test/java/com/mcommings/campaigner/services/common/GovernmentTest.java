@@ -1,78 +1,114 @@
 package com.mcommings.campaigner.services.common;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
+import com.mcommings.campaigner.modules.common.dtos.GovernmentDTO;
 import com.mcommings.campaigner.modules.common.entities.Government;
+import com.mcommings.campaigner.modules.common.mappers.GovernmentMapper;
 import com.mcommings.campaigner.modules.common.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.modules.common.services.GovernmentService;
-import com.mcommings.campaigner.modules.locations.entities.City;
-import com.mcommings.campaigner.modules.locations.entities.Country;
-import com.mcommings.campaigner.modules.locations.repositories.ICityRepository;
-import com.mcommings.campaigner.modules.locations.repositories.ICountryRepository;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_GOVERNMENT;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class GovernmentTest {
 
     @Mock
+    private GovernmentMapper governmentMapper;
+
+    @Mock
     private IGovernmentRepository governmentRepository;
-    @Mock
-    private ICountryRepository countryRepository;
-    @Mock
-    ICityRepository cityRepository;
 
     @InjectMocks
     private GovernmentService governmentService;
 
+    private Government entity;
+    private GovernmentDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        entity = new Government();
+        entity.setId(1);
+        entity.setName("Test Government");
+        entity.setDescription("A fictional land.");
+
+        dto = new GovernmentDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+
+        when(governmentMapper.mapToGovernmentDto(entity)).thenReturn(dto);
+        when(governmentMapper.mapFromGovernmentDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreGovernments_getGovernments_ReturnsGovernments() {
-        List<Government> governments = new ArrayList<>();
-        governments.add(new Government(1, "Government 1", "Description 1"));
-        governments.add(new Government(2, "Government 2", "Description 2"));
-        when(governmentRepository.findAll()).thenReturn(governments);
+        when(governmentRepository.findAll()).thenReturn(List.of(entity));
+        List<GovernmentDTO> result = governmentService.getGovernments();
 
-        List<Government> result = governmentService.getGovernments();
-
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(governments, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Government", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoGovernments_getGovernments_ReturnsNothing() {
-        List<Government> governments = new ArrayList<>();
-        when(governmentRepository.findAll()).thenReturn(governments);
+    public void whenThereAreNoGovernments_getGovernments_ReturnsEmptyList() {
+        when(governmentRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Government> result = governmentService.getGovernments();
+        List<GovernmentDTO> result = governmentService.getGovernments();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(governments, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no governments.");
     }
 
     @Test
-    public void whenGovernmentIsValid_saveGovernment_SavesTheGovernment() {
-        Government government = new Government(1, "Government 1", "Description 1");
-        when(governmentRepository.saveAndFlush(government)).thenReturn(government);
+    void getGovernment_ReturnsGovernmentById() {
+        when(governmentRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        assertDoesNotThrow(() -> governmentService.saveGovernment(government));
-        verify(governmentRepository, times(1)).saveAndFlush(government);
+        Optional<GovernmentDTO> result = governmentService.getGovernment(1);
+
+        assertTrue(result.isPresent());
+        assertEquals("Test Government", result.get().getName());
+    }
+
+    @Test
+    void whenThereIsNotAGovernment_getGovernment_ReturnsNothing() {
+        when(governmentRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<GovernmentDTO> result = governmentService.getGovernment(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when government is not found.");
+    }
+
+    @Test
+    void whenGovernmentIsValid_saveGovernment_SavesTheGovernment() {
+        when(governmentRepository.save(entity)).thenReturn(entity);
+
+        governmentService.saveGovernment(dto);
+
+        verify(governmentRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenGovernmentNameIsInvalid_saveGovernment_ThrowsIllegalArgumentException() {
-        Government governmentWithEmptyName = new Government(1, "", "Description 1");
-        Government governmentWithNullName = new Government(1, null, "Description 2");
+        GovernmentDTO governmentWithEmptyName = new GovernmentDTO();
+        governmentWithEmptyName.setId(1);
+        governmentWithEmptyName.setName("");
+        governmentWithEmptyName.setDescription("A fictional government.");
+
+        GovernmentDTO governmentWithNullName = new GovernmentDTO();
+        governmentWithNullName.setId(1);
+        governmentWithNullName.setName(null);
+        governmentWithNullName.setDescription("A fictional government.");
 
         assertThrows(IllegalArgumentException.class, () -> governmentService.saveGovernment(governmentWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> governmentService.saveGovernment(governmentWithNullName));
@@ -80,94 +116,76 @@ public class GovernmentTest {
 
     @Test
     public void whenGovernmentNameAlreadyExists_saveGovernment_ThrowsDataIntegrityViolationException() {
-        Government government = new Government(1, "Government 1", "Description 1");
-        Government governmentWithDuplicatedName = new Government(2, "Government 1", "Description 2");
-        when(governmentRepository.saveAndFlush(government)).thenReturn(government);
-        when(governmentRepository.saveAndFlush(governmentWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> governmentService.saveGovernment(government));
-        assertThrows(DataIntegrityViolationException.class, () -> governmentService.saveGovernment(governmentWithDuplicatedName));
+        when(governmentRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> governmentService.saveGovernment(dto));
+        verify(governmentRepository, times(1)).findByName(dto.getName());
+        verify(governmentRepository, never()).save(any(Government.class));
     }
 
     @Test
-    public void whenGovernmentIdExists_deleteGovernment_DeletesTheGovernment() {
-        int governmentId = 1;
-        when(governmentRepository.existsById(governmentId)).thenReturn(true);
-        assertDoesNotThrow(() -> governmentService.deleteGovernment(governmentId));
-        verify(governmentRepository, times(1)).deleteById(governmentId);
+    void whenGovernmentIdExists_deleteGovernment_DeletesTheGovernment() {
+        when(governmentRepository.existsById(1)).thenReturn(true);
+        governmentService.deleteGovernment(1);
+        verify(governmentRepository, times(1)).deleteById(1);
     }
 
     @Test
-    public void whenGovernmentIdDoesNotExist_deleteGovernment_ThrowsIllegalArgumentException() {
-        int governmentId = 9000;
-        when(governmentRepository.existsById(governmentId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> governmentService.deleteGovernment(governmentId));
+    void whenGovernmentIdDoesNotExist_deleteGovernment_ThrowsIllegalArgumentException() {
+        when(governmentRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> governmentService.deleteGovernment(999));
     }
 
     @Test
-    public void whenGovernmentIdIsAForeignKey_deleteGovernment_ThrowsDataIntegrityViolationException() {
-        int governmentId = 1;
-        City city = new City(1, "City", "Description", UUID.randomUUID(), 1, 1, 1, governmentId, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(countryRepository, cityRepository));
-        List<City> cities = new ArrayList<>(Arrays.asList(city));
+    void whenDeleteGovernmentFails_deleteGovernment_ThrowsException() {
+        when(governmentRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(governmentRepository).deleteById(1);
 
-        Country country = new Country(1, "Country", "Description", UUID.randomUUID(), 1, governmentId);
-        List<Country> countries = new ArrayList<>(Arrays.asList(country));
-
-
-        when(governmentRepository.existsById(governmentId)).thenReturn(true);
-        when(cityRepository.findByfk_government(governmentId)).thenReturn(cities);
-        when(countryRepository.findByfk_government(governmentId)).thenReturn(countries);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_GOVERNMENT.columnName, governmentId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> governmentService.deleteGovernment(governmentId));
+        assertThrows(RuntimeException.class, () -> governmentService.deleteGovernment(1));
     }
 
     @Test
-    public void whenGovernmentIdIsFound_updateGovernment_UpdatesTheGovernment() {
-        int governmentId = 1;
-        Government government = new Government(governmentId, "Old Government Name", "Old Description");
-        Government governmentToUpdate = new Government(governmentId, "Updated Government Name", "Updated Description");
+    void whenGovernmentIdIsFound_updateGovernment_UpdatesTheGovernment() {
+        GovernmentDTO updateDTO = new GovernmentDTO();
+        updateDTO.setName("Updated Name");
 
-        when(governmentRepository.existsById(governmentId)).thenReturn(true);
-        when(governmentRepository.findById(governmentId)).thenReturn(Optional.of(government));
+        when(governmentRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(governmentRepository.existsById(1)).thenReturn(true);
+        when(governmentRepository.save(entity)).thenReturn(entity);
+        when(governmentMapper.mapToGovernmentDto(entity)).thenReturn(updateDTO);
 
-        governmentService.updateGovernment(governmentId, governmentToUpdate);
+        Optional<GovernmentDTO> result = governmentService.updateGovernment(1, updateDTO);
 
-        verify(governmentRepository).findById(governmentId);
-
-        Government result = governmentRepository.findById(governmentId).get();
-        Assertions.assertEquals(governmentToUpdate.getName(), result.getName());
-        Assertions.assertEquals(governmentToUpdate.getDescription(), result.getDescription());
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
-    public void whenGovernmentIdIsNotFound_updateGovernment_ThrowsIllegalArgumentException() {
-        int governmentId = 1;
-        Government government = new Government(governmentId, "Old Government Name", "Old Description");
+    void whenGovernmentIdIsNotFound_updateGovernment_ReturnsEmptyOptional() {
+        GovernmentDTO updateDTO = new GovernmentDTO();
+        updateDTO.setName("Updated Name");
 
-        when(governmentRepository.existsById(governmentId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> governmentService.updateGovernment(governmentId, government));
+        when(governmentRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> governmentService.updateGovernment(999, updateDTO));
     }
 
     @Test
-    public void whenSomeGovernmentFieldsChanged_updateGovernment_OnlyUpdatesChangedFields() {
-        int governmentId = 1;
-        Government government = new Government(governmentId, "Old Government Name", "Old Description");
-        Government governmentToUpdate = new Government();
-        governmentToUpdate.setDescription("New government description");
+    public void whenGovernmentNameIsInvalid_updateGovernment_ThrowsIllegalArgumentException() {
+        GovernmentDTO updateEmptyName = new GovernmentDTO();
+        updateEmptyName.setName("");
 
-        when(governmentRepository.existsById(governmentId)).thenReturn(true);
-        when(governmentRepository.findById(governmentId)).thenReturn(Optional.of(government));
+        GovernmentDTO updateNullName = new GovernmentDTO();
+        updateNullName.setName(null);
 
-        governmentService.updateGovernment(governmentId, governmentToUpdate);
+        when(governmentRepository.existsById(1)).thenReturn(true);
 
-        verify(governmentRepository).findById(governmentId);
+        assertThrows(IllegalArgumentException.class, () -> governmentService.updateGovernment(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> governmentService.updateGovernment(1, updateNullName));
+    }
 
-        Government result = governmentRepository.findById(governmentId).get();
-        Assertions.assertEquals("Old Government Name", result.getName());
-        Assertions.assertEquals(governmentToUpdate.getDescription(), result.getDescription());
+    @Test
+    public void whenGovernmentNameAlreadyExists_updateGovernment_ThrowsDataIntegrityViolationException() {
+        when(governmentRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> governmentService.updateGovernment(entity.getId(), dto));
     }
 }

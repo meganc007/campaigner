@@ -1,19 +1,20 @@
 package com.mcommings.campaigner.modules.common.services.interfaces;
 
-import com.mcommings.campaigner.modules.common.entities.Campaign;
+import com.mcommings.campaigner.modules.common.dtos.CampaignDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ICampaign {
 
-    List<Campaign> getCampaigns();
+    List<CampaignDTO> getCampaigns();
 
-    Campaign getCampaign(UUID uuid);
+    Optional<CampaignDTO> getCampaign(UUID uuid);
 
-    void saveCampaign(Campaign campaign);
+    void saveCampaign(CampaignDTO campaign);
 
     void deleteCampaign(UUID uuid);
 
-    void updateCampaign(UUID uuid, Campaign campaign);
+    Optional<CampaignDTO> updateCampaign(UUID uuid, CampaignDTO campaign);
 }

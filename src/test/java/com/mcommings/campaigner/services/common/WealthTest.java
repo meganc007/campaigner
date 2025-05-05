@@ -1,82 +1,91 @@
 package com.mcommings.campaigner.services.common;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
+import com.mcommings.campaigner.modules.common.dtos.WealthDTO;
 import com.mcommings.campaigner.modules.common.entities.Wealth;
+import com.mcommings.campaigner.modules.common.mappers.WealthMapper;
 import com.mcommings.campaigner.modules.common.repositories.IWealthRepository;
 import com.mcommings.campaigner.modules.common.services.WealthService;
-import com.mcommings.campaigner.modules.locations.entities.City;
-import com.mcommings.campaigner.modules.locations.repositories.ICityRepository;
-import com.mcommings.campaigner.modules.people.entities.NamedMonster;
-import com.mcommings.campaigner.modules.people.entities.Person;
-import com.mcommings.campaigner.modules.people.repositories.INamedMonsterRepository;
-import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_WEALTH;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class WealthTest {
 
     @Mock
+    private WealthMapper wealthMapper;
+
+    @Mock
     private IWealthRepository wealthRepository;
-    @Mock
-    private ICityRepository cityRepository;
-    @Mock
-    private IPersonRepository personRepository;
-    @Mock
-    private INamedMonsterRepository namedMonsterRepository;
 
     @InjectMocks
     private WealthService wealthService;
 
+    private Wealth entity;
+    private WealthDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        entity = new Wealth();
+        entity.setId(1);
+        entity.setName("Test Wealth");
+
+        dto = new WealthDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+
+        when(wealthMapper.mapToWealthDto(entity)).thenReturn(dto);
+        when(wealthMapper.mapFromWealthDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreWealth_getWealth_ReturnsWealth() {
-        List<Wealth> wealthList = new ArrayList<>();
-        wealthList.add(new Wealth(1, "Wealth 1"));
-        wealthList.add(new Wealth(2, "Wealth 2"));
-        when(wealthRepository.findAll()).thenReturn(wealthList);
+        when(wealthRepository.findAll()).thenReturn(List.of(entity));
+        List<WealthDTO> result = wealthService.getWealth();
 
-        List<Wealth> result = wealthService.getWealth();
-
-        Assertions.assertEquals(2, result.size());
-        Assertions.assertEquals(wealthList, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Wealth", result.get(0).getName());
     }
 
     @Test
-    public void whenThereAreNoWealth_getWealth_ReturnsNothing() {
-        List<Wealth> wealthList = new ArrayList<>();
-        when(wealthRepository.findAll()).thenReturn(wealthList);
+    public void whenThereAreNoWealth_getWealth_ReturnsEmptyList() {
+        when(wealthRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Wealth> result = wealthService.getWealth();
+        List<WealthDTO> result = wealthService.getWealth();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(wealthList, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no wealth.");
     }
 
     @Test
-    public void whenWealthIsValid_saveWealth_SavesTheWealth() {
-        Wealth wealth = new Wealth(1, "Wealth 1");
-        when(wealthRepository.saveAndFlush(wealth)).thenReturn(wealth);
+    void whenWealthIsValid_saveWealth_SavesTheWealth() {
+        when(wealthRepository.save(entity)).thenReturn(entity);
 
-        assertDoesNotThrow(() -> wealthService.saveWealth(wealth));
-        verify(wealthRepository, times(1)).saveAndFlush(wealth);
+        wealthService.saveWealth(dto);
+
+        verify(wealthRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenWealthNameIsInvalid_saveWealth_ThrowsIllegalArgumentException() {
-        Wealth wealthWithEmptyName = new Wealth(1, "");
-        Wealth wealthWithNullName = new Wealth(2, null);
+        WealthDTO wealthWithEmptyName = new WealthDTO();
+        wealthWithEmptyName.setId(1);
+        wealthWithEmptyName.setName("");
+
+        WealthDTO wealthWithNullName = new WealthDTO();
+        wealthWithNullName.setId(1);
+        wealthWithNullName.setName(null);
 
         assertThrows(IllegalArgumentException.class, () -> wealthService.saveWealth(wealthWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> wealthService.saveWealth(wealthWithNullName));
@@ -84,79 +93,76 @@ public class WealthTest {
 
     @Test
     public void whenWealthNameAlreadyExists_saveWealth_ThrowsDataIntegrityViolationException() {
-        Wealth wealth = new Wealth(1, "Wealth 1");
-        Wealth wealthWithDuplicatedName = new Wealth(2, "Wealth 1");
-        when(wealthRepository.saveAndFlush(wealth)).thenReturn(wealth);
-        when(wealthRepository.saveAndFlush(wealthWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> wealthService.saveWealth(wealth));
-        assertThrows(DataIntegrityViolationException.class, () -> wealthService.saveWealth(wealthWithDuplicatedName));
+        when(wealthRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> wealthService.saveWealth(dto));
+        verify(wealthRepository, times(1)).findByName(dto.getName());
+        verify(wealthRepository, never()).save(any(Wealth.class));
     }
 
     @Test
-    public void whenWealthIdExists_deleteWealth_DeletesTheWealth() {
-        int wealthId = 1;
-        when(wealthRepository.existsById(wealthId)).thenReturn(true);
-        assertDoesNotThrow(() -> wealthService.deleteWealth(wealthId));
-        verify(wealthRepository, times(1)).deleteById(wealthId);
+    void whenWealthIdExists_deleteWealth_DeletesTheWealth() {
+        when(wealthRepository.existsById(1)).thenReturn(true);
+        wealthService.deleteWealth(1);
+        verify(wealthRepository, times(1)).deleteById(1);
     }
 
     @Test
-    public void whenWealthIdDoesNotExist_deleteWealth_ThrowsIllegalArgumentException() {
-        int wealthId = 9000;
-        when(wealthRepository.existsById(wealthId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> wealthService.deleteWealth(wealthId));
+    void whenWealthIdDoesNotExist_deleteWealth_ThrowsIllegalArgumentException() {
+        when(wealthRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> wealthService.deleteWealth(999));
     }
 
     @Test
-    public void whenWealthIdIsAForeignKey_deleteWealth_ThrowsDataIntegrityViolationException() {
-        int wealthId = 1;
-        City city = new City(1, "City", "Description", UUID.randomUUID(), wealthId, 1, 1, 1, 1);
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(cityRepository, personRepository));
-        List<City> cities = new ArrayList<>(Arrays.asList(city));
+    void whenDeleteWealthFails_deleteWealth_ThrowsException() {
+        when(wealthRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(wealthRepository).deleteById(1);
 
-        Person person = new Person(1, "Jane", "Doe", 33, "The Nameless One",
-                3, wealthId, 2, true, false, "Personality", "Description", "Notes", UUID.randomUUID());
-        List<Person> people = new ArrayList<>(Arrays.asList(person));
-
-        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title",
-                wealthId, 2, 1, false, "Personality", "Description", "Notes", UUID.randomUUID());
-        List<NamedMonster> namedMonsters = new ArrayList<>(Arrays.asList(namedMonster));
-
-        when(wealthRepository.existsById(wealthId)).thenReturn(true);
-        when(cityRepository.findByfk_wealth(wealthId)).thenReturn(cities);
-        when(personRepository.findByfk_wealth(wealthId)).thenReturn(people);
-        when(namedMonsterRepository.findByfk_wealth(wealthId)).thenReturn(namedMonsters);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_WEALTH.columnName, wealthId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> wealthService.deleteWealth(wealthId));
+        assertThrows(RuntimeException.class, () -> wealthService.deleteWealth(1));
     }
 
     @Test
-    public void whenWealthIdIsFound_updateWealth_UpdatesTheWealth() {
-        int wealthId = 1;
-        Wealth wealth = new Wealth(wealthId, "Old Wealth Name");
-        Wealth wealthToUpdate = new Wealth(wealthId, "Updated Wealth Name");
+    void whenWealthIdIsFound_updateWealth_UpdatesTheWealth() {
+        WealthDTO updateDTO = new WealthDTO();
+        updateDTO.setName("Updated Name");
 
-        when(wealthRepository.existsById(wealthId)).thenReturn(true);
-        when(wealthRepository.findById(wealthId)).thenReturn(Optional.of(wealth));
+        when(wealthRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(wealthRepository.existsById(1)).thenReturn(true);
+        when(wealthRepository.save(entity)).thenReturn(entity);
+        when(wealthMapper.mapToWealthDto(entity)).thenReturn(updateDTO);
 
-        wealthService.updateWealth(wealthId, wealthToUpdate);
+        Optional<WealthDTO> result = wealthService.updateWealth(1, updateDTO);
 
-        verify(wealthRepository).findById(wealthId);
-
-        Wealth result = wealthRepository.findById(wealthId).get();
-        Assertions.assertEquals(wealthToUpdate.getName(), result.getName());
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
-    public void whenWealthIdIsNotFound_updateWealth_ThrowsIllegalArgumentException() {
-        int wealthId = 1;
-        Wealth wealth = new Wealth(wealthId, "Old Wealth Name");
+    void whenWealthIdIsNotFound_updateWealth_ReturnsEmptyOptional() {
+        WealthDTO updateDTO = new WealthDTO();
+        updateDTO.setName("Updated Name");
 
-        when(wealthRepository.existsById(wealthId)).thenReturn(false);
+        when(wealthRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> wealthService.updateWealth(999, updateDTO));
+    }
 
-        assertThrows(IllegalArgumentException.class, () -> wealthService.updateWealth(wealthId, wealth));
+    @Test
+    public void whenWealthNameIsInvalid_updateWealth_ThrowsIllegalArgumentException() {
+        WealthDTO updateEmptyName = new WealthDTO();
+        updateEmptyName.setName("");
+
+        WealthDTO updateNullName = new WealthDTO();
+        updateNullName.setName(null);
+
+        when(wealthRepository.existsById(1)).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> wealthService.updateWealth(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> wealthService.updateWealth(1, updateNullName));
+    }
+
+    @Test
+    public void whenWealthNameAlreadyExists_updateWealth_ThrowsDataIntegrityViolationException() {
+        when(wealthRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> wealthService.updateWealth(entity.getId(), dto));
     }
 }

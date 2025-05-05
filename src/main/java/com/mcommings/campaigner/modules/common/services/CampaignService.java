@@ -1,84 +1,92 @@
 package com.mcommings.campaigner.modules.common.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.common.entities.Campaign;
+import com.mcommings.campaigner.modules.common.dtos.CampaignDTO;
+import com.mcommings.campaigner.modules.common.mappers.CampaignMapper;
 import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
 import com.mcommings.campaigner.modules.common.services.interfaces.ICampaign;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
+@RequiredArgsConstructor
 public class CampaignService implements ICampaign {
     
     private final ICampaignRepository campaignRepository;
+    private final CampaignMapper campaignMapper;
 
-    @Autowired
-    public CampaignService(ICampaignRepository campaignRepository) {
-        this.campaignRepository = campaignRepository;
+    @Override
+    public List<CampaignDTO> getCampaigns() {
+
+        return campaignRepository.findAll()
+                .stream()
+                .map(campaignMapper::mapToCampaignDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Campaign> getCampaigns() {
-        return campaignRepository.findAll();
-    }
-
-    @Override
-    public Campaign getCampaign(UUID uuid) {
-        if (cannotFindUuid(uuid)) {
-            throw new IllegalArgumentException(ID_NOT_FOUND.message);
-        }
-        return getByUuid(uuid);
+    public Optional<CampaignDTO> getCampaign(UUID uuid) {
+        return campaignRepository.findByUuid(uuid)
+                .map(campaignMapper::mapToCampaignDto);
     }
 
     @Override
     @Transactional
-    public void saveCampaign(Campaign campaign) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveCampaign(CampaignDTO campaign) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(campaign)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(campaignRepository, campaign)) {
+        if (nameAlreadyExists(campaign)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
-        campaignRepository.saveAndFlush(campaign);
+        campaignMapper.mapToCampaignDto(
+                campaignRepository.save(
+                        campaignMapper.mapFromCampaignDto(campaign)
+                ));
     }
     
     @Override
     @Transactional
     public void deleteCampaign(UUID uuid) throws IllegalArgumentException, DataIntegrityViolationException {
         if (cannotFindUuid(uuid)) {
+            System.out.println("couldn't find it");
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        // TODO: need to think about this - (Campaign uuid is a fk on 30+ tables)
-//        if (RepositoryHelper.isForeignKey(getReposWhereCampaignIsAForeignKey(), FK_CAMPAIGN.columnName, campaignId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
         campaignRepository.deleteByUuid(uuid);
     }
     
     @Override
-    @Transactional
-    public void updateCampaign(UUID uuid, Campaign campaign) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<CampaignDTO> updateCampaign(UUID uuid, CampaignDTO campaign) throws IllegalArgumentException, DataIntegrityViolationException {
         if (cannotFindUuid(uuid)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        Campaign campaignToUpdate = getByUuid(uuid);
-        if (campaign.getName() != null) campaignToUpdate.setName(campaign.getName());
-        if (campaign.getDescription() != null) campaignToUpdate.setDescription(campaign.getDescription());
+        if (nameAlreadyExists(campaign)) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
+
+        return campaignRepository.findByUuid(uuid).map(foundCampaign -> {
+            if (campaign.getName() != null) foundCampaign.setName(campaign.getName());
+            if (campaign.getDescription() != null) foundCampaign.setDescription(campaign.getDescription());
+
+            return campaignMapper.mapToCampaignDto(campaignRepository.save(foundCampaign));
+        });
     }
 
     private boolean cannotFindUuid(UUID uuid) {
         return !campaignRepository.findByUuid(uuid).isPresent();
     }
 
-    private Campaign getByUuid(UUID uuid) {
-        return campaignRepository.findByUuid(uuid).get();
+    private boolean nameAlreadyExists(CampaignDTO campaign) {
+        return campaignRepository.findByName(campaign.getName()).isPresent();
     }
 }

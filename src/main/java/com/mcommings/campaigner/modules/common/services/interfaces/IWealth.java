@@ -1,16 +1,17 @@
 package com.mcommings.campaigner.modules.common.services.interfaces;
 
-import com.mcommings.campaigner.modules.common.entities.Wealth;
+import com.mcommings.campaigner.modules.common.dtos.WealthDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IWealth {
 
-    List<Wealth> getWealth();
+    List<WealthDTO> getWealth();
 
-    void saveWealth(Wealth wealth);
+    void saveWealth(WealthDTO wealth);
 
     void deleteWealth(int wealthId);
 
-    void updateWealth(int wealthId, Wealth wealth);
+    Optional<WealthDTO> updateWealth(int wealthId, WealthDTO wealth);
 }

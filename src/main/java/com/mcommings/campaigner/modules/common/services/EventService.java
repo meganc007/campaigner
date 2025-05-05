@@ -1,148 +1,155 @@
 package com.mcommings.campaigner.modules.common.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.calendar.repositories.IDayRepository;
-import com.mcommings.campaigner.modules.calendar.repositories.IMonthRepository;
-import com.mcommings.campaigner.modules.calendar.repositories.IWeekRepository;
-import com.mcommings.campaigner.modules.common.entities.Event;
+import com.mcommings.campaigner.modules.common.dtos.EventDTO;
+import com.mcommings.campaigner.modules.common.mappers.EventMapper;
 import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
 import com.mcommings.campaigner.modules.common.services.interfaces.IEvent;
-import com.mcommings.campaigner.modules.locations.repositories.ICityRepository;
-import com.mcommings.campaigner.modules.locations.repositories.IContinentRepository;
-import com.mcommings.campaigner.modules.locations.repositories.ICountryRepository;
-import com.mcommings.campaigner.modules.people.repositories.IEventPlacePersonRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_EVENT;
 
 @Service
+@RequiredArgsConstructor
 public class EventService implements IEvent {
 
     private final IEventRepository eventRepository;
-    private final IMonthRepository monthRepository;
-    private final IWeekRepository weekRepository;
-    private final IDayRepository dayRepository;
-    private final ICityRepository cityRepository;
-    private final IContinentRepository continentRepository;
-    private final ICountryRepository countryRepository;
-    private final IEventPlacePersonRepository eventPlacePersonRepository;
+    private final EventMapper eventMapper;
 
-    @Autowired
-    public EventService(IEventRepository eventRepository, IMonthRepository monthRepository,
-                        IWeekRepository weekRepository, IDayRepository dayRepository, ICityRepository cityRepository,
-                        IContinentRepository continentRepository, ICountryRepository countryRepository,
-                        IEventPlacePersonRepository eventPlacePersonRepository) {
-        this.eventRepository = eventRepository;
-        this.monthRepository = monthRepository;
-        this.weekRepository = weekRepository;
-        this.dayRepository = dayRepository;
-        this.cityRepository = cityRepository;
-        this.continentRepository = continentRepository;
-        this.countryRepository = countryRepository;
-        this.eventPlacePersonRepository = eventPlacePersonRepository;
+    @Override
+    public List<EventDTO> getEvents() {
+        return eventRepository.findAll()
+                .stream()
+                .map(eventMapper::mapToEventDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Event> getEvents() {
-        return eventRepository.findAll();
+    public Optional<EventDTO> getEvent(int eventId) {
+        return eventRepository.findById(eventId)
+                .map(eventMapper::mapToEventDto);
     }
 
     @Override
-    public List<Event> getEventsByCampaignUUID(UUID uuid) {
-        return eventRepository.findByfk_campaign_uuid(uuid);
+    public List<EventDTO> getEventsByCampaignUUID(UUID uuid) {
+        return eventRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(eventMapper::mapToEventDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Event> getEventsByContinent(int continentId) {
-        return eventRepository.findByfk_continent(continentId);
+    public List<EventDTO> getEventsByYear(int year) {
+        return eventRepository.findByEventYear(year)
+                .stream()
+                .map(eventMapper::mapToEventDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Event> getEventsByCountry(int countryId) {
-        return eventRepository.findByfk_country(countryId);
+    public List<EventDTO> getEventsByMonth(int monthId) {
+        return eventRepository.findByfk_month(monthId)
+                .stream()
+                .map(eventMapper::mapToEventDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Event> getEventsByCity(int cityId) {
-        return eventRepository.findByfk_city(cityId);
+    public List<EventDTO> getEventsByWeek(int weekId) {
+        return eventRepository.findByfk_week(weekId)
+                .stream()
+                .map(eventMapper::mapToEventDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    @Transactional
-    public void saveEvent(Event event) throws IllegalArgumentException, DataIntegrityViolationException {
+    public List<EventDTO> getEventsByDay(int dayId) {
+        return eventRepository.findByfk_day(dayId)
+                .stream()
+                .map(eventMapper::mapToEventDto)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<EventDTO> getEventsByContinent(int continentId) {
+        return eventRepository.findByfk_continent(continentId)
+                .stream()
+                .map(eventMapper::mapToEventDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EventDTO> getEventsByCountry(int countryId) {
+        return eventRepository.findByfk_country(countryId)
+                .stream()
+                .map(eventMapper::mapToEventDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EventDTO> getEventsByCity(int cityId) {
+
+        return eventRepository.findByfk_city(cityId)
+                .stream()
+                .map(eventMapper::mapToEventDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveEvent(EventDTO event) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(event)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(eventRepository, event)) {
+        if (RepositoryHelper.nameAlreadyExists(eventRepository, event.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-        if (hasForeignKeys(event) &&
-                RepositoryHelper.foreignKeyIsNotValid(eventRepository, getListOfForeignKeyRepositories(), event)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
-        }
 
-        eventRepository.saveAndFlush(event);
+        eventMapper.mapToEventDto(
+                eventRepository.save(
+                        eventMapper.mapFromEventDto(event)
+                ));
     }
 
     @Override
-    @Transactional
     public void deleteEvent(int eventId) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(eventRepository, eventId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.isForeignKey(getReposWhereEventIsAForeignKey(), FK_EVENT.columnName, eventId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
         eventRepository.deleteById(eventId);
     }
 
     @Override
-    @Transactional
-    public void updateEvent(int eventId, Event event) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<EventDTO> updateEvent(int eventId, EventDTO event) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(eventRepository, eventId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (hasForeignKeys(event) &&
-                RepositoryHelper.foreignKeyIsNotValid(eventRepository, getListOfForeignKeyRepositories(), event)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+        if (RepositoryHelper.nameIsNullOrEmpty(event)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        Event eventToUpdate = RepositoryHelper.getById(eventRepository, eventId);
-        if (event.getName() != null) eventToUpdate.setName(event.getName());
-        if (event.getDescription() != null) eventToUpdate.setDescription(event.getDescription());
-        if (event.getEvent_year() != 0) eventToUpdate.setEvent_year(event.getEvent_year());
-        if (event.getFk_month() != null) eventToUpdate.setFk_month(event.getFk_month());
-        if (event.getFk_week() != null) eventToUpdate.setFk_week(event.getFk_week());
-        if (event.getFk_day() != null) eventToUpdate.setFk_day(event.getFk_day());
-        if (event.getFk_city() != null) eventToUpdate.setFk_city(event.getFk_city());
-        if (event.getFk_continent() != null) eventToUpdate.setFk_continent(event.getFk_continent());
-        if (event.getFk_country() != null) eventToUpdate.setFk_country(event.getFk_country());
-    }
+        if (RepositoryHelper.nameAlreadyExists(eventRepository, event.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
 
-    private List<CrudRepository> getReposWhereEventIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(eventPlacePersonRepository));
-    }
+        return eventRepository.findById(eventId).map(foundEvent -> {
+            if (event.getName() != null) foundEvent.setName(event.getName());
+            if (event.getDescription() != null) foundEvent.setDescription(event.getDescription());
+            if (event.getEventYear() != 0) foundEvent.setEventYear(event.getEventYear());
+            if (event.getFk_month() != null) foundEvent.setFk_month(event.getFk_month());
+            if (event.getFk_week() != null) foundEvent.setFk_week(event.getFk_week());
+            if (event.getFk_day() != null) foundEvent.setFk_day(event.getFk_day());
+            if (event.getFk_city() != null) foundEvent.setFk_city(event.getFk_city());
+            if (event.getFk_continent() != null) foundEvent.setFk_continent(event.getFk_continent());
+            if (event.getFk_country() != null) foundEvent.setFk_country(event.getFk_country());
 
-    private boolean hasForeignKeys(Event event) {
-        return event.getFk_month() != null ||
-                event.getFk_week() != null ||
-                event.getFk_day() != null ||
-                event.getFk_city() != null ||
-                event.getFk_continent() != null ||
-                event.getFk_country() != null;
-    }
-
-    private List<CrudRepository> getListOfForeignKeyRepositories() {
-        return new ArrayList<>(Arrays.asList(monthRepository, weekRepository, dayRepository, cityRepository,
-                continentRepository, countryRepository));
+            return eventMapper.mapToEventDto(eventRepository.save(foundEvent));
+        });
     }
 }

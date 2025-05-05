@@ -1,28 +1,34 @@
 package com.mcommings.campaigner.modules.common.controllers;
 
-import com.mcommings.campaigner.modules.common.entities.Climate;
-import com.mcommings.campaigner.modules.common.services.ClimateService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.common.dtos.ClimateDTO;
+import com.mcommings.campaigner.modules.common.services.interfaces.IClimate;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "api/climates")
 public class ClimateController {
 
-    private final ClimateService climateService;
-
-    @Autowired
-    public ClimateController (ClimateService climateService) {this.climateService = climateService;}
+    private final IClimate climateService;
 
     @GetMapping
-    public List<Climate> getClimates() {
+    public List<ClimateDTO> getClimates() {
         return climateService.getClimates();
     }
 
+    @GetMapping(path = "/{climateId}")
+    public ClimateDTO getClimate(@PathVariable("climateId") int climateId) {
+        return climateService.getClimate(climateId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @PostMapping
-    public void saveClimate(@RequestBody Climate climate) {
+    public void saveClimate(@Valid @RequestBody ClimateDTO climate) {
         climateService.saveClimate(climate);
     }
 
@@ -32,7 +38,7 @@ public class ClimateController {
     }
 
     @PutMapping(path = "{climateId}")
-    public void updateClimate(@PathVariable("climateId") int climateId, @RequestBody Climate climate) {
+    public void updateClimate(@PathVariable("climateId") int climateId, @RequestBody ClimateDTO climate) {
         climateService.updateClimate(climateId, climate);
     }
 }

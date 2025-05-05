@@ -1,85 +1,75 @@
 package com.mcommings.campaigner.modules.common.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.common.entities.Wealth;
+import com.mcommings.campaigner.modules.common.dtos.WealthDTO;
+import com.mcommings.campaigner.modules.common.mappers.WealthMapper;
 import com.mcommings.campaigner.modules.common.repositories.IWealthRepository;
 import com.mcommings.campaigner.modules.common.services.interfaces.IWealth;
-import com.mcommings.campaigner.modules.locations.repositories.ICityRepository;
-import com.mcommings.campaigner.modules.people.repositories.INamedMonsterRepository;
-import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_WEALTH;
 
 @Service
+@RequiredArgsConstructor
 public class WealthService implements IWealth {
 
     private final IWealthRepository wealthRepository;
-    private final ICityRepository cityRepository;
-    private final IPersonRepository personRepository;
-    private final INamedMonsterRepository namedMonsterRepository;
+    private final WealthMapper wealthMapper;
 
-    @Autowired
-    public WealthService(IWealthRepository wealthRepository, ICityRepository cityRepository,
-                         IPersonRepository personRepository, INamedMonsterRepository namedMonsterRepository) {
-        this.wealthRepository = wealthRepository;
-        this.cityRepository = cityRepository;
-        this.personRepository = personRepository;
-        this.namedMonsterRepository = namedMonsterRepository;
+    @Override
+    public List<WealthDTO> getWealth() {
+
+        return wealthRepository.findAll().stream()
+                .map(wealthMapper::mapToWealthDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Wealth> getWealth() {
-        return wealthRepository.findAll();
-    }
-
-    @Override
-    @Transactional
-    public void saveWealth(Wealth wealth) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveWealth(WealthDTO wealth) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(wealth)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(wealthRepository, wealth)) {
+        if (RepositoryHelper.nameAlreadyExists(wealthRepository, wealth.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
-        wealthRepository.saveAndFlush(wealth);
+        wealthMapper.mapToWealthDto(
+                wealthRepository.save(
+                        wealthMapper.mapFromWealthDto(wealth)
+                ));
     }
 
     @Override
-    @Transactional
     public void deleteWealth(int wealthId) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(wealthRepository, wealthId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.isForeignKey(getReposWhereWealthIsAForeignKey(), FK_WEALTH.columnName, wealthId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
 
         wealthRepository.deleteById(wealthId);
     }
 
     @Override
-    @Transactional
-    public void updateWealth(int wealthId, Wealth wealth) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<WealthDTO> updateWealth(int wealthId, WealthDTO wealth) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(wealthRepository, wealthId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
+        if (RepositoryHelper.nameIsNullOrEmpty(wealth)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (RepositoryHelper.nameAlreadyExists(wealthRepository, wealth.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
 
-        Wealth wealthToUpdate = RepositoryHelper.getById(wealthRepository, wealthId);
-        wealthToUpdate.setName(wealth.getName());
-    }
+        return wealthRepository.findById(wealthId).map(foundWealth -> {
+            if (wealth.getName() != null) foundWealth.setName(wealth.getName());
 
-    private List<CrudRepository> getReposWhereWealthIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(cityRepository, personRepository, namedMonsterRepository));
+            return wealthMapper.mapToWealthDto(wealthRepository.save(foundWealth));
+        });
     }
 }
