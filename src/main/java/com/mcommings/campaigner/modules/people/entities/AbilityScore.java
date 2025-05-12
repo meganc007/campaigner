@@ -1,57 +1,34 @@
 package com.mcommings.campaigner.modules.people.entities;
 
-import com.mcommings.campaigner.modules.common.entities.Campaign;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
+@Builder
 @Entity
 @Table(name = "ability_scores")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@NoArgsConstructor
+@AllArgsConstructor
 public class AbilityScore {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int id;
-
-    @Column(name = "fk_campaign_uuid")
+    private int id;
     private UUID fk_campaign_uuid;
-
-    @Column(name = "strength")
+    @Column(nullable = false)
     private int strength;
-
-    @Column(name = "dexterity")
+    @Column(nullable = false)
     private int dexterity;
-
-    @Column(name = "constitution")
+    @Column(nullable = false)
     private int constitution;
-
-    @Column(name = "intelligence")
+    @Column(nullable = false)
     private int intelligence;
-
-    @Column(name = "wisdom")
+    @Column(nullable = false)
     private int wisdom;
-
-    @Column(name = "charisma")
+    @Column(nullable = false)
     private int charisma;
-
-    @ManyToOne
-    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
-    private Campaign campaign;
-
-    public AbilityScore() {
-    }
-
-    public AbilityScore(int id, UUID fk_campaign_uuid, int strength, int dexterity, int constitution, int intelligence, int wisdom, int charisma) {
-        this.id = id;
-        this.fk_campaign_uuid = fk_campaign_uuid;
-        this.strength = strength;
-        this.dexterity = dexterity;
-        this.constitution = constitution;
-        this.intelligence = intelligence;
-        this.wisdom = wisdom;
-        this.charisma = charisma;
-    }
 }

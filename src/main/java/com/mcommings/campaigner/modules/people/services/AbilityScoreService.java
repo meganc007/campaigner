@@ -1,56 +1,55 @@
 package com.mcommings.campaigner.modules.people.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
+import com.mcommings.campaigner.modules.people.dtos.AbilityScoreDTO;
 import com.mcommings.campaigner.modules.people.entities.AbilityScore;
+import com.mcommings.campaigner.modules.people.mappers.AbilityScoreMapper;
 import com.mcommings.campaigner.modules.people.repositories.IAbilityScoreRepository;
-import com.mcommings.campaigner.modules.people.repositories.IGenericMonsterRepository;
-import com.mcommings.campaigner.modules.people.repositories.INamedMonsterRepository;
-import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
 import com.mcommings.campaigner.modules.people.services.interfaces.IAbilityScore;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_ABILITY_SCORE;
 
 @Service
+@RequiredArgsConstructor
 public class AbilityScoreService implements IAbilityScore {
 
     private final IAbilityScoreRepository abilityScoreRepository;
-    private final IPersonRepository personRepository;
-    private final IGenericMonsterRepository genericMonsterRepository;
-    private final INamedMonsterRepository namedMonsterRepository;
+    private final AbilityScoreMapper abilityScoreMapper;
 
-    @Autowired
-    public AbilityScoreService(IAbilityScoreRepository abilityScoreRepository, IPersonRepository personRepository,
-                               IGenericMonsterRepository genericMonsterRepository, INamedMonsterRepository namedMonsterRepository) {
-        this.abilityScoreRepository = abilityScoreRepository;
-        this.personRepository = personRepository;
-        this.genericMonsterRepository = genericMonsterRepository;
-        this.namedMonsterRepository = namedMonsterRepository;
+
+    @Override
+    public List<AbilityScoreDTO> getAbilityScores() {
+
+        return abilityScoreRepository.findAll()
+                .stream()
+                .map(abilityScoreMapper::mapToAbilityScoreDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<AbilityScore> getAbilityScores() {
-        return abilityScoreRepository.findAll();
+    public Optional<AbilityScoreDTO> getAbilityScore(int id) {
+        return abilityScoreRepository.findById(id)
+                .map(abilityScoreMapper::mapToAbilityScoreDto);
     }
 
     @Override
-    public List<AbilityScore> getAbilityScoresByCampaignUUID(UUID uuid) {
-        return abilityScoreRepository.findByfk_campaign_uuid(uuid);
+    public List<AbilityScoreDTO> getAbilityScoresByCampaignUUID(UUID uuid) {
+        return abilityScoreRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(abilityScoreMapper::mapToAbilityScoreDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    @Transactional
-    public void saveAbilityScore(AbilityScore abilityScore) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveAbilityScore(AbilityScoreDTO abilityScore) throws IllegalArgumentException, DataIntegrityViolationException {
         if (abilityScoreEqualsZero(abilityScore)) {
             throw new IllegalArgumentException(CANNOT_BE_ZERO.message);
         }
@@ -58,38 +57,43 @@ public class AbilityScoreService implements IAbilityScore {
             throw new DataIntegrityViolationException(SCORE_EXISTS.message);
         }
 
-        abilityScoreRepository.saveAndFlush(abilityScore);
+        abilityScoreMapper.mapToAbilityScoreDto(
+                abilityScoreRepository.save(
+                        abilityScoreMapper.mapFromAbilityScoreDto(abilityScore)
+                ));
     }
 
     @Override
-    @Transactional
     public void deleteAbilityScore(int id) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(abilityScoreRepository, id)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.isForeignKey(getReposWhereAbilityScoreIsAForeignKey(), FK_ABILITY_SCORE.columnName, id)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
 
         abilityScoreRepository.deleteById(id);
     }
 
     @Override
-    @Transactional
-    public void updateAbilityScore(int id, AbilityScore abilityScore) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<AbilityScoreDTO> updateAbilityScore(int id, AbilityScoreDTO abilityScore) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(abilityScoreRepository, id)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        AbilityScore abilityScoreToUpdate = RepositoryHelper.getById(abilityScoreRepository, id);
-        if (abilityScore.getStrength() >= 0) abilityScoreToUpdate.setStrength(abilityScore.getStrength());
-        if (abilityScore.getDexterity() >= 0) abilityScoreToUpdate.setDexterity(abilityScore.getDexterity());
-        if (abilityScore.getConstitution() >= 0) abilityScoreToUpdate.setConstitution(abilityScore.getConstitution());
-        if (abilityScore.getIntelligence() >= 0) abilityScoreToUpdate.setIntelligence(abilityScore.getIntelligence());
-        if (abilityScore.getWisdom() >= 0) abilityScoreToUpdate.setWisdom(abilityScore.getWisdom());
-        if (abilityScore.getCharisma() >= 0) abilityScoreToUpdate.setCharisma(abilityScore.getCharisma());
+        if (abilityScoreAlreadyExists(abilityScore)) {
+            throw new DataIntegrityViolationException(SCORE_EXISTS.message);
+        }
+
+        return abilityScoreRepository.findById(id).map(foundAbilityScore -> {
+            if (abilityScore.getStrength() >= 0) foundAbilityScore.setStrength(abilityScore.getStrength());
+            if (abilityScore.getDexterity() >= 0) foundAbilityScore.setDexterity(abilityScore.getDexterity());
+            if (abilityScore.getConstitution() >= 0) foundAbilityScore.setConstitution(abilityScore.getConstitution());
+            if (abilityScore.getIntelligence() >= 0) foundAbilityScore.setIntelligence(abilityScore.getIntelligence());
+            if (abilityScore.getWisdom() >= 0) foundAbilityScore.setWisdom(abilityScore.getWisdom());
+            if (abilityScore.getCharisma() >= 0) foundAbilityScore.setCharisma(abilityScore.getCharisma());
+
+            return abilityScoreMapper.mapToAbilityScoreDto(abilityScoreRepository.save(foundAbilityScore));
+        });
     }
 
-    private boolean abilityScoreEqualsZero(AbilityScore abilityScore) {
+    private boolean abilityScoreEqualsZero(AbilityScoreDTO abilityScore) {
         return abilityScore.getStrength() == 0 ||
                 abilityScore.getDexterity() == 0 ||
                 abilityScore.getConstitution() == 0 ||
@@ -98,11 +102,9 @@ public class AbilityScoreService implements IAbilityScore {
                 abilityScore.getCharisma() == 0;
     }
 
-    private boolean abilityScoreAlreadyExists(AbilityScore abilityScore) {
-        return abilityScoreRepository.abilityScoreExists(abilityScore).isPresent();
+    private boolean abilityScoreAlreadyExists(AbilityScoreDTO abilityScore) {
+        AbilityScore score = abilityScoreMapper.mapFromAbilityScoreDto(abilityScore);
+        return abilityScoreRepository.abilityScoreExists(score).isPresent();
     }
 
-    private List<CrudRepository> getReposWhereAbilityScoreIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(personRepository, genericMonsterRepository, namedMonsterRepository));
-    }
 }
