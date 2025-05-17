@@ -1,27 +1,33 @@
 package com.mcommings.campaigner.modules.people.controllers;
 
-import com.mcommings.campaigner.modules.people.entities.Job;
-import com.mcommings.campaigner.modules.people.services.JobService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.people.dtos.JobDTO;
+import com.mcommings.campaigner.modules.people.services.interfaces.IJob;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping(path = "api/people/jobs")
-public class JobController {
-    private final JobService jobService;
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
 
-    @Autowired
-    public JobController(JobService jobService) {this.jobService = jobService;}
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(path = "api/jobs")
+public class JobController {
+    private final IJob jobService;
 
     @GetMapping
-    public List<Job> getJobs() {
+    public List<JobDTO> getJobs() {
         return jobService.getJobs();
     }
 
+    @GetMapping(path = "/{jobId}")
+    public JobDTO getJob(@PathVariable("jobId") int jobId) {
+        return jobService.getJob(jobId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @PostMapping
-    public void saveJob(@RequestBody Job job) {
+    public void saveJob(@Valid @RequestBody JobDTO job) {
         jobService.saveJob(job);
     }
 
@@ -31,7 +37,7 @@ public class JobController {
     }
 
     @PutMapping(path = "{jobId}")
-    public void updateJob(@PathVariable("jobId") int jobId, @RequestBody Job job) {
+    public void updateJob(@PathVariable("jobId") int jobId, @RequestBody JobDTO job) {
         jobService.updateJob(jobId, job);
     }
 }

@@ -1,77 +1,81 @@
 package com.mcommings.campaigner.modules.people.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.people.entities.Job;
-import com.mcommings.campaigner.modules.people.repositories.IJobAssignmentRepository;
+import com.mcommings.campaigner.modules.people.dtos.JobDTO;
+import com.mcommings.campaigner.modules.people.mappers.JobMapper;
 import com.mcommings.campaigner.modules.people.repositories.IJobRepository;
 import com.mcommings.campaigner.modules.people.services.interfaces.IJob;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_JOB;
 
 @Service
+@RequiredArgsConstructor
 public class JobService implements IJob {
 
     private final IJobRepository jobRepository;
-    private final IJobAssignmentRepository jobAssignmentRepository;
+    private final JobMapper jobMapper;
 
-    @Autowired
-    public JobService(IJobRepository jobRepository, IJobAssignmentRepository jobAssignmentRepository) {
-        this.jobRepository = jobRepository;
-        this.jobAssignmentRepository = jobAssignmentRepository;
+    @Override
+    public List<JobDTO> getJobs() {
+        return jobRepository.findAll()
+                .stream()
+                .map(jobMapper::mapToJobDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Job> getJobs() {
-        return jobRepository.findAll();
+    public Optional<JobDTO> getJob(int jobId) {
+        return jobRepository.findById(jobId)
+                .map(jobMapper::mapToJobDto);
     }
 
     @Override
-    @Transactional
-    public void saveJob(Job job) throws IllegalArgumentException, DataIntegrityViolationException {
+    public void saveJob(JobDTO job) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(job)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(jobRepository, job)) {
+        if (RepositoryHelper.nameAlreadyExists(jobRepository, job.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-        jobRepository.saveAndFlush(job);
+        jobMapper.mapToJobDto(jobRepository
+                .save(jobMapper.mapFromJobDto(job)
+                ));
     }
 
     @Override
-    @Transactional
     public void deleteJob(int jobId) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(jobRepository, jobId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.isForeignKey(getReposWhereJobIsAForeignKey(), FK_JOB.columnName, jobId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
 
         jobRepository.deleteById(jobId);
     }
 
     @Override
-    @Transactional
-    public void updateJob(int jobId, Job job) {
+    public Optional<JobDTO> updateJob(int jobId, JobDTO job) {
         if (RepositoryHelper.cannotFindId(jobRepository, jobId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        Job jobToUpdate = RepositoryHelper.getById(jobRepository, jobId);
-        if (job.getName() != null) jobToUpdate.setName(job.getName());
-        if (job.getDescription() != null) jobToUpdate.setDescription(job.getDescription());
+        if (RepositoryHelper.nameIsNullOrEmpty(job)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (RepositoryHelper.nameAlreadyExists(jobRepository, job.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
+
+        return jobRepository.findById(jobId).map(foundJob -> {
+            if (job.getName() != null) foundJob.setName(job.getName());
+            if (job.getDescription() != null) foundJob.setDescription(job.getDescription());
+
+            return jobMapper.mapToJobDto(jobRepository.save(foundJob));
+        });
     }
 
-    private List<CrudRepository> getReposWhereJobIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(jobAssignmentRepository));
-    }
 }
