@@ -13,7 +13,7 @@ import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "api/ability-scores")
+@RequestMapping(path = "api/abilityScores")
 public class AbilityScoreController {
 
     private final IAbilityScore abilityScoreService;
