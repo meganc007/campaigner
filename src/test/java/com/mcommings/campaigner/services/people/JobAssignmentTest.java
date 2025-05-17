@@ -1,208 +1,187 @@
 package com.mcommings.campaigner.services.people;
 
+import com.mcommings.campaigner.modules.people.dtos.JobAssignmentDTO;
 import com.mcommings.campaigner.modules.people.entities.JobAssignment;
+import com.mcommings.campaigner.modules.people.mappers.JobAssignmentMapper;
 import com.mcommings.campaigner.modules.people.repositories.IJobAssignmentRepository;
-import com.mcommings.campaigner.modules.people.repositories.IJobRepository;
-import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
 import com.mcommings.campaigner.modules.people.services.JobAssignmentService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class JobAssignmentTest {
     @Mock
+    private JobAssignmentMapper jobAssignmentMapper;
+    
+    @Mock
     private IJobAssignmentRepository jobAssignmentRepository;
-    @Mock
-    private IPersonRepository personRepository;
-    @Mock
-    private IJobRepository jobRepository;
 
     @InjectMocks
     private JobAssignmentService jobAssignmentService;
 
+    private JobAssignment entity;
+    private JobAssignmentDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new JobAssignment();
+        entity.setId(1);
+        entity.setFk_job(random.nextInt(100) + 1);
+        entity.setFk_person(random.nextInt(100) + 1);
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+
+        dto = new JobAssignmentDTO();
+        dto.setId(entity.getId());
+        dto.setFk_job(entity.getFk_job());
+        dto.setFk_person(entity.getFk_person());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+
+        when(jobAssignmentMapper.mapToJobAssignmentDto(entity)).thenReturn(dto);
+        when(jobAssignmentMapper.mapFromJobAssignmentDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreJobAssignments_getJobAssignments_ReturnsJobAssignments() {
-        UUID campaign = UUID.randomUUID();
-        List<JobAssignment> jobAssignments = new ArrayList<>();
-        jobAssignments.add(new JobAssignment(1, 1, 3, campaign));
-        jobAssignments.add(new JobAssignment(2, 2, 6, campaign));
-        jobAssignments.add(new JobAssignment(3, 3, 9, campaign));
-        when(jobAssignmentRepository.findAll()).thenReturn(jobAssignments);
+        when(jobAssignmentRepository.findAll()).thenReturn(List.of(entity));
+        List<JobAssignmentDTO> result = jobAssignmentService.getJobAssignments();
 
-        List<JobAssignment> result = jobAssignmentService.getJobAssignments();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(jobAssignments, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).getId());
     }
 
     @Test
     public void whenThereAreNoJobAssignments_getJobAssignments_ReturnsNothing() {
-        List<JobAssignment> jobAssignments = new ArrayList<>();
-        when(jobAssignmentRepository.findAll()).thenReturn(jobAssignments);
+        when(jobAssignmentRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<JobAssignment> result = jobAssignmentService.getJobAssignments();
+        List<JobAssignmentDTO> result = jobAssignmentService.getJobAssignments();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(jobAssignments, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no jobAssignments.");
+    }
+
+    @Test
+    public void whenThereIsAJobAssignment_getJobAssignment_ReturnsJobAssignment() {
+        when(jobAssignmentRepository.findById(1)).thenReturn(Optional.of(entity));
+
+        Optional<JobAssignmentDTO> result = jobAssignmentService.getJobAssignment(1);
+
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().getId());
+    }
+
+    @Test
+    public void whenThereIsNotAJobAssignment_getJobAssignment_ReturnsJobAssignment() {
+        when(jobAssignmentRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<JobAssignmentDTO> result = jobAssignmentService.getJobAssignment(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when jobAssignment is not found.");
     }
 
     @Test
     public void whenCampaignUUIDIsValid_getJobAssignmentsByCampaignUUID_ReturnsJobAssignments() {
-        UUID campaign = UUID.randomUUID();
-        List<JobAssignment> jobAssignments = new ArrayList<>();
-        jobAssignments.add(new JobAssignment(1, 1, 3, campaign));
-        jobAssignments.add(new JobAssignment(2, 2, 6, campaign));
-        jobAssignments.add(new JobAssignment(3, 3, 9, campaign));
-        when(jobAssignmentRepository.findByfk_campaign_uuid(campaign)).thenReturn(jobAssignments);
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(jobAssignmentRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        List<JobAssignment> results = jobAssignmentService.getJobAssignmentsByCampaignUUID(campaign);
+        List<JobAssignmentDTO> result = jobAssignmentService.getJobAssignmentsByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(jobAssignments, results);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
     public void whenCampaignUUIDIsInvalid_getJobAssignmentsByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<JobAssignment> jobAssignments = new ArrayList<>();
-        when(jobAssignmentRepository.findByfk_campaign_uuid(campaign)).thenReturn(jobAssignments);
+        UUID campaignUUID = UUID.randomUUID();
+        when(jobAssignmentRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        List<JobAssignment> result = jobAssignmentService.getJobAssignmentsByCampaignUUID(campaign);
+        List<JobAssignmentDTO> result = jobAssignmentService.getJobAssignmentsByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(jobAssignments, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no jobAssignments match the campaign UUID.");
     }
 
     @Test
     public void whenJobAssignmentIsValid_saveJobAssignment_SavesTheJobAssignment() {
-        JobAssignment jobAssignment = new JobAssignment(1, 2, 3, UUID.randomUUID());
+        when(jobAssignmentRepository.save(entity)).thenReturn(entity);
 
-        when(personRepository.existsById(2)).thenReturn(true);
-        when(jobRepository.existsById(3)).thenReturn(true);
-        when(jobAssignmentRepository.saveAndFlush(jobAssignment)).thenReturn(jobAssignment);
+        jobAssignmentService.saveJobAssignment(dto);
 
-        assertDoesNotThrow(() -> jobAssignmentService.saveJobAssignment(jobAssignment));
-
-        verify(jobAssignmentRepository, times(1)).saveAndFlush(jobAssignment);
+        verify(jobAssignmentRepository, times(1)).save(entity);
     }
 
     @Test
-    public void whenJobAssignmentAlreadyExists_saveJobAssignment_ThrowsDataIntegrityViolationException() {
-        UUID campaign = UUID.randomUUID();
-        JobAssignment jobAssignment = new JobAssignment(1, 2, 3, campaign);
-        JobAssignment jobAssignmentCopy = new JobAssignment(2, 2, 3, campaign);
-
-        when(personRepository.existsById(2)).thenReturn(true);
-        when(jobRepository.existsById(3)).thenReturn(true);
-
-        when(jobAssignmentRepository.saveAndFlush(jobAssignment)).thenReturn(jobAssignment);
-        when(jobAssignmentRepository.saveAndFlush(jobAssignmentCopy)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> jobAssignmentService.saveJobAssignment(jobAssignment));
-        assertThrows(DataIntegrityViolationException.class, () -> jobAssignmentService.saveJobAssignment(jobAssignmentCopy));
+    public void whenJobAssignmentAlreadyExists_saveJobAssignment_DataIntegrityViolationException() {
+        when(jobAssignmentRepository.jobAssignmentExists(jobAssignmentMapper.mapFromJobAssignmentDto(dto))).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> jobAssignmentService.saveJobAssignment(dto));
+        verify(jobAssignmentRepository, times(1)).jobAssignmentExists(jobAssignmentMapper.mapFromJobAssignmentDto(dto));
+        verify(jobAssignmentRepository, never()).save(any(JobAssignment.class));
     }
 
     @Test
     public void whenJobAssignmentIdExists_deleteJobAssignment_DeletesTheJobAssignment() {
-        int jobAssignmentId = 1;
-        when(jobAssignmentRepository.existsById(jobAssignmentId)).thenReturn(true);
-        assertDoesNotThrow(() -> jobAssignmentService.deleteJobAssignment(jobAssignmentId));
-        verify(jobAssignmentRepository, times(1)).deleteById(jobAssignmentId);
+        when(jobAssignmentRepository.existsById(1)).thenReturn(true);
+        jobAssignmentService.deleteJobAssignment(1);
+        verify(jobAssignmentRepository, times(1)).deleteById(1);
     }
 
     @Test
     public void whenJobAssignmentIdDoesNotExist_deleteJobAssignment_ThrowsIllegalArgumentException() {
-        int jobAssignmentId = 9000;
-        when(jobAssignmentRepository.existsById(jobAssignmentId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> jobAssignmentService.deleteJobAssignment(jobAssignmentId));
-    }
-
-    //TODO: test delete when JobAssignment is a fk
-
-    @Test
-    public void whenJobAssignmentIdWithValidFKIsFound_updateJobAssignment_UpdatesTheJobAssignment() {
-        int jaId = 1;
-        UUID campaign = UUID.randomUUID();
-        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3, campaign);
-        JobAssignment update = new JobAssignment(jaId, 3, 4, campaign);
-
-        when(jobAssignmentRepository.existsById(jaId)).thenReturn(true);
-        when(jobAssignmentRepository.findById(jaId)).thenReturn(Optional.of(jobAssignment));
-        when(personRepository.existsById(2)).thenReturn(true);
-        when(jobRepository.existsById(3)).thenReturn(true);
-        when(personRepository.existsById(3)).thenReturn(true);
-        when(jobRepository.existsById(4)).thenReturn(true);
-
-        jobAssignmentService.updateJobAssignment(jaId, update);
-
-        verify(jobAssignmentRepository).findById(jaId);
-
-        JobAssignment result = jobAssignmentRepository.findById(jaId).get();
-        Assertions.assertEquals(update.getId(), result.getId());
-        Assertions.assertEquals(update.getFk_person(), result.getFk_person());
-        Assertions.assertEquals(update.getFk_job(), result.getFk_job());
+        when(jobAssignmentRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> jobAssignmentService.deleteJobAssignment(999));
     }
 
     @Test
-    public void whenJobAssignmentIdWithInvalidFKIsFound_updateJobAssignment_ThrowsDataIntegrityViolationException() {
-        int jaId = 1;
-        UUID campaign = UUID.randomUUID();
-        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3, campaign);
-        JobAssignment update = new JobAssignment(jaId, 3, 4, campaign);
+    public void whenDeleteJobAssignmentFails_deleteJobAssignment_ThrowsException() {
+        when(jobAssignmentRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(jobAssignmentRepository).deleteById(1);
 
-        when(jobAssignmentRepository.existsById(jaId)).thenReturn(true);
-        when(jobAssignmentRepository.findById(jaId)).thenReturn(Optional.of(jobAssignment));
-        when(personRepository.existsById(2)).thenReturn(true);
-        when(jobRepository.existsById(3)).thenReturn(false);
-        when(personRepository.existsById(3)).thenReturn(true);
-        when(jobRepository.existsById(4)).thenReturn(false);
-
-        assertThrows(DataIntegrityViolationException.class, () -> jobAssignmentService.updateJobAssignment(jaId, update));
+        assertThrows(RuntimeException.class, () -> jobAssignmentService.deleteJobAssignment(1));
     }
 
     @Test
-    public void whenJobAssignmentIdIsNotFound_updateJobAssignment_ThrowsIllegalArgumentException() {
-        int jaId = 1;
-        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3, UUID.randomUUID());
+    public void whenJobAssignmentIdIsFound_updateJobAssignment_UpdatesTheJobAssignment() {
+        JobAssignmentDTO updateDTO = new JobAssignmentDTO();
+        updateDTO.setFk_job(99);
 
-        when(jobAssignmentRepository.existsById(jaId)).thenReturn(false);
+        when(jobAssignmentRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(jobAssignmentRepository.existsById(1)).thenReturn(true);
+        when(jobAssignmentRepository.save(entity)).thenReturn(entity);
+        when(jobAssignmentMapper.mapToJobAssignmentDto(entity)).thenReturn(updateDTO);
 
-        assertThrows(IllegalArgumentException.class, () -> jobAssignmentService.updateJobAssignment(jaId, jobAssignment));
+        Optional<JobAssignmentDTO> result = jobAssignmentService.updateJobAssignment(1, updateDTO);
+
+        assertTrue(result.isPresent());
+        assertEquals(99, result.get().getFk_job());
     }
 
     @Test
-    public void whenSomeJobAssignmentFieldsChanged_updateJobAssignment_OnlyUpdatesChangedFields() {
-        int jaId = 1;
-        JobAssignment jobAssignment = new JobAssignment(jaId, 2, 3, UUID.randomUUID());
-        int newJob = 9;
+    public void whenJobAssignmentIdIsNotFound_updateJobAssignment_ReturnsEmptyOptional() {
+        JobAssignmentDTO updateDTO = new JobAssignmentDTO();
+        updateDTO.setFk_person(22);
 
-        JobAssignment jobAssignmentToUpdate = new JobAssignment();
-        jobAssignmentToUpdate.setFk_job(newJob);
+        when(jobAssignmentRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> jobAssignmentService.updateJobAssignment(999, updateDTO));
+    }
 
-        when(jobAssignmentRepository.existsById(jaId)).thenReturn(true);
-        when(personRepository.existsById(2)).thenReturn(true);
-        when(jobRepository.existsById(newJob)).thenReturn(true);
-        when(jobAssignmentRepository.findById(jaId)).thenReturn(Optional.of(jobAssignment));
+    @Test
+    public void whenJobAssignmentAlreadyExists_updateJobAssignment_ThrowsDataIntegrityViolationException() {
+        JobAssignmentDTO duplicate = dto;
 
-        jobAssignmentService.updateJobAssignment(jaId, jobAssignmentToUpdate);
+        when(jobAssignmentRepository.existsById(1)).thenReturn(true);
+        when(jobAssignmentRepository.jobAssignmentExists(jobAssignmentMapper.mapFromJobAssignmentDto(dto))).thenReturn(Optional.of(entity));
 
-        verify(jobAssignmentRepository).findById(jaId);
-
-        JobAssignment result = jobAssignmentRepository.findById(jaId).get();
-        Assertions.assertEquals(jobAssignment.getFk_person(), result.getFk_person());
-        Assertions.assertEquals(newJob, result.getFk_job());
+        assertThrows(DataIntegrityViolationException.class, () -> jobAssignmentService.updateJobAssignment(1, duplicate));
     }
 }

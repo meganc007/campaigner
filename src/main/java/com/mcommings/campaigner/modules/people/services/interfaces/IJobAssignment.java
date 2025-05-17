@@ -1,21 +1,26 @@
 package com.mcommings.campaigner.modules.people.services.interfaces;
 
-import com.mcommings.campaigner.modules.people.entities.JobAssignment;
+import com.mcommings.campaigner.modules.people.dtos.JobAssignmentDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IJobAssignment {
 
-    List<JobAssignment> getJobAssignments();
+    List<JobAssignmentDTO> getJobAssignments();
 
-    List<JobAssignment> getJobAssignmentsByCampaignUUID(UUID uuid);
+    Optional<JobAssignmentDTO> getJobAssignment(int jobAssignmentId);
 
-    List<JobAssignment> getJobAssignmentsByPersonId(int personId);
+    List<JobAssignmentDTO> getJobAssignmentsByCampaignUUID(UUID uuid);
 
-    void saveJobAssignment(JobAssignment jobAssignment);
+    List<JobAssignmentDTO> getJobAssignmentsByPersonId(int personId);
+
+    List<JobAssignmentDTO> getJobAssignmentsByJobId(int jobId);
+
+    void saveJobAssignment(JobAssignmentDTO jobAssignment);
 
     void deleteJobAssignment(int jobAssignmentId);
 
-    void updateJobAssignment(int jobAssignmentId, JobAssignment jobAssignment);
+    Optional<JobAssignmentDTO> updateJobAssignment(int jobAssignmentId, JobAssignmentDTO jobAssignment);
 }
