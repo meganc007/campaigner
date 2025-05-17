@@ -20,6 +20,7 @@ public class Continent {
     @Column(nullable = false)
     private String name;
     private String description;
+    @Column(nullable = false)
     private UUID fk_campaign_uuid;
 
 }

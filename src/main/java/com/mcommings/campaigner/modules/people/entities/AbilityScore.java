@@ -18,6 +18,7 @@ public class AbilityScore {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(nullable = false)
     private UUID fk_campaign_uuid;
     @Column(nullable = false)
     private int strength;

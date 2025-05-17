@@ -19,6 +19,7 @@ public class Week {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String description;
+    @Column(nullable = false)
     private UUID fk_campaign_uuid;
     private Integer week_number;
     private Integer fk_month;
