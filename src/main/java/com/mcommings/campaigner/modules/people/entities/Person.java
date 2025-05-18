@@ -1,93 +1,46 @@
 package com.mcommings.campaigner.modules.people.entities;
 
-import com.mcommings.campaigner.modules.common.entities.Campaign;
-import com.mcommings.campaigner.modules.common.entities.Wealth;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
+@Builder
 @Entity
 @Table(name = "people")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@ToString(callSuper = true)
-public class Person extends SentientBeingEntity {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "age")
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
     private int age;
-
-    @Column(name = "fk_race")
+    private String title;
     private Integer fk_race;
-
-    @Column(name = "fk_wealth")
     private Integer fk_wealth;
-
-    @Column(name = "fk_ability_score")
     private Integer fk_ability_score;
 
-    @Column(name = "isNPC")
+    @Column(name = "isNPC", nullable = false)
     private Boolean isNPC;
 
-    @Column(name = "fk_campaign_uuid")
+    @Column(name = "isEnemy", nullable = false)
+    private Boolean isEnemy;
+
+    private String personality;
+    private String description;
+    private String notes;
+
+    @Column(name = "fk_campaign_uuid", nullable = false)
     private UUID fk_campaign_uuid;
-
-    @ManyToOne
-    @JoinColumn(name = "fk_campaign_uuid", referencedColumnName = "campaign_uuid", updatable = false, insertable = false)
-    private Campaign campaign;
-
-    @ManyToOne
-    @JoinColumn(name = "fk_race", referencedColumnName = "id", updatable = false, insertable = false)
-    private Race race;
-
-    @ManyToOne
-    @JoinColumn(name = "fk_wealth", referencedColumnName = "id", updatable = false, insertable = false)
-    private Wealth wealth;
-
-    @ManyToOne
-    @JoinColumn(name = "fk_ability_score", referencedColumnName = "id", updatable = false, insertable = false)
-    private AbilityScore abilityScore;
-
-    public Person() {
-        super();
-    }
-
-    public Person(int id, String firstName, String lastName, int age, String title, Boolean isNPC, Boolean isEnemy,
-                  String personality, String description, String notes, UUID fk_campaign_uuid) {
-        this.id = id;
-        this.setFirstName(firstName);
-        this.setLastName(lastName);
-        this.age = age;
-        this.setTitle(title);
-        this.isNPC = isNPC;
-        this.setIsEnemy(isEnemy);
-        this.setPersonality(personality);
-        this.setDescription(description);
-        this.setNotes(notes);
-        this.fk_campaign_uuid = fk_campaign_uuid;
-    }
-
-    public Person(int id, String firstName, String lastName, int age, String title, Integer fk_race, Integer fk_wealth,
-                  Integer fk_ability_score, Boolean isNPC, Boolean isEnemy, String personality, String description,
-                  String notes, UUID fk_campaign_uuid) {
-        this.id = id;
-        this.setFirstName(firstName);
-        this.setLastName(lastName);
-        this.age = age;
-        this.setTitle(title);
-        this.fk_race = fk_race;
-        this.setFk_wealth(fk_wealth);
-        this.setFk_ability_score(fk_ability_score);
-        this.isNPC = isNPC;
-        this.setIsEnemy(isEnemy);
-        this.setPersonality(personality);
-        this.setDescription(description);
-        this.setNotes(notes);
-        this.fk_campaign_uuid = fk_campaign_uuid;
-    }
 }
