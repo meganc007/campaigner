@@ -17,6 +17,10 @@ public interface INamedMonsterRepository extends JpaRepository<NamedMonster, Int
 
     Optional<NamedMonster> findByLastName(String lastName);
 
+    Optional<NamedMonster> findByFirstNameAndLastName(String firstName, String lastName);
+
+    List<NamedMonster> findByIsEnemy(Boolean isEnemy);
+
     @Query("SELECT n FROM NamedMonster n WHERE " +
             "n.firstName = :#{#monster.firstName} AND " +
             "n.lastName = :#{#monster.lastName} AND " +

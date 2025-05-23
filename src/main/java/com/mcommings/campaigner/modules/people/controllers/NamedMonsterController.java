@@ -1,41 +1,55 @@
 package com.mcommings.campaigner.modules.people.controllers;
 
-import com.mcommings.campaigner.modules.people.entities.NamedMonster;
-import com.mcommings.campaigner.modules.people.services.NamedMonsterService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.people.dtos.NamedMonsterDTO;
+import com.mcommings.campaigner.modules.people.services.interfaces.INamedMonster;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/namedMonsters/named-monsters")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/namedMonsters")
 public class NamedMonsterController {
 
-    private final NamedMonsterService namedMonsterService;
-
-    @Autowired
-    public NamedMonsterController(NamedMonsterService namedMonsterService) {
-        this.namedMonsterService = namedMonsterService;
-    }
+    private final INamedMonster namedMonsterService;
 
     @GetMapping
-    public List<NamedMonster> getNamedMonsters() {
+    public List<NamedMonsterDTO> getNamedMonsters() {
         return namedMonsterService.getNamedMonsters();
     }
 
+    @GetMapping(path = "/{namedMonsterId}")
+    public NamedMonsterDTO getNamedMonster(@PathVariable("namedMonsterId") int namedMonsterId) {
+        return namedMonsterService.getNamedMonster(namedMonsterId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @GetMapping(path = "/campaign/{uuid}")
-    public List<NamedMonster> getNamedMonstersByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<NamedMonsterDTO> getNamedMonstersByCampaignUUID(@PathVariable("uuid") UUID uuid) {
         return namedMonsterService.getNamedMonstersByCampaignUUID(uuid);
     }
 
-    @GetMapping(path = "/genericMonster/{id}")
-    public List<NamedMonster> getNamedMonstersByGenericMonster(int id) {
-        return namedMonsterService.getNamedMonstersByGenericMonster(id);
+    @GetMapping(path = "/genericMonster/{genericMonsterId}")
+    public List<NamedMonsterDTO> getNamedMonstersByGenericMonster(@PathVariable("genericMonsterId") int genericMonsterId) {
+        return namedMonsterService.getNamedMonstersByGenericMonster(genericMonsterId);
+    }
+
+    @GetMapping(path = "/abilityScore/{abilityScoreId}")
+    public List<NamedMonsterDTO> getNamedMonsterByAbilityScore(@PathVariable("abilityScoreId") int abilityScoreId) {
+        return namedMonsterService.getNamedMonstersByAbilityScore(abilityScoreId);
+    }
+
+    @GetMapping(path = "/enemy/{isEnemy}")
+    public List<NamedMonsterDTO> getNamedMonsterByEnemyStatus(@PathVariable("isEnemy") boolean isEnemy) {
+        return namedMonsterService.getNamedMonstersByEnemyStatus(isEnemy);
     }
 
     @PostMapping
-    public void saveNamedMonster(@RequestBody NamedMonster namedMonster) {
+    public void saveNamedMonster(@Valid @RequestBody NamedMonsterDTO namedMonster) {
         namedMonsterService.saveNamedMonster(namedMonster);
     }
 
@@ -45,7 +59,7 @@ public class NamedMonsterController {
     }
 
     @PutMapping(path = "{namedMonsterId}")
-    public void updateNamedMonster(@PathVariable("namedMonsterId") int namedMonsterId, @RequestBody NamedMonster namedMonster) {
+    public void updateNamedMonster(@PathVariable("namedMonsterId") int namedMonsterId, @RequestBody NamedMonsterDTO namedMonster) {
         namedMonsterService.updateNamedMonster(namedMonsterId, namedMonster);
     }
 }

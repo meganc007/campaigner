@@ -1,325 +1,240 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.modules.common.repositories.IWealthRepository;
+import com.mcommings.campaigner.modules.people.dtos.NamedMonsterDTO;
 import com.mcommings.campaigner.modules.people.entities.NamedMonster;
-import com.mcommings.campaigner.modules.people.repositories.IAbilityScoreRepository;
-import com.mcommings.campaigner.modules.people.repositories.IGenericMonsterRepository;
+import com.mcommings.campaigner.modules.people.mappers.NamedMonsterMapper;
 import com.mcommings.campaigner.modules.people.repositories.INamedMonsterRepository;
 import com.mcommings.campaigner.modules.people.services.NamedMonsterService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class NamedMonsterTest {
 
     @Mock
+    private NamedMonsterMapper namedMonsterMapper;
+
+    @Mock
     private INamedMonsterRepository namedMonsterRepository;
-    @Mock
-    private IWealthRepository wealthRepository;
-    @Mock
-    private IAbilityScoreRepository abilityScoreRepository;
-    @Mock
-    private IGenericMonsterRepository genericMonsterRepository;
 
     @InjectMocks
     private NamedMonsterService namedMonsterService;
 
+    private NamedMonster entity;
+    private NamedMonsterDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new NamedMonster();
+        entity.setId(1);
+        entity.setFirstName("Monster");
+        entity.setLastName("Mash");
+        entity.setTitle("The biggest, baddest monster of them all.");
+        entity.setFk_wealth(random.nextInt(100) + 1);
+        entity.setFk_ability_score(random.nextInt(100) + 1);
+        entity.setIsEnemy(false);
+        entity.setPersonality("This is a personality");
+        entity.setDescription("This is a description");
+        entity.setNotes("This is a note");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+
+        dto = new NamedMonsterDTO();
+        dto.setId(entity.getId());
+        dto.setFirstName(entity.getFirstName());
+        dto.setLastName(entity.getLastName());
+        dto.setTitle(entity.getTitle());
+        dto.setFk_wealth(entity.getFk_wealth());
+        dto.setFk_ability_score(entity.getFk_ability_score());
+        dto.setIsEnemy(entity.getIsEnemy());
+        dto.setPersonality(entity.getPersonality());
+        dto.setDescription(entity.getDescription());
+        dto.setNotes(entity.getNotes());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+
+        when(namedMonsterMapper.mapToNamedMonsterDto(entity)).thenReturn(dto);
+        when(namedMonsterMapper.mapFromNamedMonsterDto(dto)).thenReturn(entity);
+    }
+    
     @Test
     public void whenThereAreNamedMonsters_getNamedMonsters_ReturnsNamedMonsters() {
-        List<NamedMonster> namedMonsters = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        namedMonsters.add(new NamedMonster(1, "First Name 1", "Last Name 1", "Title", false, "Personality", "Description", "Notes", campaign));
-        namedMonsters.add(new NamedMonster(2, "First Name 2", "Last Name 2", "Title", false, "Personality", "Description", "Notes", campaign));
-        namedMonsters.add(new NamedMonster(3, "First Name 3", "Last Name 3", "Title", 2, 4, 1, false, "Personality", "Description", "Notes", campaign));
-        when(namedMonsterRepository.findAll()).thenReturn(namedMonsters);
+        when(namedMonsterRepository.findAll()).thenReturn(List.of(entity));
+        List<NamedMonsterDTO> result = namedMonsterService.getNamedMonsters();
 
-        List<NamedMonster> result = namedMonsterService.getNamedMonsters();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(namedMonsters, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Monster", result.get(0).getFirstName());
     }
 
     @Test
     public void whenThereAreNoNamedMonsters_getNamedMonsters_ReturnsNothing() {
-        List<NamedMonster> namedMonsters = new ArrayList<>();
-        when(namedMonsterRepository.findAll()).thenReturn(namedMonsters);
+        when(namedMonsterRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<NamedMonster> result = namedMonsterService.getNamedMonsters();
+        List<NamedMonsterDTO> result = namedMonsterService.getNamedMonsters();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(namedMonsters, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no namedMonsters.");
+    }
+
+    @Test
+    public void whenThereIsANamedMonster_getNamedMonster_ReturnsNamedMonsters() {
+        when(namedMonsterRepository.findById(1)).thenReturn(Optional.of(entity));
+
+        Optional<NamedMonsterDTO> result = namedMonsterService.getNamedMonster(1);
+
+        assertTrue(result.isPresent());
+        assertEquals("Mash", result.get().getLastName());
+    }
+
+    @Test
+    public void whenThereIsNotANamedMonster_getNamedMonster_ReturnsNamedMonster() {
+        when(namedMonsterRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<NamedMonsterDTO> result = namedMonsterService.getNamedMonster(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when namedMonster is not found.");
     }
 
     @Test
     public void whenCampaignUUIDIsValid_getNamedMonstersByCampaignUUID_ReturnsNamedMonsters() {
-        List<NamedMonster> namedMonsters = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        namedMonsters.add(new NamedMonster(1, "First Name 1", "Last Name 1", "Title", false, "Personality", "Description", "Notes", campaign));
-        namedMonsters.add(new NamedMonster(2, "First Name 2", "Last Name 2", "Title", false, "Personality", "Description", "Notes", campaign));
-        namedMonsters.add(new NamedMonster(3, "First Name 3", "Last Name 3", "Title", 2, 4, 1, false, "Personality", "Description", "Notes", campaign));
-        when(namedMonsterRepository.findByfk_campaign_uuid(campaign)).thenReturn(namedMonsters);
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(namedMonsterRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        List<NamedMonster> results = namedMonsterService.getNamedMonstersByCampaignUUID(campaign);
+        List<NamedMonsterDTO> result = namedMonsterService.getNamedMonstersByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(namedMonsters, results);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
     public void whenCampaignUUIDIsInvalid_getNamedMonstersByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<NamedMonster> namedMonsters = new ArrayList<>();
-        when(namedMonsterRepository.findByfk_campaign_uuid(campaign)).thenReturn(namedMonsters);
+        UUID campaignUUID = UUID.randomUUID();
+        when(namedMonsterRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        List<NamedMonster> result = namedMonsterService.getNamedMonstersByCampaignUUID(campaign);
+        List<NamedMonsterDTO> result = namedMonsterService.getNamedMonstersByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(namedMonsters, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no namedMonsters match the campaign UUID.");
     }
 
     @Test
-    public void whenNamedMonsterWithNoForeignKeysIsValid_saveNamedMonster_SavesTheNamedMonster() {
-        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title", true, "Personality", "Description", "Notes", UUID.randomUUID());
-        when(namedMonsterRepository.saveAndFlush(namedMonster)).thenReturn(namedMonster);
+    public void whenNamedMonsterIsValid_saveNamedMonster_SavesTheNamedMonster() {
+        when(namedMonsterRepository.save(entity)).thenReturn(entity);
 
-        assertDoesNotThrow(() -> namedMonsterService.saveNamedMonster(namedMonster));
+        namedMonsterService.saveNamedMonster(dto);
 
-        verify(namedMonsterRepository, times(1)).saveAndFlush(namedMonster);
+        verify(namedMonsterRepository, times(1)).save(entity);
     }
 
     @Test
-    public void whenNamedMonsterWithForeignKeysIsValid_saveNamedMonster_SavesTheNamedMonster() {
-        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
+    public void whenNamedMonsterNameIsInvalid_saveNamedMonster_ThrowsIllegalArgumentException() {
+        NamedMonsterDTO namedMonsterWithEmptyName = new NamedMonsterDTO();
+        namedMonsterWithEmptyName.setId(1);
+        namedMonsterWithEmptyName.setFirstName("");
+        namedMonsterWithEmptyName.setDescription("A fictional namedMonster.");
+        namedMonsterWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
 
-        when(wealthRepository.existsById(4)).thenReturn(true);
-        when(abilityScoreRepository.existsById(2)).thenReturn(true);
-        when(genericMonsterRepository.existsById(3)).thenReturn(true);
-        when(namedMonsterRepository.saveAndFlush(namedMonster)).thenReturn(namedMonster);
+        NamedMonsterDTO namedMonsterWithNullName = new NamedMonsterDTO();
+        namedMonsterWithNullName.setId(1);
+        namedMonsterWithNullName.setFirstName(null);
+        namedMonsterWithNullName.setDescription("A fictional city.");
+        namedMonsterWithNullName.setFk_campaign_uuid(UUID.randomUUID());
 
-        assertDoesNotThrow(() -> namedMonsterService.saveNamedMonster(namedMonster));
-
-        verify(namedMonsterRepository, times(1)).saveAndFlush(namedMonster);
+        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.saveNamedMonster(namedMonsterWithEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.saveNamedMonster(namedMonsterWithNullName));
     }
 
     @Test
-    public void whenNamedMonsterNamesInvalid_saveNamedMonster_ThrowsIllegalArgumentException() {
-        NamedMonster namedMonsterWithEmptyFirstName = new NamedMonster(1, "", "Last Name", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
-        NamedMonster namedMonsterWithEmptyLastName = new NamedMonster(1, "First Name", "", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
-        NamedMonster namedMonsterWithNullFirstName = new NamedMonster(1, null, "Last Name", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
-        NamedMonster namedMonsterWithNullLastName = new NamedMonster(1, "First Name", null, "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
+    public void whenNamedMonsterNameAlreadyExists_saveNamedMonster_ThrowsDataIntegrityViolationException() {
+        when(namedMonsterMapper.mapFromNamedMonsterDto(dto)).thenReturn(entity);
+        when(namedMonsterRepository.monsterExists(any(NamedMonster.class))).thenReturn(Optional.of(entity));
 
-        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.saveNamedMonster(namedMonsterWithEmptyFirstName));
-        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.saveNamedMonster(namedMonsterWithEmptyLastName));
-        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.saveNamedMonster(namedMonsterWithNullFirstName));
-        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.saveNamedMonster(namedMonsterWithNullLastName));
-    }
-
-    @Test
-    public void whenNamedMonsterAlreadyExists_saveNamedMonster_ThrowsDataIntegrityViolationException() {
-        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
-        NamedMonster doppelganger = new NamedMonster(2, "First Name", "Last Name", "Title",
-                4, 2, 3, true, "Personality", "Description", "Notes", UUID.randomUUID());
-
-        when(namedMonsterRepository.existsById(1)).thenReturn(true);
-        when(wealthRepository.existsById(4)).thenReturn(true);
-        when(abilityScoreRepository.existsById(2)).thenReturn(true);
-        when(genericMonsterRepository.existsById(3)).thenReturn(true);
-
-        when(namedMonsterRepository.saveAndFlush(namedMonster)).thenReturn(namedMonster);
-        when(namedMonsterRepository.saveAndFlush(doppelganger)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> namedMonsterService.saveNamedMonster(namedMonster));
-        assertThrows(DataIntegrityViolationException.class, () -> namedMonsterService.saveNamedMonster(doppelganger));
+        assertThrows(DataIntegrityViolationException.class, () -> namedMonsterService.saveNamedMonster(dto));
+        verify(namedMonsterRepository, times(1)).monsterExists(namedMonsterMapper.mapFromNamedMonsterDto(dto));
+        verify(namedMonsterRepository, never()).save(any(NamedMonster.class));
     }
 
     @Test
     public void whenNamedMonsterIdExists_deleteNamedMonster_DeletesTheNamedMonster() {
-        int namedMonsterId = 1;
-        when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(true);
-        assertDoesNotThrow(() -> namedMonsterService.deleteNamedMonster(namedMonsterId));
-        verify(namedMonsterRepository, times(1)).deleteById(namedMonsterId);
+        when(namedMonsterRepository.existsById(1)).thenReturn(true);
+        namedMonsterService.deleteNamedMonster(1);
+        verify(namedMonsterRepository, times(1)).deleteById(1);
     }
 
     @Test
     public void whenNamedMonsterIdDoesNotExist_deleteNamedMonster_ThrowsIllegalArgumentException() {
-        int namedMonsterId = 9000;
-        when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.deleteNamedMonster(namedMonsterId));
-    }
-
-//    TODO: uncomment/fix when tables that use NamedMonster as fk added
-//    @Test
-//    public void whenNamedMonsterIdIsAForeignKey_deleteNamedMonster_ThrowsDataIntegrityViolationException() {
-//        int namedMonsterId = 1;
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(jobAssignmentRepository));
-//
-//        JobAssignment jobAssignment = new JobAssignment(1, namedMonsterId, 1);
-//        List<JobAssignment> jobAssignments = new ArrayList<>(Arrays.asList(jobAssignment));
-//
-//        EventPlaceNamedMonster epp = new EventPlaceNamedMonster(1, 1, 1, namedMonsterId);
-//        List<EventPlaceNamedMonster> epps = new ArrayList<>(Arrays.asList(epp));
-//
-//
-//        when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(true);
-//        when(jobAssignmentRepository.findByfk_namedMonster(namedMonsterId)).thenReturn(jobAssignments);
-//        when(eventPlaceNamedMonsterRepository.findByfk_namedMonster(namedMonsterId)).thenReturn(epps);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_NAMEDMONSTER.columnName, namedMonsterId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> namedMonsterService.deleteNamedMonster(namedMonsterId));
-//    }
-
-    @Test
-    public void whenNamedMonsterIdWithNoFKIsFound_updateNamedMonster_UpdatesTheNamedMonster() {
-        int namedMonsterId = 1;
-        UUID campaign = UUID.randomUUID();
-
-        NamedMonster namedMonster = new NamedMonster(namedMonsterId, "First Name", "Last Name", "Title",
-                false, "Personality", "Description", "Notes", campaign);
-        NamedMonster namedMonsterToUpdate = new NamedMonster(namedMonsterId, "Jane", "Doe", "The Nameless",
-                true, "Personality", "Description", "Notes", campaign);
-
-        when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(true);
-        when(namedMonsterRepository.findById(namedMonsterId)).thenReturn(Optional.of(namedMonster));
-
-        namedMonsterService.updateNamedMonster(namedMonsterId, namedMonsterToUpdate);
-
-        verify(namedMonsterRepository).findById(namedMonsterId);
-
-        NamedMonster result = namedMonsterRepository.findById(namedMonsterId).get();
-        Assertions.assertEquals(namedMonsterToUpdate.getFirstName(), result.getFirstName());
-        Assertions.assertEquals(namedMonsterToUpdate.getLastName(), result.getLastName());
-        Assertions.assertEquals(namedMonsterToUpdate.getTitle(), result.getTitle());
-        Assertions.assertEquals(namedMonsterToUpdate.getIsEnemy(), result.getIsEnemy());
-        Assertions.assertEquals(namedMonsterToUpdate.getPersonality(), result.getPersonality());
-        Assertions.assertEquals(namedMonsterToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(namedMonsterToUpdate.getNotes(), result.getNotes());
+        when(namedMonsterRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.deleteNamedMonster(999));
     }
 
     @Test
-    public void whenNamedMonsterIdWithValidFKIsFound_updateNamedMonster_UpdatesTheNamedMonster() {
-        int namedMonsterId = 1;
-        UUID campaign = UUID.randomUUID();
+    public void whenDeleteNamedMonsterFails_deleteNamedMonster_ThrowsException() {
+        when(namedMonsterRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(namedMonsterRepository).deleteById(1);
 
-        NamedMonster namedMonster = new NamedMonster(namedMonsterId, "First Name", "Last Name", "Title",
-                1, 2, 3, false, "Personality", "Description", "Notes", campaign);
-        NamedMonster namedMonsterToUpdate = new NamedMonster(namedMonsterId, "Jane", "Doe", "The Nameless",
-                4, 5, 6, true, "Personality", "Description", "Notes", campaign);
-
-        when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(true);
-        when(namedMonsterRepository.findById(namedMonsterId)).thenReturn(Optional.of(namedMonster));
-        when(wealthRepository.existsById(1)).thenReturn(true);
-        when(abilityScoreRepository.existsById(2)).thenReturn(true);
-        when(genericMonsterRepository.existsById(3)).thenReturn(true);
-
-        when(wealthRepository.existsById(4)).thenReturn(true);
-        when(abilityScoreRepository.existsById(5)).thenReturn(true);
-        when(genericMonsterRepository.existsById(6)).thenReturn(true);
-
-        namedMonsterService.updateNamedMonster(namedMonsterId, namedMonsterToUpdate);
-
-        verify(namedMonsterRepository).findById(namedMonsterId);
-
-        NamedMonster result = namedMonsterRepository.findById(namedMonsterId).get();
-        Assertions.assertEquals(namedMonsterToUpdate.getFirstName(), result.getFirstName());
-        Assertions.assertEquals(namedMonsterToUpdate.getLastName(), result.getLastName());
-        Assertions.assertEquals(namedMonsterToUpdate.getTitle(), result.getTitle());
-        Assertions.assertEquals(namedMonsterToUpdate.getFk_wealth(), result.getFk_wealth());
-        Assertions.assertEquals(namedMonsterToUpdate.getFk_ability_score(), result.getFk_ability_score());
-        Assertions.assertEquals(namedMonsterToUpdate.getFk_generic_monster(), result.getFk_generic_monster());
-        Assertions.assertEquals(namedMonsterToUpdate.getIsEnemy(), result.getIsEnemy());
-        Assertions.assertEquals(namedMonsterToUpdate.getPersonality(), result.getPersonality());
-        Assertions.assertEquals(namedMonsterToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(namedMonsterToUpdate.getNotes(), result.getNotes());
+        assertThrows(RuntimeException.class, () -> namedMonsterService.deleteNamedMonster(1));
     }
 
     @Test
-    public void whenNamedMonsterIdWithInvalidFKIsFound_updateNamedMonster_ThrowsDataIntegrityViolationException() {
-        int namedMonsterId = 1;
-        UUID campaign = UUID.randomUUID();
+    public void whenNamedMonsterIdIsFound_updateNamedMonster_UpdatesTheNamedMonster() {
+        NamedMonsterDTO updateDTO = new NamedMonsterDTO();
+        updateDTO.setFirstName("John");
 
-        NamedMonster namedMonster = new NamedMonster(namedMonsterId, "First Name", "Last Name", "Title",
-                1, 2, 3, false, "Personality", "Description", "Notes", campaign);
-        NamedMonster namedMonsterToUpdate = new NamedMonster(namedMonsterId, "Jane", "Doe", "The Nameless",
-                4, 5, 6, true, "Personality", "Description", "Notes", campaign);
+        when(namedMonsterRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(namedMonsterRepository.existsById(1)).thenReturn(true);
+        when(namedMonsterRepository.save(entity)).thenReturn(entity);
+        when(namedMonsterMapper.mapToNamedMonsterDto(entity)).thenReturn(updateDTO);
 
-        when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(true);
-        when(namedMonsterRepository.findById(namedMonsterId)).thenReturn(Optional.of(namedMonster));
-        when(wealthRepository.existsById(1)).thenReturn(true);
-        when(abilityScoreRepository.existsById(2)).thenReturn(false);
-        when(genericMonsterRepository.existsById(3)).thenReturn(true);
+        Optional<NamedMonsterDTO> result = namedMonsterService.updateNamedMonster(1, updateDTO);
 
-        when(wealthRepository.existsById(4)).thenReturn(false);
-        when(abilityScoreRepository.existsById(5)).thenReturn(true);
-        when(genericMonsterRepository.existsById(6)).thenReturn(false);
-
-        assertThrows(DataIntegrityViolationException.class, () -> namedMonsterService.updateNamedMonster(namedMonsterId, namedMonsterToUpdate));
+        assertTrue(result.isPresent());
+        assertEquals("John", result.get().getFirstName());
     }
 
     @Test
-    public void whenNamedMonsterIdIsNotFound_updateNamedMonster_ThrowsIllegalArgumentException() {
-        int namedMonsterId = 1;
-        NamedMonster namedMonster = new NamedMonster(namedMonsterId, "First Name", "Last Name", "Title",
-                1, 2, 3, false, "Personality", "Description", "Notes", UUID.randomUUID());
+    public void whenNamedMonsterIdIsNotFound_updateNamedMonster_ReturnsEmptyOptional() {
+        NamedMonsterDTO updateDTO = new NamedMonsterDTO();
+        updateDTO.setFirstName("John");
 
-
-        when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.updateNamedMonster(namedMonsterId, namedMonster));
+        when(namedMonsterRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.updateNamedMonster(999, updateDTO));
     }
 
     @Test
-    public void whenSomeNamedMonsterFieldsChanged_updateNamedMonster_OnlyUpdatesChangedFields() {
-        int namedMonsterId = 1;
-        NamedMonster namedMonster = new NamedMonster(namedMonsterId, "First Name", "Last Name", "Title",
-                1, 2, 3, false, "Personality", "Description", "Notes", UUID.randomUUID());
+    public void whenNamedMonsterNameIsInvalid_updateNamedMonster_ThrowsIllegalArgumentException() {
+        NamedMonsterDTO updateEmptyName = new NamedMonsterDTO();
+        updateEmptyName.setFirstName("");
 
-        String newDescription = "New NamedMonster description";
-        int newAbilityScore = 3;
+        NamedMonsterDTO updateNullName = new NamedMonsterDTO();
+        updateNullName.setFirstName(null);
 
-        NamedMonster namedMonsterToUpdate = new NamedMonster();
-        namedMonsterToUpdate.setDescription(newDescription);
-        namedMonsterToUpdate.setFk_ability_score(newAbilityScore);
+        when(namedMonsterRepository.existsById(1)).thenReturn(true);
 
-        when(namedMonsterRepository.existsById(namedMonsterId)).thenReturn(true);
-        when(wealthRepository.existsById(1)).thenReturn(true);
-        when(abilityScoreRepository.existsById(newAbilityScore)).thenReturn(true);
-        when(genericMonsterRepository.existsById(3)).thenReturn(true);
-        when(namedMonsterRepository.findById(namedMonsterId)).thenReturn(Optional.of(namedMonster));
+        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.updateNamedMonster(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> namedMonsterService.updateNamedMonster(1, updateNullName));
+    }
 
-        namedMonsterService.updateNamedMonster(namedMonsterId, namedMonsterToUpdate);
+    @Test
+    public void whenNamedMonsterNameAlreadyExists_updateNamedMonster_ThrowsDataIntegrityViolationException() {
+        when(namedMonsterRepository.existsById(dto.getId())).thenReturn(true);
+        when(namedMonsterMapper.mapFromNamedMonsterDto(dto)).thenReturn(entity);
+        when(namedMonsterRepository.findByFirstNameAndLastName(dto.getFirstName(), dto.getLastName()))
+                .thenReturn(Optional.of(entity));
 
-        verify(namedMonsterRepository).findById(namedMonsterId);
+        assertThrows(DataIntegrityViolationException.class, () -> namedMonsterService.updateNamedMonster(dto.getId(), dto));
 
-        NamedMonster result = namedMonsterRepository.findById(namedMonsterId).get();
-        Assertions.assertEquals(namedMonster.getFirstName(), result.getFirstName());
-        Assertions.assertEquals(namedMonster.getLastName(), result.getLastName());
-        Assertions.assertEquals(namedMonster.getTitle(), result.getTitle());
-        Assertions.assertEquals(namedMonster.getFk_wealth(), result.getFk_wealth());
-        Assertions.assertEquals(newAbilityScore, result.getFk_ability_score());
-        Assertions.assertEquals(namedMonster.getFk_generic_monster(), result.getFk_generic_monster());
-        Assertions.assertEquals(namedMonster.getIsEnemy(), result.getIsEnemy());
-        Assertions.assertEquals(namedMonster.getPersonality(), result.getPersonality());
-        Assertions.assertEquals(newDescription, result.getDescription());
-        Assertions.assertEquals(namedMonster.getNotes(), result.getNotes());
+        verify(namedMonsterRepository, times(1)).existsById(dto.getId());
+        verify(namedMonsterRepository, times(1)).findByFirstNameAndLastName(dto.getFirstName(), dto.getLastName());
+        verify(namedMonsterRepository, never()).save(any(NamedMonster.class));
     }
 }

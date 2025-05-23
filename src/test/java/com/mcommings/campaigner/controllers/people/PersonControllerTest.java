@@ -209,7 +209,7 @@ public class PersonControllerTest {
     }
 
     @Test
-    void whenAbilityScoreIdIsNotValid_getPeopleByRace_ReturnsEmptyList() throws Exception {
+    void whenAbilityScoreIdIsNotValid_getPeopleByAbilityScore_ReturnsEmptyList() throws Exception {
         int abilityScoreId = random.nextInt(100) + 1;
         when(personService.getPeopleByAbilityScore(abilityScoreId)).thenReturn(List.of());
 
