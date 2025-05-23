@@ -49,8 +49,8 @@ public class PlaceTypeService implements IPlaceType {
 
         placeTypeMapper.mapToPlaceTypeDto(
                 placeTypesRepository.save(
-                        placeTypeMapper.mapFromPlaceTypeDto(placeType)
-                ));
+                        placeTypeMapper.mapFromPlaceTypeDto(placeType))
+        );
     }
 
     @Override

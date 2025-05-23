@@ -64,8 +64,8 @@ public class DayService implements IDay {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         dayMapper.mapToDayDto(
-                dayRepository.save(dayMapper.mapFromDayDto(day)
-                ));
+                dayRepository.save(dayMapper.mapFromDayDto(day))
+        );
     }
 
     @Override

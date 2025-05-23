@@ -81,8 +81,8 @@ public class WeaponService implements IWeapon {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         weaponMapper.mapToWeaponDto(
-                weaponRepository.save(weaponMapper.mapFromWeaponDto(weapon)
-                ));
+                weaponRepository.save(weaponMapper.mapFromWeaponDto(weapon))
+        );
     }
 
     @Override

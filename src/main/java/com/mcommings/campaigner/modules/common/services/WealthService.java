@@ -41,8 +41,8 @@ public class WealthService implements IWealth {
 
         wealthMapper.mapToWealthDto(
                 wealthRepository.save(
-                        wealthMapper.mapFromWealthDto(wealth)
-                ));
+                        wealthMapper.mapFromWealthDto(wealth))
+        );
     }
 
     @Override

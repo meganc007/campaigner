@@ -48,8 +48,8 @@ public class WeaponTypeService implements IWeaponType {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         weaponTypeMapper.mapToWeaponTypeDto(
-                weaponTypeRepository.save(weaponTypeMapper.mapFromWeaponTypeDto(weaponType)
-                ));
+                weaponTypeRepository.save(weaponTypeMapper.mapFromWeaponTypeDto(weaponType))
+        );
     }
 
     @Override

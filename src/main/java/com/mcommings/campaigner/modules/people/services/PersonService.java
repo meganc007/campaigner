@@ -89,8 +89,8 @@ public class PersonService implements IPerson {
             throw new DataIntegrityViolationException(PERSON_EXISTS.message);
         }
         personMapper.mapToPersonDto(
-                personRepository.save(personMapper.mapFromPersonDto(person)
-                ));
+                personRepository.save(personMapper.mapFromPersonDto(person))
+        );
     }
 
     @Override

@@ -56,8 +56,8 @@ public class MonthService implements IMonth {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         monthMapper.mapToMonthDto(
-                monthRepository.save(monthMapper.mapFromMonthDto(month)
-                ));
+                monthRepository.save(monthMapper.mapFromMonthDto(month))
+        );
     }
 
     @Override

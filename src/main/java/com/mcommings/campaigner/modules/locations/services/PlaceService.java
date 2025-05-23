@@ -78,8 +78,8 @@ public class PlaceService implements IPlace {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         placeMapper.mapToPlaceDto(
-                placeRepository.save(placeMapper.mapFromPlaceDto(place)
-                ));
+                placeRepository.save(placeMapper.mapFromPlaceDto(place))
+        );
     }
 
     @Override

@@ -66,8 +66,8 @@ public class ItemService implements IItem {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         itemMapper.mapToItemDto(
-                itemRepository.save(itemMapper.mapFromItemDto(item)
-                ));
+                itemRepository.save(itemMapper.mapFromItemDto(item))
+        );
     }
 
     @Override

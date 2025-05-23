@@ -78,8 +78,8 @@ public class EventPlacePersonService implements IEventPlacePerson {
         }
 
         eventPlacePersonMapper.mapToEventPlacePersonDto(
-                eventPlacePersonRepository.save(eventPlacePersonMapper.mapFromEventPlacePersonDto(eventPlacePerson)
-                ));
+                eventPlacePersonRepository.save(eventPlacePersonMapper.mapFromEventPlacePersonDto(eventPlacePerson))
+        );
     }
 
     @Override

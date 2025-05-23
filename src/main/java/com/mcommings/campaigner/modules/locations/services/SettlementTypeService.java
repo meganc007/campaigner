@@ -49,8 +49,8 @@ public class SettlementTypeService implements ISettlementType {
 
         settlementTypeMapper.mapToSettlementTypeDto(
                 settlementTypeRepository.save(
-                        settlementTypeMapper.mapFromSettlementTypeDto(settlementType)
-                ));
+                        settlementTypeMapper.mapFromSettlementTypeDto(settlementType))
+        );
     }
 
     @Override

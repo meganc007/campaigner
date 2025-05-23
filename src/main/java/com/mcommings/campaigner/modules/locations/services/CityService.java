@@ -70,8 +70,8 @@ public class CityService implements ICity {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         cityMapper.mapToCityDto(
-                cityRepository.save(cityMapper.mapFromCityDto(city)
-                ));
+                cityRepository.save(cityMapper.mapFromCityDto(city))
+        );
     }
 
     @Override

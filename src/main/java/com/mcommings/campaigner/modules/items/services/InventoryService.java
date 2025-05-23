@@ -91,8 +91,8 @@ public class InventoryService implements IInventory {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         inventoryMapper.mapToInventoryDto(
-                inventoryRepository.save(inventoryMapper.mapFromInventoryDto(inventory)
-                ));
+                inventoryRepository.save(inventoryMapper.mapFromInventoryDto(inventory))
+        );
     }
 
     @Override

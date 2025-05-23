@@ -80,8 +80,8 @@ public class CelestialEventService implements ICelestialEvent {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         celestialEventMapper.mapToCelestialEventDto(
-                celestialEventRepository.save(celestialEventMapper.mapFromCelestialEventDto(celestialEvent)
-                ));
+                celestialEventRepository.save(celestialEventMapper.mapFromCelestialEventDto(celestialEvent))
+        );
     }
 
     @Override

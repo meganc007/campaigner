@@ -64,8 +64,8 @@ public class GenericMonsterService implements IGenericMonster {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         genericMonsterMapper.mapToGenericMonsterDto(
-                genericMonsterRepository.save(genericMonsterMapper.mapFromGenericMonsterDto(genericMonster)
-                ));
+                genericMonsterRepository.save(genericMonsterMapper.mapFromGenericMonsterDto(genericMonster))
+        );
     }
 
     @Override

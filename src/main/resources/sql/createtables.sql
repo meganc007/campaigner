@@ -41,11 +41,7 @@ drop table if exists weapons;
 drop table if exists weapon_types;
 drop table if exists dice_types;
 drop table if exists damage_types;
-drop table if exists permissions;
 drop table if exists campaigns;
-drop table if exists users;
-drop table if exists roles;
-drop table if exists permission_types;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -593,41 +589,5 @@ create table quests (
 	constraint fk_conditional foreign key(fk_conditional) references conditionals(id),
 	constraint fk_reward foreign key(fk_reward) references rewards(id),
 	constraint fk_campaign_uuid foreign key(fk_campaign_uuid) references campaigns(campaign_uuid),
-	primary key(id)
-);
-
-create table roles (
-    id int generated always as identity,
-    name varchar,
-    description varchar not null,
-    primary key(id)
-);
-
-create table users (
-	user_uuid uuid primary key default gen_random_uuid(),
-	username varchar not null,
-	email varchar,
-	first_name varchar,
-	last_name varchar,
-    fk_role int,
-    constraint fk_role foreign key(fk_role) references roles(id)
-);
-
-create table permission_types (
-    id int generated always as identity,
-    name varchar,
-    description varchar not null,
-    primary key(id)
-);
-
-
-create table permissions (
-	id int generated always as identity,
-	fk_permission_type int,
-	fk_campaign_uuid uuid not null,
-	fk_user_uuid uuid not null,
-	constraint fk_permission_type foreign key(fk_permission_type) references permission_types(id),
-	constraint fk_campaign_uuid foreign key(fk_campaign_uuid) references campaigns(campaign_uuid),
-	constraint fk_user_uuid foreign key(fk_user_uuid) references users(user_uuid),
 	primary key(id)
 );

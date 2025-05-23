@@ -62,8 +62,8 @@ public class RegionService implements IRegion {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         regionMapper.mapToRegionDto(
-                regionRepository.save(regionMapper.mapFromRegionDto(region)
-                ));
+                regionRepository.save(regionMapper.mapFromRegionDto(region))
+        );
     }
 
     @Override

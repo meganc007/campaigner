@@ -48,8 +48,8 @@ public class DamageTypeService implements IDamageType {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         damageTypeMapper.mapToDamageTypeDto(
-                damageTypeRepository.save(damageTypeMapper.mapFromDamageTypeDto(damageType)
-                ));
+                damageTypeRepository.save(damageTypeMapper.mapFromDamageTypeDto(damageType))
+        );
     }
 
     @Override

@@ -86,8 +86,8 @@ public class RewardService implements IReward {
         }
 
         rewardMapper.mapToRewardDto(
-                rewardRepository.save(rewardMapper.mapFromRewardDto(reward)
-                ));
+                rewardRepository.save(rewardMapper.mapFromRewardDto(reward))
+        );
     }
 
     @Override

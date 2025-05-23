@@ -49,8 +49,8 @@ public class GovernmentService implements IGovernment {
 
         governmentMapper.mapToGovernmentDto(
                 governmentRepository.save(
-                        governmentMapper.mapFromGovernmentDto(government)
-                ));
+                        governmentMapper.mapFromGovernmentDto(government))
+        );
     }
 
     @Override
