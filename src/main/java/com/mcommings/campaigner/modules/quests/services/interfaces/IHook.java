@@ -1,19 +1,24 @@
 package com.mcommings.campaigner.modules.quests.services.interfaces;
 
-import com.mcommings.campaigner.modules.quests.entities.Hook;
+import com.mcommings.campaigner.modules.quests.dtos.HookDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IHook {
 
-    List<Hook> getHooks();
+    List<HookDTO> getHooks();
 
-    List<Hook> getHooksByCampaignUUID(UUID uuid);
+    Optional<HookDTO> getHook(int hookId);
 
-    void saveHook(Hook hook);
+    List<HookDTO> getHooksByCampaignUUID(UUID uuid);
+
+    List<HookDTO> getHooksWhereDescriptionContainsKeyword(String keyword);
+
+    void saveHook(HookDTO hook);
 
     void deleteHook(int hookId);
 
-    void updateHook(int hookId, Hook hook);
+    Optional<HookDTO> updateHook(int hookId, HookDTO hook);
 }
