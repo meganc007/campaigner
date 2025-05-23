@@ -1,138 +1,132 @@
 package com.mcommings.campaigner.modules.quests.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.repositories.IItemRepository;
-import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
+import com.mcommings.campaigner.modules.quests.dtos.RewardDTO;
 import com.mcommings.campaigner.modules.quests.entities.Reward;
+import com.mcommings.campaigner.modules.quests.mappers.RewardMapper;
 import com.mcommings.campaigner.modules.quests.repositories.IRewardRepository;
 import com.mcommings.campaigner.modules.quests.services.interfaces.IReward;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_ITEM;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_WEAPON;
 import static java.util.Objects.isNull;
 
 @Service
+@RequiredArgsConstructor
 public class RewardService implements IReward {
 
     private final IRewardRepository rewardRepository;
-    private final IItemRepository itemRepository;
-    private final IWeaponRepository weaponRepository;
+    private final RewardMapper rewardMapper;
 
-    @Autowired
-    public RewardService(IRewardRepository rewardRepository, IItemRepository itemRepository,
-                         IWeaponRepository weaponRepository) {
-        this.rewardRepository = rewardRepository;
-        this.itemRepository = itemRepository;
-        this.weaponRepository = weaponRepository;
+    @Override
+    public List<RewardDTO> getRewards() {
+        return rewardRepository.findAll()
+                .stream()
+                .map(rewardMapper::mapToRewardDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Reward> getRewards() {
-        return rewardRepository.findAll();
+    public Optional<RewardDTO> getReward(int rewardId) {
+        return rewardRepository.findById(rewardId)
+                .map(rewardMapper::mapToRewardDto);
     }
 
     @Override
-    public List<Reward> getRewardsByCampaignUUID(UUID uuid) {
-        return rewardRepository.findByfk_campaign_uuid(uuid);
+    public List<RewardDTO> getRewardsByCampaignUUID(UUID uuid) {
+
+        return rewardRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(rewardMapper::mapToRewardDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Reward> getRewardsByItemId(int itemId) {
-        return rewardRepository.findByfk_item(itemId);
-    }
-
-    @Override
-    public List<Reward> getRewardsByWeaponId(int weaponId) {
-        return rewardRepository.findByfk_weapon(weaponId);
-    }
-
-    @Override
-    @Transactional
-    public void saveReward(Reward reward) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (descriptionIsNullOrEmpty(reward.getDescription())) {
+    public List<RewardDTO> getRewardsWhereDescriptionContainsKeyword(String keyword) throws IllegalArgumentException {
+        if (isNullOrEmpty(keyword)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (rewardAlreadyExists(reward)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-        if (hasForeignKeys(reward) &&
-                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(reward), reward)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
-        }
 
-        rewardRepository.saveAndFlush(reward);
+        return rewardRepository.searchByDescription(keyword)
+                .stream()
+                .map(rewardMapper::mapToRewardDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    @Transactional
+    public List<RewardDTO> getRewardsByItemId(int itemId) {
+        return rewardRepository.findByfk_item(itemId)
+                .stream()
+                .map(rewardMapper::mapToRewardDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RewardDTO> getRewardsByWeaponId(int weaponId) {
+        return rewardRepository.findByfk_weapon(weaponId)
+                .stream()
+                .map(rewardMapper::mapToRewardDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveReward(RewardDTO reward) throws IllegalArgumentException, DataIntegrityViolationException {
+        if (isNullOrEmpty(reward.getDescription())) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (rewardAlreadyExists(rewardMapper.mapFromRewardDto(reward))) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
+
+        rewardMapper.mapToRewardDto(
+                rewardRepository.save(rewardMapper.mapFromRewardDto(reward)
+                ));
+    }
+
+    @Override
     public void deleteReward(int rewardId) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(rewardRepository, rewardId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//        TODO: uncomment when Reward is used as a fk
-//        if (RepositoryHelper.isForeignKey(getReposWhereRewardIsAForeignKey(), FK_REWARD.columnName, rewardId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
 
         rewardRepository.deleteById(rewardId);
     }
 
     @Override
-    @Transactional
-    public void updateReward(int rewardId, Reward reward) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<RewardDTO> updateReward(int rewardId, RewardDTO reward) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(rewardRepository, rewardId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (hasForeignKeys(reward) &&
-                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(reward), reward)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+        if (isNullOrEmpty(reward.getDescription())) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        Reward rewardToUpdate = RepositoryHelper.getById(rewardRepository, rewardId);
-        if (reward.getDescription() != null) rewardToUpdate.setDescription(reward.getDescription());
-        if (reward.getNotes() != null) rewardToUpdate.setNotes(reward.getNotes());
-        if (reward.getGold_value() >= 0) rewardToUpdate.setGold_value(reward.getGold_value());
-        if (reward.getSilver_value() >= 0) rewardToUpdate.setSilver_value(reward.getSilver_value());
-        if (reward.getCopper_value() >= 0) rewardToUpdate.setCopper_value(reward.getCopper_value());
-        if (reward.getFk_item() != null) rewardToUpdate.setFk_item(reward.getFk_item());
-        if (reward.getFk_weapon() != null) rewardToUpdate.setFk_weapon(reward.getFk_weapon());
+
+        return rewardRepository.findById(rewardId).map(foundReward -> {
+            if (reward.getDescription() != null) foundReward.setDescription(reward.getDescription());
+            if (reward.getNotes() != null) foundReward.setNotes(reward.getNotes());
+            if (reward.getGold_value() >= 0) foundReward.setGold_value(reward.getGold_value());
+            if (reward.getSilver_value() >= 0) foundReward.setSilver_value(reward.getSilver_value());
+            if (reward.getCopper_value() >= 0) foundReward.setCopper_value(reward.getCopper_value());
+            if (reward.getFk_item() != null) foundReward.setFk_item(reward.getFk_item());
+            if (reward.getFk_weapon() != null) foundReward.setFk_weapon(reward.getFk_weapon());
+
+            return rewardMapper.mapToRewardDto(rewardRepository.save(foundReward));
+        });
     }
 
-    private boolean descriptionIsNullOrEmpty(String description) {
-        return isNull(description) || description.isEmpty();
+    private boolean isNullOrEmpty(String input) {
+        return isNull(input) || input.isEmpty();
     }
 
     private boolean rewardAlreadyExists(Reward reward) {
         return rewardRepository.rewardExists(reward).isPresent();
     }
 
-//    TODO: fix once Reward is used as fk
-//    private List<CrudRepository> getReposWhereRewardIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList());
-//    }
-
-    private boolean hasForeignKeys(Reward reward) {
-        return reward.getFk_item() != null ||
-                reward.getFk_weapon() != null;
-    }
-
-    private HashMap<CrudRepository, String> buildReposAndColumnsHashMap(Reward reward) {
-        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
-        if (reward.getFk_item() != null) {
-            reposAndColumns.put(itemRepository, FK_ITEM.columnName);
-        }
-        if (reward.getFk_weapon() != null) {
-            reposAndColumns.put(weaponRepository, FK_WEAPON.columnName);
-        }
-        return reposAndColumns;
-    }
 }

@@ -13,7 +13,8 @@ import java.util.UUID;
 @Repository
 public interface IRewardRepository extends JpaRepository<Reward, Integer> {
 
-    Optional<Reward> findByDescription(String description);
+    @Query("SELECT r FROM Reward r WHERE LOWER(r.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Reward> searchByDescription(@Param("keyword") String keyword);
 
     @Query("SELECT r FROM Reward r WHERE r.description = :#{#reward.description}")
     Optional<Reward> rewardExists(@Param("reward") Reward reward);

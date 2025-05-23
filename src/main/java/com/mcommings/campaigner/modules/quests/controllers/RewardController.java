@@ -1,46 +1,55 @@
 package com.mcommings.campaigner.modules.quests.controllers;
 
-import com.mcommings.campaigner.modules.quests.entities.Reward;
-import com.mcommings.campaigner.modules.quests.services.RewardService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.quests.dtos.RewardDTO;
+import com.mcommings.campaigner.modules.quests.services.interfaces.IReward;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/quests/rewards")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/rewards")
 public class RewardController {
 
-    private final RewardService rewardService;
-
-    @Autowired
-    public RewardController(RewardService rewardService) {
-        this.rewardService = rewardService;
-    }
-
+    private final IReward rewardService;
+    
     @GetMapping
-    public List<Reward> getRewards() {
+    public List<RewardDTO> getRewards() {
         return rewardService.getRewards();
     }
 
+    @GetMapping(path = "/{rewardId}")
+    public RewardDTO getReward(@PathVariable("rewardId") int rewardId) {
+        return rewardService.getReward(rewardId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @GetMapping("/campaign/{uuid}")
-    public List<Reward> getRewardsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<RewardDTO> getRewardsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
         return rewardService.getRewardsByCampaignUUID(uuid);
     }
 
+    @GetMapping(path = "/description/{keyword}")
+    public List<RewardDTO> getRewardsWhereDescriptionContainsKeyword(@PathVariable("keyword") String keyword) {
+        return rewardService.getRewardsWhereDescriptionContainsKeyword(keyword);
+    }
+
     @GetMapping("/item/{itemId}")
-    public List<Reward> getRewardsByItemId(@PathVariable("itemId") int itemId) {
+    public List<RewardDTO> getRewardsByItemId(@PathVariable("itemId") int itemId) {
         return rewardService.getRewardsByItemId(itemId);
     }
 
     @GetMapping("/weapon/{weaponId}")
-    public List<Reward> getRewardsByWeaponId(@PathVariable("weaponId") int weaponId) {
+    public List<RewardDTO> getRewardsByWeaponId(@PathVariable("weaponId") int weaponId) {
         return rewardService.getRewardsByWeaponId(weaponId);
     }
 
     @PostMapping
-    public void saveReward(@RequestBody Reward reward) {
+    public void saveReward(@Valid @RequestBody RewardDTO reward) {
         rewardService.saveReward(reward);
     }
 
@@ -50,7 +59,7 @@ public class RewardController {
     }
 
     @PutMapping(path = "{rewardId}")
-    public void updateReward(@PathVariable("rewardId") int rewardId, @RequestBody Reward reward) {
+    public void updateReward(@PathVariable("rewardId") int rewardId, @RequestBody RewardDTO reward) {
         rewardService.updateReward(rewardId, reward);
     }
 }
