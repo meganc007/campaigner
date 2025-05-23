@@ -13,7 +13,8 @@ import java.util.UUID;
 @Repository
 public interface IObjectiveRepository extends JpaRepository<Objective, Integer> {
 
-    Optional<Objective> findByDescription(String description);
+    @Query("SELECT o FROM Objective o WHERE LOWER(o.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Objective> searchByDescription(@Param("keyword") String keyword);
 
     @Query("SELECT o FROM Objective o WHERE o.description = :#{#objective.description}")
     Optional<Objective> objectiveExists(@Param("objective") Objective objective);

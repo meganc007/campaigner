@@ -1,26 +1,30 @@
 package com.mcommings.campaigner.services.quests;
 
+import com.mcommings.campaigner.modules.quests.dtos.ObjectiveDTO;
 import com.mcommings.campaigner.modules.quests.entities.Objective;
+import com.mcommings.campaigner.modules.quests.mappers.ObjectiveMapper;
 import com.mcommings.campaigner.modules.quests.repositories.IObjectiveRepository;
 import com.mcommings.campaigner.modules.quests.services.ObjectiveService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class ObjectiveTest {
+
+    @Mock
+    private ObjectiveMapper objectiveMapper;
 
     @Mock
     private IObjectiveRepository objectiveRepository;
@@ -28,168 +32,187 @@ public class ObjectiveTest {
     @InjectMocks
     private ObjectiveService objectiveService;
 
+    private Objective entity;
+    private ObjectiveDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        entity = new Objective();
+        entity.setId(1);
+        entity.setDescription("This is a description.");
+        entity.setNotes("This is a note.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+
+        dto = new ObjectiveDTO();
+        dto.setId(entity.getId());
+        dto.setDescription(entity.getDescription());
+        dto.setNotes(entity.getNotes());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+
+        when(objectiveMapper.mapToObjectiveDto(entity)).thenReturn(dto);
+        when(objectiveMapper.mapFromObjectiveDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreObjectives_getObjectives_ReturnsObjectives() {
-        List<Objective> objectives = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        objectives.add(new Objective(1, "Objective 1", "Notes 1", campaign));
-        objectives.add(new Objective(2, "Objective 2", "Notes 2", campaign));
-        objectives.add(new Objective(2, "Objective 3", campaign));
+        when(objectiveRepository.findAll()).thenReturn(List.of(entity));
+        List<ObjectiveDTO> result = objectiveService.getObjectives();
 
-        when(objectiveRepository.findAll()).thenReturn(objectives);
-
-        List<Objective> result = objectiveService.getObjectives();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(objectives, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("This is a description.", result.get(0).getDescription());
     }
 
     @Test
     public void whenThereAreNoObjectives_getObjectives_ReturnsNothing() {
-        List<Objective> objectives = new ArrayList<>();
-        when(objectiveRepository.findAll()).thenReturn(objectives);
+        when(objectiveRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Objective> result = objectiveService.getObjectives();
+        List<ObjectiveDTO> result = objectiveService.getObjectives();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(objectives, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no objectives.");
+    }
+
+    @Test
+    public void whenThereIsAObjective_getObjective_ReturnsObjective() {
+        when(objectiveRepository.findById(1)).thenReturn(Optional.of(entity));
+
+        Optional<ObjectiveDTO> result = objectiveService.getObjective(1);
+
+        assertTrue(result.isPresent());
+        assertEquals("This is a description.", result.get().getDescription());
+    }
+
+    @Test
+    public void whenThereIsNotAObjective_getObjective_ReturnsObjective() {
+        when(objectiveRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<ObjectiveDTO> result = objectiveService.getObjective(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when objective is not found.");
     }
 
     @Test
     public void whenCampaignUUIDIsValid_getObjectivesByCampaignUUID_ReturnsObjectives() {
-        List<Objective> objectives = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        objectives.add(new Objective(1, "Objective 1", "Notes 1", campaign));
-        objectives.add(new Objective(2, "Objective 2", "Notes 2", campaign));
-        objectives.add(new Objective(2, "Objective 3", campaign));
-        when(objectiveRepository.findByfk_campaign_uuid(campaign)).thenReturn(objectives);
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(objectiveRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        List<Objective> results = objectiveService.getObjectivesByCampaignUUID(campaign);
+        List<ObjectiveDTO> result = objectiveService.getObjectivesByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(objectives, results);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
     public void whenCampaignUUIDIsInvalid_getObjectivesByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<Objective> objectives = new ArrayList<>();
-        when(objectiveRepository.findByfk_campaign_uuid(campaign)).thenReturn(objectives);
+        UUID campaignUUID = UUID.randomUUID();
+        when(objectiveRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        List<Objective> result = objectiveService.getObjectivesByCampaignUUID(campaign);
+        List<ObjectiveDTO> result = objectiveService.getObjectivesByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(objectives, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no objectives match the campaign UUID.");
     }
 
     @Test
     public void whenObjectiveIsValid_saveObjective_SavesTheObjective() {
-        Objective objective = new Objective(1, "Objective 1", "Notes 1", UUID.randomUUID());
-        when(objectiveRepository.saveAndFlush(objective)).thenReturn(objective);
+        when(objectiveRepository.save(entity)).thenReturn(entity);
 
-        assertDoesNotThrow(() -> objectiveService.saveObjective(objective));
-        verify(objectiveRepository, times(1)).saveAndFlush(objective);
+        objectiveService.saveObjective(dto);
+
+        verify(objectiveRepository, times(1)).save(entity);
     }
 
     @Test
-    public void whenObjectiveNameIsInvalid_saveObjective_ThrowsIllegalArgumentException() {
-        Objective objectiveWithEmptyName = new Objective(1, "", "Notes 1", UUID.randomUUID());
-        Objective objectiveWithNullName = new Objective(2, null, "Notes 2", UUID.randomUUID());
+    public void whenObjectiveDescriptionIsInvalid_saveObjective_ThrowsIllegalArgumentException() {
+        ObjectiveDTO objectiveWithEmptyDescription = new ObjectiveDTO();
+        objectiveWithEmptyDescription.setId(1);
+        objectiveWithEmptyDescription.setDescription("");
+        objectiveWithEmptyDescription.setFk_campaign_uuid(UUID.randomUUID());
 
-        assertThrows(IllegalArgumentException.class, () -> objectiveService.saveObjective(objectiveWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> objectiveService.saveObjective(objectiveWithNullName));
+        ObjectiveDTO objectiveWithNullDescription = new ObjectiveDTO();
+        objectiveWithNullDescription.setId(1);
+        objectiveWithNullDescription.setDescription(null);
+        objectiveWithNullDescription.setFk_campaign_uuid(UUID.randomUUID());
+
+        assertThrows(IllegalArgumentException.class, () -> objectiveService.saveObjective(objectiveWithEmptyDescription));
+        assertThrows(IllegalArgumentException.class, () -> objectiveService.saveObjective(objectiveWithNullDescription));
     }
 
     @Test
     public void whenObjectiveDescriptionAlreadyExists_saveObjective_ThrowsDataIntegrityViolationException() {
-        Objective objective = new Objective(1, "Objective 1", "Note 1", UUID.randomUUID());
-        Objective objectiveWithDuplicatedName = new Objective(2, "Objective 1", "Note 2", UUID.randomUUID());
-        when(objectiveRepository.saveAndFlush(objective)).thenReturn(objective);
-        when(objectiveRepository.saveAndFlush(objectiveWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> objectiveService.saveObjective(objective));
-        assertThrows(DataIntegrityViolationException.class, () -> objectiveService.saveObjective(objectiveWithDuplicatedName));
+        when(objectiveRepository.objectiveExists(objectiveMapper.mapFromObjectiveDto(dto))).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> objectiveService.saveObjective(dto));
+        verify(objectiveRepository, times(1)).objectiveExists(objectiveMapper.mapFromObjectiveDto(dto));
+        verify(objectiveRepository, never()).save(any(Objective.class));
     }
 
     @Test
     public void whenObjectiveIdExists_deleteObjective_DeletesTheObjective() {
-        int objectiveId = 1;
-        when(objectiveRepository.existsById(objectiveId)).thenReturn(true);
-        assertDoesNotThrow(() -> objectiveService.deleteObjective(objectiveId));
-        verify(objectiveRepository, times(1)).deleteById(objectiveId);
+        when(objectiveRepository.existsById(1)).thenReturn(true);
+        objectiveService.deleteObjective(1);
+        verify(objectiveRepository, times(1)).deleteById(1);
     }
 
     @Test
     public void whenObjectiveIdDoesNotExist_deleteObjective_ThrowsIllegalArgumentException() {
-        int objectiveId = 9000;
-        when(objectiveRepository.existsById(objectiveId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> objectiveService.deleteObjective(objectiveId));
+        when(objectiveRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> objectiveService.deleteObjective(999));
     }
 
-    // TODO: fix when Objective is used as a fk
-//    @Test
-//    public void whenObjectiveIdIsAForeignKey_deleteObjective_ThrowsDataIntegrityViolationException() {
-//        int objectiveId = 1;
-//        Region region = new Region(1, "Region", "Description", 1, objectiveId);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
-//        List<Region> regions = new ArrayList<>(Arrays.asList(region));
-//
-//        when(objectiveRepository.existsById(objectiveId)).thenReturn(true);
-//        when(regionRepository.findByfk_objective(objectiveId)).thenReturn(regions);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_OBJECTIVE.columnName, objectiveId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> objectiveService.deleteObjective(objectiveId));
-//    }
+    @Test
+    public void whenDeleteObjectiveFails_deleteObjective_ThrowsException() {
+        when(objectiveRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(objectiveRepository).deleteById(1);
+
+        assertThrows(RuntimeException.class, () -> objectiveService.deleteObjective(1));
+    }
 
     @Test
     public void whenObjectiveIdIsFound_updateObjective_UpdatesTheObjective() {
-        int objectiveId = 1;
-        UUID campaign = UUID.randomUUID();
-        Objective objective = new Objective(objectiveId, "Old Objective Name", "Old Notes", campaign);
-        Objective objectiveToUpdate = new Objective(objectiveId, "Updated Objective Name", "Updated Notes", campaign);
+        ObjectiveDTO updateDTO = new ObjectiveDTO();
+        updateDTO.setDescription("Updated description");
 
-        when(objectiveRepository.existsById(objectiveId)).thenReturn(true);
-        when(objectiveRepository.findById(objectiveId)).thenReturn(Optional.of(objective));
+        when(objectiveRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(objectiveRepository.existsById(1)).thenReturn(true);
+        when(objectiveRepository.save(entity)).thenReturn(entity);
+        when(objectiveMapper.mapToObjectiveDto(entity)).thenReturn(updateDTO);
 
-        objectiveService.updateObjective(objectiveId, objectiveToUpdate);
+        Optional<ObjectiveDTO> result = objectiveService.updateObjective(1, updateDTO);
 
-        verify(objectiveRepository).findById(objectiveId);
-
-        Objective result = objectiveRepository.findById(objectiveId).get();
-        Assertions.assertEquals(objectiveToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(objectiveToUpdate.getNotes(), result.getNotes());
+        assertTrue(result.isPresent());
+        assertEquals("Updated description", result.get().getDescription());
     }
 
     @Test
-    public void whenObjectiveIdIsNotFound_updateObjective_ThrowsIllegalArgumentException() {
-        int objectiveId = 1;
-        Objective objective = new Objective(objectiveId, "Old Objective Name", "Old Description", UUID.randomUUID());
+    public void whenObjectiveIdIsNotFound_updateObjective_ReturnsEmptyOptional() {
+        ObjectiveDTO updateDTO = new ObjectiveDTO();
+        updateDTO.setDescription("Updated");
 
-        when(objectiveRepository.existsById(objectiveId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> objectiveService.updateObjective(objectiveId, objective));
+        when(objectiveRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> objectiveService.updateObjective(999, updateDTO));
     }
 
     @Test
-    public void whenSomeObjectiveFieldsChanged_updateObjective_OnlyUpdatesChangedFields() {
-        int objectiveId = 1;
-        Objective objective = new Objective(objectiveId, "Name", "Description", UUID.randomUUID());
+    public void whenObjectiveDescriptionIsInvalid_updateObjective_ThrowsIllegalArgumentException() {
+        ObjectiveDTO updateEmptyDescription = new ObjectiveDTO();
+        updateEmptyDescription.setDescription("");
 
-        String newDescription = "New Objective description";
+        ObjectiveDTO updateNullDescription = new ObjectiveDTO();
+        updateNullDescription.setDescription(null);
 
-        Objective objectiveToUpdate = new Objective();
-        objectiveToUpdate.setDescription(newDescription);
+        when(objectiveRepository.existsById(1)).thenReturn(true);
 
-        when(objectiveRepository.existsById(objectiveId)).thenReturn(true);
-        when(objectiveRepository.findById(objectiveId)).thenReturn(Optional.of(objective));
-
-        objectiveService.updateObjective(objectiveId, objectiveToUpdate);
-
-        verify(objectiveRepository).findById(objectiveId);
-
-        Objective result = objectiveRepository.findById(objectiveId).get();
-        Assertions.assertEquals(newDescription, result.getDescription());
-        Assertions.assertEquals(objective.getNotes(), result.getNotes());
+        assertThrows(IllegalArgumentException.class, () -> objectiveService.updateObjective(1, updateEmptyDescription));
+        assertThrows(IllegalArgumentException.class, () -> objectiveService.updateObjective(1, updateNullDescription));
     }
+
+    @Test
+    public void whenObjectiveNameAlreadyExists_updateObjective_ThrowsDataIntegrityViolationException() {
+        when(objectiveRepository.objectiveExists(objectiveMapper.mapFromObjectiveDto(dto))).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> objectiveService.updateObjective(entity.getId(), dto));
+    }
+    
 }

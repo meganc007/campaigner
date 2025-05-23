@@ -1,36 +1,45 @@
 package com.mcommings.campaigner.modules.quests.controllers;
 
-import com.mcommings.campaigner.modules.quests.entities.Objective;
-import com.mcommings.campaigner.modules.quests.services.ObjectiveService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.quests.dtos.ObjectiveDTO;
+import com.mcommings.campaigner.modules.quests.services.interfaces.IObjective;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/quests/objectives")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/objectives")
 public class ObjectiveController {
 
-    private final ObjectiveService objectiveService;
-
-    @Autowired
-    public ObjectiveController(ObjectiveService objectiveService) {
-        this.objectiveService = objectiveService;
-    }
+    private final IObjective objectiveService;
 
     @GetMapping
-    public List<Objective> getObjectives() {
+    public List<ObjectiveDTO> getObjectives() {
         return objectiveService.getObjectives();
     }
 
+    @GetMapping(path = "/{objectiveId}")
+    public ObjectiveDTO getObjective(@PathVariable("objectiveId") int objectiveId) {
+        return objectiveService.getObjective(objectiveId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @GetMapping(path = "/campaign/{uuid}")
-    public List<Objective> getObjectivesByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ObjectiveDTO> getObjectivesByCampaignUUID(@PathVariable("uuid") UUID uuid) {
         return objectiveService.getObjectivesByCampaignUUID(uuid);
     }
 
+    @GetMapping(path = "/description/{keyword}")
+    public List<ObjectiveDTO> getObjectivesWhereDescriptionContainsKeyword(@PathVariable("keyword") String keyword) {
+        return objectiveService.getObjectivesWhereDescriptionContainsKeyword(keyword);
+    }
+
     @PostMapping
-    public void saveObjective(@RequestBody Objective objective) {
+    public void saveObjective(@Valid @RequestBody ObjectiveDTO objective) {
         objectiveService.saveObjective(objective);
     }
 
@@ -40,7 +49,7 @@ public class ObjectiveController {
     }
 
     @PutMapping(path = "{objectiveId}")
-    public void updateObjective(@PathVariable("objectiveId") int objectiveId, @RequestBody Objective objective) {
+    public void updateObjective(@PathVariable("objectiveId") int objectiveId, @RequestBody ObjectiveDTO objective) {
         objectiveService.updateObjective(objectiveId, objective);
     }
 }

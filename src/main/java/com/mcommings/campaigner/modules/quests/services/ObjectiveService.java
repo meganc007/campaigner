@@ -1,88 +1,110 @@
 package com.mcommings.campaigner.modules.quests.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
+import com.mcommings.campaigner.modules.quests.dtos.ObjectiveDTO;
 import com.mcommings.campaigner.modules.quests.entities.Objective;
+import com.mcommings.campaigner.modules.quests.mappers.ObjectiveMapper;
 import com.mcommings.campaigner.modules.quests.repositories.IObjectiveRepository;
 import com.mcommings.campaigner.modules.quests.services.interfaces.IObjective;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static java.util.Objects.isNull;
 
 @Service
+@RequiredArgsConstructor
 public class ObjectiveService implements IObjective {
 
     private final IObjectiveRepository objectiveRepository;
+    private final ObjectiveMapper objectiveMapper;
 
-    @Autowired
-    public ObjectiveService(IObjectiveRepository objectiveRepository) {
-        this.objectiveRepository = objectiveRepository;
+    @Override
+    public List<ObjectiveDTO> getObjectives() {
+
+        return objectiveRepository.findAll()
+                .stream()
+                .map(objectiveMapper::mapToObjectiveDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Objective> getObjectives() {
-        return objectiveRepository.findAll();
+    public Optional<ObjectiveDTO> getObjective(int objectiveId) {
+        return objectiveRepository.findById(objectiveId)
+                .map(objectiveMapper::mapToObjectiveDto);
     }
 
     @Override
-    public List<Objective> getObjectivesByCampaignUUID(UUID uuid) {
-        return objectiveRepository.findByfk_campaign_uuid(uuid);
+    public List<ObjectiveDTO> getObjectivesByCampaignUUID(UUID uuid) {
+        return objectiveRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(objectiveMapper::mapToObjectiveDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    @Transactional
-    public void saveObjective(Objective objective) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (descriptionIsNullOrEmpty(objective.getDescription())) {
+    public List<ObjectiveDTO> getObjectivesWhereDescriptionContainsKeyword(String keyword) throws IllegalArgumentException {
+        if (isNullOrEmpty(keyword)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (objectiveAlreadyExists(objective)) {
+
+        return objectiveRepository.searchByDescription(keyword)
+                .stream()
+                .map(objectiveMapper::mapToObjectiveDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveObjective(ObjectiveDTO objective) throws IllegalArgumentException, DataIntegrityViolationException {
+        if (isNullOrEmpty(objective.getDescription())) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (objectiveAlreadyExists(objectiveMapper.mapFromObjectiveDto(objective))) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
-        objectiveRepository.saveAndFlush(objective);
+        objectiveMapper.mapToObjectiveDto(
+                objectiveRepository.save(objectiveMapper.mapFromObjectiveDto(objective))
+        );
     }
 
     @Override
-    @Transactional
     public void deleteObjective(int objectiveId) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(objectiveRepository, objectiveId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//        TODO: uncomment when Objective is used as a fk
-//        if (RepositoryHelper.isForeignKey(getReposWhereObjectiveIsAForeignKey(), FK_OBJECTIVE.columnName, objectiveId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
 
         objectiveRepository.deleteById(objectiveId);
     }
 
     @Override
-    @Transactional
-    public void updateObjective(int objectiveId, Objective objective) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<ObjectiveDTO> updateObjective(int objectiveId, ObjectiveDTO objective) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(objectiveRepository, objectiveId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        Objective objectiveToUpdate = RepositoryHelper.getById(objectiveRepository, objectiveId);
-        if (objective.getDescription() != null) objectiveToUpdate.setDescription(objective.getDescription());
-        if (objective.getNotes() != null) objectiveToUpdate.setNotes(objective.getNotes());
+        if (isNullOrEmpty(objective.getDescription())) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+
+        return objectiveRepository.findById(objectiveId).map(foundObjective -> {
+            if (objective.getDescription() != null) foundObjective.setDescription(objective.getDescription());
+            if (objective.getNotes() != null) foundObjective.setNotes(objective.getNotes());
+
+            return objectiveMapper.mapToObjectiveDto(objectiveRepository.save(foundObjective));
+        });
     }
 
-    private boolean descriptionIsNullOrEmpty(String description) {
-        return isNull(description) || description.isEmpty();
+    private boolean isNullOrEmpty(String input) {
+        return isNull(input) || input.isEmpty();
     }
 
     private boolean objectiveAlreadyExists(Objective objective) {
         return objectiveRepository.objectiveExists(objective).isPresent();
     }
-
-//    TODO: fix once Objective is used as fk
-//    private List<CrudRepository> getReposWhereObjectiveIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList());
-//    }
 }

@@ -1,19 +1,24 @@
 package com.mcommings.campaigner.modules.quests.services.interfaces;
 
-import com.mcommings.campaigner.modules.quests.entities.Objective;
+import com.mcommings.campaigner.modules.quests.dtos.ObjectiveDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IObjective {
 
-    List<Objective> getObjectives();
+    List<ObjectiveDTO> getObjectives();
 
-    List<Objective> getObjectivesByCampaignUUID(UUID uuid);
+    Optional<ObjectiveDTO> getObjective(int objectiveId);
 
-    void saveObjective(Objective objective);
+    List<ObjectiveDTO> getObjectivesByCampaignUUID(UUID uuid);
+
+    List<ObjectiveDTO> getObjectivesWhereDescriptionContainsKeyword(String keyword);
+
+    void saveObjective(ObjectiveDTO objective);
 
     void deleteObjective(int objectiveId);
 
-    void updateObjective(int objectiveId, Objective objective);
+    Optional<ObjectiveDTO> updateObjective(int objectiveId, ObjectiveDTO objective);
 }
