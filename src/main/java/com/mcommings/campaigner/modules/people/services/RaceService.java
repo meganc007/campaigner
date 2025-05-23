@@ -56,7 +56,8 @@ public class RaceService implements IRace {
         }
 
         raceMapper.mapToRaceDto(
-                raceRepository.save(raceMapper.mapFromRaceDto(race)));
+                raceRepository.save(raceMapper.mapFromRaceDto(race))
+        );
     }
 
     @Override

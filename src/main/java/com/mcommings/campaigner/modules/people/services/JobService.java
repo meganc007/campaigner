@@ -45,8 +45,8 @@ public class JobService implements IJob {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         jobMapper.mapToJobDto(jobRepository
-                .save(jobMapper.mapFromJobDto(job)
-                ));
+                .save(jobMapper.mapFromJobDto(job))
+        );
     }
 
     @Override

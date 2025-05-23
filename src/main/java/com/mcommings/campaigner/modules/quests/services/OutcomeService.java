@@ -70,8 +70,8 @@ public class OutcomeService implements IOutcome {
         }
 
         outcomeMapper.mapToOutcomeDto(
-                outcomeRepository.save(outcomeMapper.mapFromOutcomeDto(outcome)
-                ));
+                outcomeRepository.save(outcomeMapper.mapFromOutcomeDto(outcome))
+        );
     }
 
     @Override

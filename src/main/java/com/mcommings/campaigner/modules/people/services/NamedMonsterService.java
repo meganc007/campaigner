@@ -82,8 +82,8 @@ public class NamedMonsterService implements INamedMonster {
         }
 
         namedMonsterMapper.mapToNamedMonsterDto(
-                namedMonsterRepository.save(namedMonsterMapper.mapFromNamedMonsterDto(namedMonster)
-                ));
+                namedMonsterRepository.save(namedMonsterMapper.mapFromNamedMonsterDto(namedMonster))
+        );
     }
 
     @Override

@@ -70,8 +70,8 @@ public class JobAssignmentService implements IJobAssignment {
         }
 
         jobAssignmentMapper.mapToJobAssignmentDto(
-                jobAssignmentRepository.save(jobAssignmentMapper.mapFromJobAssignmentDto(jobAssignment)
-                ));
+                jobAssignmentRepository.save(jobAssignmentMapper.mapFromJobAssignmentDto(jobAssignment))
+        );
     }
 
     @Override

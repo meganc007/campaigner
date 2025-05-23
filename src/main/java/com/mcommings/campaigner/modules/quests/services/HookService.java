@@ -70,8 +70,8 @@ public class HookService implements IHook {
         }
 
         hookMapper.mapToHookDto(
-                hookRepository.save(hookMapper.mapFromHookDto(hook)
-                ));
+                hookRepository.save(hookMapper.mapFromHookDto(hook))
+        );
     }
 
     @Override

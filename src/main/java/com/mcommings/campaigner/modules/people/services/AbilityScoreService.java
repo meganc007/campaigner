@@ -59,8 +59,8 @@ public class AbilityScoreService implements IAbilityScore {
 
         abilityScoreMapper.mapToAbilityScoreDto(
                 abilityScoreRepository.save(
-                        abilityScoreMapper.mapFromAbilityScoreDto(abilityScore)
-                ));
+                        abilityScoreMapper.mapFromAbilityScoreDto(abilityScore))
+        );
     }
 
     @Override
