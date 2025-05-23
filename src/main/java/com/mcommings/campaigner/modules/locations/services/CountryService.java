@@ -70,8 +70,8 @@ public class CountryService implements ICountry {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         countryMapper.mapToCountryDto(
-                countryRepository.save(countryMapper.mapFromCountryDto(country)
-                ));
+                countryRepository.save(countryMapper.mapFromCountryDto(country))
+        );
     }
 
     @Override

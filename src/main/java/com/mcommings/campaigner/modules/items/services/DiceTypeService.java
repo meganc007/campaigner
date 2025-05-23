@@ -48,8 +48,8 @@ public class DiceTypeService implements IDiceType {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         diceTypeMapper.mapToDiceTypeDto(
-                diceTypeRepository.save(diceTypeMapper.mapFromDiceTypeDto(diceType)
-                ));
+                diceTypeRepository.save(diceTypeMapper.mapFromDiceTypeDto(diceType))
+        );
     }
 
     @Override

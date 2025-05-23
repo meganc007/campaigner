@@ -62,8 +62,8 @@ public class LandmarkService implements ILandmark {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         landmarkMapper.mapToLandmarkDto(
-                landmarkRepository.save(landmarkMapper.mapFromLandmarkDto(landmark)
-                ));
+                landmarkRepository.save(landmarkMapper.mapFromLandmarkDto(landmark))
+        );
     }
 
     @Override

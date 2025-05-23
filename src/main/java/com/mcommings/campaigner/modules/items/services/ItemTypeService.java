@@ -48,8 +48,8 @@ public class ItemTypeService implements IItemType {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         itemTypeMapper.mapToItemTypeDto(
-                itemTypeRepository.save(itemTypeMapper.mapFromItemTypeDto(itemType)
-                ));
+                itemTypeRepository.save(itemTypeMapper.mapFromItemTypeDto(itemType))
+        );
     }
 
     @Override

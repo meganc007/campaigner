@@ -58,8 +58,8 @@ public class ContinentService implements IContinent {
 
         continentMapper.mapToContinentDto(
                 continentRepository.save(
-                        continentMapper.mapFromContinentDto(continent)
-                ));
+                        continentMapper.mapFromContinentDto(continent))
+        );
     }
 
     @Override

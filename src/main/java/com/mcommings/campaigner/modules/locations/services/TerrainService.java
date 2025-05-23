@@ -49,8 +49,8 @@ public class TerrainService implements ITerrain {
 
         terrainMapper.mapToTerrainDto(
                 terrainRepository.save(
-                        terrainMapper.mapFromTerrainDto(terrain)
-                ));
+                        terrainMapper.mapFromTerrainDto(terrain))
+        );
     }
 
     @Override
