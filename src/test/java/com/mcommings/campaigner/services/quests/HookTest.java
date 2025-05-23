@@ -1,26 +1,30 @@
 package com.mcommings.campaigner.services.quests;
 
+import com.mcommings.campaigner.modules.quests.dtos.HookDTO;
 import com.mcommings.campaigner.modules.quests.entities.Hook;
+import com.mcommings.campaigner.modules.quests.mappers.HookMapper;
 import com.mcommings.campaigner.modules.quests.repositories.IHookRepository;
 import com.mcommings.campaigner.modules.quests.services.HookService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class HookTest {
+
+    @Mock
+    private HookMapper hookMapper;
 
     @Mock
     private IHookRepository hookRepository;
@@ -28,169 +32,187 @@ public class HookTest {
     @InjectMocks
     private HookService hookService;
 
+    private Hook entity;
+    private HookDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        entity = new Hook();
+        entity.setId(1);
+        entity.setDescription("This is a description.");
+        entity.setNotes("This is a note.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+
+        dto = new HookDTO();
+        dto.setId(entity.getId());
+        dto.setDescription(entity.getDescription());
+        dto.setNotes(entity.getNotes());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+
+        when(hookMapper.mapToHookDto(entity)).thenReturn(dto);
+        when(hookMapper.mapFromHookDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreHooks_getHooks_ReturnsHooks() {
-        List<Hook> hooks = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        hooks.add(new Hook(1, "Hook 1", "Notes 1", campaign));
-        hooks.add(new Hook(2, "Hook 2", "Notes 2", campaign));
-        hooks.add(new Hook(2, "Hook 3", campaign));
+        when(hookRepository.findAll()).thenReturn(List.of(entity));
+        List<HookDTO> result = hookService.getHooks();
 
-        when(hookRepository.findAll()).thenReturn(hooks);
-
-        List<Hook> result = hookService.getHooks();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(hooks, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("This is a description.", result.get(0).getDescription());
     }
 
     @Test
     public void whenThereAreNoHooks_getHooks_ReturnsNothing() {
-        List<Hook> hooks = new ArrayList<>();
-        when(hookRepository.findAll()).thenReturn(hooks);
+        when(hookRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Hook> result = hookService.getHooks();
+        List<HookDTO> result = hookService.getHooks();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(hooks, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no hooks.");
+    }
+
+    @Test
+    public void whenThereIsAHook_getHook_ReturnsHook() {
+        when(hookRepository.findById(1)).thenReturn(Optional.of(entity));
+
+        Optional<HookDTO> result = hookService.getHook(1);
+
+        assertTrue(result.isPresent());
+        assertEquals("This is a description.", result.get().getDescription());
+    }
+
+    @Test
+    public void whenThereIsNotAHook_getHook_ReturnsHook() {
+        when(hookRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<HookDTO> result = hookService.getHook(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when hook is not found.");
     }
 
     @Test
     public void whenCampaignUUIDIsValid_getHooksByCampaignUUID_ReturnsHooks() {
-        List<Hook> hooks = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        hooks.add(new Hook(1, "Hook 1", "Notes 1", campaign));
-        hooks.add(new Hook(2, "Hook 2", "Notes 2", campaign));
-        hooks.add(new Hook(2, "Hook 3", campaign));
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(hookRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        when(hookRepository.findByfk_campaign_uuid(campaign)).thenReturn(hooks);
+        List<HookDTO> result = hookService.getHooksByCampaignUUID(campaignUUID);
 
-        List<Hook> results = hookService.getHooksByCampaignUUID(campaign);
-
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(hooks, results);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
     public void whenCampaignUUIDIsInvalid_getHooksByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<Hook> hooks = new ArrayList<>();
-        when(hookRepository.findByfk_campaign_uuid(campaign)).thenReturn(hooks);
+        UUID campaignUUID = UUID.randomUUID();
+        when(hookRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        List<Hook> result = hookService.getHooksByCampaignUUID(campaign);
+        List<HookDTO> result = hookService.getHooksByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(hooks, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no hooks match the campaign UUID.");
     }
 
     @Test
     public void whenHookIsValid_saveHook_SavesTheHook() {
-        Hook hook = new Hook(1, "Hook 1", "Notes 1", UUID.randomUUID());
-        when(hookRepository.saveAndFlush(hook)).thenReturn(hook);
+        when(hookRepository.save(entity)).thenReturn(entity);
 
-        assertDoesNotThrow(() -> hookService.saveHook(hook));
-        verify(hookRepository, times(1)).saveAndFlush(hook);
+        hookService.saveHook(dto);
+
+        verify(hookRepository, times(1)).save(entity);
     }
 
     @Test
-    public void whenHookNameIsInvalid_saveHook_ThrowsIllegalArgumentException() {
-        Hook hookWithEmptyName = new Hook(1, "", "Notes 1", UUID.randomUUID());
-        Hook hookWithNullName = new Hook(2, null, "Notes 2", UUID.randomUUID());
+    public void whenHookDescriptionIsInvalid_saveHook_ThrowsIllegalArgumentException() {
+        HookDTO hookWithEmptyDescription = new HookDTO();
+        hookWithEmptyDescription.setId(1);
+        hookWithEmptyDescription.setDescription("");
+        hookWithEmptyDescription.setFk_campaign_uuid(UUID.randomUUID());
 
-        assertThrows(IllegalArgumentException.class, () -> hookService.saveHook(hookWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> hookService.saveHook(hookWithNullName));
+        HookDTO hookWithNullDescription = new HookDTO();
+        hookWithNullDescription.setId(1);
+        hookWithNullDescription.setDescription(null);
+        hookWithNullDescription.setFk_campaign_uuid(UUID.randomUUID());
+
+        assertThrows(IllegalArgumentException.class, () -> hookService.saveHook(hookWithEmptyDescription));
+        assertThrows(IllegalArgumentException.class, () -> hookService.saveHook(hookWithNullDescription));
     }
 
     @Test
     public void whenHookDescriptionAlreadyExists_saveHook_ThrowsDataIntegrityViolationException() {
-        Hook hook = new Hook(1, "Hook 1", "Note 1", UUID.randomUUID());
-        Hook hookWithDuplicatedName = new Hook(2, "Hook 1", "Note 2", UUID.randomUUID());
-        when(hookRepository.saveAndFlush(hook)).thenReturn(hook);
-        when(hookRepository.saveAndFlush(hookWithDuplicatedName)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> hookService.saveHook(hook));
-        assertThrows(DataIntegrityViolationException.class, () -> hookService.saveHook(hookWithDuplicatedName));
+        when(hookRepository.hookExists(hookMapper.mapFromHookDto(dto))).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> hookService.saveHook(dto));
+        verify(hookRepository, times(1)).hookExists(hookMapper.mapFromHookDto(dto));
+        verify(hookRepository, never()).save(any(Hook.class));
     }
 
     @Test
     public void whenHookIdExists_deleteHook_DeletesTheHook() {
-        int hookId = 1;
-        when(hookRepository.existsById(hookId)).thenReturn(true);
-        assertDoesNotThrow(() -> hookService.deleteHook(hookId));
-        verify(hookRepository, times(1)).deleteById(hookId);
+        when(hookRepository.existsById(1)).thenReturn(true);
+        hookService.deleteHook(1);
+        verify(hookRepository, times(1)).deleteById(1);
     }
 
     @Test
     public void whenHookIdDoesNotExist_deleteHook_ThrowsIllegalArgumentException() {
-        int hookId = 9000;
-        when(hookRepository.existsById(hookId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> hookService.deleteHook(hookId));
+        when(hookRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> hookService.deleteHook(999));
     }
 
-    // TODO: fix when Hook is used as a fk
-//    @Test
-//    public void whenHookIdIsAForeignKey_deleteHook_ThrowsDataIntegrityViolationException() {
-//        int hookId = 1;
-//        Region region = new Region(1, "Region", "Description", 1, hookId);
-//        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(regionRepository));
-//        List<Region> regions = new ArrayList<>(Arrays.asList(region));
-//
-//        when(hookRepository.existsById(hookId)).thenReturn(true);
-//        when(regionRepository.findByfk_hook(hookId)).thenReturn(regions);
-//
-//        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_HOOK.columnName, hookId);
-//        Assertions.assertTrue(actual);
-//        assertThrows(DataIntegrityViolationException.class, () -> hookService.deleteHook(hookId));
-//    }
+    @Test
+    public void whenDeleteHookFails_deleteHook_ThrowsException() {
+        when(hookRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(hookRepository).deleteById(1);
+
+        assertThrows(RuntimeException.class, () -> hookService.deleteHook(1));
+    }
 
     @Test
     public void whenHookIdIsFound_updateHook_UpdatesTheHook() {
-        int hookId = 1;
-        UUID campaign = UUID.randomUUID();
-        Hook hook = new Hook(hookId, "Old Hook Name", "Old Notes", campaign);
-        Hook hookToUpdate = new Hook(hookId, "Updated Hook Name", "Updated Notes", campaign);
+        HookDTO updateDTO = new HookDTO();
+        updateDTO.setDescription("Updated description");
 
-        when(hookRepository.existsById(hookId)).thenReturn(true);
-        when(hookRepository.findById(hookId)).thenReturn(Optional.of(hook));
+        when(hookRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(hookRepository.existsById(1)).thenReturn(true);
+        when(hookRepository.save(entity)).thenReturn(entity);
+        when(hookMapper.mapToHookDto(entity)).thenReturn(updateDTO);
 
-        hookService.updateHook(hookId, hookToUpdate);
+        Optional<HookDTO> result = hookService.updateHook(1, updateDTO);
 
-        verify(hookRepository).findById(hookId);
-
-        Hook result = hookRepository.findById(hookId).get();
-        Assertions.assertEquals(hookToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(hookToUpdate.getNotes(), result.getNotes());
+        assertTrue(result.isPresent());
+        assertEquals("Updated description", result.get().getDescription());
     }
 
     @Test
-    public void whenHookIdIsNotFound_updateHook_ThrowsIllegalArgumentException() {
-        int hookId = 1;
-        Hook hook = new Hook(hookId, "Old Hook Name", "Old Description", UUID.randomUUID());
+    public void whenHookIdIsNotFound_updateHook_ReturnsEmptyOptional() {
+        HookDTO updateDTO = new HookDTO();
+        updateDTO.setDescription("Updated");
 
-        when(hookRepository.existsById(hookId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> hookService.updateHook(hookId, hook));
+        when(hookRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> hookService.updateHook(999, updateDTO));
     }
 
     @Test
-    public void whenSomeHookFieldsChanged_updateHook_OnlyUpdatesChangedFields() {
-        int hookId = 1;
-        Hook hook = new Hook(hookId, "Name", "Description", UUID.randomUUID());
+    public void whenHookDescriptionIsInvalid_updateHook_ThrowsIllegalArgumentException() {
+        HookDTO updateEmptyDescription = new HookDTO();
+        updateEmptyDescription.setDescription("");
 
-        String newDescription = "New Hook description";
+        HookDTO updateNullDescription = new HookDTO();
+        updateNullDescription.setDescription(null);
 
-        Hook hookToUpdate = new Hook();
-        hookToUpdate.setDescription(newDescription);
+        when(hookRepository.existsById(1)).thenReturn(true);
 
-        when(hookRepository.existsById(hookId)).thenReturn(true);
-        when(hookRepository.findById(hookId)).thenReturn(Optional.of(hook));
-
-        hookService.updateHook(hookId, hookToUpdate);
-
-        verify(hookRepository).findById(hookId);
-
-        Hook result = hookRepository.findById(hookId).get();
-        Assertions.assertEquals(newDescription, result.getDescription());
-        Assertions.assertEquals(hook.getNotes(), result.getNotes());
+        assertThrows(IllegalArgumentException.class, () -> hookService.updateHook(1, updateEmptyDescription));
+        assertThrows(IllegalArgumentException.class, () -> hookService.updateHook(1, updateNullDescription));
     }
+
+    @Test
+    public void whenHookNameAlreadyExists_updateHook_ThrowsDataIntegrityViolationException() {
+        when(hookRepository.hookExists(hookMapper.mapFromHookDto(dto))).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> hookService.updateHook(entity.getId(), dto));
+    }
+    
 }

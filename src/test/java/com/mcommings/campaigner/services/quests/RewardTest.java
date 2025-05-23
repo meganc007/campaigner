@@ -1,244 +1,226 @@
 package com.mcommings.campaigner.services.quests;
 
-import com.mcommings.campaigner.modules.items.repositories.IItemRepository;
-import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
+import com.mcommings.campaigner.modules.quests.dtos.RewardDTO;
 import com.mcommings.campaigner.modules.quests.entities.Reward;
+import com.mcommings.campaigner.modules.quests.mappers.RewardMapper;
 import com.mcommings.campaigner.modules.quests.repositories.IRewardRepository;
 import com.mcommings.campaigner.modules.quests.services.RewardService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class RewardTest {
 
     @Mock
+    private RewardMapper rewardMapper;
+
+    @Mock
     private IRewardRepository rewardRepository;
-    @Mock
-    private IItemRepository itemRepository;
-    @Mock
-    private IWeaponRepository weaponRepository;
 
     @InjectMocks
     private RewardService rewardService;
 
+    private Reward entity;
+    private RewardDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new Reward();
+        entity.setId(1);
+        entity.setDescription("This is a description.");
+        entity.setNotes("This is a note.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+        entity.setGold_value(random.nextInt(100) + 1);
+        entity.setSilver_value(random.nextInt(100) + 1);
+        entity.setCopper_value(random.nextInt(100) + 1);
+        entity.setFk_item(random.nextInt(100) + 1);
+        entity.setFk_weapon(random.nextInt(100) + 1);
+
+
+        dto = new RewardDTO();
+        dto.setId(entity.getId());
+        dto.setDescription(entity.getDescription());
+        dto.setNotes(entity.getNotes());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+        dto.setGold_value(entity.getGold_value());
+        dto.setSilver_value(entity.getSilver_value());
+        dto.setCopper_value(entity.getCopper_value());
+        dto.setFk_item(entity.getFk_item());
+        dto.setFk_weapon(entity.getFk_weapon());
+
+        when(rewardMapper.mapToRewardDto(entity)).thenReturn(dto);
+        when(rewardMapper.mapFromRewardDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreRewards_getRewards_ReturnsRewards() {
-        List<Reward> rewards = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        rewards.add(new Reward(1, "Description", "Notes", campaign));
-        rewards.add(new Reward(2, "Description", "Notes", 200, 100, 50, campaign));
-        rewards.add(new Reward(3, "Description", "Notes", 200, 100, 50, 1, 2, campaign));
-        when(rewardRepository.findAll()).thenReturn(rewards);
+        when(rewardRepository.findAll()).thenReturn(List.of(entity));
+        List<RewardDTO> result = rewardService.getRewards();
 
-        List<Reward> result = rewardService.getRewards();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(rewards, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("This is a description.", result.get(0).getDescription());
     }
 
     @Test
     public void whenThereAreNoRewards_getRewards_ReturnsNothing() {
-        List<Reward> rewards = new ArrayList<>();
-        when(rewardRepository.findAll()).thenReturn(rewards);
+        when(rewardRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Reward> result = rewardService.getRewards();
+        List<RewardDTO> result = rewardService.getRewards();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(rewards, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no rewards.");
+    }
+
+    @Test
+    public void whenThereIsAReward_getReward_ReturnsReward() {
+        when(rewardRepository.findById(1)).thenReturn(Optional.of(entity));
+
+        Optional<RewardDTO> result = rewardService.getReward(1);
+
+        assertTrue(result.isPresent());
+        assertEquals("This is a description.", result.get().getDescription());
+    }
+
+    @Test
+    public void whenThereIsNotAReward_getReward_ReturnsReward() {
+        when(rewardRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<RewardDTO> result = rewardService.getReward(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when reward is not found.");
     }
 
     @Test
     public void whenCampaignUUIDIsValid_getRewardsByCampaignUUID_ReturnsRewards() {
-        List<Reward> rewards = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        rewards.add(new Reward(1, "Description", "Notes", campaign));
-        rewards.add(new Reward(2, "Description", "Notes", 200, 100, 50, campaign));
-        rewards.add(new Reward(3, "Description", "Notes", 200, 100, 50, 1, 2, campaign));
-        when(rewardRepository.findByfk_campaign_uuid(campaign)).thenReturn(rewards);
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(rewardRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        List<Reward> results = rewardService.getRewardsByCampaignUUID(campaign);
+        List<RewardDTO> result = rewardService.getRewardsByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(rewards, results);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
     public void whenCampaignUUIDIsInvalid_getRewardsByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<Reward> rewards = new ArrayList<>();
-        when(rewardRepository.findByfk_campaign_uuid(campaign)).thenReturn(rewards);
+        UUID campaignUUID = UUID.randomUUID();
+        when(rewardRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        List<Reward> result = rewardService.getRewardsByCampaignUUID(campaign);
+        List<RewardDTO> result = rewardService.getRewardsByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(rewards, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no rewards match the campaign UUID.");
     }
 
     @Test
     public void whenRewardIsValid_saveReward_SavesTheReward() {
-        Reward reward = new Reward(3, "Description", "Notes", 200, 100, 50, UUID.randomUUID());
-        reward.setFk_item(1);
-        reward.setFk_weapon(1);
+        when(rewardRepository.save(entity)).thenReturn(entity);
 
-        when(itemRepository.existsById(1)).thenReturn(true);
-        when(weaponRepository.existsById(1)).thenReturn(true);
-        when(rewardRepository.saveAndFlush(reward)).thenReturn(reward);
+        rewardService.saveReward(dto);
 
-        assertDoesNotThrow(() -> rewardService.saveReward(reward));
-
-        verify(rewardRepository, times(1)).saveAndFlush(reward);
+        verify(rewardRepository, times(1)).save(entity);
     }
 
     @Test
-    public void whenRewardHasOneFk_saveReward_SavesTheReward() {
-        Reward reward = new Reward(3, "Description", "Notes", 200, 100, 50, UUID.randomUUID());
-        reward.setFk_item(1);
+    public void whenRewardDescriptionIsInvalid_saveReward_ThrowsIllegalArgumentException() {
+        RewardDTO rewardWithEmptyDescription = new RewardDTO();
+        rewardWithEmptyDescription.setId(1);
+        rewardWithEmptyDescription.setDescription("");
+        rewardWithEmptyDescription.setFk_campaign_uuid(UUID.randomUUID());
 
-        when(itemRepository.existsById(1)).thenReturn(true);
-        when(rewardRepository.saveAndFlush(reward)).thenReturn(reward);
+        RewardDTO rewardWithNullDescription = new RewardDTO();
+        rewardWithNullDescription.setId(1);
+        rewardWithNullDescription.setDescription(null);
+        rewardWithNullDescription.setFk_campaign_uuid(UUID.randomUUID());
 
-        assertDoesNotThrow(() -> rewardService.saveReward(reward));
-        verify(rewardRepository, times(1)).saveAndFlush(reward);
+        assertThrows(IllegalArgumentException.class, () -> rewardService.saveReward(rewardWithEmptyDescription));
+        assertThrows(IllegalArgumentException.class, () -> rewardService.saveReward(rewardWithNullDescription));
     }
 
     @Test
-    public void whenRewardAlreadyExists_saveReward_ThrowsDataIntegrityViolationException() {
-        Reward reward = new Reward(1, "Description", "Notes", 200, 100, 50, UUID.randomUUID());
-        reward.setFk_item(1);
-        reward.setFk_weapon(1);
-        Reward copy = new Reward(2, "Description", "Notes", 200, 100, 50, UUID.randomUUID());
-        copy.setFk_item(1);
-        copy.setFk_weapon(1);
-
-        when(itemRepository.existsById(1)).thenReturn(true);
-        when(weaponRepository.existsById(1)).thenReturn(true);
-
-        when(rewardRepository.saveAndFlush(reward)).thenReturn(reward);
-        when(rewardRepository.saveAndFlush(copy)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> rewardService.saveReward(reward));
-        assertThrows(DataIntegrityViolationException.class, () -> rewardService.saveReward(copy));
+    public void whenRewardDescriptionAlreadyExists_saveReward_ThrowsDataIntegrityViolationException() {
+        when(rewardRepository.rewardExists(rewardMapper.mapFromRewardDto(dto))).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> rewardService.saveReward(dto));
+        verify(rewardRepository, times(1)).rewardExists(rewardMapper.mapFromRewardDto(dto));
+        verify(rewardRepository, never()).save(any(Reward.class));
     }
 
     @Test
     public void whenRewardIdExists_deleteReward_DeletesTheReward() {
-        int rewardId = 1;
-        when(rewardRepository.existsById(rewardId)).thenReturn(true);
-        assertDoesNotThrow(() -> rewardService.deleteReward(rewardId));
-        verify(rewardRepository, times(1)).deleteById(rewardId);
+        when(rewardRepository.existsById(1)).thenReturn(true);
+        rewardService.deleteReward(1);
+        verify(rewardRepository, times(1)).deleteById(1);
     }
 
     @Test
     public void whenRewardIdDoesNotExist_deleteReward_ThrowsIllegalArgumentException() {
-        int rewardId = 9000;
-        when(rewardRepository.existsById(rewardId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> rewardService.deleteReward(rewardId));
-    }
-
-    //TODO: test delete when Reward is a fk
-
-    @Test
-    public void whenRewardIdWithValidFKIsFound_updateReward_UpdatesTheReward() {
-        int rewardId = 1;
-        UUID campaign = UUID.randomUUID();
-
-        Reward reward = new Reward(rewardId, "Description", "Notes", 200, 100, 50, 1, 1, campaign);
-        Reward update = new Reward(rewardId, "Description", "Notes", 200, 100, 50, 2, 2, campaign);
-
-        when(rewardRepository.existsById(rewardId)).thenReturn(true);
-        when(rewardRepository.findById(rewardId)).thenReturn(Optional.of(reward));
-        when(itemRepository.existsById(1)).thenReturn(true);
-        when(weaponRepository.existsById(1)).thenReturn(true);
-        when(itemRepository.existsById(2)).thenReturn(true);
-        when(weaponRepository.existsById(2)).thenReturn(true);
-
-        rewardService.updateReward(rewardId, update);
-
-        verify(rewardRepository).findById(rewardId);
-
-        Reward result = rewardRepository.findById(rewardId).get();
-        Assertions.assertEquals(update.getId(), result.getId());
-        Assertions.assertEquals(update.getDescription(), result.getDescription());
-        Assertions.assertEquals(update.getNotes(), result.getNotes());
-        Assertions.assertEquals(update.getGold_value(), result.getGold_value());
-        Assertions.assertEquals(update.getSilver_value(), result.getSilver_value());
-        Assertions.assertEquals(update.getCopper_value(), result.getCopper_value());
-        Assertions.assertEquals(update.getFk_item(), result.getFk_item());
-        Assertions.assertEquals(update.getFk_weapon(), result.getFk_weapon());
+        when(rewardRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> rewardService.deleteReward(999));
     }
 
     @Test
-    public void whenRewardIdWithInvalidFKIsFound_updateReward_ThrowsDataIntegrityViolationException() {
-        int rewardId = 1;
-        UUID campaign = UUID.randomUUID();
+    public void whenDeleteRewardFails_deleteReward_ThrowsException() {
+        when(rewardRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(rewardRepository).deleteById(1);
 
-        Reward reward = new Reward(rewardId, "Description", "Notes", 200, 100, 50, 1, 1, campaign);
-        Reward update = new Reward(rewardId, "Description", "Notes", 200, 100, 50, 2, 2, campaign);
-
-        when(rewardRepository.existsById(rewardId)).thenReturn(true);
-        when(rewardRepository.findById(rewardId)).thenReturn(Optional.of(reward));
-        when(itemRepository.existsById(1)).thenReturn(false);
-        when(weaponRepository.existsById(1)).thenReturn(true);
-        when(itemRepository.existsById(2)).thenReturn(false);
-        when(weaponRepository.existsById(2)).thenReturn(true);
-
-        assertThrows(DataIntegrityViolationException.class, () -> rewardService.updateReward(rewardId, update));
+        assertThrows(RuntimeException.class, () -> rewardService.deleteReward(1));
     }
 
     @Test
-    public void whenRewardIdIsNotFound_updateReward_ThrowsIllegalArgumentException() {
-        int rewardId = 1;
-        Reward reward = new Reward(rewardId, "Description", "Notes", UUID.randomUUID());
+    public void whenRewardIdIsFound_updateReward_UpdatesTheReward() {
+        RewardDTO updateDTO = new RewardDTO();
+        updateDTO.setDescription("Updated description");
 
-        when(rewardRepository.existsById(rewardId)).thenReturn(false);
+        when(rewardRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(rewardRepository.existsById(1)).thenReturn(true);
+        when(rewardRepository.save(entity)).thenReturn(entity);
+        when(rewardMapper.mapToRewardDto(entity)).thenReturn(updateDTO);
 
-        assertThrows(IllegalArgumentException.class, () -> rewardService.updateReward(rewardId, reward));
+        Optional<RewardDTO> result = rewardService.updateReward(1, updateDTO);
+
+        assertTrue(result.isPresent());
+        assertEquals("Updated description", result.get().getDescription());
     }
 
     @Test
-    public void whenSomeRewardFieldsChanged_updateReward_OnlyUpdatesChangedFields() {
-        int rewardId = 1;
-        Reward reward = new Reward(rewardId, "Description", "Notes",
-                200, 100, 50, 1, 1, UUID.randomUUID());
+    public void whenRewardIdIsNotFound_updateReward_ReturnsEmptyOptional() {
+        RewardDTO updateDTO = new RewardDTO();
+        updateDTO.setDescription("Updated");
 
-        String newDescription = "New Reward description";
-        int newGoldValue = 3000;
-        int newWeapon = 4;
+        when(rewardRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> rewardService.updateReward(999, updateDTO));
+    }
 
-        Reward rewardToUpdate = new Reward();
-        rewardToUpdate.setDescription(newDescription);
-        rewardToUpdate.setGold_value(newGoldValue);
-        rewardToUpdate.setFk_weapon(newWeapon);
+    @Test
+    public void whenRewardDescriptionIsInvalid_updateReward_ThrowsIllegalArgumentException() {
+        RewardDTO updateEmptyDescription = new RewardDTO();
+        updateEmptyDescription.setDescription("");
 
-        when(rewardRepository.existsById(rewardId)).thenReturn(true);
-        when(itemRepository.existsById(1)).thenReturn(true);
-        when(weaponRepository.existsById(newWeapon)).thenReturn(true);
-        when(rewardRepository.findById(rewardId)).thenReturn(Optional.of(reward));
+        RewardDTO updateNullDescription = new RewardDTO();
+        updateNullDescription.setDescription(null);
 
-        rewardService.updateReward(rewardId, rewardToUpdate);
+        when(rewardRepository.existsById(1)).thenReturn(true);
 
-        verify(rewardRepository).findById(rewardId);
+        assertThrows(IllegalArgumentException.class, () -> rewardService.updateReward(1, updateEmptyDescription));
+        assertThrows(IllegalArgumentException.class, () -> rewardService.updateReward(1, updateNullDescription));
+    }
 
-        Reward result = rewardRepository.findById(rewardId).get();
-        Assertions.assertEquals(newDescription, result.getDescription());
-        Assertions.assertEquals(reward.getNotes(), result.getNotes());
-        Assertions.assertEquals(newGoldValue, result.getGold_value());
-        Assertions.assertEquals(reward.getSilver_value(), result.getSilver_value());
-        Assertions.assertEquals(reward.getCopper_value(), result.getCopper_value());
-        Assertions.assertEquals(reward.getFk_item(), result.getFk_item());
-        Assertions.assertEquals(newWeapon, result.getFk_weapon());
+    @Test
+    public void whenRewardNameAlreadyExists_updateReward_ThrowsDataIntegrityViolationException() {
+        when(rewardRepository.rewardExists(rewardMapper.mapFromRewardDto(dto))).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> rewardService.updateReward(entity.getId(), dto));
     }
 }

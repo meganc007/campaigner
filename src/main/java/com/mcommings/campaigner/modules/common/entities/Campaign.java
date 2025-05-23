@@ -15,7 +15,7 @@ import java.util.UUID;
 @Table(name = "campaigns")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Campaign extends BaseEntity {
+public class Campaign {
 
     @Id
     @Column(name = "campaign_uuid", nullable = false, unique = true, columnDefinition = "varchar(36) default gen_random_uuid()")

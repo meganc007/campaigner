@@ -13,7 +13,8 @@ import java.util.UUID;
 @Repository
 public interface IHookRepository extends JpaRepository<Hook, Integer> {
 
-    Optional<Hook> findByDescription(String description);
+    @Query("SELECT h FROM Hook h WHERE LOWER(h.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Hook> searchByDescription(@Param("keyword") String keyword);
 
     @Query("SELECT h FROM Hook h WHERE h.description = :#{#hook.description}")
     Optional<Hook> hookExists(@Param("hook") Hook hook);

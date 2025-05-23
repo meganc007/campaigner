@@ -13,7 +13,8 @@ import java.util.UUID;
 @Repository
 public interface IOutcomeRepository extends JpaRepository<Outcome, Integer> {
 
-    Optional<Outcome> findByDescription(String description);
+    @Query("SELECT o FROM Outcome o WHERE LOWER(o.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Outcome> searchByDescription(@Param("keyword") String keyword);
 
     @Query("SELECT o FROM Outcome o WHERE o.fk_campaign_uuid = :uuid")
     List<Outcome> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
