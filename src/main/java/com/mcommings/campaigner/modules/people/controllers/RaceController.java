@@ -1,28 +1,39 @@
 package com.mcommings.campaigner.modules.people.controllers;
 
-import com.mcommings.campaigner.modules.people.entities.Race;
-import com.mcommings.campaigner.modules.people.services.RaceService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.people.dtos.RaceDTO;
+import com.mcommings.campaigner.modules.people.services.interfaces.IRace;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/people/races")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/races")
 public class RaceController {
 
-    private final RaceService raceService;
-
-    @Autowired
-    public RaceController(RaceService raceService) {this.raceService = raceService;}
+    private final IRace raceService;
 
     @GetMapping
-    public List<Race> getRaces() {
+    public List<RaceDTO> getRaces() {
         return raceService.getRaces();
     }
 
+    @GetMapping("/{raceId}")
+    public RaceDTO getRace(@PathVariable("raceId") int raceId) {
+        return raceService.getRace(raceId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
+    @GetMapping("/exotic/{isExotic}")
+    public List<RaceDTO> getRacesByIsExotic(@PathVariable("isExotic") boolean isExotic) {
+        return raceService.getRacesByIsExotic(isExotic);
+    }
+
     @PostMapping
-    public void saveRace(@RequestBody Race race) {
+    public void saveRace(@Valid @RequestBody RaceDTO race) {
         raceService.saveRace(race);
     }
 
@@ -32,7 +43,7 @@ public class RaceController {
     }
 
     @PutMapping(path = "{raceId}")
-    public void updateRace(@PathVariable("raceId") int raceId, @RequestBody Race race) {
+    public void updateRace(@PathVariable("raceId") int raceId, @RequestBody RaceDTO race) {
         raceService.updateRace(raceId, race);
     }
 }
