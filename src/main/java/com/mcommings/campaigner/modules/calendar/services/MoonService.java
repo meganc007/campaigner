@@ -58,8 +58,8 @@ public class MoonService implements IMoon {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         moonMapper.mapToMoonDto(
-                moonRepository.save(moonMapper.mapFromMoonDto(moon)
-                ));
+                moonRepository.save(moonMapper.mapFromMoonDto(moon))
+        );
     }
 
     @Override

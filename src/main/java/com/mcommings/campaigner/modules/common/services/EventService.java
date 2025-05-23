@@ -114,8 +114,8 @@ public class EventService implements IEvent {
 
         eventMapper.mapToEventDto(
                 eventRepository.save(
-                        eventMapper.mapFromEventDto(event)
-                ));
+                        eventMapper.mapFromEventDto(event))
+        );
     }
 
     @Override

@@ -48,8 +48,8 @@ public class ClimateService implements IClimate {
 
         climateMapper.mapToClimateDto(
                 climateRepository.save(
-                        climateMapper.mapFromClimateDto(climate)
-                ));
+                        climateMapper.mapFromClimateDto(climate))
+        );
     }
 
     @Override

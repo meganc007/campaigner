@@ -51,8 +51,8 @@ public class CampaignService implements ICampaign {
 
         campaignMapper.mapToCampaignDto(
                 campaignRepository.save(
-                        campaignMapper.mapFromCampaignDto(campaign)
-                ));
+                        campaignMapper.mapFromCampaignDto(campaign))
+        );
     }
     
     @Override

@@ -58,8 +58,8 @@ public class SunService implements ISun {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
         sunMapper.mapToSunDto(
-                sunRepository.save(sunMapper.mapFromSunDto(sun)
-                ));
+                sunRepository.save(sunMapper.mapFromSunDto(sun))
+        );
     }
 
     @Override
