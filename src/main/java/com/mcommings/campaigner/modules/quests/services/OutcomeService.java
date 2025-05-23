@@ -1,88 +1,110 @@
 package com.mcommings.campaigner.modules.quests.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
+import com.mcommings.campaigner.modules.quests.dtos.OutcomeDTO;
 import com.mcommings.campaigner.modules.quests.entities.Outcome;
+import com.mcommings.campaigner.modules.quests.mappers.OutcomeMapper;
 import com.mcommings.campaigner.modules.quests.repositories.IOutcomeRepository;
 import com.mcommings.campaigner.modules.quests.services.interfaces.IOutcome;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 import static java.util.Objects.isNull;
 
 @Service
+@RequiredArgsConstructor
 public class OutcomeService implements IOutcome {
 
     private final IOutcomeRepository outcomeRepository;
+    private final OutcomeMapper outcomeMapper;
 
-    @Autowired
-    public OutcomeService(IOutcomeRepository outcomeRepository) {
-        this.outcomeRepository = outcomeRepository;
+    @Override
+    public List<OutcomeDTO> getOutcomes() {
+        return outcomeRepository.findAll()
+                .stream()
+                .map(outcomeMapper::mapToOutcomeDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Outcome> getOutcomes() {
-        return outcomeRepository.findAll();
+    public Optional<OutcomeDTO> getOutcome(int outcomeId) {
+        return outcomeRepository.findById(outcomeId)
+                .map(outcomeMapper::mapToOutcomeDto);
     }
 
     @Override
-    public List<Outcome> getOutcomesByCampaignUUID(UUID uuid) {
-        return outcomeRepository.findByfk_campaign_uuid(uuid);
+    public List<OutcomeDTO> getOutcomesByCampaignUUID(UUID uuid) {
+
+        return outcomeRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(outcomeMapper::mapToOutcomeDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    @Transactional
-    public void saveOutcome(Outcome outcome) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (descriptionIsNullOrEmpty(outcome.getDescription())) {
+    public List<OutcomeDTO> getOutcomesWhereDescriptionContainsKeyword(String keyword) throws IllegalArgumentException {
+        if (isNullOrEmpty(keyword)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (outcomeAlreadyExists(outcome)) {
+
+        return outcomeRepository.searchByDescription(keyword)
+                .stream()
+                .map(outcomeMapper::mapToOutcomeDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveOutcome(OutcomeDTO outcome) throws IllegalArgumentException, DataIntegrityViolationException {
+        if (isNullOrEmpty(outcome.getDescription())) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (outcomeAlreadyExists(outcomeMapper.mapFromOutcomeDto(outcome))) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
-        outcomeRepository.saveAndFlush(outcome);
+        outcomeMapper.mapToOutcomeDto(
+                outcomeRepository.save(outcomeMapper.mapFromOutcomeDto(outcome)
+                ));
     }
 
     @Override
-    @Transactional
     public void deleteOutcome(int outcomeId) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(outcomeRepository, outcomeId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//        TODO: uncomment when Outcome is used as a fk
-//        if (RepositoryHelper.isForeignKey(getReposWhereOutcomeIsAForeignKey(), FK_OUTCOME.columnName, outcomeId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
 
         outcomeRepository.deleteById(outcomeId);
     }
 
     @Override
-    @Transactional
-    public void updateOutcome(int outcomeId, Outcome outcome) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<OutcomeDTO> updateOutcome(int outcomeId, OutcomeDTO outcome) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(outcomeRepository, outcomeId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        Outcome outcomeToUpdate = RepositoryHelper.getById(outcomeRepository, outcomeId);
-        if (outcome.getDescription() != null) outcomeToUpdate.setDescription(outcome.getDescription());
-        if (outcome.getNotes() != null) outcomeToUpdate.setNotes(outcome.getNotes());
+        if (isNullOrEmpty(outcome.getDescription())) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+
+        return outcomeRepository.findById(outcomeId).map(foundOutcome -> {
+            if (outcome.getDescription() != null) foundOutcome.setDescription(outcome.getDescription());
+            if (outcome.getNotes() != null) foundOutcome.setNotes(outcome.getNotes());
+
+            return outcomeMapper.mapToOutcomeDto(outcomeRepository.save(foundOutcome));
+        });
     }
 
-    private boolean descriptionIsNullOrEmpty(String description) {
-        return isNull(description) || description.isEmpty();
+    private boolean isNullOrEmpty(String input) {
+        return isNull(input) || input.isEmpty();
     }
 
     private boolean outcomeAlreadyExists(Outcome outcome) {
         return outcomeRepository.outcomeExists(outcome).isPresent();
     }
-
-//    TODO: fix once Outcome is used as fk
-//    private List<CrudRepository> getReposWhereOutcomeIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList());
-//    }
 }

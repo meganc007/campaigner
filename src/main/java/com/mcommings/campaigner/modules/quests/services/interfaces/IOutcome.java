@@ -1,19 +1,24 @@
 package com.mcommings.campaigner.modules.quests.services.interfaces;
 
-import com.mcommings.campaigner.modules.quests.entities.Outcome;
+import com.mcommings.campaigner.modules.quests.dtos.OutcomeDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IOutcome {
 
-    List<Outcome> getOutcomes();
+    List<OutcomeDTO> getOutcomes();
 
-    List<Outcome> getOutcomesByCampaignUUID(UUID uuid);
+    Optional<OutcomeDTO> getOutcome(int outcomeId);
 
-    void saveOutcome(Outcome outcome);
+    List<OutcomeDTO> getOutcomesByCampaignUUID(UUID uuid);
+
+    List<OutcomeDTO> getOutcomesWhereDescriptionContainsKeyword(String keyword);
+
+    void saveOutcome(OutcomeDTO outcome);
 
     void deleteOutcome(int outcomeId);
 
-    void updateOutcome(int outcomeId, Outcome outcome);
+    Optional<OutcomeDTO> updateOutcome(int outcomeId, OutcomeDTO outcome);
 }
