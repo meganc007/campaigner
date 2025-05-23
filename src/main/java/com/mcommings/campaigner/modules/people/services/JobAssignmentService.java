@@ -1,115 +1,108 @@
 package com.mcommings.campaigner.modules.people.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
+import com.mcommings.campaigner.modules.people.dtos.JobAssignmentDTO;
 import com.mcommings.campaigner.modules.people.entities.JobAssignment;
+import com.mcommings.campaigner.modules.people.mappers.JobAssignmentMapper;
 import com.mcommings.campaigner.modules.people.repositories.IJobAssignmentRepository;
-import com.mcommings.campaigner.modules.people.repositories.IJobRepository;
-import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
 import com.mcommings.campaigner.modules.people.services.interfaces.IJobAssignment;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_JOB;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_PERSON;
 
 @Service
+@RequiredArgsConstructor
 public class JobAssignmentService implements IJobAssignment {
 
     private final IJobAssignmentRepository jobAssignmentRepository;
-    private final IPersonRepository personRepository;
-    private final IJobRepository jobRepository;
+    private final JobAssignmentMapper jobAssignmentMapper;
 
-    @Autowired
-    public JobAssignmentService(IJobAssignmentRepository jobAssignmentRepository, IPersonRepository personRepository,
-                                IJobRepository jobRepository) {
-        this.jobAssignmentRepository = jobAssignmentRepository;
-        this.personRepository = personRepository;
-        this.jobRepository = jobRepository;
+    @Override
+    public List<JobAssignmentDTO> getJobAssignments() {
+
+        return jobAssignmentRepository.findAll()
+                .stream()
+                .map(jobAssignmentMapper::mapToJobAssignmentDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<JobAssignment> getJobAssignments() {
-        return jobAssignmentRepository.findAll();
+    public Optional<JobAssignmentDTO> getJobAssignment(int jobAssignmentId) {
+        return jobAssignmentRepository.findById(jobAssignmentId)
+                .map(jobAssignmentMapper::mapToJobAssignmentDto);
     }
 
     @Override
-    public List<JobAssignment> getJobAssignmentsByCampaignUUID(UUID uuid) {
-        return jobAssignmentRepository.findByfk_campaign_uuid(uuid);
+    public List<JobAssignmentDTO> getJobAssignmentsByCampaignUUID(UUID uuid) {
+        return jobAssignmentRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(jobAssignmentMapper::mapToJobAssignmentDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<JobAssignment> getJobAssignmentsByPersonId(int personId) {
-        return jobAssignmentRepository.findByfk_person(personId);
+    public List<JobAssignmentDTO> getJobAssignmentsByPersonId(int personId) {
+        return jobAssignmentRepository.findByfk_person(personId)
+                .stream()
+                .map(jobAssignmentMapper::mapToJobAssignmentDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    @Transactional
-    public void saveJobAssignment(JobAssignment jobAssignment) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (jobAssignmentAlreadyExists(jobAssignment)) {
+    public List<JobAssignmentDTO> getJobAssignmentsByJobId(int jobId) {
+        return jobAssignmentRepository.findByfk_job(jobId)
+                .stream()
+                .map(jobAssignmentMapper::mapToJobAssignmentDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveJobAssignment(JobAssignmentDTO jobAssignment) throws IllegalArgumentException, DataIntegrityViolationException {
+        if (jobAssignmentAlreadyExists(jobAssignmentMapper.mapFromJobAssignmentDto(jobAssignment))) {
             throw new DataIntegrityViolationException(JOB_ASSIGNMENT_EXISTS.message);
         }
-        if (hasForeignKeys(jobAssignment) &&
-                RepositoryHelper.foreignKeyIsNotValid(jobAssignmentRepository, getListOfForeignKeyRepositories(), jobAssignment)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
-        }
 
-        jobAssignmentRepository.saveAndFlush(jobAssignment);
+        jobAssignmentMapper.mapToJobAssignmentDto(
+                jobAssignmentRepository.save(jobAssignmentMapper.mapFromJobAssignmentDto(jobAssignment)
+                ));
     }
 
     @Override
-    @Transactional
     public void deleteJobAssignment(int jobAssignmentId) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(jobAssignmentRepository, jobAssignmentId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: fk check when JobAssignment is a fk
 
         jobAssignmentRepository.deleteById(jobAssignmentId);
     }
 
     @Override
-    @Transactional
-    public void updateJobAssignment(int jobAssignmentId, JobAssignment jobAssignment) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<JobAssignmentDTO> updateJobAssignment(int jobAssignmentId, JobAssignmentDTO jobAssignment) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(jobAssignmentRepository, jobAssignmentId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (hasForeignKeys(jobAssignment) &&
-                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(jobAssignment), jobAssignment)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
+        if (jobAssignmentAlreadyExists(jobAssignmentMapper.mapFromJobAssignmentDto(jobAssignment))) {
+            throw new DataIntegrityViolationException(JOB_ASSIGNMENT_EXISTS.message);
         }
-        JobAssignment jobAssignmentToUpdate = RepositoryHelper.getById(jobAssignmentRepository, jobAssignmentId);
-        if (jobAssignment.getFk_person() != null) jobAssignmentToUpdate.setFk_person(jobAssignment.getFk_person());
-        if (jobAssignment.getFk_job() != null) jobAssignmentToUpdate.setFk_job(jobAssignment.getFk_job());
+
+        return jobAssignmentRepository.findById(jobAssignmentId).map(foundJobAssignment -> {
+            if (jobAssignment.getFk_person() != null) foundJobAssignment.setFk_person(jobAssignment.getFk_person());
+            if (jobAssignment.getFk_job() != null) foundJobAssignment.setFk_job(jobAssignment.getFk_job());
+
+            return jobAssignmentMapper.mapToJobAssignmentDto(jobAssignmentRepository.save(foundJobAssignment));
+        });
+
     }
 
     private boolean jobAssignmentAlreadyExists(JobAssignment jobAssignment) {
         return jobAssignmentRepository.jobAssignmentExists(jobAssignment).isPresent();
     }
 
-    private boolean hasForeignKeys(JobAssignment jobAssignment) {
-        return jobAssignment.getFk_person() != null ||
-                jobAssignment.getFk_job() != null;
-    }
-
-    private List<CrudRepository> getListOfForeignKeyRepositories() {
-        return new ArrayList<>(Arrays.asList(personRepository, jobRepository));
-    }
-
-    private HashMap<CrudRepository, String> buildReposAndColumnsHashMap(JobAssignment jobAssignment) {
-        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
-
-        if (jobAssignment.getFk_person() != null) {
-            reposAndColumns.put(personRepository, FK_PERSON.columnName);
-        }
-        if (jobAssignment.getFk_job() != null) {
-            reposAndColumns.put(jobRepository, FK_JOB.columnName);
-        }
-        return reposAndColumns;
-    }
 }

@@ -30,6 +30,7 @@ public class Event {
     private Integer fk_city;
     private Integer fk_continent;
     private Integer fk_country;
+    @Column(nullable = false)
     private UUID fk_campaign_uuid;
 }
 

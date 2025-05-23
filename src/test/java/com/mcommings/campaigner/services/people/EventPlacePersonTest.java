@@ -1,199 +1,188 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
-import com.mcommings.campaigner.modules.locations.repositories.IPlaceRepository;
+
+import com.mcommings.campaigner.modules.people.dtos.EventPlacePersonDTO;
 import com.mcommings.campaigner.modules.people.entities.EventPlacePerson;
+import com.mcommings.campaigner.modules.people.mappers.EventPlacePersonMapper;
 import com.mcommings.campaigner.modules.people.repositories.IEventPlacePersonRepository;
-import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
 import com.mcommings.campaigner.modules.people.services.EventPlacePersonService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class EventPlacePersonTest {
 
     @Mock
+    private EventPlacePersonMapper eventPlacePersonMapper;
+
+    @Mock
     private IEventPlacePersonRepository eventPlacePersonRepository;
-    @Mock
-    private IEventRepository eventRepository;
-    @Mock
-    private IPlaceRepository placeRepository;
-    @Mock
-    private IPersonRepository personRepository;
 
     @InjectMocks
     private EventPlacePersonService eventPlacePersonService;
 
+    private EventPlacePerson entity;
+    private EventPlacePersonDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new EventPlacePerson();
+        entity.setId(1);
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+        entity.setFk_event(random.nextInt(100) + 1);
+        entity.setFk_person(random.nextInt(100) + 1);
+        entity.setFk_place(random.nextInt(100) + 1);
+
+        dto = new EventPlacePersonDTO();
+        dto.setId(entity.getId());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+        dto.setFk_event(entity.getFk_event());
+        dto.setFk_person(entity.getFk_person());
+        dto.setFk_place(entity.getFk_place());
+
+        when(eventPlacePersonMapper.mapToEventPlacePersonDto(entity)).thenReturn(dto);
+        when(eventPlacePersonMapper.mapFromEventPlacePersonDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreEventsPlacesPeople_getEventsPlacesPeople_ReturnsEventsPlacesPeople() {
-        List<EventPlacePerson> epps = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        epps.add(new EventPlacePerson(1, 1, 1, 1, campaign));
-        epps.add(new EventPlacePerson(2, 2, 2, 2, campaign));
-        epps.add(new EventPlacePerson(3, 3, 3, 3, campaign));
-        when(eventPlacePersonRepository.findAll()).thenReturn(epps);
+        when(eventPlacePersonRepository.findAll()).thenReturn(List.of(entity));
+        List<EventPlacePersonDTO> result = eventPlacePersonService.getEventsPlacesPeople();
 
-        List<EventPlacePerson> result = eventPlacePersonService.getEventsPlacesPeople();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(epps, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).getId());
     }
 
     @Test
     public void whenThereAreNoEventsPlacesPeople_getEventsPlacesPeople_ReturnsNothing() {
-        List<EventPlacePerson> epps = new ArrayList<>();
-        when(eventPlacePersonRepository.findAll()).thenReturn(epps);
+        when(eventPlacePersonRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<EventPlacePerson> result = eventPlacePersonService.getEventsPlacesPeople();
+        List<EventPlacePersonDTO> result = eventPlacePersonService.getEventsPlacesPeople();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(epps, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no eventsPlacesPeople.");
     }
 
     @Test
-    public void whenCampaignUUIDIsValid_getEventPlacePersonsByCampaignUUID_ReturnsEventPlacePersons() {
-        List<EventPlacePerson> epps = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        epps.add(new EventPlacePerson(1, 1, 1, 1, campaign));
-        epps.add(new EventPlacePerson(2, 2, 2, 2, campaign));
-        epps.add(new EventPlacePerson(3, 3, 3, 3, campaign));
-        when(eventPlacePersonRepository.findByfk_campaign_uuid(campaign)).thenReturn(epps);
+    public void whenThereIsAEventPlacePerson_getEventPlacePerson_ReturnsEventPlacePerson() {
+        when(eventPlacePersonRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        List<EventPlacePerson> results = eventPlacePersonService.getEventsPlacesPeopleByCampaignUUID(campaign);
+        Optional<EventPlacePersonDTO> result = eventPlacePersonService.getEventPlacePerson(1);
 
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(epps, results);
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().getId());
     }
 
     @Test
-    public void whenCampaignUUIDIsInvalid_getEventPlacePersonsByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<EventPlacePerson> eventPlacePersons = new ArrayList<>();
-        when(eventPlacePersonRepository.findByfk_campaign_uuid(campaign)).thenReturn(eventPlacePersons);
+    public void whenThereIsNotAEventPlacePerson_getEventPlacePerson_ReturnsEventPlacePerson() {
+        when(eventPlacePersonRepository.findById(999)).thenReturn(Optional.empty());
 
-        List<EventPlacePerson> result = eventPlacePersonService.getEventsPlacesPeopleByCampaignUUID(campaign);
+        Optional<EventPlacePersonDTO> result = eventPlacePersonService.getEventPlacePerson(999);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(eventPlacePersons, result);
+        assertTrue(result.isEmpty(), "Expected empty Optional when eventPlacePerson is not found.");
+    }
+
+    @Test
+    public void whenCampaignUUIDIsValid_getEventsPlacesPeopleByCampaignUUID_ReturnsEventsPlacesPeople() {
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(eventPlacePersonRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
+
+        List<EventPlacePersonDTO> result = eventPlacePersonService.getEventsPlacesPeopleByCampaignUUID(campaignUUID);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
+    }
+
+    @Test
+    public void whenCampaignUUIDIsInvalid_getEventsPlacesPeopleByCampaignUUID_ReturnsNothing() {
+        UUID campaignUUID = UUID.randomUUID();
+        when(eventPlacePersonRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
+
+        List<EventPlacePersonDTO> result = eventPlacePersonService.getEventsPlacesPeopleByCampaignUUID(campaignUUID);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no eventsPlacesPeople match the campaign UUID.");
     }
 
     @Test
     public void whenEventPlacePersonIsValid_saveEventPlacePerson_SavesTheEventPlacePerson() {
-        EventPlacePerson epp = new EventPlacePerson(1, 2, 3, 4, UUID.randomUUID());
+        when(eventPlacePersonRepository.save(entity)).thenReturn(entity);
 
-        when(eventRepository.existsById(2)).thenReturn(true);
-        when(placeRepository.existsById(3)).thenReturn(true);
-        when(personRepository.existsById(4)).thenReturn(true);
-        when(eventPlacePersonRepository.saveAndFlush(epp)).thenReturn(epp);
+        eventPlacePersonService.saveEventPlacePerson(dto);
 
-        assertDoesNotThrow(() -> eventPlacePersonService.saveEventPlacePerson(epp));
-
-        verify(eventPlacePersonRepository, times(1)).saveAndFlush(epp);
+        verify(eventPlacePersonRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenEventPlacePersonAlreadyExists_saveEventPlacePerson_ThrowsDataIntegrityViolationException() {
-        EventPlacePerson epp = new EventPlacePerson(1, 2, 3, 4, UUID.randomUUID());
-        EventPlacePerson copy = new EventPlacePerson(2, 2, 3, 4, UUID.randomUUID());
-
-        when(eventRepository.existsById(2)).thenReturn(true);
-        when(placeRepository.existsById(3)).thenReturn(true);
-        when(personRepository.existsById(4)).thenReturn(true);
-
-        when(eventPlacePersonRepository.saveAndFlush(epp)).thenReturn(epp);
-        when(eventPlacePersonRepository.saveAndFlush(copy)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> eventPlacePersonService.saveEventPlacePerson(epp));
-        assertThrows(DataIntegrityViolationException.class, () -> eventPlacePersonService.saveEventPlacePerson(copy));
+        when(eventPlacePersonRepository.eventPlacePersonExists(eventPlacePersonMapper.mapFromEventPlacePersonDto(dto))).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> eventPlacePersonService.saveEventPlacePerson(dto));
+        verify(eventPlacePersonRepository, times(1)).eventPlacePersonExists(eventPlacePersonMapper.mapFromEventPlacePersonDto(dto));
+        verify(eventPlacePersonRepository, never()).save(any(EventPlacePerson.class));
     }
 
     @Test
     public void whenEventPlacePersonIdExists_deleteEventPlacePerson_DeletesTheEventPlacePerson() {
-        int eventPlacePersonId = 1;
-        when(eventPlacePersonRepository.existsById(eventPlacePersonId)).thenReturn(true);
-        assertDoesNotThrow(() -> eventPlacePersonService.deleteEventPlacePerson(eventPlacePersonId));
-        verify(eventPlacePersonRepository, times(1)).deleteById(eventPlacePersonId);
+        when(eventPlacePersonRepository.existsById(1)).thenReturn(true);
+        eventPlacePersonService.deleteEventPlacePerson(1);
+        verify(eventPlacePersonRepository, times(1)).deleteById(1);
     }
 
     @Test
     public void whenEventPlacePersonIdDoesNotExist_deleteEventPlacePerson_ThrowsIllegalArgumentException() {
-        int eventPlacePersonId = 9000;
-        when(eventPlacePersonRepository.existsById(eventPlacePersonId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> eventPlacePersonService.deleteEventPlacePerson(eventPlacePersonId));
-    }
-
-    //TODO: test delete when EventPlacePerson is a fk
-
-    @Test
-    public void whenEventPlacePersonIdWithValidFKIsFound_updateEventPlacePerson_UpdatesTheEventPlacePerson() {
-        int eppId = 1;
-        UUID campaign = UUID.randomUUID();
-
-        EventPlacePerson eventPlacePerson = new EventPlacePerson(eppId, 2, 3, 4, campaign);
-        EventPlacePerson update = new EventPlacePerson(eppId, 5, 6, 7, campaign);
-
-        when(eventPlacePersonRepository.existsById(eppId)).thenReturn(true);
-        when(eventPlacePersonRepository.findById(eppId)).thenReturn(Optional.of(eventPlacePerson));
-        when(eventRepository.existsById(2)).thenReturn(true);
-        when(placeRepository.existsById(3)).thenReturn(true);
-        when(personRepository.existsById(4)).thenReturn(true);
-
-        when(eventRepository.existsById(5)).thenReturn(true);
-        when(placeRepository.existsById(6)).thenReturn(true);
-        when(personRepository.existsById(7)).thenReturn(true);
-
-        eventPlacePersonService.updateEventPlacePerson(eppId, update);
-
-        verify(eventPlacePersonRepository).findById(eppId);
-
-        EventPlacePerson result = eventPlacePersonRepository.findById(eppId).get();
-        Assertions.assertEquals(update.getId(), result.getId());
-        Assertions.assertEquals(update.getFk_event(), result.getFk_event());
-        Assertions.assertEquals(update.getFk_place(), result.getFk_place());
-        Assertions.assertEquals(update.getFk_person(), result.getFk_person());
+        when(eventPlacePersonRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> eventPlacePersonService.deleteEventPlacePerson(999));
     }
 
     @Test
-    public void whenEventPlacePersonIdWithInvalidFKIsFound_updateEventPlacePerson_ThrowsDataIntegrityViolationException() {
-        int eppId = 1;
-        UUID campaign = UUID.randomUUID();
+    public void whenDeleteEventPlacePersonFails_deleteEventPlacePerson_ThrowsException() {
+        when(eventPlacePersonRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(eventPlacePersonRepository).deleteById(1);
 
-        EventPlacePerson eventPlacePerson = new EventPlacePerson(eppId, 2, 3, 4, campaign);
-        EventPlacePerson update = new EventPlacePerson(eppId, 5, 6, 7, campaign);
-
-        when(eventPlacePersonRepository.existsById(eppId)).thenReturn(true);
-        when(eventPlacePersonRepository.findById(eppId)).thenReturn(Optional.of(eventPlacePerson));
-        when(eventRepository.existsById(2)).thenReturn(true);
-        when(placeRepository.existsById(3)).thenReturn(false);
-        when(personRepository.existsById(4)).thenReturn(false);
-
-        when(eventRepository.existsById(5)).thenReturn(true);
-        when(placeRepository.existsById(6)).thenReturn(false);
-        when(personRepository.existsById(7)).thenReturn(false);
-
-        assertThrows(DataIntegrityViolationException.class, () -> eventPlacePersonService.updateEventPlacePerson(eppId, update));
+        assertThrows(RuntimeException.class, () -> eventPlacePersonService.deleteEventPlacePerson(1));
     }
 
     @Test
-    public void whenEventPlacePersonIdIsNotFound_updateEventPlacePerson_ThrowsIllegalArgumentException() {
-        int eppId = 1;
-        EventPlacePerson eventPlacePerson = new EventPlacePerson(eppId, 2, 3, 4, UUID.randomUUID());
+    public void whenEventPlacePersonIdIsFound_updateEventPlacePerson_UpdatesTheEventPlacePerson() {
+        EventPlacePersonDTO updateDTO = new EventPlacePersonDTO();
+        updateDTO.setFk_person(3);
 
-        when(eventPlacePersonRepository.existsById(eppId)).thenReturn(false);
+        when(eventPlacePersonRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(eventPlacePersonRepository.existsById(1)).thenReturn(true);
+        when(eventPlacePersonRepository.save(entity)).thenReturn(entity);
+        when(eventPlacePersonMapper.mapToEventPlacePersonDto(entity)).thenReturn(updateDTO);
 
-        assertThrows(IllegalArgumentException.class, () -> eventPlacePersonService.updateEventPlacePerson(eppId, eventPlacePerson));
+        Optional<EventPlacePersonDTO> result = eventPlacePersonService.updateEventPlacePerson(1, updateDTO);
+
+        assertTrue(result.isPresent());
+        assertEquals(3, result.get().getFk_person());
+    }
+
+    @Test
+    public void whenEventPlacePersonIdIsNotFound_updateEventPlacePerson_ReturnsEmptyOptional() {
+        EventPlacePersonDTO updateDTO = new EventPlacePersonDTO();
+        updateDTO.setFk_event(22);
+
+        when(eventPlacePersonRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> eventPlacePersonService.updateEventPlacePerson(999, updateDTO));
+    }
+
+    @Test
+    public void whenEventPlacePersonAlreadyExists_updateEventPlacePerson_ThrowsDataIntegrityViolationException() {
+        when(eventPlacePersonRepository.eventPlacePersonExists(eventPlacePersonMapper.mapFromEventPlacePersonDto(dto))).thenReturn(Optional.of(entity));
+
+        assertThrows(IllegalArgumentException.class, () -> eventPlacePersonService.updateEventPlacePerson(entity.getId(), dto));
     }
 }

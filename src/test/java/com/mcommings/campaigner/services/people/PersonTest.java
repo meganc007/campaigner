@@ -1,336 +1,247 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.common.repositories.IWealthRepository;
-import com.mcommings.campaigner.modules.people.entities.EventPlacePerson;
-import com.mcommings.campaigner.modules.people.entities.JobAssignment;
+
+import com.mcommings.campaigner.modules.people.dtos.PersonDTO;
 import com.mcommings.campaigner.modules.people.entities.Person;
-import com.mcommings.campaigner.modules.people.repositories.*;
+import com.mcommings.campaigner.modules.people.mappers.PersonMapper;
+import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
 import com.mcommings.campaigner.modules.people.services.PersonService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.*;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_PERSON;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class PersonTest {
 
     @Mock
+    private PersonMapper personMapper;
+
+    @Mock
     private IPersonRepository personRepository;
-    @Mock
-    private IRaceRepository raceRepository;
-    @Mock
-    private IWealthRepository wealthRepository;
-    @Mock
-    private IAbilityScoreRepository abilityScoreRepository;
-    @Mock
-    private IJobAssignmentRepository jobAssignmentRepository;
-    @Mock
-    private IEventPlacePersonRepository eventPlacePersonRepository;
 
     @InjectMocks
     private PersonService personService;
 
+    private Person entity;
+    private PersonDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new Person();
+        entity.setId(1);
+        entity.setFirstName("Jane");
+        entity.setLastName("Doe");
+        entity.setAge(random.nextInt(100) + 1);
+        entity.setTitle("A random person");
+        entity.setFk_race(random.nextInt(100) + 1);
+        entity.setFk_wealth(random.nextInt(100) + 1);
+        entity.setFk_ability_score(random.nextInt(100) + 1);
+        entity.setIsNPC(true);
+        entity.setIsEnemy(false);
+        entity.setPersonality("This is a personality");
+        entity.setDescription("This is a description");
+        entity.setNotes("This is a note");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+
+        dto = new PersonDTO();
+        dto.setId(entity.getId());
+        dto.setFirstName(entity.getFirstName());
+        dto.setLastName(entity.getLastName());
+        dto.setAge(entity.getAge());
+        dto.setTitle(entity.getTitle());
+        dto.setFk_race(entity.getFk_race());
+        dto.setFk_wealth(entity.getFk_wealth());
+        dto.setFk_ability_score(entity.getFk_ability_score());
+        dto.setIsNPC(entity.getIsNPC());
+        dto.setIsEnemy(entity.getIsEnemy());
+        dto.setPersonality(entity.getPersonality());
+        dto.setDescription(entity.getDescription());
+        dto.setNotes(entity.getNotes());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+
+        when(personMapper.mapToPersonDto(entity)).thenReturn(dto);
+        when(personMapper.mapFromPersonDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereArePeople_getPeople_ReturnsPeople() {
-        UUID campaign = UUID.randomUUID();
-        List<Person> people = new ArrayList<>();
-        people.add(new Person(1, "First Name 1", "Last Name 1", 1, "Title", true, false, "Personality", "Description", "Notes", campaign));
-        people.add(new Person(2, "First Name 2", "Last Name 2", 4, "Title", true, false, "Personality", "Description", "Notes", campaign));
-        people.add(new Person(3, "First Name 3", "Last Name 3", 233, "Title", 2, 4, 1, true, false, "Personality", "Description", "Notes", campaign));
-        when(personRepository.findAll()).thenReturn(people);
+        when(personRepository.findAll()).thenReturn(List.of(entity));
+        List<PersonDTO> result = personService.getPeople();
 
-        List<Person> result = personService.getPeople();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(people, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Jane", result.get(0).getFirstName());
     }
 
     @Test
     public void whenThereAreNoPeople_getPeople_ReturnsNothing() {
-        List<Person> people = new ArrayList<>();
-        when(personRepository.findAll()).thenReturn(people);
+        when(personRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<Person> result = personService.getPeople();
+        List<PersonDTO> result = personService.getPeople();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(people, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no persons.");
     }
 
     @Test
-    public void whenCampaignUUIDIsValid_getPeopleByCampaignUUID_ReturnsPeople() {
-        UUID campaign = UUID.randomUUID();
-        List<Person> people = new ArrayList<>();
-        people.add(new Person(1, "First Name 1", "Last Name 1", 1, "Title", true, false, "Personality", "Description", "Notes", campaign));
-        people.add(new Person(2, "First Name 2", "Last Name 2", 4, "Title", true, false, "Personality", "Description", "Notes", campaign));
-        people.add(new Person(3, "First Name 3", "Last Name 3", 233, "Title", 2, 4, 1, true, false, "Personality", "Description", "Notes", campaign));
-        when(personRepository.findByfk_campaign_uuid(campaign)).thenReturn(people);
+    public void whenThereIsAPerson_getPerson_ReturnsPeople() {
+        when(personRepository.findById(1)).thenReturn(Optional.of(entity));
 
-        List<Person> results = personService.getPeopleByCampaignUUID(campaign);
+        Optional<PersonDTO> result = personService.getPerson(1);
 
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(people, results);
+        assertTrue(result.isPresent());
+        assertEquals("Doe", result.get().getLastName());
+    }
+
+    @Test
+    public void whenThereIsNotAPerson_getPerson_ReturnsPerson() {
+        when(personRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<PersonDTO> result = personService.getPerson(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when person is not found.");
+    }
+
+    @Test
+    public void whenCampaignUUIDIsValid_getPeopleByCampaignUUID_ReturnsPersons() {
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(personRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
+
+        List<PersonDTO> result = personService.getPeopleByCampaignUUID(campaignUUID);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
     public void whenCampaignUUIDIsInvalid_getPeopleByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<Person> people = new ArrayList<>();
-        when(personRepository.findByfk_campaign_uuid(campaign)).thenReturn(people);
+        UUID campaignUUID = UUID.randomUUID();
+        when(personRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        List<Person> result = personService.getPeopleByCampaignUUID(campaign);
+        List<PersonDTO> result = personService.getPeopleByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(people, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no persons match the campaign UUID.");
     }
 
     @Test
-    public void whenPersonWithNoForeignKeysIsValid_savePerson_SavesThePerson() {
-        Person person = new Person(1, "First Name", "Last Name", 1, "Title", true, true, "Personality", "Description", "Notes", UUID.randomUUID());
-        when(personRepository.saveAndFlush(person)).thenReturn(person);
+    public void whenPersonIsValid_savePerson_SavesThePerson() {
+        when(personRepository.save(entity)).thenReturn(entity);
 
-        assertDoesNotThrow(() -> personService.savePerson(person));
+        personService.savePerson(dto);
 
-        verify(personRepository, times(1)).saveAndFlush(person);
+        verify(personRepository, times(1)).save(entity);
     }
 
     @Test
-    public void whenPersonWithForeignKeysIsValid_savePerson_SavesThePerson() {
-        Person person = new Person(1, "First Name", "Last Name", 1, "Title",
-                4, 2, 3, true, true, "Personality", "Description", "Notes", UUID.randomUUID());
+    public void whenPersonNameIsInvalid_savePerson_ThrowsIllegalArgumentException() {
+        PersonDTO personWithEmptyName = new PersonDTO();
+        personWithEmptyName.setId(1);
+        personWithEmptyName.setFirstName("");
+        personWithEmptyName.setDescription("A fictional person.");
+        personWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
 
-        when(raceRepository.existsById(4)).thenReturn(true);
-        when(wealthRepository.existsById(2)).thenReturn(true);
-        when(abilityScoreRepository.existsById(3)).thenReturn(true);
-        when(personRepository.saveAndFlush(person)).thenReturn(person);
+        PersonDTO personWithNullName = new PersonDTO();
+        personWithNullName.setId(1);
+        personWithNullName.setFirstName(null);
+        personWithNullName.setDescription("A fictional city.");
+        personWithNullName.setFk_campaign_uuid(UUID.randomUUID());
 
-        assertDoesNotThrow(() -> personService.savePerson(person));
-
-        verify(personRepository, times(1)).saveAndFlush(person);
+        assertThrows(IllegalArgumentException.class, () -> personService.savePerson(personWithEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> personService.savePerson(personWithNullName));
     }
 
     @Test
-    public void whenPersonNamesInvalid_savePerson_ThrowsIllegalArgumentException() {
-        Person personWithEmptyFirstName = new Person(1, "", "Last Name", 1, "Title",
-                4, 2, 3, true, true, "Personality", "Description", "Notes", UUID.randomUUID());
-        Person personWithEmptyLastName = new Person(1, "First Name", "", 1, "Title",
-                4, 2, 3, true, true, "Personality", "Description", "Notes", UUID.randomUUID());
-        Person personWithNullFirstName = new Person(1, null, "Last Name", 1, "Title",
-                4, 2, 3, true, true, "Personality", "Description", "Notes", UUID.randomUUID());
-        Person personWithNullLastName = new Person(1, "First Name", null, 1, "Title",
-                4, 2, 3, true, true, "Personality", "Description", "Notes", UUID.randomUUID());
+    public void whenPersonNameAlreadyExists_savePerson_ThrowsDataIntegrityViolationException() {
+        when(personMapper.mapFromPersonDto(dto)).thenReturn(entity);
+        when(personRepository.personExists(any(Person.class))).thenReturn(Optional.of(entity));
 
-        assertThrows(IllegalArgumentException.class, () -> personService.savePerson(personWithEmptyFirstName));
-        assertThrows(IllegalArgumentException.class, () -> personService.savePerson(personWithEmptyLastName));
-        assertThrows(IllegalArgumentException.class, () -> personService.savePerson(personWithNullFirstName));
-        assertThrows(IllegalArgumentException.class, () -> personService.savePerson(personWithNullLastName));
-    }
-
-    @Test
-    public void whenPersonAlreadyExists_savePerson_ThrowsDataIntegrityViolationException() {
-        Person person = new Person(1, "First Name", "Last Name", 1, "Title",
-                4, 2, 3, true, true, "Personality", "Description", "Notes", UUID.randomUUID());
-        Person doppelganger = new Person(2, "First Name", "Last Name", 1, "Title",
-                4, 2, 3, true, true, "Personality", "Description", "Notes", UUID.randomUUID());
-
-        when(personRepository.existsById(1)).thenReturn(true);
-        when(raceRepository.existsById(4)).thenReturn(true);
-        when(wealthRepository.existsById(2)).thenReturn(true);
-        when(abilityScoreRepository.existsById(3)).thenReturn(true);
-
-        when(personRepository.saveAndFlush(person)).thenReturn(person);
-        when(personRepository.saveAndFlush(doppelganger)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> personService.savePerson(person));
-        assertThrows(DataIntegrityViolationException.class, () -> personService.savePerson(doppelganger));
+        assertThrows(DataIntegrityViolationException.class, () -> personService.savePerson(dto));
+        verify(personRepository, times(1)).personExists(personMapper.mapFromPersonDto(dto));
+        verify(personRepository, never()).save(any(Person.class));
     }
 
     @Test
     public void whenPersonIdExists_deletePerson_DeletesThePerson() {
-        int personId = 1;
-        when(personRepository.existsById(personId)).thenReturn(true);
-        assertDoesNotThrow(() -> personService.deletePerson(personId));
-        verify(personRepository, times(1)).deleteById(personId);
+        when(personRepository.existsById(1)).thenReturn(true);
+        personService.deletePerson(1);
+        verify(personRepository, times(1)).deleteById(1);
     }
 
     @Test
     public void whenPersonIdDoesNotExist_deletePerson_ThrowsIllegalArgumentException() {
-        int personId = 9000;
-        when(personRepository.existsById(personId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> personService.deletePerson(personId));
+        when(personRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> personService.deletePerson(999));
     }
 
     @Test
-    public void whenPersonIdIsAForeignKey_deletePerson_ThrowsDataIntegrityViolationException() {
-        int personId = 1;
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(jobAssignmentRepository));
+    public void whenDeletePersonFails_deletePerson_ThrowsException() {
+        when(personRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(personRepository).deleteById(1);
 
-        JobAssignment jobAssignment = new JobAssignment(1, personId, 1, UUID.randomUUID());
-        List<JobAssignment> jobAssignments = new ArrayList<>(Arrays.asList(jobAssignment));
-
-        EventPlacePerson epp = new EventPlacePerson(1, 1, 1, personId, UUID.randomUUID());
-        List<EventPlacePerson> epps = new ArrayList<>(Arrays.asList(epp));
-
-
-        when(personRepository.existsById(personId)).thenReturn(true);
-        when(jobAssignmentRepository.findByfk_person(personId)).thenReturn(jobAssignments);
-        when(eventPlacePersonRepository.findByfk_person(personId)).thenReturn(epps);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_PERSON.columnName, personId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> personService.deletePerson(personId));
+        assertThrows(RuntimeException.class, () -> personService.deletePerson(1));
     }
 
     @Test
-    public void whenPersonIdWithNoFKIsFound_updatePerson_UpdatesThePerson() {
-        int personId = 1;
-        UUID campaign = UUID.randomUUID();
+    public void whenPersonIdIsFound_updatePerson_UpdatesThePerson() {
+        PersonDTO updateDTO = new PersonDTO();
+        updateDTO.setFirstName("John");
 
-        Person person = new Person(personId, "First Name", "Last Name", 1, "Title",
-                true, false, "Personality", "Description", "Notes", campaign);
-        Person personToUpdate = new Person(personId, "Jane", "Doe", 33, "The Nameless",
-                true, true, "Personality", "Description", "Notes", campaign);
+        when(personRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(personRepository.existsById(1)).thenReturn(true);
+        when(personRepository.save(entity)).thenReturn(entity);
+        when(personMapper.mapToPersonDto(entity)).thenReturn(updateDTO);
 
-        when(personRepository.existsById(personId)).thenReturn(true);
-        when(personRepository.findById(personId)).thenReturn(Optional.of(person));
+        Optional<PersonDTO> result = personService.updatePerson(1, updateDTO);
 
-        personService.updatePerson(personId, personToUpdate);
-
-        verify(personRepository).findById(personId);
-
-        Person result = personRepository.findById(personId).get();
-        Assertions.assertEquals(personToUpdate.getFirstName(), result.getFirstName());
-        Assertions.assertEquals(personToUpdate.getLastName(), result.getLastName());
-        Assertions.assertEquals(personToUpdate.getAge(), result.getAge());
-        Assertions.assertEquals(personToUpdate.getTitle(), result.getTitle());
-        Assertions.assertEquals(personToUpdate.getIsNPC(), result.getIsNPC());
-        Assertions.assertEquals(personToUpdate.getIsEnemy(), result.getIsEnemy());
-        Assertions.assertEquals(personToUpdate.getPersonality(), result.getPersonality());
-        Assertions.assertEquals(personToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(personToUpdate.getNotes(), result.getNotes());
+        assertTrue(result.isPresent());
+        assertEquals("John", result.get().getFirstName());
     }
 
     @Test
-    public void whenPersonIdWithValidFKIsFound_updatePerson_UpdatesThePerson() {
-        int personId = 1;
-        UUID campaign = UUID.randomUUID();
+    public void whenPersonIdIsNotFound_updatePerson_ReturnsEmptyOptional() {
+        PersonDTO updateDTO = new PersonDTO();
+        updateDTO.setFirstName("John");
 
-        Person person = new Person(personId, "First Name", "Last Name", 1, "Title",
-                1, 2, 3, true, false, "Personality", "Description", "Notes", campaign);
-        Person personToUpdate = new Person(personId, "Jane", "Doe", 33, "The Nameless",
-                4, 5, 6, true, true, "Personality", "Description", "Notes", campaign);
-
-        when(personRepository.existsById(personId)).thenReturn(true);
-        when(personRepository.findById(personId)).thenReturn(Optional.of(person));
-        when(raceRepository.existsById(1)).thenReturn(true);
-        when(wealthRepository.existsById(2)).thenReturn(true);
-        when(abilityScoreRepository.existsById(3)).thenReturn(true);
-
-        when(raceRepository.existsById(4)).thenReturn(true);
-        when(wealthRepository.existsById(5)).thenReturn(true);
-        when(abilityScoreRepository.existsById(6)).thenReturn(true);
-
-        personService.updatePerson(personId, personToUpdate);
-
-        verify(personRepository).findById(personId);
-
-        Person result = personRepository.findById(personId).get();
-        Assertions.assertEquals(personToUpdate.getFirstName(), result.getFirstName());
-        Assertions.assertEquals(personToUpdate.getLastName(), result.getLastName());
-        Assertions.assertEquals(personToUpdate.getAge(), result.getAge());
-        Assertions.assertEquals(personToUpdate.getTitle(), result.getTitle());
-        Assertions.assertEquals(personToUpdate.getFk_race(), result.getFk_race());
-        Assertions.assertEquals(personToUpdate.getFk_wealth(), result.getFk_wealth());
-        Assertions.assertEquals(personToUpdate.getFk_ability_score(), result.getFk_ability_score());
-        Assertions.assertEquals(personToUpdate.getIsNPC(), result.getIsNPC());
-        Assertions.assertEquals(personToUpdate.getIsEnemy(), result.getIsEnemy());
-        Assertions.assertEquals(personToUpdate.getPersonality(), result.getPersonality());
-        Assertions.assertEquals(personToUpdate.getDescription(), result.getDescription());
-        Assertions.assertEquals(personToUpdate.getNotes(), result.getNotes());
+        when(personRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> personService.updatePerson(999, updateDTO));
     }
 
     @Test
-    public void whenPersonIdWithInvalidFKIsFound_updatePerson_ThrowsDataIntegrityViolationException() {
-        int personId = 1;
-        UUID campaign = UUID.randomUUID();
+    public void whenPersonNameIsInvalid_updatePerson_ThrowsIllegalArgumentException() {
+        PersonDTO updateEmptyName = new PersonDTO();
+        updateEmptyName.setFirstName("");
 
-        Person person = new Person(personId, "First Name", "Last Name", 1, "Title",
-                1, 2, 3, true, false, "Personality", "Description", "Notes", campaign);
-        Person personToUpdate = new Person(personId, "Jane", "Doe", 33, "The Nameless",
-                4, 5, 6, true, true, "Personality", "Description", "Notes", campaign);
+        PersonDTO updateNullName = new PersonDTO();
+        updateNullName.setFirstName(null);
 
-        when(personRepository.existsById(personId)).thenReturn(true);
-        when(personRepository.findById(personId)).thenReturn(Optional.of(person));
-        when(raceRepository.existsById(1)).thenReturn(true);
-        when(wealthRepository.existsById(2)).thenReturn(false);
-        when(abilityScoreRepository.existsById(3)).thenReturn(true);
+        when(personRepository.existsById(1)).thenReturn(true);
 
-        when(raceRepository.existsById(4)).thenReturn(false);
-        when(wealthRepository.existsById(5)).thenReturn(true);
-        when(abilityScoreRepository.existsById(6)).thenReturn(false);
-
-        assertThrows(DataIntegrityViolationException.class, () -> personService.updatePerson(personId, personToUpdate));
+        assertThrows(IllegalArgumentException.class, () -> personService.updatePerson(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> personService.updatePerson(1, updateNullName));
     }
 
     @Test
-    public void whenPersonIdIsNotFound_updatePerson_ThrowsIllegalArgumentException() {
-        int personId = 1;
-        Person person = new Person(personId, "First Name", "Last Name", 1, "Title",
-                1, 2, 3, true, false, "Personality", "Description", "Notes", UUID.randomUUID());
+    public void whenPersonNameAlreadyExists_updatePerson_ThrowsDataIntegrityViolationException() {
+        when(personRepository.existsById(dto.getId())).thenReturn(true);
+        when(personMapper.mapFromPersonDto(dto)).thenReturn(entity);
+        when(personRepository.findByFirstNameAndLastName(dto.getFirstName(), dto.getLastName()))
+                .thenReturn(Optional.of(entity));
 
+        assertThrows(DataIntegrityViolationException.class, () -> personService.updatePerson(dto.getId(), dto));
 
-        when(personRepository.existsById(personId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> personService.updatePerson(personId, person));
+        verify(personRepository, times(1)).existsById(dto.getId());
+        verify(personRepository, times(1)).findByFirstNameAndLastName(dto.getFirstName(), dto.getLastName());
+        verify(personRepository, never()).save(any(Person.class));
     }
-
-    @Test
-    public void whenSomePersonFieldsChanged_updatePerson_OnlyUpdatesChangedFields() {
-        int personId = 1;
-        Person person = new Person(personId, "First Name", "Last Name", 1, "Title",
-                1, 2, 3, true, false, "Personality",
-                "Description", "Notes", UUID.randomUUID());
-        String newDescription = "New Person description";
-        int newRace = 3;
-
-        Person personToUpdate = new Person();
-        personToUpdate.setDescription(newDescription);
-        personToUpdate.setFk_race(newRace);
-
-        when(personRepository.existsById(personId)).thenReturn(true);
-        when(raceRepository.existsById(newRace)).thenReturn(true);
-        when(wealthRepository.existsById(2)).thenReturn(true);
-        when(abilityScoreRepository.existsById(3)).thenReturn(true);
-        when(personRepository.findById(personId)).thenReturn(Optional.of(person));
-
-        personService.updatePerson(personId, personToUpdate);
-
-        verify(personRepository).findById(personId);
-
-        Person result = personRepository.findById(personId).get();
-        Assertions.assertEquals(person.getFirstName(), result.getFirstName());
-        Assertions.assertEquals(person.getLastName(), result.getLastName());
-        Assertions.assertEquals(person.getAge(), result.getAge());
-        Assertions.assertEquals(person.getTitle(), result.getTitle());
-        Assertions.assertEquals(newRace, result.getFk_race());
-        Assertions.assertEquals(person.getFk_race(), result.getFk_race());
-        Assertions.assertEquals(person.getFk_wealth(), result.getFk_wealth());
-        Assertions.assertEquals(person.getFk_ability_score(), result.getFk_ability_score());
-        Assertions.assertEquals(person.getIsNPC(), result.getIsNPC());
-        Assertions.assertEquals(person.getIsEnemy(), result.getIsEnemy());
-        Assertions.assertEquals(person.getPersonality(), result.getPersonality());
-        Assertions.assertEquals(newDescription, result.getDescription());
-        Assertions.assertEquals(person.getNotes(), result.getNotes());
-    }
-
 }

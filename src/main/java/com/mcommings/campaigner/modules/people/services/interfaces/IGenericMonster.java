@@ -1,19 +1,24 @@
 package com.mcommings.campaigner.modules.people.services.interfaces;
 
-import com.mcommings.campaigner.modules.people.entities.GenericMonster;
+import com.mcommings.campaigner.modules.people.dtos.GenericMonsterDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IGenericMonster {
 
-    List<GenericMonster> getGenericMonsters();
+    List<GenericMonsterDTO> getGenericMonsters();
 
-    List<GenericMonster> getGenericMonstersByCampaignUUID(UUID uuid);
+    Optional<GenericMonsterDTO> getGenericMonster(int genericMonsterId);
 
-    void saveGenericMonster(GenericMonster genericMonster);
+    List<GenericMonsterDTO> getGenericMonstersByAbilityScore(int abilityScoreId);
+
+    List<GenericMonsterDTO> getGenericMonstersByCampaignUUID(UUID uuid);
+
+    void saveGenericMonster(GenericMonsterDTO genericMonster);
 
     void deleteGenericMonster(int id);
 
-    void updateGenericMonster(int id, GenericMonster genericMonster);
+    Optional<GenericMonsterDTO> updateGenericMonster(int id, GenericMonsterDTO genericMonster);
 }

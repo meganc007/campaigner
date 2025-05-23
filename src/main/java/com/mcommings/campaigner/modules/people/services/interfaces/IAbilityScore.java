@@ -1,19 +1,22 @@
 package com.mcommings.campaigner.modules.people.services.interfaces;
 
-import com.mcommings.campaigner.modules.people.entities.AbilityScore;
+import com.mcommings.campaigner.modules.people.dtos.AbilityScoreDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IAbilityScore {
 
-    List<AbilityScore> getAbilityScores();
+    List<AbilityScoreDTO> getAbilityScores();
 
-    List<AbilityScore> getAbilityScoresByCampaignUUID(UUID uuid);
+    Optional<AbilityScoreDTO> getAbilityScore(int abilityScore);
 
-    void saveAbilityScore(AbilityScore abilityScore);
+    List<AbilityScoreDTO> getAbilityScoresByCampaignUUID(UUID uuid);
+
+    void saveAbilityScore(AbilityScoreDTO abilityScore);
 
     void deleteAbilityScore(int id);
 
-    void updateAbilityScore(int id, AbilityScore abilityScore);
+    Optional<AbilityScoreDTO> updateAbilityScore(int id, AbilityScoreDTO abilityScore);
 }

@@ -1,120 +1,115 @@
 package com.mcommings.campaigner.modules.people.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
-import com.mcommings.campaigner.modules.locations.repositories.IPlaceRepository;
+import com.mcommings.campaigner.modules.people.dtos.EventPlacePersonDTO;
 import com.mcommings.campaigner.modules.people.entities.EventPlacePerson;
+import com.mcommings.campaigner.modules.people.mappers.EventPlacePersonMapper;
 import com.mcommings.campaigner.modules.people.repositories.IEventPlacePersonRepository;
-import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
 import com.mcommings.campaigner.modules.people.services.interfaces.IEventPlacePerson;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
+@RequiredArgsConstructor
 public class EventPlacePersonService implements IEventPlacePerson {
 
     private final IEventPlacePersonRepository eventPlacePersonRepository;
-    private final IEventRepository eventRepository;
-    private final IPlaceRepository placeRepository;
-    private final IPersonRepository personRepository;
+    private final EventPlacePersonMapper eventPlacePersonMapper;
 
-    @Autowired
-    public EventPlacePersonService(IEventPlacePersonRepository eventPlacePersonRepository,
-                                   IEventRepository eventRepository, IPlaceRepository placeRepository,
-                                   IPersonRepository personRepository) {
-        this.eventPlacePersonRepository = eventPlacePersonRepository;
-        this.eventRepository = eventRepository;
-        this.placeRepository = placeRepository;
-        this.personRepository = personRepository;
+    @Override
+    public List<EventPlacePersonDTO> getEventsPlacesPeople() {
+
+        return eventPlacePersonRepository.findAll()
+                .stream()
+                .map(eventPlacePersonMapper::mapToEventPlacePersonDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<EventPlacePerson> getEventsPlacesPeople() {
-        return eventPlacePersonRepository.findAll();
+    public Optional<EventPlacePersonDTO> getEventPlacePerson(int eventPlacePersonId) {
+        return eventPlacePersonRepository.findById(eventPlacePersonId)
+                .map(eventPlacePersonMapper::mapToEventPlacePersonDto);
     }
 
     @Override
-    public List<EventPlacePerson> getEventsPlacesPeopleByCampaignUUID(UUID uuid) {
-        return eventPlacePersonRepository.findByfk_campaign_uuid(uuid);
+    public List<EventPlacePersonDTO> getEventsPlacesPeopleByCampaignUUID(UUID uuid) {
+        return eventPlacePersonRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(eventPlacePersonMapper::mapToEventPlacePersonDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<EventPlacePerson> getEventsPlacesPeopleByPerson(int personId) {
-        return eventPlacePersonRepository.findByfk_person(personId);
+    public List<EventPlacePersonDTO> getEventsPlacesPeopleByPerson(int personId) {
+        return eventPlacePersonRepository.findByfk_person(personId)
+                .stream()
+                .map(eventPlacePersonMapper::mapToEventPlacePersonDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<EventPlacePerson> getEventsPlacesPeopleByPlace(int placeId) {
-        return eventPlacePersonRepository.findByfk_place(placeId);
+    public List<EventPlacePersonDTO> getEventsPlacesPeopleByPlace(int placeId) {
+        return eventPlacePersonRepository.findByfk_place(placeId)
+                .stream()
+                .map(eventPlacePersonMapper::mapToEventPlacePersonDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<EventPlacePerson> getEventsPlacesPeopleByEvent(int eventId) {
-        return eventPlacePersonRepository.findByfk_event(eventId);
+    public List<EventPlacePersonDTO> getEventsPlacesPeopleByEvent(int eventId) {
+        return eventPlacePersonRepository.findByfk_event(eventId)
+                .stream()
+                .map(eventPlacePersonMapper::mapToEventPlacePersonDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    @Transactional
-    public void saveEventPlacePerson(EventPlacePerson eventPlacePerson) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (eventPlacePersonAlreadyExists(eventPlacePerson)) {
+    public void saveEventPlacePerson(EventPlacePersonDTO eventPlacePerson) throws IllegalArgumentException, DataIntegrityViolationException {
+        if (eventPlacePersonAlreadyExists(eventPlacePersonMapper.mapFromEventPlacePersonDto(eventPlacePerson))) {
             throw new DataIntegrityViolationException(EVENT_PLACE_PERSON_EXISTS.message);
         }
-        if (hasForeignKeys(eventPlacePerson) &&
-                RepositoryHelper.foreignKeyIsNotValid(eventPlacePersonRepository, getListOfForeignKeyRepositories(), eventPlacePerson)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
-        }
 
-        eventPlacePersonRepository.saveAndFlush(eventPlacePerson);
+        eventPlacePersonMapper.mapToEventPlacePersonDto(
+                eventPlacePersonRepository.save(eventPlacePersonMapper.mapFromEventPlacePersonDto(eventPlacePerson)
+                ));
     }
 
     @Override
-    @Transactional
     public void deleteEventPlacePerson(int id) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(eventPlacePersonRepository, id)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-        //TODO: fk check when EventPlacePerson is a fk
 
         eventPlacePersonRepository.deleteById(id);
     }
 
     @Override
-    @Transactional
-    public void updateEventPlacePerson(int id, EventPlacePerson eventPlacePerson) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<EventPlacePersonDTO> updateEventPlacePerson(int id, EventPlacePersonDTO eventPlacePerson) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(eventPlacePersonRepository, id)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (hasForeignKeys(eventPlacePerson) &&
-                RepositoryHelper.foreignKeyIsNotValid(eventPlacePersonRepository, getListOfForeignKeyRepositories(), eventPlacePerson)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
-        }
-        EventPlacePerson eppToUpdate = RepositoryHelper.getById(eventPlacePersonRepository, id);
-        eppToUpdate.setFk_event(eventPlacePerson.getFk_event());
-        eppToUpdate.setFk_place(eventPlacePerson.getFk_place());
-        eppToUpdate.setFk_person(eventPlacePerson.getFk_person());
+
+        return eventPlacePersonRepository.findById(id).map(foundEventPlacePerson -> {
+            if (eventPlacePerson.getFk_event() != null)
+                foundEventPlacePerson.setFk_event(eventPlacePerson.getFk_event());
+            if (eventPlacePerson.getFk_place() != null)
+                foundEventPlacePerson.setFk_place(eventPlacePerson.getFk_place());
+            if (eventPlacePerson.getFk_person() != null)
+                foundEventPlacePerson.setFk_person(eventPlacePerson.getFk_person());
+
+            return eventPlacePersonMapper.mapToEventPlacePersonDto(eventPlacePersonRepository.save(foundEventPlacePerson));
+        });
     }
 
     private boolean eventPlacePersonAlreadyExists(EventPlacePerson eventPlacePerson) {
         return eventPlacePersonRepository.eventPlacePersonExists(eventPlacePerson).isPresent();
-    }
-
-    private boolean hasForeignKeys(EventPlacePerson eventPlacePerson) {
-        return eventPlacePerson.getFk_event() != null ||
-                eventPlacePerson.getFk_place() != null ||
-                eventPlacePerson.getFk_person() != null;
-    }
-
-    private List<CrudRepository> getListOfForeignKeyRepositories() {
-        return new ArrayList<>(Arrays.asList(eventRepository, placeRepository, personRepository));
     }
 }

@@ -1,21 +1,28 @@
 package com.mcommings.campaigner.modules.people.services.interfaces;
 
-import com.mcommings.campaigner.modules.people.entities.NamedMonster;
+import com.mcommings.campaigner.modules.people.dtos.NamedMonsterDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface INamedMonster {
 
-    List<NamedMonster> getNamedMonsters();
+    List<NamedMonsterDTO> getNamedMonsters();
 
-    List<NamedMonster> getNamedMonstersByCampaignUUID(UUID uuid);
+    Optional<NamedMonsterDTO> getNamedMonster(int namedMonsterId);
 
-    List<NamedMonster> getNamedMonstersByGenericMonster(int id);
+    List<NamedMonsterDTO> getNamedMonstersByCampaignUUID(UUID uuid);
 
-    void saveNamedMonster(NamedMonster namedMonster);
+    List<NamedMonsterDTO> getNamedMonstersByAbilityScore(int abilityScoreId);
+
+    List<NamedMonsterDTO> getNamedMonstersByGenericMonster(int id);
+
+    List<NamedMonsterDTO> getNamedMonstersByEnemyStatus(boolean isEnemy);
+
+    void saveNamedMonster(NamedMonsterDTO namedMonster);
 
     void deleteNamedMonster(int id);
 
-    void updateNamedMonster(int id, NamedMonster namedMonster);
+    Optional<NamedMonsterDTO> updateNamedMonster(int id, NamedMonsterDTO namedMonster);
 }

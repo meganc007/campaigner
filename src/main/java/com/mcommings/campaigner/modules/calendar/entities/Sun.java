@@ -21,5 +21,6 @@ public class Sun {
     @Column(nullable = false, unique = true)
     private String name;
     private String description;
+    @Column(nullable = false)
     private UUID fk_campaign_uuid;
 }

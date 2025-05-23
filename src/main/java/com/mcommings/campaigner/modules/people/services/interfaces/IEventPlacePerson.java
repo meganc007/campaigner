@@ -1,25 +1,28 @@
 package com.mcommings.campaigner.modules.people.services.interfaces;
 
-import com.mcommings.campaigner.modules.people.entities.EventPlacePerson;
+import com.mcommings.campaigner.modules.people.dtos.EventPlacePersonDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IEventPlacePerson {
 
-    List<EventPlacePerson> getEventsPlacesPeople();
+    List<EventPlacePersonDTO> getEventsPlacesPeople();
 
-    List<EventPlacePerson> getEventsPlacesPeopleByCampaignUUID(UUID uuid);
+    Optional<EventPlacePersonDTO> getEventPlacePerson(int eventPlacePersonId);
 
-    List<EventPlacePerson> getEventsPlacesPeopleByPerson(int personId);
+    List<EventPlacePersonDTO> getEventsPlacesPeopleByCampaignUUID(UUID uuid);
 
-    List<EventPlacePerson> getEventsPlacesPeopleByPlace(int placeId);
+    List<EventPlacePersonDTO> getEventsPlacesPeopleByPerson(int personId);
 
-    List<EventPlacePerson> getEventsPlacesPeopleByEvent(int eventId);
+    List<EventPlacePersonDTO> getEventsPlacesPeopleByPlace(int placeId);
 
-    void saveEventPlacePerson(EventPlacePerson eventPlacePerson);
+    List<EventPlacePersonDTO> getEventsPlacesPeopleByEvent(int eventId);
+
+    void saveEventPlacePerson(EventPlacePersonDTO eventPlacePerson);
 
     void deleteEventPlacePerson(int id);
 
-    void updateEventPlacePerson(int id, EventPlacePerson eventPlacePerson);
+    Optional<EventPlacePersonDTO> updateEventPlacePerson(int id, EventPlacePersonDTO eventPlacePerson);
 }

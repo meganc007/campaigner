@@ -1,109 +1,127 @@
 package com.mcommings.campaigner.modules.people.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.common.repositories.IWealthRepository;
+import com.mcommings.campaigner.modules.people.dtos.NamedMonsterDTO;
 import com.mcommings.campaigner.modules.people.entities.NamedMonster;
-import com.mcommings.campaigner.modules.people.repositories.IAbilityScoreRepository;
-import com.mcommings.campaigner.modules.people.repositories.IGenericMonsterRepository;
+import com.mcommings.campaigner.modules.people.mappers.NamedMonsterMapper;
 import com.mcommings.campaigner.modules.people.repositories.INamedMonsterRepository;
 import com.mcommings.campaigner.modules.people.services.interfaces.INamedMonster;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.*;
 import static java.util.Objects.isNull;
 
 @Service
+@RequiredArgsConstructor
 public class NamedMonsterService implements INamedMonster {
 
     private final INamedMonsterRepository namedMonsterRepository;
-    private final IWealthRepository wealthRepository;
-    private final IAbilityScoreRepository abilityScoreRepository;
-    private final IGenericMonsterRepository genericMonsterRepository;
+    private final NamedMonsterMapper namedMonsterMapper;
 
-    @Autowired
-    public NamedMonsterService(INamedMonsterRepository namedMonsterRepository, IWealthRepository wealthRepository,
-                               IAbilityScoreRepository abilityScoreRepository, IGenericMonsterRepository genericMonsterRepository) {
-        this.namedMonsterRepository = namedMonsterRepository;
-        this.wealthRepository = wealthRepository;
-        this.abilityScoreRepository = abilityScoreRepository;
-        this.genericMonsterRepository = genericMonsterRepository;
+    @Override
+    public List<NamedMonsterDTO> getNamedMonsters() {
+
+        return namedMonsterRepository.findAll()
+                .stream()
+                .map(namedMonsterMapper::mapToNamedMonsterDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<NamedMonster> getNamedMonsters() {
-        return namedMonsterRepository.findAll();
+    public Optional<NamedMonsterDTO> getNamedMonster(int namedMonsterId) {
+        return namedMonsterRepository.findById(namedMonsterId)
+                .map(namedMonsterMapper::mapToNamedMonsterDto);
     }
 
     @Override
-    public List<NamedMonster> getNamedMonstersByCampaignUUID(UUID uuid) {
-        return namedMonsterRepository.findByfk_campaign_uuid(uuid);
+    public List<NamedMonsterDTO> getNamedMonstersByCampaignUUID(UUID uuid) {
+        return namedMonsterRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(namedMonsterMapper::mapToNamedMonsterDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<NamedMonster> getNamedMonstersByGenericMonster(int id) {
-        return namedMonsterRepository.findByfk_generic_monster(id);
+    public List<NamedMonsterDTO> getNamedMonstersByGenericMonster(int id) {
+        return namedMonsterRepository.findByfk_generic_monster(id)
+                .stream()
+                .map(namedMonsterMapper::mapToNamedMonsterDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    @Transactional
-    public void saveNamedMonster(NamedMonster namedMonster) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (nameIsNullOrEmpty(namedMonster.getFirstName()) || nameIsNullOrEmpty(namedMonster.getLastName())) {
+    public List<NamedMonsterDTO> getNamedMonstersByAbilityScore(int abilityScoreId) {
+        return namedMonsterRepository.findByfk_ability_score(abilityScoreId)
+                .stream()
+                .map(namedMonsterMapper::mapToNamedMonsterDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<NamedMonsterDTO> getNamedMonstersByEnemyStatus(boolean isEnemy) {
+        return namedMonsterRepository.findByIsEnemy(isEnemy)
+                .stream()
+                .map(namedMonsterMapper::mapToNamedMonsterDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveNamedMonster(NamedMonsterDTO namedMonster) throws IllegalArgumentException, DataIntegrityViolationException {
+        if (nameIsNullOrEmpty(namedMonster.getFirstName())) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (namedMonsterAlreadyExists(namedMonster)) {
+        if (namedMonsterAlreadyExists(namedMonsterMapper.mapFromNamedMonsterDto(namedMonster))) {
             throw new DataIntegrityViolationException(NAMED_MONSTER_EXISTS.message);
         }
-        if (hasForeignKeys(namedMonster) &&
-                RepositoryHelper.foreignKeyIsNotValid(namedMonsterRepository, getListOfForeignKeyRepositories(), namedMonster)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
-        }
 
-        namedMonsterRepository.saveAndFlush(namedMonster);
+        namedMonsterMapper.mapToNamedMonsterDto(
+                namedMonsterRepository.save(namedMonsterMapper.mapFromNamedMonsterDto(namedMonster)
+                ));
     }
 
     @Override
-    @Transactional
     public void deleteNamedMonster(int namedMonsterId) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(namedMonsterRepository, namedMonsterId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
         }
-//        TODO: uncomment/fix when NamedMonster is used as a fk
-//        if (RepositoryHelper.isForeignKey(getReposWhereNamedMonsterIsAForeignKey(), FK_NAMED_MONSTER.columnName, namedMonsterId)) {
-//            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
-//        }
         namedMonsterRepository.deleteById(namedMonsterId);
     }
 
     @Override
-    @Transactional
-    public void updateNamedMonster(int namedMonsterId, NamedMonster namedMonster) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<NamedMonsterDTO> updateNamedMonster(int namedMonsterId, NamedMonsterDTO namedMonster) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(namedMonsterRepository, namedMonsterId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (hasForeignKeys(namedMonster) &&
-                RepositoryHelper.foreignKeyIsNotValid(buildReposAndColumnsHashMap(namedMonster), namedMonster)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
+        if (nameIsNullOrEmpty(namedMonster.getFirstName())) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        NamedMonster namedMonsterToUpdate = RepositoryHelper.getById(namedMonsterRepository, namedMonsterId);
-        if (namedMonster.getFirstName() != null) namedMonsterToUpdate.setFirstName(namedMonster.getFirstName());
-        if (namedMonster.getLastName() != null) namedMonsterToUpdate.setLastName(namedMonster.getLastName());
-        if (namedMonster.getTitle() != null) namedMonsterToUpdate.setTitle(namedMonster.getTitle());
-        if (namedMonster.getFk_wealth() != null) namedMonsterToUpdate.setFk_wealth(namedMonster.getFk_wealth());
-        if (namedMonster.getFk_ability_score() != null)
-            namedMonsterToUpdate.setFk_ability_score(namedMonster.getFk_ability_score());
-        if (namedMonster.getFk_generic_monster() != null)
-            namedMonsterToUpdate.setFk_generic_monster(namedMonster.getFk_generic_monster());
-        if (namedMonster.getIsEnemy() != null) namedMonsterToUpdate.setIsEnemy(namedMonster.getIsEnemy());
-        if (namedMonster.getPersonality() != null) namedMonsterToUpdate.setPersonality(namedMonster.getPersonality());
-        if (namedMonster.getDescription() != null) namedMonsterToUpdate.setDescription(namedMonster.getDescription());
-        if (namedMonster.getNotes() != null) namedMonsterToUpdate.setNotes(namedMonster.getNotes());
+        if (nameAlreadyExists(namedMonster)) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
+
+        return namedMonsterRepository.findById(namedMonsterId).map(foundNamedMonster -> {
+            if (namedMonster.getFirstName() != null) foundNamedMonster.setFirstName(namedMonster.getFirstName());
+            if (namedMonster.getLastName() != null) foundNamedMonster.setLastName(namedMonster.getLastName());
+            if (namedMonster.getTitle() != null) foundNamedMonster.setTitle(namedMonster.getTitle());
+            if (namedMonster.getFk_wealth() != null) foundNamedMonster.setFk_wealth(namedMonster.getFk_wealth());
+            if (namedMonster.getFk_ability_score() != null)
+                foundNamedMonster.setFk_ability_score(namedMonster.getFk_ability_score());
+            if (namedMonster.getFk_generic_monster() != null)
+                foundNamedMonster.setFk_generic_monster(namedMonster.getFk_generic_monster());
+            if (namedMonster.getIsEnemy() != null) foundNamedMonster.setIsEnemy(namedMonster.getIsEnemy());
+            if (namedMonster.getPersonality() != null) foundNamedMonster.setPersonality(namedMonster.getPersonality());
+            if (namedMonster.getDescription() != null) foundNamedMonster.setDescription(namedMonster.getDescription());
+            if (namedMonster.getNotes() != null) foundNamedMonster.setNotes(namedMonster.getNotes());
+
+            return namedMonsterMapper.mapToNamedMonsterDto(namedMonsterRepository.save(foundNamedMonster));
+        });
     }
 
     private boolean nameIsNullOrEmpty(String name) {
@@ -114,34 +132,9 @@ public class NamedMonsterService implements INamedMonster {
         return namedMonsterRepository.monsterExists(namedMonster).isPresent();
     }
 
-//    TODO: uncomment/fix when NamedMonster is used as a fk
-//    private List<CrudRepository> getReposWhereNamedMonsterIsAForeignKey() {
-//        return new ArrayList<>(Arrays.asList());
-//    }
-
-    private boolean hasForeignKeys(NamedMonster namedMonster) {
-        return namedMonster.getFk_wealth() != null ||
-                namedMonster.getFk_ability_score() != null ||
-                namedMonster.getFk_generic_monster() != null;
+    private boolean nameAlreadyExists(NamedMonsterDTO namedMonster) {
+        return namedMonsterRepository
+                .findByFirstNameAndLastName(namedMonster.getFirstName(), namedMonster.getLastName())
+                .isPresent();
     }
-
-    private List<CrudRepository> getListOfForeignKeyRepositories() {
-        return new ArrayList<>(Arrays.asList(wealthRepository, abilityScoreRepository, genericMonsterRepository));
-    }
-
-    private HashMap<CrudRepository, String> buildReposAndColumnsHashMap(NamedMonster namedMonster) {
-        HashMap<CrudRepository, String> reposAndColumns = new HashMap<>();
-
-        if (namedMonster.getFk_wealth() != null) {
-            reposAndColumns.put(wealthRepository, FK_WEALTH.columnName);
-        }
-        if (namedMonster.getFk_ability_score() != null) {
-            reposAndColumns.put(abilityScoreRepository, FK_ABILITY_SCORE.columnName);
-        }
-        if (namedMonster.getFk_generic_monster() != null) {
-            reposAndColumns.put(genericMonsterRepository, FK_GENERIC_MONSTER.columnName);
-        }
-        return reposAndColumns;
-    }
-
 }

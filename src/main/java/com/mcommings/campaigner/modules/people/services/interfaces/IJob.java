@@ -1,16 +1,19 @@
 package com.mcommings.campaigner.modules.people.services.interfaces;
 
-import com.mcommings.campaigner.modules.people.entities.Job;
+import com.mcommings.campaigner.modules.people.dtos.JobDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IJob {
 
-    List<Job> getJobs();
+    List<JobDTO> getJobs();
 
-    void saveJob(Job job);
+    Optional<JobDTO> getJob(int jobId);
+
+    void saveJob(JobDTO job);
 
     void deleteJob(int jobId);
 
-    void updateJob(int jobId, Job job);
+    Optional<JobDTO> updateJob(int jobId, JobDTO job);
 }

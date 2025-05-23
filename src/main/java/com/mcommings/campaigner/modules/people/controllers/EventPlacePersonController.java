@@ -1,51 +1,55 @@
 package com.mcommings.campaigner.modules.people.controllers;
 
-import com.mcommings.campaigner.modules.people.entities.EventPlacePerson;
-import com.mcommings.campaigner.modules.people.services.EventPlacePersonService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcommings.campaigner.modules.people.dtos.EventPlacePersonDTO;
+import com.mcommings.campaigner.modules.people.services.interfaces.IEventPlacePerson;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
+import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
+
 @RestController
-@RequestMapping(path = "api/people/events-places-people")
+@RequiredArgsConstructor
+@RequestMapping(path = "api/eventsPlacesPeople")
 public class EventPlacePersonController {
 
-    private final EventPlacePersonService eventPlacePersonService;
-
-    @Autowired
-    public EventPlacePersonController(EventPlacePersonService eventPlacePersonService) {
-        this.eventPlacePersonService = eventPlacePersonService;
-    }
+    private final IEventPlacePerson eventPlacePersonService;
 
     @GetMapping
-    public List<EventPlacePerson> getEventsPlacesPeople() {
+    public List<EventPlacePersonDTO> getEventsPlacesPeople() {
         return eventPlacePersonService.getEventsPlacesPeople();
     }
 
+    @GetMapping(path = "/{eventPlacePersonId}")
+    public EventPlacePersonDTO getEventPlacePerson(@PathVariable("eventPlacePersonId") int eventPlacePersonId) {
+        return eventPlacePersonService.getEventPlacePerson(eventPlacePersonId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    }
+
     @GetMapping(path = "/campaign/{uuid}")
-    public List<EventPlacePerson> getEventsPlacesPeopleByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<EventPlacePersonDTO> getEventsPlacesPeopleByCampaignUUID(@PathVariable("uuid") UUID uuid) {
         return eventPlacePersonService.getEventsPlacesPeopleByCampaignUUID(uuid);
     }
 
     @GetMapping(path = "/person/{personId}")
-    public List<EventPlacePerson> getEventsPlacesPeopleByPerson(@PathVariable("personId") int personId) {
+    public List<EventPlacePersonDTO> getEventsPlacesPeopleByPerson(@PathVariable("personId") int personId) {
         return eventPlacePersonService.getEventsPlacesPeopleByPerson(personId);
     }
 
     @GetMapping(path = "/place/{placeId}")
-    public List<EventPlacePerson> getEventsPlacesPeopleByPlace(@PathVariable("placeId") int placeId) {
+    public List<EventPlacePersonDTO> getEventsPlacesPeopleByPlace(@PathVariable("placeId") int placeId) {
         return eventPlacePersonService.getEventsPlacesPeopleByPlace(placeId);
     }
 
     @GetMapping(path = "/event/{eventId}")
-    public List<EventPlacePerson> getEventsPlacesPeopleByEvent(@PathVariable("eventId") int eventId) {
+    public List<EventPlacePersonDTO> getEventsPlacesPeopleByEvent(@PathVariable("eventId") int eventId) {
         return eventPlacePersonService.getEventsPlacesPeopleByEvent(eventId);
     }
 
     @PostMapping
-    public void saveEventPlacePerson(@RequestBody EventPlacePerson eventPlacePerson) {
+    public void saveEventPlacePerson(@Valid @RequestBody EventPlacePersonDTO eventPlacePerson) {
         eventPlacePersonService.saveEventPlacePerson(eventPlacePerson);
     }
 
@@ -55,7 +59,7 @@ public class EventPlacePersonController {
     }
 
     @PutMapping(path = "{id}")
-    public void updateEventPlacePerson(@PathVariable("id") int id, @RequestBody EventPlacePerson eventPlacePerson) {
+    public void updateEventPlacePerson(@PathVariable("id") int id, @RequestBody EventPlacePersonDTO eventPlacePerson) {
         eventPlacePersonService.updateEventPlacePerson(id, eventPlacePerson);
     }
 }

@@ -1,109 +1,108 @@
 package com.mcommings.campaigner.modules.people.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
+import com.mcommings.campaigner.modules.people.dtos.GenericMonsterDTO;
 import com.mcommings.campaigner.modules.people.entities.GenericMonster;
-import com.mcommings.campaigner.modules.people.repositories.IAbilityScoreRepository;
+import com.mcommings.campaigner.modules.people.mappers.GenericMonsterMapper;
 import com.mcommings.campaigner.modules.people.repositories.IGenericMonsterRepository;
-import com.mcommings.campaigner.modules.people.repositories.INamedMonsterRepository;
 import com.mcommings.campaigner.modules.people.services.interfaces.IGenericMonster;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_GENERIC_MONSTER;
 
 @Service
+@RequiredArgsConstructor
 public class GenericMonsterService implements IGenericMonster {
 
     private final IGenericMonsterRepository genericMonsterRepository;
-    private final IAbilityScoreRepository abilityScoreRepository;
-    private final INamedMonsterRepository namedMonsterRepository;
+    private final GenericMonsterMapper genericMonsterMapper;
 
-    @Autowired
-    public GenericMonsterService(IGenericMonsterRepository genericMonsterRepository,
-                                 IAbilityScoreRepository abilityScoreRepository, INamedMonsterRepository namedMonsterRepository) {
-        this.genericMonsterRepository = genericMonsterRepository;
-        this.abilityScoreRepository = abilityScoreRepository;
-        this.namedMonsterRepository = namedMonsterRepository;
+    @Override
+    public List<GenericMonsterDTO> getGenericMonsters() {
+
+        return genericMonsterRepository.findAll()
+                .stream()
+                .map(genericMonsterMapper::mapToGenericMonsterDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<GenericMonster> getGenericMonsters() {
-        return genericMonsterRepository.findAll();
+    public Optional<GenericMonsterDTO> getGenericMonster(int genericMonsterId) {
+        return genericMonsterRepository.findById(genericMonsterId)
+                .map(genericMonsterMapper::mapToGenericMonsterDto);
     }
 
     @Override
-    public List<GenericMonster> getGenericMonstersByCampaignUUID(UUID uuid) {
-        return genericMonsterRepository.findByfk_campaign_uuid(uuid);
+    public List<GenericMonsterDTO> getGenericMonstersByCampaignUUID(UUID uuid) {
+        return genericMonsterRepository.findByfk_campaign_uuid(uuid)
+                .stream()
+                .map(genericMonsterMapper::mapToGenericMonsterDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    @Transactional
-    public void saveGenericMonster(GenericMonster genericMonster) throws IllegalArgumentException, DataIntegrityViolationException {
+    public List<GenericMonsterDTO> getGenericMonstersByAbilityScore(int abilityScoreId) {
+        return genericMonsterRepository.findByfk_ability_score(abilityScoreId)
+                .stream()
+                .map(genericMonsterMapper::mapToGenericMonsterDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveGenericMonster(GenericMonsterDTO genericMonster) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.nameIsNullOrEmpty(genericMonster)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(genericMonsterRepository, genericMonster)) {
+        if (RepositoryHelper.nameAlreadyExists(genericMonsterRepository, genericMonster.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
-        if (hasForeignKeys(genericMonster) &&
-                RepositoryHelper.foreignKeyIsNotValid(genericMonsterRepository, getListOfForeignKeyRepositories(), genericMonster)) {
-            throw new DataIntegrityViolationException(INSERT_FOREIGN_KEY.message);
-        }
-
-        genericMonsterRepository.saveAndFlush(genericMonster);
+        genericMonsterMapper.mapToGenericMonsterDto(
+                genericMonsterRepository.save(genericMonsterMapper.mapFromGenericMonsterDto(genericMonster)
+                ));
     }
 
     @Override
-    @Transactional
     public void deleteGenericMonster(int genericMonsterId) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(genericMonsterRepository, genericMonsterId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.isForeignKey(getReposWhereGenericMonsterIsAForeignKey(), FK_GENERIC_MONSTER.columnName, genericMonsterId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
 
         genericMonsterRepository.deleteById(genericMonsterId);
     }
 
     @Override
-    @Transactional
-    public void updateGenericMonster(int genericMonsterId, GenericMonster genericMonster) throws IllegalArgumentException, DataIntegrityViolationException {
+    public Optional<GenericMonsterDTO> updateGenericMonster(int genericMonsterId, GenericMonsterDTO genericMonster) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(genericMonsterRepository, genericMonsterId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (hasForeignKeys(genericMonster) &&
-                RepositoryHelper.foreignKeyIsNotValid(genericMonsterRepository, getListOfForeignKeyRepositories(), genericMonster)) {
-            throw new DataIntegrityViolationException(UPDATE_FOREIGN_KEY.message);
+        if (RepositoryHelper.nameIsNullOrEmpty(genericMonster)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        GenericMonster genericMonsterToUpdate = RepositoryHelper.getById(genericMonsterRepository, genericMonsterId);
-        if (genericMonster.getName() != null) genericMonsterToUpdate.setName(genericMonster.getName());
-        if (genericMonster.getFk_ability_score() != null)
-            genericMonsterToUpdate.setFk_ability_score(genericMonster.getFk_ability_score());
-        if (genericMonster.getTraits() != null) genericMonsterToUpdate.setTraits(genericMonster.getTraits());
-        if (genericMonster.getDescription() != null)
-            genericMonsterToUpdate.setDescription(genericMonster.getDescription());
-        if (genericMonster.getNotes() != null) genericMonsterToUpdate.setNotes(genericMonster.getNotes());
-    }
+        if (RepositoryHelper.nameAlreadyExists(genericMonsterRepository, genericMonster.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
 
-    private List<CrudRepository> getReposWhereGenericMonsterIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(namedMonsterRepository));
+        return genericMonsterRepository.findById(genericMonsterId).map(foundGenericMonster -> {
+            if (genericMonster.getName() != null) foundGenericMonster.setName(genericMonster.getName());
+            if (genericMonster.getFk_ability_score() != null)
+                foundGenericMonster.setFk_ability_score(genericMonster.getFk_ability_score());
+            if (genericMonster.getTraits() != null) foundGenericMonster.setTraits(genericMonster.getTraits());
+            if (genericMonster.getDescription() != null)
+                foundGenericMonster.setDescription(genericMonster.getDescription());
+            if (genericMonster.getNotes() != null) foundGenericMonster.setNotes(genericMonster.getNotes());
+
+            return genericMonsterMapper.mapToGenericMonsterDto(genericMonsterRepository.save(foundGenericMonster));
+        });
     }
 
     private boolean hasForeignKeys(GenericMonster genericMonster) {
         return genericMonster.getFk_ability_score() != null;
-    }
-
-    private List<CrudRepository> getListOfForeignKeyRepositories() {
-        return new ArrayList<>(Arrays.asList(abilityScoreRepository));
     }
 }

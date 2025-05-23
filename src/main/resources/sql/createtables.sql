@@ -276,7 +276,7 @@ create table races (
 	id int generated always as identity,
 	name varchar not null,
 	description varchar,
-	is_exotic bool not null,
+	isExotic bool not null,
 	primary key(id)
 );
 

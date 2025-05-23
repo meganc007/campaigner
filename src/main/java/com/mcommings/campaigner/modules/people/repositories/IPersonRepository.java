@@ -17,6 +17,12 @@ public interface IPersonRepository extends JpaRepository<Person, Integer> {
 
     Optional<Person> findByLastName(String lastName);
 
+    List<Person> findByIsEnemy(Boolean isEnemy);
+
+    List<Person> findByIsNPC(Boolean isEnemy);
+
+    Optional<Person> findByFirstNameAndLastName(String firstName, String lastName);
+
     @Query("SELECT p FROM Person p WHERE " +
             "p.firstName = :#{#person.firstName} AND " +
             "p.lastName = :#{#person.lastName} AND " +

@@ -1,30 +1,24 @@
 package com.mcommings.campaigner.modules.people.entities;
 
-import com.mcommings.campaigner.modules.common.entities.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@Builder
 @Entity
 @Table(name = "races")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@ToString(callSuper = true)
-public class Race extends BaseEntity {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Race {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private Boolean is_exotic;
-
-    public Race() {
-        super();
-    }
-
-    public Race(int id, String name, String description, boolean is_exotic) {
-        this.id = id;
-        super.setName(name);
-        super.setDescription(description);
-        this.is_exotic = is_exotic;
-    }
+    @Column(nullable = false, unique = true)
+    private String name;
+    private String description;
+    @Column(nullable = false)
+    private Boolean isExotic;
 }

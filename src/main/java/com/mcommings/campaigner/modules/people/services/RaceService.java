@@ -1,83 +1,91 @@
 package com.mcommings.campaigner.modules.people.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.people.entities.Race;
-import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
+import com.mcommings.campaigner.modules.people.dtos.RaceDTO;
+import com.mcommings.campaigner.modules.people.mappers.RaceMapper;
 import com.mcommings.campaigner.modules.people.repositories.IRaceRepository;
 import com.mcommings.campaigner.modules.people.services.interfaces.IRace;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.mcommings.campaigner.enums.ErrorMessage.*;
-import static com.mcommings.campaigner.enums.ForeignKey.FK_RACE;
 
 @Service
+@RequiredArgsConstructor
 public class RaceService implements IRace {
 
     private final IRaceRepository raceRepository;
-    private final IPersonRepository personRepository;
+    private final RaceMapper raceMapper;
 
-    @Autowired
-    public RaceService(IRaceRepository raceRepository, IPersonRepository personRepository) {
-        this.raceRepository = raceRepository;
-        this.personRepository = personRepository;
+    @Override
+    public List<RaceDTO> getRaces() {
+
+        return raceRepository.findAll()
+                .stream()
+                .map(raceMapper::mapToRaceDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Race> getRaces() {
-        return raceRepository.findAll();
+    public Optional<RaceDTO> getRace(int raceId) {
+        return raceRepository.findById(raceId)
+                .map(raceMapper::mapToRaceDto);
     }
 
     @Override
-    @Transactional
-    public void saveRace(Race race) throws IllegalArgumentException, DataIntegrityViolationException {
+    public List<RaceDTO> getRacesByIsExotic(boolean isExotic) {
+        return raceRepository.findByIsExotic(isExotic)
+                .stream()
+                .map(raceMapper::mapToRaceDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveRace(RaceDTO race) throws IllegalArgumentException, DataIntegrityViolationException {
 
         if (RepositoryHelper.nameIsNullOrEmpty(race)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(raceRepository, race)) {
+        if (RepositoryHelper.nameAlreadyExists(raceRepository, race.getName())) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
-        raceRepository.saveAndFlush(race);
+        raceMapper.mapToRaceDto(
+                raceRepository.save(raceMapper.mapFromRaceDto(race)));
     }
 
     @Override
-    @Transactional
     public void deleteRace(int raceId) throws IllegalArgumentException, DataIntegrityViolationException {
-
         if (RepositoryHelper.cannotFindId(raceRepository, raceId)) {
             throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.isForeignKey(getReposWhereRaceIsAForeignKey(), FK_RACE.columnName, raceId)) {
-            throw new DataIntegrityViolationException(DELETE_FOREIGN_KEY.message);
         }
 
         raceRepository.deleteById(raceId);
     }
 
     @Override
-    @Transactional
-    public void updateRace(int raceId, Race race) throws IllegalArgumentException, DataIntegrityViolationException {
-
+    public Optional<RaceDTO> updateRace(int raceId, RaceDTO race) throws IllegalArgumentException, DataIntegrityViolationException {
         if (RepositoryHelper.cannotFindId(raceRepository, raceId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        Race raceToUpdate = RepositoryHelper.getById(raceRepository, raceId);
-        if (race.getName() != null) raceToUpdate.setName(race.getName());
-        if (race.getDescription() != null) raceToUpdate.setDescription(race.getDescription());
-        if (race.getIs_exotic() != null) raceToUpdate.setIs_exotic(race.getIs_exotic());
-    }
+        if (RepositoryHelper.nameIsNullOrEmpty(race)) {
+            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
+        }
+        if (RepositoryHelper.nameAlreadyExists(raceRepository, race.getName())) {
+            throw new DataIntegrityViolationException(NAME_EXISTS.message);
+        }
 
-    private List<CrudRepository> getReposWhereRaceIsAForeignKey() {
-        return new ArrayList<>(Arrays.asList(personRepository));
-    }
+        return raceRepository.findById(raceId).map(foundRace -> {
+            if (race.getName() != null) foundRace.setName(race.getName());
+            if (race.getDescription() != null) foundRace.setDescription(race.getDescription());
+            if (race.getIsExotic() != null) foundRace.setIsExotic(race.getIsExotic());
 
+            return raceMapper.mapToRaceDto(raceRepository.save(foundRace));
+        });
+    }
 }

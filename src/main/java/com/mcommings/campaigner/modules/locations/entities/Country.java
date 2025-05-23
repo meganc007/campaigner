@@ -21,6 +21,7 @@ public class Country {
     @Column(nullable = false, unique = true)
     private String name;
     private String description;
+    @Column(nullable = false)
     private UUID fk_campaign_uuid;
     private Integer fk_continent;
     private Integer fk_government;

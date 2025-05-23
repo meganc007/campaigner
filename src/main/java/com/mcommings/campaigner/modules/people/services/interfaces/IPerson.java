@@ -1,19 +1,30 @@
 package com.mcommings.campaigner.modules.people.services.interfaces;
 
-import com.mcommings.campaigner.modules.people.entities.Person;
+import com.mcommings.campaigner.modules.people.dtos.PersonDTO;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface IPerson {
 
-    List<Person> getPeople();
+    List<PersonDTO> getPeople();
 
-    List<Person> getPeopleByCampaignUUID(UUID uuid);
+    Optional<PersonDTO> getPerson(int personId);
 
-    void savePerson(Person person);
+    List<PersonDTO> getPeopleByCampaignUUID(UUID uuid);
+
+    List<PersonDTO> getPeopleByRace(int raceId);
+
+    List<PersonDTO> getPeopleByAbilityScore(int abilityScoreId);
+
+    List<PersonDTO> getPeopleByEnemyStatus(boolean isEnemy);
+
+    List<PersonDTO> getPeopleByNPCStatus(boolean isNPC);
+
+    void savePerson(PersonDTO person);
 
     void deletePerson(int personId);
 
-    void updatePerson(int personId, Person person);
+    Optional<PersonDTO> updatePerson(int personId, PersonDTO person);
 }

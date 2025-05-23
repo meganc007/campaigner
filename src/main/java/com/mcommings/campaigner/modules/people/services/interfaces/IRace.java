@@ -1,17 +1,21 @@
 package com.mcommings.campaigner.modules.people.services.interfaces;
 
-import com.mcommings.campaigner.modules.people.entities.Race;
+import com.mcommings.campaigner.modules.people.dtos.RaceDTO;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IRace {
 
-    List<Race> getRaces();
+    List<RaceDTO> getRaces();
 
-    void saveRace(Race race);
+    Optional<RaceDTO> getRace(int raceId);
+
+    List<RaceDTO> getRacesByIsExotic(boolean isExotic);
+
+    void saveRace(RaceDTO race);
 
     void deleteRace(int raceId);
 
-    void updateRace(int raceId, Race race);
-
+    Optional<RaceDTO> updateRace(int raceId, RaceDTO race);
 }
