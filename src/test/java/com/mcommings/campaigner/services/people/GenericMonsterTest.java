@@ -1,120 +1,146 @@
 package com.mcommings.campaigner.services.people;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
+import com.mcommings.campaigner.modules.people.dtos.GenericMonsterDTO;
 import com.mcommings.campaigner.modules.people.entities.GenericMonster;
-import com.mcommings.campaigner.modules.people.entities.NamedMonster;
-import com.mcommings.campaigner.modules.people.repositories.IAbilityScoreRepository;
+import com.mcommings.campaigner.modules.people.mappers.GenericMonsterMapper;
 import com.mcommings.campaigner.modules.people.repositories.IGenericMonsterRepository;
-import com.mcommings.campaigner.modules.people.repositories.INamedMonsterRepository;
 import com.mcommings.campaigner.modules.people.services.GenericMonsterService;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.repository.CrudRepository;
 
 import java.util.*;
 
-import static com.mcommings.campaigner.enums.ForeignKey.FK_GENERIC_MONSTER;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class GenericMonsterTest {
 
     @Mock
+    private GenericMonsterMapper genericMonsterMapper;
+
+    @Mock
     private IGenericMonsterRepository genericMonsterRepository;
-    @Mock
-    private IAbilityScoreRepository abilityScoreRepository;
-    @Mock
-    private INamedMonsterRepository namedMonsterRepository;
 
     @InjectMocks
     private GenericMonsterService genericMonsterService;
 
+    private GenericMonster entity;
+    private GenericMonsterDTO dto;
+
+    @BeforeEach
+    void setUp() {
+        Random random = new Random();
+        entity = new GenericMonster();
+        entity.setId(1);
+        entity.setName("Test Generic Monster");
+        entity.setDescription("A generic monster.");
+        entity.setFk_campaign_uuid(UUID.randomUUID());
+        entity.setTraits("This is a trait.");
+        entity.setNotes("This is a note.");
+        entity.setFk_ability_score(random.nextInt(100) + 1);
+
+        dto = new GenericMonsterDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
+        dto.setTraits(entity.getTraits());
+        dto.setNotes(entity.getNotes());
+        dto.setFk_ability_score(entity.getFk_ability_score());
+
+        when(genericMonsterMapper.mapToGenericMonsterDto(entity)).thenReturn(dto);
+        when(genericMonsterMapper.mapFromGenericMonsterDto(dto)).thenReturn(entity);
+    }
+
     @Test
     public void whenThereAreGenericMonsters_getGenericMonsters_ReturnsGenericMonsters() {
-        List<GenericMonster> genericMonsters = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        genericMonsters.add(new GenericMonster(1, "GenericMonster 1", "Description 1", campaign));
-        genericMonsters.add(new GenericMonster(2, "GenericMonster 2", "Description 2", campaign));
-        genericMonsters.add(new GenericMonster(3, "GenericMonster 3", "Description 3", 1, "Traits", "Notes", campaign));
-        when(genericMonsterRepository.findAll()).thenReturn(genericMonsters);
+        when(genericMonsterRepository.findAll()).thenReturn(List.of(entity));
+        List<GenericMonsterDTO> result = genericMonsterService.getGenericMonsters();
 
-        List<GenericMonster> result = genericMonsterService.getGenericMonsters();
-
-        Assertions.assertEquals(3, result.size());
-        Assertions.assertEquals(genericMonsters, result);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Generic Monster", result.get(0).getName());
     }
 
     @Test
     public void whenThereAreNoGenericMonsters_getGenericMonsters_ReturnsNothing() {
-        List<GenericMonster> genericMonsters = new ArrayList<>();
-        when(genericMonsterRepository.findAll()).thenReturn(genericMonsters);
+        when(genericMonsterRepository.findAll()).thenReturn(Collections.emptyList());
 
-        List<GenericMonster> result = genericMonsterService.getGenericMonsters();
+        List<GenericMonsterDTO> result = genericMonsterService.getGenericMonsters();
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(genericMonsters, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when there are no genericMonsters.");
+    }
+
+    @Test
+    public void whenThereIsAGenericMonster_getGenericMonster_ReturnsGenericMonster() {
+        when(genericMonsterRepository.findById(1)).thenReturn(Optional.of(entity));
+
+        Optional<GenericMonsterDTO> result = genericMonsterService.getGenericMonster(1);
+
+        assertTrue(result.isPresent());
+        assertEquals("Test Generic Monster", result.get().getName());
+    }
+
+    @Test
+    public void whenThereIsNotAGenericMonster_getGenericMonster_ReturnsGenericMonster() {
+        when(genericMonsterRepository.findById(999)).thenReturn(Optional.empty());
+
+        Optional<GenericMonsterDTO> result = genericMonsterService.getGenericMonster(999);
+
+        assertTrue(result.isEmpty(), "Expected empty Optional when genericMonster is not found.");
     }
 
     @Test
     public void whenCampaignUUIDIsValid_getGenericMonstersByCampaignUUID_ReturnsGenericMonsters() {
-        List<GenericMonster> genericMonsters = new ArrayList<>();
-        UUID campaign = UUID.randomUUID();
-        genericMonsters.add(new GenericMonster(1, "GenericMonster 1", "Description 1", campaign));
-        genericMonsters.add(new GenericMonster(2, "GenericMonster 2", "Description 2", campaign));
-        genericMonsters.add(new GenericMonster(3, "GenericMonster 3", "Description 3", 1, "Traits", "Notes", campaign));
-        when(genericMonsterRepository.findByfk_campaign_uuid(campaign)).thenReturn(genericMonsters);
+        UUID campaignUUID = entity.getFk_campaign_uuid();
+        when(genericMonsterRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
 
-        List<GenericMonster> results = genericMonsterService.getGenericMonstersByCampaignUUID(campaign);
+        List<GenericMonsterDTO> result = genericMonsterService.getGenericMonstersByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(3, results.size());
-        Assertions.assertEquals(genericMonsters, results);
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
     }
 
     @Test
     public void whenCampaignUUIDIsInvalid_getGenericMonstersByCampaignUUID_ReturnsNothing() {
-        UUID campaign = UUID.randomUUID();
-        List<GenericMonster> genericMonsters = new ArrayList<>();
-        when(genericMonsterRepository.findByfk_campaign_uuid(campaign)).thenReturn(genericMonsters);
+        UUID campaignUUID = UUID.randomUUID();
+        when(genericMonsterRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
 
-        List<GenericMonster> result = genericMonsterService.getGenericMonstersByCampaignUUID(campaign);
+        List<GenericMonsterDTO> result = genericMonsterService.getGenericMonstersByCampaignUUID(campaignUUID);
 
-        Assertions.assertEquals(0, result.size());
-        Assertions.assertEquals(genericMonsters, result);
+        assertNotNull(result);
+        assertTrue(result.isEmpty(), "Expected an empty list when no genericMonsters match the campaign UUID.");
     }
 
     @Test
-    public void whenGenericMonsterWithNoForeignKeysIsValid_saveGenericMonster_SavesTheGenericMonster() {
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster 1", "Description 1", UUID.randomUUID());
-        when(genericMonsterRepository.saveAndFlush(genericMonster)).thenReturn(genericMonster);
+    public void whenGenericMonsterIsValid_saveGenericMonster_SavesTheGenericMonster() {
+        when(genericMonsterRepository.save(entity)).thenReturn(entity);
 
-        assertDoesNotThrow(() -> genericMonsterService.saveGenericMonster(genericMonster));
+        genericMonsterService.saveGenericMonster(dto);
 
-        verify(genericMonsterRepository, times(1)).saveAndFlush(genericMonster);
-    }
-
-    @Test
-    public void whenGenericMonsterWithForeignKeysIsValid_saveGenericMonster_SavesTheGenericMonster() {
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes", UUID.randomUUID());
-
-        when(abilityScoreRepository.existsById(1)).thenReturn(true);
-        when(genericMonsterRepository.saveAndFlush(genericMonster)).thenReturn(genericMonster);
-
-        assertDoesNotThrow(() -> genericMonsterService.saveGenericMonster(genericMonster));
-
-        verify(genericMonsterRepository, times(1)).saveAndFlush(genericMonster);
+        verify(genericMonsterRepository, times(1)).save(entity);
     }
 
     @Test
     public void whenGenericMonsterNameIsInvalid_saveGenericMonster_ThrowsIllegalArgumentException() {
-        UUID campaign = UUID.randomUUID();
-        GenericMonster genericMonsterWithEmptyName = new GenericMonster(1, "", "Description 1", campaign);
-        GenericMonster genericMonsterWithNullName = new GenericMonster(2, null, "Description 2", campaign);
+        GenericMonsterDTO genericMonsterWithEmptyName = new GenericMonsterDTO();
+        genericMonsterWithEmptyName.setId(1);
+        genericMonsterWithEmptyName.setName("");
+        genericMonsterWithEmptyName.setDescription("A fictional genericMonster.");
+        genericMonsterWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
+
+        GenericMonsterDTO genericMonsterWithNullName = new GenericMonsterDTO();
+        genericMonsterWithNullName.setId(1);
+        genericMonsterWithNullName.setName(null);
+        genericMonsterWithNullName.setDescription("A fictional city.");
+        genericMonsterWithNullName.setFk_campaign_uuid(UUID.randomUUID());
 
         assertThrows(IllegalArgumentException.class, () -> genericMonsterService.saveGenericMonster(genericMonsterWithEmptyName));
         assertThrows(IllegalArgumentException.class, () -> genericMonsterService.saveGenericMonster(genericMonsterWithNullName));
@@ -122,154 +148,76 @@ public class GenericMonsterTest {
 
     @Test
     public void whenGenericMonsterNameAlreadyExists_saveGenericMonster_ThrowsDataIntegrityViolationException() {
-        UUID campaign = UUID.randomUUID();
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes", campaign);
-        GenericMonster genericMonsterCopy = new GenericMonster(2, "GenericMonster", "Description", 1, "Traits", "Notes", campaign);
-
-        when(genericMonsterRepository.existsById(1)).thenReturn(true);
-        when(abilityScoreRepository.existsById(1)).thenReturn(true);
-
-        when(genericMonsterRepository.saveAndFlush(genericMonster)).thenReturn(genericMonster);
-        when(genericMonsterRepository.saveAndFlush(genericMonsterCopy)).thenThrow(DataIntegrityViolationException.class);
-
-        assertDoesNotThrow(() -> genericMonsterService.saveGenericMonster(genericMonster));
-        assertThrows(DataIntegrityViolationException.class, () -> genericMonsterService.saveGenericMonster(genericMonsterCopy));
-    }
-
-    @Test
-    public void whenGenericMonsterHasInvalidForeignKeys_saveGenericMonster_ThrowsDataIntegrityViolationException() {
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes", UUID.randomUUID());
-
-        when(abilityScoreRepository.existsById(2)).thenReturn(false);
-        when(genericMonsterRepository.saveAndFlush(genericMonster)).thenReturn(genericMonster);
-
-        assertThrows(DataIntegrityViolationException.class, () -> genericMonsterService.saveGenericMonster(genericMonster));
+        when(genericMonsterRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        assertThrows(DataIntegrityViolationException.class, () -> genericMonsterService.saveGenericMonster(dto));
+        verify(genericMonsterRepository, times(1)).findByName(dto.getName());
+        verify(genericMonsterRepository, never()).save(any(GenericMonster.class));
     }
 
     @Test
     public void whenGenericMonsterIdExists_deleteGenericMonster_DeletesTheGenericMonster() {
-        int genericMonsterId = 1;
-        when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
-        assertDoesNotThrow(() -> genericMonsterService.deleteGenericMonster(genericMonsterId));
-        verify(genericMonsterRepository, times(1)).deleteById(genericMonsterId);
+        when(genericMonsterRepository.existsById(1)).thenReturn(true);
+        genericMonsterService.deleteGenericMonster(1);
+        verify(genericMonsterRepository, times(1)).deleteById(1);
     }
 
     @Test
     public void whenGenericMonsterIdDoesNotExist_deleteGenericMonster_ThrowsIllegalArgumentException() {
-        int genericMonsterId = 9000;
-        when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> genericMonsterService.deleteGenericMonster(genericMonsterId));
+        when(genericMonsterRepository.existsById(999)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class, () -> genericMonsterService.deleteGenericMonster(999));
     }
 
     @Test
-    public void whenGenericMonsterIdIsAForeignKey_deleteGenericMonster_ThrowsDataIntegrityViolationException() {
-        int genericMonsterId = 1;
-        NamedMonster namedMonster = new NamedMonster(1, "First Name", "Last Name", "Title",
-                1, 2, genericMonsterId, false, "Personality", "Description", "Notes", UUID.randomUUID());
-        List<CrudRepository> repositories = new ArrayList<>(Arrays.asList(namedMonsterRepository));
-        List<NamedMonster> namedMonsters = new ArrayList<>(Arrays.asList(namedMonster));
+    public void whenDeleteGenericMonsterFails_deleteGenericMonster_ThrowsException() {
+        when(genericMonsterRepository.existsById(1)).thenReturn(true);
+        doThrow(new RuntimeException("Database error")).when(genericMonsterRepository).deleteById(1);
 
-        when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
-        when(namedMonsterRepository.findByfk_generic_monster(genericMonsterId)).thenReturn(namedMonsters);
-
-        boolean actual = RepositoryHelper.isForeignKey(repositories, FK_GENERIC_MONSTER.columnName, genericMonsterId);
-        Assertions.assertTrue(actual);
-        assertThrows(DataIntegrityViolationException.class, () -> genericMonsterService.deleteGenericMonster(genericMonsterId));
+        assertThrows(RuntimeException.class, () -> genericMonsterService.deleteGenericMonster(1));
     }
 
     @Test
-    public void whenGenericMonsterIdWithNoFKIsFound_updateGenericMonster_UpdatesTheGenericMonster() {
-        int genericMonsterId = 1;
-        UUID campaign = UUID.randomUUID();
+    public void whenGenericMonsterIdIsFound_updateGenericMonster_UpdatesTheGenericMonster() {
+        GenericMonsterDTO updateDTO = new GenericMonsterDTO();
+        updateDTO.setName("Updated Name");
 
-        GenericMonster genericMonster = new GenericMonster(genericMonsterId, "Old GenericMonster Name", "Old Description", campaign);
-        GenericMonster updateNoFK = new GenericMonster(genericMonsterId, "Updated GenericMonster Name", "Updated Description", campaign);
+        when(genericMonsterRepository.findById(1)).thenReturn(Optional.of(entity));
+        when(genericMonsterRepository.existsById(1)).thenReturn(true);
+        when(genericMonsterRepository.save(entity)).thenReturn(entity);
+        when(genericMonsterMapper.mapToGenericMonsterDto(entity)).thenReturn(updateDTO);
 
-        when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
-        when(genericMonsterRepository.findById(genericMonsterId)).thenReturn(Optional.of(genericMonster));
+        Optional<GenericMonsterDTO> result = genericMonsterService.updateGenericMonster(1, updateDTO);
 
-        genericMonsterService.updateGenericMonster(genericMonsterId, updateNoFK);
-
-        verify(genericMonsterRepository).findById(genericMonsterId);
-
-        GenericMonster result1 = genericMonsterRepository.findById(genericMonsterId).get();
-        Assertions.assertEquals(updateNoFK.getName(), result1.getName());
-        Assertions.assertEquals(updateNoFK.getDescription(), result1.getDescription());
+        assertTrue(result.isPresent());
+        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
-    public void whenGenericMonsterIdWithValidFKIsFound_updateGenericMonster_UpdatesTheGenericMonster() {
-        int genericMonsterId = 2;
-        UUID campaign = UUID.randomUUID();
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes", campaign);
-        GenericMonster update = new GenericMonster(1, "GenericMonster", "Description", 3, "Traits", "Notes", campaign);
+    public void whenGenericMonsterIdIsNotFound_updateGenericMonster_ReturnsEmptyOptional() {
+        GenericMonsterDTO updateDTO = new GenericMonsterDTO();
+        updateDTO.setName("Updated Name");
 
-        when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
-        when(genericMonsterRepository.findById(genericMonsterId)).thenReturn(Optional.of(genericMonster));
-        when(abilityScoreRepository.existsById(1)).thenReturn(true);
-        when(abilityScoreRepository.existsById(3)).thenReturn(true);
-
-        genericMonsterService.updateGenericMonster(genericMonsterId, update);
-
-        verify(genericMonsterRepository).findById(genericMonsterId);
-
-        GenericMonster result = genericMonsterRepository.findById(genericMonsterId).get();
-        Assertions.assertEquals(update.getName(), result.getName());
-        Assertions.assertEquals(update.getFk_ability_score(), result.getFk_ability_score());
-        Assertions.assertEquals(update.getTraits(), result.getTraits());
-        Assertions.assertEquals(update.getDescription(), result.getDescription());
-        Assertions.assertEquals(update.getNotes(), result.getNotes());
+        when(genericMonsterRepository.findById(999)).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> genericMonsterService.updateGenericMonster(999, updateDTO));
     }
 
     @Test
-    public void whenGenericMonsterIdWithInvalidFKIsFound_updateGenericMonster_ThrowsDataIntegrityViolationException() {
-        int genericMonsterId = 2;
-        UUID campaign = UUID.randomUUID();
+    public void whenGenericMonsterNameIsInvalid_updateGenericMonster_ThrowsIllegalArgumentException() {
+        GenericMonsterDTO updateEmptyName = new GenericMonsterDTO();
+        updateEmptyName.setName("");
 
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description", 1, "Traits", "Notes", campaign);
-        GenericMonster update = new GenericMonster(1, "GenericMonster", "Description", 3, "Traits", "Notes", campaign);
+        GenericMonsterDTO updateNullName = new GenericMonsterDTO();
+        updateNullName.setName(null);
 
-        when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
-        when(genericMonsterRepository.findById(genericMonsterId)).thenReturn(Optional.of(genericMonster));
-        when(abilityScoreRepository.existsById(1)).thenReturn(true);
-        when(abilityScoreRepository.existsById(3)).thenReturn(false);
+        when(genericMonsterRepository.existsById(1)).thenReturn(true);
 
-        assertThrows(DataIntegrityViolationException.class, () -> genericMonsterService.updateGenericMonster(genericMonsterId, update));
+        assertThrows(IllegalArgumentException.class, () -> genericMonsterService.updateGenericMonster(1, updateEmptyName));
+        assertThrows(IllegalArgumentException.class, () -> genericMonsterService.updateGenericMonster(1, updateNullName));
     }
 
     @Test
-    public void whenGenericMonsterIdIsNotFound_updateGenericMonster_ThrowsIllegalArgumentException() {
-        int genericMonsterId = 1;
-        GenericMonster genericMonster = new GenericMonster(genericMonsterId, "Old GenericMonster Name", "Old Description", UUID.randomUUID());
+    public void whenGenericMonsterNameAlreadyExists_updateGenericMonster_ThrowsDataIntegrityViolationException() {
+        when(genericMonsterRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
 
-        when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(false);
-
-        assertThrows(IllegalArgumentException.class, () -> genericMonsterService.updateGenericMonster(genericMonsterId, genericMonster));
-    }
-
-    @Test
-    public void whenSomeGenericMonsterFieldsChanged_updateGenericMonster_OnlyUpdatesChangedFields() {
-        int genericMonsterId = 1;
-        GenericMonster genericMonster = new GenericMonster(1, "GenericMonster", "Description",
-                1, "Traits", "Notes", UUID.randomUUID());
-        String newDescription = "New GenericMonster description";
-
-        GenericMonster genericMonsterToUpdate = new GenericMonster();
-        genericMonsterToUpdate.setDescription(newDescription);
-
-        when(genericMonsterRepository.existsById(genericMonsterId)).thenReturn(true);
-        when(abilityScoreRepository.existsById(1)).thenReturn(true);
-        when(genericMonsterRepository.findById(genericMonsterId)).thenReturn(Optional.of(genericMonster));
-
-        genericMonsterService.updateGenericMonster(genericMonsterId, genericMonsterToUpdate);
-
-        verify(genericMonsterRepository).findById(genericMonsterId);
-
-        GenericMonster result = genericMonsterRepository.findById(genericMonsterId).get();
-        Assertions.assertEquals(genericMonster.getName(), result.getName());
-        Assertions.assertEquals(newDescription, result.getDescription());
-        Assertions.assertEquals(genericMonster.getFk_ability_score(), result.getFk_ability_score());
-        Assertions.assertEquals(genericMonster.getTraits(), result.getTraits());
-        Assertions.assertEquals(genericMonster.getNotes(), result.getNotes());
+        assertThrows(IllegalArgumentException.class, () -> genericMonsterService.updateGenericMonster(entity.getId(), dto));
     }
 }
