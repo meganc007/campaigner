@@ -10,7 +10,6 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "people")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Person {

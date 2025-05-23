@@ -8,7 +8,6 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "jobs")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Job {
