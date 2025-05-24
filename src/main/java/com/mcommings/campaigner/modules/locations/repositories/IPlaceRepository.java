@@ -32,4 +32,10 @@ public interface IPlaceRepository extends JpaRepository<Place, Integer> {
 
     @Query("SELECT p FROM Place p WHERE p.fk_region = :id")
     List<Place> findByfk_region(@Param("id") Integer id);
+
+    @Query("select distinct p.fk_place_type from Place p where p.fk_campaign_uuid = :uuid")
+    List<Integer> findPlaceTypeIdsByCampaign(@Param("uuid") UUID uuid);
+
+    @Query("select distinct p.fk_terrain from Place p where p.fk_campaign_uuid = :uuid")
+    List<Integer> findTerrainIdsByCampaign(@Param("uuid") UUID uuid);
 }

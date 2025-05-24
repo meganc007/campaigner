@@ -23,4 +23,7 @@ public interface IRegionRepository extends JpaRepository<Region, Integer> {
 
     @Query("SELECT r FROM Region r WHERE r.fk_climate = :id")
     List<Region> findByfk_climate(@Param("id") Integer id);
+
+    @Query("select distinct p.fk_climate from Region p where p.fk_campaign_uuid = :uuid")
+    List<Integer> findClimateIdsByCampaign(@Param("uuid") UUID uuid);
 }
