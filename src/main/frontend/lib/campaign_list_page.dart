@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/campaign.dart';
+import 'package:frontend/models/campaign.dart';
 import 'package:frontend/campaign_detail_page.dart';
-import 'package:frontend/campaign_service.dart';
+import 'package:frontend/services/campaign_service.dart';
 
 class CampaignListPage extends StatefulWidget {
   const CampaignListPage({super.key});

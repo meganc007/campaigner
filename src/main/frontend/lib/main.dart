@@ -13,9 +13,10 @@ class CampaignerApp extends StatelessWidget {
     return MaterialApp(
       title: "Campaigner",
       theme: ThemeData(
-        primarySwatch: Colors.teal,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.amberAccent),
+        useMaterial3: true,
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.teal[600],
+          backgroundColor: Colors.teal,
           elevation: 4,
           titleTextStyle: TextStyle(
             color: Colors.white,
