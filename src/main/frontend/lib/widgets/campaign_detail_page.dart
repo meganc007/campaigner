@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/campaign.dart';
 import 'package:frontend/models/locations_overview.dart';
 import 'package:frontend/services/locations_overview_service.dart';
-import 'package:frontend/widgets/bottom_nav.dart';
+import 'package:frontend/widgets/calendar_overview_page.dart';
 import 'package:frontend/widgets/campaign_overview_page.dart';
+import 'package:frontend/widgets/common_overview_page.dart';
+import 'package:frontend/widgets/items_overview_page.dart';
 import 'package:frontend/widgets/location_overview_page.dart';
+import 'package:frontend/widgets/main_nav.dart';
+import 'package:frontend/widgets/people_overview_page.dart';
+import 'package:frontend/widgets/quests_overview_page.dart';
 
 class CampaignDetailPage extends StatefulWidget {
   final Campaign campaign;
@@ -26,7 +31,15 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final titles = ["${widget.campaign.name} - Overview", "Locations Overview"];
+    final titles = [
+      (widget.campaign.name),
+      "Locations Overview",
+      "People Overview",
+      "Items Overview",
+      "Quests Overview",
+      "Calendar Overview",
+      "Common Overview",
+    ];
     final List<Widget> overviews = [
       CampaignOverviewPage(
         campaign: widget.campaign,
@@ -36,14 +49,22 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         uuid: widget.campaign.uuid,
         futureLocations: _futureLocations,
       ),
+      PeopleOverviewPage(),
+      ItemsOverviewPage(),
+      QuestsOverviewPage(),
+      CalendarOverviewPage(),
+      CommonOverviewPage(),
     ];
 
     return Scaffold(
       appBar: AppBar(title: Text(titles[_currentIndex])),
       body: overviews[_currentIndex],
-      bottomNavigationBar: BottomNav(
+      drawer: MainNav(
+        campaignName: widget.campaign.name,
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onSelect: (index) {
+          setState(() => _currentIndex = index);
+        },
       ),
     );
   }
