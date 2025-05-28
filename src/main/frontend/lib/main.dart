@@ -13,17 +13,17 @@ class CampaignerApp extends StatelessWidget {
     return MaterialApp(
       title: "Campaigner",
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.tealAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFF5E6C4)),
         useMaterial3: true,
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.teal,
+          backgroundColor: const Color(0xFFF5E6C4),
           elevation: 4,
           titleTextStyle: TextStyle(
-            color: Colors.white,
+            color: Colors.black,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
-          iconTheme: IconThemeData(color: Colors.white),
+          iconTheme: IconThemeData(color: Colors.black),
         ),
       ),
       home: const CampaignListPage(),

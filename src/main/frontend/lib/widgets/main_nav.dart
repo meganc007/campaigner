@@ -19,12 +19,10 @@ class MainNav extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-            ),
+            decoration: BoxDecoration(color: const Color(0xFFF5E6C4)),
             child: Text(
-              "Dashboard",
-              style: const TextStyle(color: Colors.white, fontSize: 20),
+              "Menu",
+              style: const TextStyle(color: Colors.black, fontSize: 20),
             ),
           ),
           ListTile(
