@@ -32,51 +32,6 @@ class CampaignOverviewPage extends StatelessWidget {
               "Locations Overview",
               style: Theme.of(context).textTheme.headlineSmall,
             ),
-            SizedBox(
-              height: 150,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    Card(
-                      elevation: 2,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                      color: Colors.amber,
-                      child: SizedBox(
-                        height: 120,
-                        width: 120,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Text(
-                                "Continents",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const Divider(
-                                color: Colors.black,
-                                thickness: 1,
-                                indent: 0,
-                                endIndent: 0,
-                              ),
-                              Text(
-                                "count: ${locationOverview.continents.length}",
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
             Text('Countries: ${locationOverview.countries.length}'),
             Text('Cities: ${locationOverview.cities.length}'),
             Text('Regions: ${locationOverview.regions.length}'),
