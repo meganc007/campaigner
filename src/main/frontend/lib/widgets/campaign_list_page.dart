@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/campaign.dart';
+import 'package:frontend/widgets/add_campaign_page.dart';
 import 'package:frontend/widgets/campaign_detail_page.dart';
 import 'package:frontend/services/campaign_service.dart';
 
@@ -54,6 +55,34 @@ class _CampaignListPageState extends State<CampaignListPage> {
             },
           );
         },
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SizedBox(
+          width: double.infinity,
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+              side: const BorderSide(
+                width: 2,
+                color: Color.fromRGBO(93, 64, 55, 1),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddCampaignPage()),
+              );
+            },
+            child: const Text(
+              "Create Campaign",
+              style: const TextStyle(color: Colors.black),
+            ),
+          ),
+        ),
       ),
     );
   }
