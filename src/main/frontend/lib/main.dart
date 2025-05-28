@@ -22,6 +22,7 @@ class CampaignerApp extends StatelessWidget {
             color: Colors.black,
             fontSize: 20,
             fontWeight: FontWeight.bold,
+            letterSpacing: 1.25,
           ),
           iconTheme: IconThemeData(color: Colors.black),
         ),

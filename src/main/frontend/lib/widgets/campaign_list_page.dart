@@ -23,7 +23,7 @@ class _CampaignListPageState extends State<CampaignListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Campaigns")),
+      appBar: AppBar(title: Text("Campaigns".toUpperCase())),
       body: FutureBuilder<List<Campaign>>(
         future: _futureCampaigns,
         builder: (context, snapshot) {
@@ -77,8 +77,8 @@ class _CampaignListPageState extends State<CampaignListPage> {
                 MaterialPageRoute(builder: (context) => AddCampaignPage()),
               );
             },
-            child: const Text(
-              "Create Campaign",
+            child: Text(
+              "Create Campaign".toUpperCase(),
               style: const TextStyle(color: Colors.black),
             ),
           ),

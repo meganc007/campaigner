@@ -57,7 +57,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(titles[_currentIndex])),
+      appBar: AppBar(title: Text(titles[_currentIndex].toUpperCase())),
       body: overviews[_currentIndex],
       drawer: MainNav(
         campaignName: widget.campaign.name,
