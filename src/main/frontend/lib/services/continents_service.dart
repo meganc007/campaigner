@@ -47,6 +47,26 @@ Future<bool> createContinent(
   return response.statusCode >= 200 && response.statusCode < 300;
 }
 
+Future<bool> editContinent(
+  String uuid,
+  int id,
+  String name,
+  String description,
+) async {
+  final response = await http.put(
+    Uri.parse('http://10.0.2.2:8080/api/continents/$id'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      "id": id,
+      "name": name,
+      "description": description,
+      "fk_campaign_uuid": uuid,
+    }),
+  );
+
+  return response.statusCode >= 200 && response.statusCode < 300;
+}
+
 Future<void> deleteContinent(int id) async {
   final response = await http.delete(
     Uri.parse('http://10.0.2.2:8080/api/continents/$id'),

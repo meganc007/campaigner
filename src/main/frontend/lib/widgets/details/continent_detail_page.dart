@@ -56,8 +56,10 @@ class _ContinentDetailPageState extends State<ContinentDetailPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              ContinentEditPage(continentId: continent.id),
+                          builder: (_) => ContinentEditPage(
+                            uuid: widget.uuid,
+                            continent: continent,
+                          ),
                         ),
                       );
                     },

@@ -44,6 +44,26 @@ public class RepositoryHelper {
         }
     }
 
+    public static <T> boolean nameAlreadyExistsInAnotherRecord(CrudRepository<T, Integer> repository, String name, int currentId) {
+        try {
+            Method findByNameMethod = getRepoMethod(repository, "findByName");
+            Optional<T> existingRecord = (Optional<T>) findByNameMethod.invoke(repository, name);
+
+            if (existingRecord.isEmpty()) {
+                return false;
+            }
+
+            T entity = existingRecord.get();
+
+            Method getIdMethod = entity.getClass().getMethod("getId");
+            Integer foundId = (Integer) getIdMethod.invoke(entity);
+
+            return !foundId.equals(currentId);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static <T> boolean nameIsNullOrEmpty(T object) {
         try {
             return isNull(getNameValueAsObject(object)) || getNameValueAsString(object).isEmpty();

@@ -78,7 +78,7 @@ public class ContinentService implements IContinent {
         if (RepositoryHelper.nameIsNullOrEmpty(continent)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(continentRepository, continent.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(continentRepository, continent.getName(), continentId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
