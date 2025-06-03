@@ -78,7 +78,7 @@ public class MonthService implements IMonth {
         if (RepositoryHelper.nameIsNullOrEmpty(month)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(monthRepository, month.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(monthRepository, month.getName(), monthId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

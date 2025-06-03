@@ -82,7 +82,7 @@ public class LandmarkService implements ILandmark {
         if (RepositoryHelper.nameIsNullOrEmpty(landmark)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(landmarkRepository, landmark.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(landmarkRepository, landmark.getName(), landmarkId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

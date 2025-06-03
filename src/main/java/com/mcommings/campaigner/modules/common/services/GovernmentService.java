@@ -70,7 +70,7 @@ public class GovernmentService implements IGovernment {
         if (RepositoryHelper.nameIsNullOrEmpty(government)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(governmentRepository, government.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(governmentRepository, government.getName(), governmentId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

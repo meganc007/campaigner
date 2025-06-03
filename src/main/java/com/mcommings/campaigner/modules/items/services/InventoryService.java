@@ -113,7 +113,7 @@ public class InventoryService implements IInventory {
         if (RepositoryHelper.nameIsNullOrEmpty(inventory)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(inventoryRepository, inventory.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(inventoryRepository, inventory.getName(), inventoryId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

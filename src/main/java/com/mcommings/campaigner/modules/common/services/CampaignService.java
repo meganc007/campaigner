@@ -20,7 +20,7 @@ import static com.mcommings.campaigner.enums.ErrorMessage.*;
 @Service
 @RequiredArgsConstructor
 public class CampaignService implements ICampaign {
-    
+
     private final ICampaignRepository campaignRepository;
     private final CampaignMapper campaignMapper;
 
@@ -54,7 +54,7 @@ public class CampaignService implements ICampaign {
                         campaignMapper.mapFromCampaignDto(campaign))
         );
     }
-    
+
     @Override
     @Transactional
     public void deleteCampaign(UUID uuid) throws IllegalArgumentException, DataIntegrityViolationException {
@@ -64,13 +64,13 @@ public class CampaignService implements ICampaign {
         }
         campaignRepository.deleteByUuid(uuid);
     }
-    
+
     @Override
     public Optional<CampaignDTO> updateCampaign(UUID uuid, CampaignDTO campaign) throws IllegalArgumentException, DataIntegrityViolationException {
         if (cannotFindUuid(uuid)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (nameAlreadyExists(campaign)) {
+        if (nameExistsInAnotherRecord(campaign)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
@@ -88,5 +88,12 @@ public class CampaignService implements ICampaign {
 
     private boolean nameAlreadyExists(CampaignDTO campaign) {
         return campaignRepository.findByName(campaign.getName()).isPresent();
+    }
+
+    private boolean nameExistsInAnotherRecord(CampaignDTO campaign) {
+        return campaignRepository.findByName(campaign.getName())
+                .map(campaignMapper::mapToCampaignDto)
+                .filter(existingDto -> !existingDto.getUuid().equals(campaign.getUuid()))
+                .isPresent();
     }
 }

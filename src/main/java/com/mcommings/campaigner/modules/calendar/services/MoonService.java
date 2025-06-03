@@ -80,7 +80,7 @@ public class MoonService implements IMoon {
         if (RepositoryHelper.nameIsNullOrEmpty(moon)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(moonRepository, moon.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(moonRepository, moon.getName(), moonId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

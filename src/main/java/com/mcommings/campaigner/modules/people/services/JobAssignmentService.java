@@ -102,7 +102,10 @@ public class JobAssignmentService implements IJobAssignment {
     }
 
     private boolean jobAssignmentAlreadyExists(JobAssignment jobAssignment) {
-        return jobAssignmentRepository.jobAssignmentExists(jobAssignment).isPresent();
+        return jobAssignmentRepository
+                .jobAssignmentExists(jobAssignment)
+                .map(existing -> existing.getId() != jobAssignment.getId())
+                .orElse(false);
     }
 
 }

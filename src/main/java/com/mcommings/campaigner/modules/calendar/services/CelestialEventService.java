@@ -102,7 +102,7 @@ public class CelestialEventService implements ICelestialEvent {
         if (RepositoryHelper.nameIsNullOrEmpty(celestialEvent)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(celestialEventRepository, celestialEvent.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(celestialEventRepository, celestialEvent.getName(), celestialEventId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

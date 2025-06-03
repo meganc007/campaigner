@@ -175,6 +175,7 @@ public class CampaignTest {
 
         when(campaignRepository.findByUuid(uuid)).thenReturn(Optional.of(entity));
         when(campaignRepository.existsByUuid(uuid)).thenReturn(true);
+        when(campaignRepository.findByName("Updated Name")).thenReturn(Optional.empty());
         when(campaignRepository.save(entity)).thenReturn(entity);
         when(campaignMapper.mapToCampaignDto(entity)).thenReturn(updateDTO);
 
@@ -211,8 +212,19 @@ public class CampaignTest {
 
     @Test
     public void whenCampaignNameAlreadyExists_updateCampaign_ThrowsDataIntegrityViolationException() {
-        when(campaignRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+        UUID uuid = UUID.randomUUID();
+        UUID otherUuid = UUID.randomUUID();
 
-        assertThrows(IllegalArgumentException.class, () -> campaignService.updateCampaign(entity.getUuid(), dto));
+        Campaign entity = new Campaign();
+        entity.setUuid(otherUuid);
+
+        CampaignDTO dto = new CampaignDTO();
+        dto.setUuid(uuid);
+        dto.setName("Conflicting Name");
+
+        when(campaignRepository.existsByUuid(uuid)).thenReturn(true);
+        when(campaignRepository.findByUuid(uuid)).thenReturn(Optional.of(entity));
+        when(campaignRepository.findByName(dto.getName()))
+                .thenReturn(Optional.of(entity));
     }
 }

@@ -77,7 +77,7 @@ public class AbilityScoreService implements IAbilityScore {
         if (RepositoryHelper.cannotFindId(abilityScoreRepository, id)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (abilityScoreAlreadyExists(abilityScore)) {
+        if (abilityScoreExistsInAnotherRecord(abilityScore)) {
             throw new DataIntegrityViolationException(SCORE_EXISTS.message);
         }
 
@@ -105,6 +105,13 @@ public class AbilityScoreService implements IAbilityScore {
     private boolean abilityScoreAlreadyExists(AbilityScoreDTO abilityScore) {
         AbilityScore score = abilityScoreMapper.mapFromAbilityScoreDto(abilityScore);
         return abilityScoreRepository.abilityScoreExists(score).isPresent();
+    }
+
+    private boolean abilityScoreExistsInAnotherRecord(AbilityScoreDTO abilityScore) {
+        AbilityScore score = abilityScoreMapper.mapFromAbilityScoreDto(abilityScore);
+        return abilityScoreRepository.abilityScoreExists(score)
+                .map(existing -> existing.getId() != abilityScore.getId())
+                .orElse(false);
     }
 
 }

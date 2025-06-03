@@ -69,7 +69,7 @@ public class SettlementTypeService implements ISettlementType {
         if (RepositoryHelper.nameIsNullOrEmpty(settlementType)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(settlementTypeRepository, settlementType.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(settlementTypeRepository, settlementType.getName(), settlementTypeId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

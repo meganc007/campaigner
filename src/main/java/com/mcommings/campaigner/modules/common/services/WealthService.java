@@ -62,7 +62,7 @@ public class WealthService implements IWealth {
         if (RepositoryHelper.nameIsNullOrEmpty(wealth)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(wealthRepository, wealth.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(wealthRepository, wealth.getName(), wealthId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

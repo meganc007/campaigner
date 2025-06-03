@@ -70,7 +70,7 @@ public class DiceTypeService implements IDiceType {
         if (RepositoryHelper.nameIsNullOrEmpty(diceType)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(diceTypeRepository, diceType.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(diceTypeRepository, diceType.getName(), diceTypeId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

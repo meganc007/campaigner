@@ -80,7 +80,7 @@ public class SunService implements ISun {
         if (RepositoryHelper.nameIsNullOrEmpty(sun)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(sunRepository, sun.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(sunRepository, sun.getName(), sunId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

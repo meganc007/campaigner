@@ -90,7 +90,7 @@ public class CityService implements ICity {
         if (RepositoryHelper.nameIsNullOrEmpty(city)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(cityRepository, city.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(cityRepository, city.getName(), cityId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

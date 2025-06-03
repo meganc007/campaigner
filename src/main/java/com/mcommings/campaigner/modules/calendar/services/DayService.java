@@ -86,7 +86,7 @@ public class DayService implements IDay {
         if (RepositoryHelper.nameIsNullOrEmpty(day)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(dayRepository, day.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(dayRepository, day.getName(), dayId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

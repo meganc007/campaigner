@@ -77,7 +77,7 @@ public class RaceService implements IRace {
         if (RepositoryHelper.nameIsNullOrEmpty(race)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(raceRepository, race.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(raceRepository, race.getName(), raceId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

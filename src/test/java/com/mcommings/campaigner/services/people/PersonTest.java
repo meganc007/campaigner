@@ -235,8 +235,14 @@ public class PersonTest {
     public void whenPersonNameAlreadyExists_updatePerson_ThrowsDataIntegrityViolationException() {
         when(personRepository.existsById(dto.getId())).thenReturn(true);
         when(personMapper.mapFromPersonDto(dto)).thenReturn(entity);
+
+        Person conflictingEntity = new Person();
+        conflictingEntity.setId(dto.getId() + 1);
+        conflictingEntity.setFirstName(dto.getFirstName());
+        conflictingEntity.setLastName(dto.getLastName());
+
         when(personRepository.findByFirstNameAndLastName(dto.getFirstName(), dto.getLastName()))
-                .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(conflictingEntity));
 
         assertThrows(DataIntegrityViolationException.class, () -> personService.updatePerson(dto.getId(), dto));
 

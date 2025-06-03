@@ -70,7 +70,7 @@ public class ItemTypeService implements IItemType {
         if (RepositoryHelper.nameIsNullOrEmpty(itemType)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(itemTypeRepository, itemType.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(itemTypeRepository, itemType.getName(), itemTypeId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

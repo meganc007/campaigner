@@ -69,7 +69,7 @@ public class PlaceTypeService implements IPlaceType {
         if (RepositoryHelper.nameIsNullOrEmpty(placeType)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(placeTypesRepository, placeType.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(placeTypesRepository, placeType.getName(), placeTypeId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
