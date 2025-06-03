@@ -85,7 +85,7 @@ public class GenericMonsterService implements IGenericMonster {
         if (RepositoryHelper.nameIsNullOrEmpty(genericMonster)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(genericMonsterRepository, genericMonster.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(genericMonsterRepository, genericMonster.getName(), genericMonsterId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

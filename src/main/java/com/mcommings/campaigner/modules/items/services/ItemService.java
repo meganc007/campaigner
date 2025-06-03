@@ -88,7 +88,7 @@ public class ItemService implements IItem {
         if (RepositoryHelper.nameIsNullOrEmpty(item)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(itemRepository, item.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(itemRepository, item.getName(), itemId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

@@ -90,7 +90,7 @@ public class CountryService implements ICountry {
         if (RepositoryHelper.nameIsNullOrEmpty(country)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(countryRepository, country.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(countryRepository, country.getName(), countryId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

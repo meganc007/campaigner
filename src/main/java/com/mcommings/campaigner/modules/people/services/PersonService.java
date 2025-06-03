@@ -110,7 +110,7 @@ public class PersonService implements IPerson {
         if (nameIsNullOrEmpty(person.getFirstName())) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (nameAlreadyExists(person)) {
+        if (nameExistsInAnotherRecord(person)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
@@ -136,10 +136,11 @@ public class PersonService implements IPerson {
         return isNull(name) || name.isEmpty();
     }
 
-    private boolean nameAlreadyExists(PersonDTO person) {
+    private boolean nameExistsInAnotherRecord(PersonDTO person) {
         return personRepository
                 .findByFirstNameAndLastName(person.getFirstName(), person.getLastName())
-                .isPresent();
+                .map(existing -> existing.getId() != person.getId())
+                .orElse(false);
     }
 
     private boolean personAlreadyExists(Person person) {

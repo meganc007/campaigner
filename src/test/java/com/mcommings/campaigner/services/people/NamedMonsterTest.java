@@ -228,10 +228,17 @@ public class NamedMonsterTest {
     public void whenNamedMonsterNameAlreadyExists_updateNamedMonster_ThrowsDataIntegrityViolationException() {
         when(namedMonsterRepository.existsById(dto.getId())).thenReturn(true);
         when(namedMonsterMapper.mapFromNamedMonsterDto(dto)).thenReturn(entity);
-        when(namedMonsterRepository.findByFirstNameAndLastName(dto.getFirstName(), dto.getLastName()))
-                .thenReturn(Optional.of(entity));
 
-        assertThrows(DataIntegrityViolationException.class, () -> namedMonsterService.updateNamedMonster(dto.getId(), dto));
+        NamedMonster conflictingEntity = new NamedMonster();
+        conflictingEntity.setId(dto.getId() + 1); // different ID triggers conflict
+        conflictingEntity.setFirstName(dto.getFirstName());
+        conflictingEntity.setLastName(dto.getLastName());
+
+        when(namedMonsterRepository.findByFirstNameAndLastName(dto.getFirstName(), dto.getLastName()))
+                .thenReturn(Optional.of(conflictingEntity));
+
+        assertThrows(DataIntegrityViolationException.class, () ->
+                namedMonsterService.updateNamedMonster(dto.getId(), dto));
 
         verify(namedMonsterRepository, times(1)).existsById(dto.getId());
         verify(namedMonsterRepository, times(1)).findByFirstNameAndLastName(dto.getFirstName(), dto.getLastName());

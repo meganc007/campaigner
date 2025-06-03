@@ -134,7 +134,7 @@ public class EventService implements IEvent {
         if (RepositoryHelper.nameIsNullOrEmpty(event)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(eventRepository, event.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(eventRepository, event.getName(), eventId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

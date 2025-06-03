@@ -70,7 +70,7 @@ public class DamageTypeService implements IDamageType {
         if (RepositoryHelper.nameIsNullOrEmpty(damageType)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(damageTypeRepository, damageType.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(damageTypeRepository, damageType.getName(), damageTypeId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

@@ -69,7 +69,7 @@ public class ClimateService implements IClimate {
         if (RepositoryHelper.nameIsNullOrEmpty(climate)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(climateRepository, climate.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(climateRepository, climate.getName(), climateId)) {
             throw new IllegalArgumentException(NAME_EXISTS.message);
         }
 

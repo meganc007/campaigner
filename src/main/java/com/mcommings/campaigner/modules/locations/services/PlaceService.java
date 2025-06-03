@@ -98,7 +98,7 @@ public class PlaceService implements IPlace {
         if (RepositoryHelper.nameIsNullOrEmpty(place)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(placeRepository, place.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(placeRepository, place.getName(), placeId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

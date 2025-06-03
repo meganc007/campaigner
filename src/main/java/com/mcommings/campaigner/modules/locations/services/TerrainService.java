@@ -69,7 +69,7 @@ public class TerrainService implements ITerrain {
         if (RepositoryHelper.nameIsNullOrEmpty(terrain)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(terrainRepository, terrain.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(terrainRepository, terrain.getName(), terrainId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

@@ -82,7 +82,7 @@ public class RegionService implements IRegion {
         if (RepositoryHelper.nameIsNullOrEmpty(region)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(regionRepository, region.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(regionRepository, region.getName(), regionId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

@@ -102,7 +102,7 @@ public class NamedMonsterService implements INamedMonster {
         if (nameIsNullOrEmpty(namedMonster.getFirstName())) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (nameAlreadyExists(namedMonster)) {
+        if (nameExistsInAnotherRecord(namedMonster)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
@@ -132,9 +132,10 @@ public class NamedMonsterService implements INamedMonster {
         return namedMonsterRepository.monsterExists(namedMonster).isPresent();
     }
 
-    private boolean nameAlreadyExists(NamedMonsterDTO namedMonster) {
+    private boolean nameExistsInAnotherRecord(NamedMonsterDTO namedMonster) {
         return namedMonsterRepository
                 .findByFirstNameAndLastName(namedMonster.getFirstName(), namedMonster.getLastName())
-                .isPresent();
+                .map(existing -> existing.getId() != namedMonster.getId())
+                .orElse(false);
     }
 }

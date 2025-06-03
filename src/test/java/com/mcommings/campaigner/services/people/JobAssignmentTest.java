@@ -122,10 +122,16 @@ public class JobAssignmentTest {
     }
 
     @Test
-    public void whenJobAssignmentAlreadyExists_saveJobAssignment_DataIntegrityViolationException() {
-        when(jobAssignmentRepository.jobAssignmentExists(jobAssignmentMapper.mapFromJobAssignmentDto(dto))).thenReturn(Optional.of(entity));
+    public void whenJobAssignmentAlreadyExists_saveJobAssignment_ThrowsDataIntegrityViolationException() {
+        JobAssignment conflictingEntity = new JobAssignment();
+        conflictingEntity.setId(dto.getId() + 1);
+
+        when(jobAssignmentMapper.mapFromJobAssignmentDto(dto)).thenReturn(entity);
+        when(jobAssignmentRepository.jobAssignmentExists(entity)).thenReturn(Optional.of(conflictingEntity));
+
         assertThrows(DataIntegrityViolationException.class, () -> jobAssignmentService.saveJobAssignment(dto));
-        verify(jobAssignmentRepository, times(1)).jobAssignmentExists(jobAssignmentMapper.mapFromJobAssignmentDto(dto));
+
+        verify(jobAssignmentRepository, times(1)).jobAssignmentExists(entity);
         verify(jobAssignmentRepository, never()).save(any(JobAssignment.class));
     }
 
@@ -177,11 +183,16 @@ public class JobAssignmentTest {
 
     @Test
     public void whenJobAssignmentAlreadyExists_updateJobAssignment_ThrowsDataIntegrityViolationException() {
-        JobAssignmentDTO duplicate = dto;
+        JobAssignment conflictingEntity = new JobAssignment();
+        conflictingEntity.setId(dto.getId() + 1);
 
-        when(jobAssignmentRepository.existsById(1)).thenReturn(true);
-        when(jobAssignmentRepository.jobAssignmentExists(jobAssignmentMapper.mapFromJobAssignmentDto(dto))).thenReturn(Optional.of(entity));
+        when(jobAssignmentMapper.mapFromJobAssignmentDto(dto)).thenReturn(entity);
+        when(jobAssignmentRepository.jobAssignmentExists(entity)).thenReturn(Optional.of(conflictingEntity));
+        when(jobAssignmentRepository.existsById(dto.getId())).thenReturn(true);
 
-        assertThrows(DataIntegrityViolationException.class, () -> jobAssignmentService.updateJobAssignment(1, duplicate));
+        assertThrows(DataIntegrityViolationException.class, () -> jobAssignmentService.updateJobAssignment(dto.getId(), dto));
+
+        verify(jobAssignmentRepository, times(1)).jobAssignmentExists(entity);
+        verify(jobAssignmentRepository, never()).save(any(JobAssignment.class));
     }
 }

@@ -66,7 +66,7 @@ public class JobService implements IJob {
         if (RepositoryHelper.nameIsNullOrEmpty(job)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(jobRepository, job.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(jobRepository, job.getName(), jobId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 

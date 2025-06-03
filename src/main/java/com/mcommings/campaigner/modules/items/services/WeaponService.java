@@ -103,7 +103,7 @@ public class WeaponService implements IWeapon {
         if (RepositoryHelper.nameIsNullOrEmpty(weapon)) {
             throw new IllegalArgumentException(NULL_OR_EMPTY.message);
         }
-        if (RepositoryHelper.nameAlreadyExists(weaponRepository, weapon.getName())) {
+        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(weaponRepository, weapon.getName(), weaponId)) {
             throw new DataIntegrityViolationException(NAME_EXISTS.message);
         }
 
