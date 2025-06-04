@@ -57,7 +57,7 @@ class _LocationOverviewPageState extends State<LocationOverviewPage> {
     final countries = await fetchCountries(widget.uuid);
     final climates = await fetchClimates();
     final wealth = await fetchWealth();
-    final settlementTypes = await fetchSettlementTypes(widget.uuid);
+    final settlementTypes = await fetchSettlementTypes();
     final regions = await fetchRegions(widget.uuid);
 
     setState(() {

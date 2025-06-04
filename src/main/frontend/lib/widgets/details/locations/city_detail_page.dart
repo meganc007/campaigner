@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/models/location/city.dart';
+import 'package:frontend/services/city_service.dart';
+import 'package:frontend/widgets/add/add_city_page.dart';
+import 'package:frontend/widgets/create_new_button.dart';
+import 'package:frontend/widgets/details/detail_section.dart';
+import 'package:frontend/widgets/edit/city_edit_page.dart';
 
 class CityDetailPage extends StatefulWidget {
   final String uuid;
@@ -22,8 +28,119 @@ class CityDetailPage extends StatefulWidget {
 }
 
 class _CityDetailPageState extends State<CityDetailPage> {
+  late Future<List<City>> _futureCities;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureCities = fetchCities(widget.uuid);
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      _futureCities = fetchCities(widget.uuid);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(title: Text("Cities".toUpperCase())),
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: FutureBuilder(
+          future: _futureCities,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData) {
+              return const Center(child: Text('No data available.'));
+            }
+
+            final cities = snapshot.data!;
+
+            final cityWidgets = cities
+                .map(
+                  (city) => DetailSection(
+                    title: city.name,
+                    fields: {
+                      "Description": city.description,
+                      "Wealth": widget.wealthMap[city.fkWealth] ?? 'Unknown',
+                      "Country": widget.countryMap[city.fkCountry] ?? 'Unknown',
+                      "Settlment type":
+                          widget.settlementTypeMap[city.fkSettlement] ??
+                          'Unknown',
+                      "Government":
+                          widget.governmentMap[city.fkGovernment] ?? 'Unknown',
+                      "Region": widget.regionMap[city.fkRegion] ?? 'Unknown',
+                    },
+                    onEdit: () async {
+                      final result = await Navigator.push<bool>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              CityEditPage(uuid: widget.uuid, city: city),
+                        ),
+                      );
+                      if (result == true) {
+                        await _refreshData();
+                      }
+                    },
+                    onDelete: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: Text("Delete ${city.name}?"),
+                          content: const Text(
+                            'Are you sure you want to delete this city?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmed == true) {
+                        await deleteCity(city.id);
+                        _refreshData();
+                      }
+                    },
+                  ),
+                )
+                .toList();
+
+            return SafeArea(
+              child: Center(
+                child: ListView(
+                  padding: const EdgeInsets.all(12),
+                  children: cityWidgets
+                      .map(
+                        (widget) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: widget,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      bottomNavigationBar: CreateNewButton(
+        label: "Create City",
+        destinationBuilder: (context) => AddCityPage(uuid: widget.uuid),
+        onReturn: _refreshData,
+      ),
+    );
   }
 }

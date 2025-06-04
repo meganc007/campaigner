@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:frontend/models/location/settlement_type.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<SettlementType>> fetchSettlementTypes(String uuid) async {
+Future<List<SettlementType>> fetchSettlementTypes() async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/settlementtypes/campaign/$uuid'),
+    Uri.parse('http://10.0.2.2:8080/api/settlementtypes'),
   );
 
   if (response.statusCode == 200) {
