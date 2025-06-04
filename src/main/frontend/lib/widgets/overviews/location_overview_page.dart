@@ -6,15 +6,15 @@ import 'package:frontend/services/continent_service.dart';
 import 'package:frontend/services/country_service.dart';
 import 'package:frontend/services/government_service.dart';
 import 'package:frontend/services/locations_overview_service.dart';
-import 'package:frontend/widgets/details/city_detail_page.dart';
+import 'package:frontend/widgets/details/locations/city_detail_page.dart';
 import 'package:frontend/widgets/details/climate_detail_page.dart';
-import 'package:frontend/widgets/details/continent_detail_page.dart';
-import 'package:frontend/widgets/details/country_detail_page.dart';
-import 'package:frontend/widgets/details/landmark_detail_page.dart';
-import 'package:frontend/widgets/details/place_detail_page.dart';
-import 'package:frontend/widgets/details/place_type_detail_page.dart';
-import 'package:frontend/widgets/details/region_detail_page.dart';
-import 'package:frontend/widgets/details/terrain_detail_page.dart';
+import 'package:frontend/widgets/details/locations/continent_detail_page.dart';
+import 'package:frontend/widgets/details/locations/country_detail_page.dart';
+import 'package:frontend/widgets/details/locations/landmark_detail_page.dart';
+import 'package:frontend/widgets/details/locations/place_detail_page.dart';
+import 'package:frontend/widgets/details/locations/place_type_detail_page.dart';
+import 'package:frontend/widgets/details/locations/region_detail_page.dart';
+import 'package:frontend/widgets/details/locations/terrain_detail_page.dart';
 import 'package:frontend/widgets/overviews/overview_section.dart';
 
 class LocationOverviewPage extends StatefulWidget {
