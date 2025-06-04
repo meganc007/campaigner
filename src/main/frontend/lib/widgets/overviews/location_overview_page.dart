@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/locations_overview.dart';
 import 'package:frontend/models/section.dart';
+import 'package:frontend/services/climate_service.dart';
+import 'package:frontend/services/continent_service.dart';
+import 'package:frontend/services/country_service.dart';
+import 'package:frontend/services/government_service.dart';
 import 'package:frontend/services/locations_overview_service.dart';
 import 'package:frontend/widgets/details/city_detail_page.dart';
 import 'package:frontend/widgets/details/climate_detail_page.dart';
@@ -29,11 +33,30 @@ class LocationOverviewPage extends StatefulWidget {
 
 class _LocationOverviewPageState extends State<LocationOverviewPage> {
   late Future<LocationsOverview> _future;
+  late Map<int, String> continentMap = {};
+  late Map<int, String> governmentMap = {};
+  late Map<int, String> countryMap = {};
+  late Map<int, String> climateMap = {};
 
   @override
   void initState() {
     super.initState();
     _future = widget.futureLocations;
+    loadReferenceData();
+  }
+
+  Future<void> loadReferenceData() async {
+    final continents = await fetchContinents(widget.uuid);
+    final governments = await fetchGovernments();
+    final countries = await fetchCountries(widget.uuid);
+    final climates = await fetchClimates();
+
+    setState(() {
+      continentMap = {for (var c in continents) c.id: c.name};
+      governmentMap = {for (var g in governments) g.id: g.name};
+      countryMap = {for (var c in countries) c.id: c.name};
+      climateMap = {for (var c in climates) c.id: c.name};
+    });
   }
 
   Future<void> _refreshData() async {
@@ -87,7 +110,11 @@ class _LocationOverviewPageState extends State<LocationOverviewPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => CountryDetailPage(uuid: widget.uuid),
+                    builder: (_) => CountryDetailPage(
+                      uuid: widget.uuid,
+                      continentMap: continentMap,
+                      governmentMap: governmentMap,
+                    ),
                   ),
                 );
               },
@@ -115,7 +142,11 @@ class _LocationOverviewPageState extends State<LocationOverviewPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => RegionDetailPage(uuid: widget.uuid),
+                    builder: (_) => RegionDetailPage(
+                      uuid: widget.uuid,
+                      countryMap: countryMap,
+                      climateMap: climateMap,
+                    ),
                   ),
                 );
               },
