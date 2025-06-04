@@ -7,7 +7,7 @@ import 'package:frontend/services/country_service.dart';
 import 'package:frontend/services/government_service.dart';
 import 'package:frontend/services/locations_overview_service.dart';
 import 'package:frontend/services/region_service.dart';
-import 'package:frontend/services/settlementType_service.dart';
+import 'package:frontend/services/settlement_type_service.dart';
 import 'package:frontend/services/wealth_service.dart';
 import 'package:frontend/widgets/details/locations/city_detail_page.dart';
 import 'package:frontend/widgets/details/climate_detail_page.dart';

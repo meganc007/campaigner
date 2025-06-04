@@ -4,7 +4,7 @@ import 'package:frontend/models/location/continent.dart';
 import 'package:frontend/models/location/country.dart';
 import 'package:frontend/models/location/landmark.dart';
 import 'package:frontend/models/location/place.dart';
-import 'package:frontend/models/location/placeType.dart';
+import 'package:frontend/models/location/place_type.dart';
 import 'package:frontend/models/location/region.dart';
 import 'package:frontend/models/location/terrain.dart';
 

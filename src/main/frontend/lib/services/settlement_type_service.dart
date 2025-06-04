@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:frontend/models/location/settlementType.dart';
+import 'package:frontend/models/location/settlement_type.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<SettlementType>> fetchSettlementTypes(String uuid) async {
