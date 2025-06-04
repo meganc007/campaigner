@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/location/continent.dart';
-import 'package:frontend/services/continents_service.dart';
+import 'package:frontend/services/continent_service.dart';
 import 'package:frontend/widgets/add/add_continent_page.dart';
+import 'package:frontend/widgets/create_new_button.dart';
 import 'package:frontend/widgets/details/detail_section.dart';
 import 'package:frontend/widgets/edit/continent_edit_page.dart';
 
@@ -52,8 +53,8 @@ class _ContinentDetailPageState extends State<ContinentDetailPage> {
                   (continent) => DetailSection(
                     title: continent.name,
                     fields: {"Description": continent.description},
-                    onEdit: () {
-                      Navigator.push(
+                    onEdit: () async {
+                      final result = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
                           builder: (_) => ContinentEditPage(
@@ -62,6 +63,9 @@ class _ContinentDetailPageState extends State<ContinentDetailPage> {
                           ),
                         ),
                       );
+                      if (result == true) {
+                        await _refreshData();
+                      }
                     },
                     onDelete: () async {
                       final confirmed = await showDialog<bool>(
@@ -111,35 +115,10 @@ class _ContinentDetailPageState extends State<ContinentDetailPage> {
           },
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.zero,
-              ),
-              side: const BorderSide(
-                width: 2,
-                color: Color.fromRGBO(93, 64, 55, 1),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddContinentPage(uuid: widget.uuid),
-                ),
-              );
-            },
-            child: Text(
-              "Create Continent".toUpperCase(),
-              style: const TextStyle(color: Colors.black),
-            ),
-          ),
-        ),
+      bottomNavigationBar: CreateNewButton(
+        label: "Create Continent",
+        destinationBuilder: (context) => AddContinentPage(uuid: widget.uuid),
+        onReturn: _refreshData,
       ),
     );
   }

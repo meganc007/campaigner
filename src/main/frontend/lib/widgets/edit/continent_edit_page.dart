@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/location/continent.dart';
-import 'package:frontend/services/continents_service.dart';
+import 'package:frontend/services/continent_service.dart';
 import 'package:frontend/widgets/styled_text_field.dart';
+import 'package:frontend/widgets/submit_button.dart';
 
 class ContinentEditPage extends StatefulWidget {
   final String uuid;
@@ -90,11 +91,10 @@ class _ContinentEditPageState extends State<ContinentEditPage> {
                   maxLines: 3,
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submitForm,
-                  child: _isSubmitting
-                      ? const CircularProgressIndicator()
-                      : const Text("Update"),
+                SubmitButton(
+                  isSubmitting: _isSubmitting,
+                  onPressed: _submitForm,
+                  label: "Update",
                 ),
               ],
             ),
