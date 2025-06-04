@@ -6,6 +6,9 @@ import 'package:frontend/services/continent_service.dart';
 import 'package:frontend/services/country_service.dart';
 import 'package:frontend/services/government_service.dart';
 import 'package:frontend/services/locations_overview_service.dart';
+import 'package:frontend/services/region_service.dart';
+import 'package:frontend/services/settlementType_service.dart';
+import 'package:frontend/services/wealth_service.dart';
 import 'package:frontend/widgets/details/locations/city_detail_page.dart';
 import 'package:frontend/widgets/details/climate_detail_page.dart';
 import 'package:frontend/widgets/details/locations/continent_detail_page.dart';
@@ -37,6 +40,9 @@ class _LocationOverviewPageState extends State<LocationOverviewPage> {
   late Map<int, String> governmentMap = {};
   late Map<int, String> countryMap = {};
   late Map<int, String> climateMap = {};
+  late Map<int, String> wealthMap = {};
+  late Map<int, String> settlementTypeMap = {};
+  late Map<int, String> regionMap = {};
 
   @override
   void initState() {
@@ -50,12 +56,18 @@ class _LocationOverviewPageState extends State<LocationOverviewPage> {
     final governments = await fetchGovernments();
     final countries = await fetchCountries(widget.uuid);
     final climates = await fetchClimates();
+    final wealth = await fetchWealth();
+    final settlementTypes = await fetchSettlementTypes(widget.uuid);
+    final regions = await fetchRegions(widget.uuid);
 
     setState(() {
       continentMap = {for (var c in continents) c.id: c.name};
       governmentMap = {for (var g in governments) g.id: g.name};
       countryMap = {for (var c in countries) c.id: c.name};
       climateMap = {for (var c in climates) c.id: c.name};
+      wealthMap = {for (var w in wealth) w.id: w.name};
+      settlementTypeMap = {for (var st in settlementTypes) st.id: st.name};
+      regionMap = {for (var r in regions) r.id: r.name};
     });
   }
 
@@ -128,7 +140,14 @@ class _LocationOverviewPageState extends State<LocationOverviewPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => CityDetailPage(uuid: widget.uuid),
+                    builder: (_) => CityDetailPage(
+                      uuid: widget.uuid,
+                      wealthMap: wealthMap,
+                      countryMap: countryMap,
+                      settlementTypeMap: settlementTypeMap,
+                      governmentMap: governmentMap,
+                      regionMap: regionMap,
+                    ),
                   ),
                 );
               },

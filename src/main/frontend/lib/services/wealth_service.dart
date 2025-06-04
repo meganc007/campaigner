@@ -1,37 +1,35 @@
 import 'dart:convert';
 
-import 'package:frontend/models/climate.dart';
+import 'package:frontend/models/wealth.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<Climate>> fetchClimates() async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/climates'),
-  );
+Future<List<Wealth>> fetchWealth() async {
+  final response = await http.get(Uri.parse('http://10.0.2.2:8080/api/wealth'));
 
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);
-    return data.map((json) => Climate.fromJson(json)).toList();
+    return data.map((json) => Wealth.fromJson(json)).toList();
   } else {
-    throw Exception('Failed to load climates');
+    throw Exception('Failed to load wealth');
   }
 }
 
-Future<Climate> fetchClimate(int id) async {
+Future<Wealth> fetchWealthById(int id) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/climates/$id'),
+    Uri.parse('http://10.0.2.2:8080/api/wealth/$id'),
   );
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = json.decode(response.body);
-    return Climate.fromJson(data);
+    return Wealth.fromJson(data);
   } else {
-    throw Exception('Failed to load climate with id $id');
+    throw Exception('Failed to load wealth with id $id');
   }
 }
 
-Future<bool> createClimate(String name, String description) async {
+Future<bool> createWealth(String name, String description) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/climates'),
+    Uri.parse('http://10.0.2.2:8080/api/wealth'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"name": name, "description": description}),
   );
@@ -39,9 +37,9 @@ Future<bool> createClimate(String name, String description) async {
   return response.statusCode >= 200 && response.statusCode < 300;
 }
 
-Future<bool> editClimate(int id, String name, String description) async {
+Future<bool> editWealth(int id, String name, String description) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/climates/$id'),
+    Uri.parse('http://10.0.2.2:8080/api/wealth/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"id": id, "name": name, "description": description}),
   );
@@ -49,12 +47,12 @@ Future<bool> editClimate(int id, String name, String description) async {
   return response.statusCode >= 200 && response.statusCode < 300;
 }
 
-Future<void> deleteClimate(int id) async {
+Future<void> deleteWealth(int id) async {
   final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/climates/$id'),
+    Uri.parse('http://10.0.2.2:8080/api/wealth/$id'),
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {
-    throw Exception('Failed to delete climate');
+    throw Exception('Failed to delete wealth');
   }
 }

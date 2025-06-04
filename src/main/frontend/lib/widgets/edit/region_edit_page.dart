@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/location/climate.dart';
+import 'package:frontend/models/climate.dart';
 import 'package:frontend/models/location/country.dart';
 import 'package:frontend/models/location/region.dart';
 import 'package:frontend/services/climate_service.dart';
