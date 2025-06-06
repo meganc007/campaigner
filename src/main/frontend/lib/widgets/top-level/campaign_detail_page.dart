@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/campaign.dart';
 import 'package:frontend/models/locations_overview.dart';
+import 'package:frontend/services/data%20providers/location_data_provider.dart';
 import 'package:frontend/services/locations_overview_service.dart';
 import 'package:frontend/widgets/overviews/calendar_overview_page.dart';
 import 'package:frontend/widgets/overviews/campaign_overview_page.dart';
@@ -10,6 +11,7 @@ import 'package:frontend/widgets/overviews/location_overview_page.dart';
 import 'package:frontend/widgets/main_nav.dart';
 import 'package:frontend/widgets/overviews/people_overview_page.dart';
 import 'package:frontend/widgets/overviews/quests_overview_page.dart';
+import 'package:provider/provider.dart';
 
 class CampaignDetailPage extends StatefulWidget {
   final Campaign campaign;
@@ -45,9 +47,12 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         campaign: widget.campaign,
         futureLocations: _futureLocations,
       ),
-      LocationOverviewPage(
-        uuid: widget.campaign.uuid,
-        futureLocations: _futureLocations,
+      ChangeNotifierProvider<LocationDataProvider>(
+        create: (_) => LocationDataProvider(widget.campaign.uuid),
+        child: LocationOverviewPage(
+          uuid: widget.campaign.uuid,
+          futureLocations: _futureLocations,
+        ),
       ),
       PeopleOverviewPage(),
       ItemsOverviewPage(),
