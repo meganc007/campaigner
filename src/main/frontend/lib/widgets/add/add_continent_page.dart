@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/services/continent_service.dart';
+import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/widgets/styled_text_field.dart';
 import 'package:frontend/widgets/submit_button.dart';
 
@@ -16,6 +17,7 @@ class _AddContinentPageState extends State<AddContinentPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   bool _isSubmitting = false;
+  bool _autoValidate = false;
 
   @override
   void dispose() {
@@ -25,11 +27,12 @@ class _AddContinentPageState extends State<AddContinentPage> {
   }
 
   Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate()) return;
+    setState(() => _autoValidate = true);
 
+    if (!_formKey.currentState!.validate()) return;
     setState(() => _isSubmitting = true);
 
-    final localContext = context; // capture the current BuildContext
+    final localContext = context;
 
     final success = await createContinent(
       widget.uuid,
@@ -40,16 +43,12 @@ class _AddContinentPageState extends State<AddContinentPage> {
     if (!localContext.mounted) return;
     setState(() => _isSubmitting = false);
 
-    if (mounted && success) {
-      ScaffoldMessenger.of(localContext).showSnackBar(
-        const SnackBar(content: Text("Continent created successfully!")),
-      );
-      Navigator.pop(localContext, true);
-    } else {
-      ScaffoldMessenger.of(localContext).showSnackBar(
-        const SnackBar(content: Text("Failed to create continent.")),
-      );
-    }
+    handleSuccessOrFailureOnCreate(
+      context: localContext,
+      success: success,
+      isMounted: localContext.mounted,
+      entityName: "Continent",
+    );
   }
 
   @override
@@ -61,13 +60,15 @@ class _AddContinentPageState extends State<AddContinentPage> {
         child: Center(
           child: Form(
             key: _formKey,
+            autovalidateMode: _autoValidate
+                ? AutovalidateMode.onUserInteraction
+                : AutovalidateMode.disabled,
             child: Column(
               children: [
                 StyledTextField(
                   controller: _nameController,
                   label: "Name",
-                  validator: (value) =>
-                      value == null || value.isEmpty ? 'Name required' : null,
+                  validator: isNameValid,
                 ),
                 const SizedBox(height: 12),
                 StyledTextField(

@@ -4,9 +4,10 @@ import 'package:frontend/models/location/country.dart';
 import 'package:frontend/models/location/region.dart';
 import 'package:frontend/services/climate_service.dart';
 import 'package:frontend/services/country_service.dart';
+import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/region_service.dart';
 import 'package:frontend/widgets/dropdown_description.dart';
-import 'package:frontend/widgets/styled_dropdown.dart';
+import 'package:frontend/widgets/entity_dropdown.dart';
 import 'package:frontend/widgets/styled_text_field.dart';
 import 'package:frontend/widgets/submit_button.dart';
 
@@ -24,6 +25,7 @@ class _RegionEditPageState extends State<RegionEditPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   bool _isSubmitting = false;
+  bool _autoValidate = false;
 
   List<Country> _countries = [];
   List<Climate> _climates = [];
@@ -76,6 +78,8 @@ class _RegionEditPageState extends State<RegionEditPage> {
   }
 
   Future<void> _submitForm() async {
+    setState(() => _autoValidate = true);
+
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSubmitting = true);
 
@@ -93,16 +97,12 @@ class _RegionEditPageState extends State<RegionEditPage> {
     if (!localContext.mounted) return;
     setState(() => _isSubmitting = false);
 
-    if (mounted && success) {
-      ScaffoldMessenger.of(localContext).showSnackBar(
-        const SnackBar(content: Text("Region edited successfully!")),
-      );
-      Navigator.pop(localContext, true);
-    } else {
-      ScaffoldMessenger.of(
-        localContext,
-      ).showSnackBar(const SnackBar(content: Text("Failed to edit region.")));
-    }
+    handleSuccessOrFailureOnEdit(
+      context: localContext,
+      success: success,
+      isMounted: localContext.mounted,
+      entityName: "Region",
+    );
   }
 
   @override
@@ -121,13 +121,15 @@ class _RegionEditPageState extends State<RegionEditPage> {
           child: Center(
             child: Form(
               key: _formKey,
+              autovalidateMode: _autoValidate
+                  ? AutovalidateMode.onUserInteraction
+                  : AutovalidateMode.disabled,
               child: Column(
                 children: [
                   StyledTextField(
                     controller: _nameController,
                     label: "Name",
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Name required' : null,
+                    validator: isNameValid,
                   ),
                   const SizedBox(height: 12),
                   StyledTextField(
@@ -136,39 +138,25 @@ class _RegionEditPageState extends State<RegionEditPage> {
                     maxLines: 3,
                   ),
                   const SizedBox(height: 24),
-                  StyledDropdown<Country>(
+                  EntityDropdown<Country>(
                     label: "Country",
-                    value: _selectedCountry,
-                    items: _countries.map((country) {
-                      return DropdownMenuItem(
-                        value: country,
-                        child: Text(country.name),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() => _selectedCountry = value);
-                    },
-                    validator: (value) =>
-                        value == null ? "Please select a country" : null,
+                    selected: _selectedCountry,
+                    options: _countries,
+                    getLabel: (c) => c.name,
+                    onChanged: (value) =>
+                        setState(() => _selectedCountry = value),
                   ),
                   SizedBox(height: 16),
                   if (_selectedCountry != null)
                     DropdownDescription(_selectedCountry!.description),
                   SizedBox(height: 16),
-                  StyledDropdown<Climate>(
+                  EntityDropdown<Climate>(
                     label: "Climate",
-                    value: _selectedClimate,
-                    items: _climates.map((climate) {
-                      return DropdownMenuItem<Climate>(
-                        value: climate,
-                        child: Text(climate.name),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() => _selectedClimate = value);
-                    },
-                    validator: (value) =>
-                        value == null ? "Please select a climate" : null,
+                    selected: _selectedClimate,
+                    options: _climates,
+                    getLabel: (c) => c.name,
+                    onChanged: (value) =>
+                        setState(() => _selectedClimate = value),
                   ),
                   SizedBox(height: 16),
                   if (_selectedClimate != null)
