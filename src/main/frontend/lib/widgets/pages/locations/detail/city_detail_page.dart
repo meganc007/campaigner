@@ -1,49 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/location/country.dart';
-import 'package:frontend/services/country_service.dart';
-import 'package:frontend/widgets/add/add_country_page.dart';
-import 'package:frontend/widgets/create_new_button.dart';
-import 'package:frontend/widgets/details/detail_section.dart';
-import 'package:frontend/widgets/edit/country_edit_page.dart';
+import 'package:frontend/models/location/city.dart';
+import 'package:frontend/services/city_service.dart';
+import 'package:frontend/widgets/pages/locations/add/add_city_page.dart';
+import 'package:frontend/widgets/reusable/create_new_button.dart';
+import 'package:frontend/widgets/reusable/detail_section.dart';
+import 'package:frontend/widgets/pages/locations/edit/city_edit_page.dart';
 
-class CountryDetailPage extends StatefulWidget {
+class CityDetailPage extends StatefulWidget {
   final String uuid;
-  final Map<int, String> continentMap;
+  final Map<int, String> wealthMap;
+  final Map<int, String> countryMap;
+  final Map<int, String> settlementTypeMap;
   final Map<int, String> governmentMap;
-  const CountryDetailPage({
+  final Map<int, String> regionMap;
+  const CityDetailPage({
     super.key,
     required this.uuid,
-    required this.continentMap,
+    required this.wealthMap,
+    required this.countryMap,
+    required this.settlementTypeMap,
     required this.governmentMap,
+    required this.regionMap,
   });
 
   @override
-  State<CountryDetailPage> createState() => _CountryDetailPageState();
+  State<CityDetailPage> createState() => _CityDetailPageState();
 }
 
-class _CountryDetailPageState extends State<CountryDetailPage> {
-  late Future<List<Country>> _futureCountries;
+class _CityDetailPageState extends State<CityDetailPage> {
+  late Future<List<City>> _futureCities;
 
   @override
   void initState() {
     super.initState();
-    _futureCountries = fetchCountries(widget.uuid);
+    _futureCities = fetchCities(widget.uuid);
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      _futureCountries = fetchCountries(widget.uuid);
+      _futureCities = fetchCities(widget.uuid);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Countries".toUpperCase())),
+      appBar: AppBar(title: Text("Cities".toUpperCase())),
       body: RefreshIndicator(
         onRefresh: _refreshData,
         child: FutureBuilder(
-          future: _futureCountries,
+          future: _futureCities,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -53,28 +59,29 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
               return const Center(child: Text('No data available.'));
             }
 
-            final countries = snapshot.data!;
+            final cities = snapshot.data!;
 
-            final countryWidgets = countries
+            final cityWidgets = cities
                 .map(
-                  (country) => DetailSection(
-                    title: country.name,
+                  (city) => DetailSection(
+                    title: city.name,
                     fields: {
-                      "Description": country.description,
-                      "Continent":
-                          widget.continentMap[country.fkContinent] ?? 'Unknown',
-                      "Government":
-                          widget.governmentMap[country.fkGovernment] ??
+                      "Description": city.description,
+                      "Wealth": widget.wealthMap[city.fkWealth] ?? 'Unknown',
+                      "Country": widget.countryMap[city.fkCountry] ?? 'Unknown',
+                      "Settlment type":
+                          widget.settlementTypeMap[city.fkSettlement] ??
                           'Unknown',
+                      "Government":
+                          widget.governmentMap[city.fkGovernment] ?? 'Unknown',
+                      "Region": widget.regionMap[city.fkRegion] ?? 'Unknown',
                     },
                     onEdit: () async {
                       final result = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => CountryEditPage(
-                            uuid: widget.uuid,
-                            country: country,
-                          ),
+                          builder: (_) =>
+                              CityEditPage(uuid: widget.uuid, city: city),
                         ),
                       );
                       if (result == true) {
@@ -85,9 +92,9 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
                       final confirmed = await showDialog<bool>(
                         context: context,
                         builder: (ctx) => AlertDialog(
-                          title: Text('Delete ${country.name}?'),
+                          title: Text("Delete ${city.name}?"),
                           content: const Text(
-                            'Are you sure you want to delete this country?',
+                            'Are you sure you want to delete this city?',
                           ),
                           actions: [
                             TextButton(
@@ -103,7 +110,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
                       );
 
                       if (confirmed == true) {
-                        await deleteCountry(country.id);
+                        await deleteCity(city.id);
                         _refreshData();
                       }
                     },
@@ -115,7 +122,7 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
               child: Center(
                 child: ListView(
                   padding: const EdgeInsets.all(12),
-                  children: countryWidgets
+                  children: cityWidgets
                       .map(
                         (widget) => Padding(
                           padding: const EdgeInsets.only(bottom: 12),
@@ -130,8 +137,8 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
         ),
       ),
       bottomNavigationBar: CreateNewButton(
-        label: "Create Country",
-        destinationBuilder: (context) => AddCountryPage(uuid: widget.uuid),
+        label: "Create City",
+        destinationBuilder: (context) => AddCityPage(uuid: widget.uuid),
         onReturn: _refreshData,
       ),
     );

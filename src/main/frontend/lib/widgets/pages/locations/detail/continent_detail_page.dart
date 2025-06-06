@@ -1,49 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/location/region.dart';
-import 'package:frontend/services/region_service.dart';
-import 'package:frontend/widgets/add/add_region_page.dart';
-import 'package:frontend/widgets/create_new_button.dart';
-import 'package:frontend/widgets/details/detail_section.dart';
-import 'package:frontend/widgets/edit/region_edit_page.dart';
+import 'package:frontend/models/location/continent.dart';
+import 'package:frontend/services/continent_service.dart';
+import 'package:frontend/widgets/pages/locations/add/add_continent_page.dart';
+import 'package:frontend/widgets/reusable/create_new_button.dart';
+import 'package:frontend/widgets/reusable/detail_section.dart';
+import 'package:frontend/widgets/pages/locations/edit/continent_edit_page.dart';
 
-class RegionDetailPage extends StatefulWidget {
+class ContinentDetailPage extends StatefulWidget {
   final String uuid;
-  final Map<int, String> countryMap;
-  final Map<int, String> climateMap;
-  const RegionDetailPage({
-    super.key,
-    required this.uuid,
-    required this.countryMap,
-    required this.climateMap,
-  });
+  const ContinentDetailPage({super.key, required this.uuid});
 
   @override
-  State<RegionDetailPage> createState() => _RegionDetailPageState();
+  State<ContinentDetailPage> createState() => _ContinentDetailPageState();
 }
 
-class _RegionDetailPageState extends State<RegionDetailPage> {
-  late Future<List<Region>> _futureRegions;
+class _ContinentDetailPageState extends State<ContinentDetailPage> {
+  late Future<List<Continent>> _futureContinents;
 
   @override
   void initState() {
     super.initState();
-    _futureRegions = fetchRegions(widget.uuid);
+    _futureContinents = fetchContinents(widget.uuid);
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      _futureRegions = fetchRegions(widget.uuid);
+      _futureContinents = fetchContinents(widget.uuid);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Regions".toUpperCase())),
+      appBar: AppBar(title: Text("Continents".toUpperCase())),
       body: RefreshIndicator(
         onRefresh: _refreshData,
         child: FutureBuilder(
-          future: _futureRegions,
+          future: _futureContinents,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -53,25 +46,21 @@ class _RegionDetailPageState extends State<RegionDetailPage> {
               return const Center(child: Text('No data available.'));
             }
 
-            final regions = snapshot.data!;
+            final continents = snapshot.data!;
 
-            final regionWidgets = regions
+            final continentWidgets = continents
                 .map(
-                  (region) => DetailSection(
-                    title: region.name,
-                    fields: {
-                      "Description": region.description,
-                      "Country":
-                          widget.countryMap[region.fkCountry] ?? 'Unknown',
-                      "Climate":
-                          widget.climateMap[region.fkClimate] ?? 'Unknown',
-                    },
+                  (continent) => DetailSection(
+                    title: continent.name,
+                    fields: {"Description": continent.description},
                     onEdit: () async {
                       final result = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              RegionEditPage(uuid: widget.uuid, region: region),
+                          builder: (_) => ContinentEditPage(
+                            uuid: widget.uuid,
+                            continent: continent,
+                          ),
                         ),
                       );
                       if (result == true) {
@@ -82,9 +71,9 @@ class _RegionDetailPageState extends State<RegionDetailPage> {
                       final confirmed = await showDialog<bool>(
                         context: context,
                         builder: (ctx) => AlertDialog(
-                          title: Text('Delete ${region.name}?'),
+                          title: Text('Delete ${continent.name}?'),
                           content: const Text(
-                            'Are you sure you want to delete this region?',
+                            'Are you sure you want to delete this continent?',
                           ),
                           actions: [
                             TextButton(
@@ -100,7 +89,7 @@ class _RegionDetailPageState extends State<RegionDetailPage> {
                       );
 
                       if (confirmed == true) {
-                        await deleteRegion(region.id);
+                        await deleteContinent(continent.id);
                         _refreshData();
                       }
                     },
@@ -112,7 +101,7 @@ class _RegionDetailPageState extends State<RegionDetailPage> {
               child: Center(
                 child: ListView(
                   padding: const EdgeInsets.all(12),
-                  children: regionWidgets
+                  children: continentWidgets
                       .map(
                         (widget) => Padding(
                           padding: const EdgeInsets.only(bottom: 12),
@@ -127,8 +116,8 @@ class _RegionDetailPageState extends State<RegionDetailPage> {
         ),
       ),
       bottomNavigationBar: CreateNewButton(
-        label: "Create Region",
-        destinationBuilder: (context) => AddRegionPage(uuid: widget.uuid),
+        label: "Create Continent",
+        destinationBuilder: (context) => AddContinentPage(uuid: widget.uuid),
         onReturn: _refreshData,
       ),
     );

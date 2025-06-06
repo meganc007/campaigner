@@ -6,10 +6,10 @@ import 'package:frontend/services/continent_service.dart';
 import 'package:frontend/services/country_service.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/government_service.dart';
-import 'package:frontend/widgets/dropdown_description.dart';
-import 'package:frontend/widgets/entity_dropdown.dart';
-import 'package:frontend/widgets/styled_text_field.dart';
-import 'package:frontend/widgets/submit_button.dart';
+import 'package:frontend/widgets/reusable/dropdown_description.dart';
+import 'package:frontend/widgets/reusable/entity_dropdown.dart';
+import 'package:frontend/widgets/reusable/styled_text_field.dart';
+import 'package:frontend/widgets/reusable/submit_button.dart';
 
 class CountryEditPage extends StatefulWidget {
   final String uuid;

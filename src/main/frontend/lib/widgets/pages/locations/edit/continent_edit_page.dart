@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/location/continent.dart';
 import 'package:frontend/services/continent_service.dart';
 import 'package:frontend/services/form_helper.dart';
-import 'package:frontend/widgets/styled_text_field.dart';
-import 'package:frontend/widgets/submit_button.dart';
+import 'package:frontend/widgets/reusable/styled_text_field.dart';
+import 'package:frontend/widgets/reusable/submit_button.dart';
 
 class ContinentEditPage extends StatefulWidget {
   final String uuid;

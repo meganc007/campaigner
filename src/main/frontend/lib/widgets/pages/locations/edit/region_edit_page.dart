@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/climate.dart';
 import 'package:frontend/models/location/country.dart';
+import 'package:frontend/models/location/region.dart';
 import 'package:frontend/services/climate_service.dart';
 import 'package:frontend/services/country_service.dart';
-import 'package:frontend/services/region_service.dart';
 import 'package:frontend/services/form_helper.dart';
-import 'package:frontend/widgets/dropdown_description.dart';
-import 'package:frontend/widgets/entity_dropdown.dart';
-import 'package:frontend/widgets/styled_text_field.dart';
-import 'package:frontend/widgets/submit_button.dart';
+import 'package:frontend/services/region_service.dart';
+import 'package:frontend/widgets/reusable/dropdown_description.dart';
+import 'package:frontend/widgets/reusable/entity_dropdown.dart';
+import 'package:frontend/widgets/reusable/styled_text_field.dart';
+import 'package:frontend/widgets/reusable/submit_button.dart';
 
-class AddRegionPage extends StatefulWidget {
+class RegionEditPage extends StatefulWidget {
   final String uuid;
-  const AddRegionPage({super.key, required this.uuid});
+  final Region region;
+  const RegionEditPage({super.key, required this.uuid, required this.region});
 
   @override
-  State<AddRegionPage> createState() => _AddRegionPageState();
+  State<RegionEditPage> createState() => _RegionEditPageState();
 }
 
-class _AddRegionPageState extends State<AddRegionPage> {
+class _RegionEditPageState extends State<RegionEditPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -36,6 +38,8 @@ class _AddRegionPageState extends State<AddRegionPage> {
   void initState() {
     super.initState();
     _loadInitialData();
+    _nameController.text = widget.region.name;
+    _descriptionController.text = widget.region.description;
   }
 
   Future<void> _loadInitialData() async {
@@ -47,6 +51,15 @@ class _AddRegionPageState extends State<AddRegionPage> {
       setState(() {
         _countries = results[0] as List<Country>;
         _climates = results[1] as List<Climate>;
+
+        _selectedCountry = _countries.firstWhere(
+          (c) => c.id == widget.region.fkCountry,
+          orElse: () => _countries.first,
+        );
+        _selectedClimate = _climates.firstWhere(
+          (cl) => cl.id == widget.region.fkClimate,
+          orElse: () => _climates.first,
+        );
         _loading = false;
       });
     } catch (e) {
@@ -72,8 +85,9 @@ class _AddRegionPageState extends State<AddRegionPage> {
 
     final localContext = context;
 
-    final success = await createRegion(
+    final success = await editRegion(
       widget.uuid,
+      widget.region.id,
       _nameController.text.trim(),
       _descriptionController.text.trim(),
       _selectedCountry!.id,
@@ -83,7 +97,7 @@ class _AddRegionPageState extends State<AddRegionPage> {
     if (!localContext.mounted) return;
     setState(() => _isSubmitting = false);
 
-    handleSuccessOrFailureOnCreate(
+    handleSuccessOrFailureOnEdit(
       context: localContext,
       success: success,
       isMounted: localContext.mounted,
@@ -100,7 +114,7 @@ class _AddRegionPageState extends State<AddRegionPage> {
       return Center(child: Text("Error: $_error"));
     }
     return Scaffold(
-      appBar: AppBar(title: Text("Create Region".toUpperCase())),
+      appBar: AppBar(title: Text("Edit ${widget.region.name}".toUpperCase())),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: SingleChildScrollView(
@@ -151,7 +165,7 @@ class _AddRegionPageState extends State<AddRegionPage> {
                   SubmitButton(
                     isSubmitting: _isSubmitting,
                     onPressed: _submitForm,
-                    label: "Create",
+                    label: "Update",
                   ),
                 ],
               ),

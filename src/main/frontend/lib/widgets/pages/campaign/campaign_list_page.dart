@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/campaign.dart';
-import 'package:frontend/widgets/add/add_campaign_page.dart';
-import 'package:frontend/widgets/create_new_button.dart';
-import 'package:frontend/widgets/top-level/campaign_detail_page.dart';
+import 'package:frontend/widgets/pages/campaign/add_campaign_page.dart';
+import 'package:frontend/widgets/reusable/create_new_button.dart';
+import 'package:frontend/widgets/pages/campaign/campaign_detail_page.dart';
 import 'package:frontend/services/campaign_service.dart';
 
 class CampaignListPage extends StatefulWidget {

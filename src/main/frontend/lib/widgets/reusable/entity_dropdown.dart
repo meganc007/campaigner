@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/services/form_helper.dart';
-import 'package:frontend/widgets/styled_dropdown.dart';
+import 'package:frontend/widgets/reusable/styled_dropdown.dart';
 
 class EntityDropdown<T> extends StatelessWidget {
   final String label;

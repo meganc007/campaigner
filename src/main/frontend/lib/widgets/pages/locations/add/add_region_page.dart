@@ -1,46 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/government.dart';
+import 'package:frontend/models/climate.dart';
 import 'package:frontend/models/location/country.dart';
-import 'package:frontend/models/location/region.dart';
-import 'package:frontend/models/location/settlement_type.dart';
-import 'package:frontend/models/wealth.dart';
-import 'package:frontend/services/city_service.dart';
+import 'package:frontend/services/climate_service.dart';
 import 'package:frontend/services/country_service.dart';
-import 'package:frontend/services/government_service.dart';
 import 'package:frontend/services/region_service.dart';
-import 'package:frontend/services/settlement_type_service.dart';
-import 'package:frontend/services/wealth_service.dart';
 import 'package:frontend/services/form_helper.dart';
-import 'package:frontend/widgets/dropdown_description.dart';
-import 'package:frontend/widgets/entity_dropdown.dart';
-import 'package:frontend/widgets/styled_text_field.dart';
-import 'package:frontend/widgets/submit_button.dart';
+import 'package:frontend/widgets/reusable/dropdown_description.dart';
+import 'package:frontend/widgets/reusable/entity_dropdown.dart';
+import 'package:frontend/widgets/reusable/styled_text_field.dart';
+import 'package:frontend/widgets/reusable/submit_button.dart';
 
-class AddCityPage extends StatefulWidget {
+class AddRegionPage extends StatefulWidget {
   final String uuid;
-  const AddCityPage({super.key, required this.uuid});
+  const AddRegionPage({super.key, required this.uuid});
 
   @override
-  State<AddCityPage> createState() => _AddCityPageState();
+  State<AddRegionPage> createState() => _AddRegionPageState();
 }
 
-class _AddCityPageState extends State<AddCityPage> {
+class _AddRegionPageState extends State<AddRegionPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   bool _isSubmitting = false;
   bool _autoValidate = false;
 
-  List<Wealth> _wealth = [];
   List<Country> _countries = [];
-  List<SettlementType> _settlementTypes = [];
-  List<Government> _governments = [];
-  List<Region> _regions = [];
-  Wealth? _selectedWealth;
+  List<Climate> _climates = [];
   Country? _selectedCountry;
-  SettlementType? _selectedSettlementType;
-  Government? _selectedGovernment;
-  Region? _selectedRegion;
+  Climate? _selectedClimate;
   bool _loading = true;
   String? _error;
 
@@ -53,18 +41,12 @@ class _AddCityPageState extends State<AddCityPage> {
   Future<void> _loadInitialData() async {
     try {
       final results = await Future.wait([
-        fetchWealth(),
         fetchCountries(widget.uuid),
-        fetchSettlementTypes(),
-        fetchGovernments(),
-        fetchRegions(widget.uuid),
+        fetchClimates(),
       ]);
       setState(() {
-        _wealth = results[0] as List<Wealth>;
-        _countries = results[1] as List<Country>;
-        _settlementTypes = results[2] as List<SettlementType>;
-        _governments = results[3] as List<Government>;
-        _regions = results[4] as List<Region>;
+        _countries = results[0] as List<Country>;
+        _climates = results[1] as List<Climate>;
         _loading = false;
       });
     } catch (e) {
@@ -90,15 +72,12 @@ class _AddCityPageState extends State<AddCityPage> {
 
     final localContext = context;
 
-    final success = await createCity(
+    final success = await createRegion(
       widget.uuid,
       _nameController.text.trim(),
       _descriptionController.text.trim(),
-      _selectedWealth!.id,
       _selectedCountry!.id,
-      _selectedSettlementType!.id,
-      _selectedGovernment!.id,
-      _selectedRegion!.id,
+      _selectedClimate!.id,
     );
 
     if (!localContext.mounted) return;
@@ -108,7 +87,7 @@ class _AddCityPageState extends State<AddCityPage> {
       context: localContext,
       success: success,
       isMounted: localContext.mounted,
-      entityName: "City",
+      entityName: "Region",
     );
   }
 
@@ -121,7 +100,7 @@ class _AddCityPageState extends State<AddCityPage> {
       return Center(child: Text("Error: $_error"));
     }
     return Scaffold(
-      appBar: AppBar(title: Text("Create City".toUpperCase())),
+      appBar: AppBar(title: Text("Create Region".toUpperCase())),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: SingleChildScrollView(
@@ -145,15 +124,6 @@ class _AddCityPageState extends State<AddCityPage> {
                     maxLines: 3,
                   ),
                   const SizedBox(height: 24),
-                  EntityDropdown<Wealth>(
-                    label: "Wealth",
-                    selected: _selectedWealth,
-                    options: _wealth,
-                    getLabel: (w) => w.name,
-                    onChanged: (value) =>
-                        setState(() => _selectedWealth = value),
-                  ),
-                  SizedBox(height: 16),
                   EntityDropdown<Country>(
                     label: "Country",
                     selected: _selectedCountry,
@@ -166,42 +136,18 @@ class _AddCityPageState extends State<AddCityPage> {
                   if (_selectedCountry != null)
                     DropdownDescription(_selectedCountry!.description),
                   SizedBox(height: 16),
-                  EntityDropdown<SettlementType>(
-                    label: "Settlement Type",
-                    selected: _selectedSettlementType,
-                    options: _settlementTypes,
-                    getLabel: (st) => st.name,
+                  EntityDropdown<Climate>(
+                    label: "Climate",
+                    selected: _selectedClimate,
+                    options: _climates,
+                    getLabel: (c) => c.name,
                     onChanged: (value) =>
-                        setState(() => _selectedSettlementType = value),
+                        setState(() => _selectedClimate = value),
                   ),
                   SizedBox(height: 16),
-                  if (_selectedSettlementType != null)
-                    DropdownDescription(_selectedSettlementType!.description),
-                  SizedBox(height: 16),
-                  EntityDropdown<Government>(
-                    label: "Government",
-                    selected: _selectedGovernment,
-                    options: _governments,
-                    getLabel: (g) => g.name,
-                    onChanged: (value) =>
-                        setState(() => _selectedGovernment = value),
-                  ),
-                  SizedBox(height: 16),
-                  if (_selectedGovernment != null)
-                    DropdownDescription(_selectedGovernment!.description),
-                  SizedBox(height: 16),
-                  EntityDropdown<Region>(
-                    label: "Region",
-                    selected: _selectedRegion,
-                    options: _regions,
-                    getLabel: (r) => r.name,
-                    onChanged: (value) =>
-                        setState(() => _selectedRegion = value),
-                  ),
-                  SizedBox(height: 16),
-                  if (_selectedRegion != null)
-                    DropdownDescription(_selectedRegion!.description),
-                  SizedBox(height: 24),
+                  if (_selectedClimate != null)
+                    DropdownDescription(_selectedClimate!.description),
+                  const SizedBox(height: 24),
                   SubmitButton(
                     isSubmitting: _isSubmitting,
                     onPressed: _submitForm,

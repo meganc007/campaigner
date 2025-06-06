@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/top-level/campaign_list_page.dart';
+import 'package:frontend/widgets/pages/campaign/campaign_list_page.dart';
 
 void main() async {
   runApp(const CampaignerApp());
