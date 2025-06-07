@@ -21,7 +21,7 @@ class _AddLandmarkPageState extends State<AddLandmarkPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   bool _isSubmitting = false;
-  bool _autoValidate = false;
+  final bool _autoValidate = false;
 
   List<Region> _regions = [];
   Region? _selectedRegion;
