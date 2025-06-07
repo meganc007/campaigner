@@ -111,29 +111,6 @@ class _LocationOverviewPageState extends State<LocationOverviewPage> {
                 ),
                 OverviewSection(
                   section: Section(
-                    "Cities".toUpperCase(),
-                    mapNamesToList(locationOverview.cities),
-                  ),
-                  onSeeMore: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CityDetailPage(
-                          uuid: widget.uuid,
-                          wealthMap: locationDataProvider.wealthMap,
-                          countryMap: locationDataProvider.countryMap,
-                          settlementTypeMap:
-                              locationDataProvider.settlementTypeMap,
-                          governmentMap: locationDataProvider.governmentMap,
-                          regionMap: locationDataProvider.regionMap,
-                        ),
-                      ),
-                    );
-                    await _refreshData();
-                  },
-                ),
-                OverviewSection(
-                  section: Section(
                     "Regions".toUpperCase(),
                     mapNamesToList(locationOverview.regions),
                   ),
@@ -160,7 +137,33 @@ class _LocationOverviewPageState extends State<LocationOverviewPage> {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => LandmarkDetailPage(uuid: widget.uuid),
+                        builder: (_) => LandmarkDetailPage(
+                          uuid: widget.uuid,
+                          regionMap: locationDataProvider.regionMap,
+                        ),
+                      ),
+                    );
+                    await _refreshData();
+                  },
+                ),
+                OverviewSection(
+                  section: Section(
+                    "Cities".toUpperCase(),
+                    mapNamesToList(locationOverview.cities),
+                  ),
+                  onSeeMore: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CityDetailPage(
+                          uuid: widget.uuid,
+                          wealthMap: locationDataProvider.wealthMap,
+                          countryMap: locationDataProvider.countryMap,
+                          settlementTypeMap:
+                              locationDataProvider.settlementTypeMap,
+                          governmentMap: locationDataProvider.governmentMap,
+                          regionMap: locationDataProvider.regionMap,
+                        ),
                       ),
                     );
                     await _refreshData();
