@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:frontend/models/location/city.dart';
+import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<City>> fetchCities(String uuid) async {
@@ -93,6 +94,8 @@ Future<void> deleteCity(int id) async {
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {
-    throw Exception('Failed to delete city');
+    response.body.contains('foreign key constraint')
+        ? throw ForeignKeyConstraintException("city")
+        : throw Exception('Failed to delete city');
   }
 }

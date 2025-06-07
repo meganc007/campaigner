@@ -52,27 +52,43 @@ String? requiredDropdown<T>(T? value, String entityName) {
   return value == null ? 'Please select a $entityName' : null;
 }
 
-Future<bool> showDeleteConfirmationDialog({
+Future<void> confirmAndDelete({
   required BuildContext context,
   required String name,
   required String type,
+  required Future<void> Function() onDelete,
+  required VoidCallback onSuccess,
 }) async {
-  return await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text('Delete $name?'),
-          content: Text('Are you sure you want to delete this $type?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Delete'),
-            ),
-          ],
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text('Delete $name?'),
+      content: Text('Are you sure you want to delete this $type?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Cancel'),
         ),
-      ) ??
-      false;
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmed == true) {
+    try {
+      await onDelete();
+      onSuccess();
+    } catch (e) {
+      final errorMessage = e.toString();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
 }

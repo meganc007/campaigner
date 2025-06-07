@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:frontend/models/location/region.dart';
+import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Region>> fetchRegions(String uuid) async {
@@ -81,6 +82,8 @@ Future<void> deleteRegion(int id) async {
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {
-    throw Exception('Failed to delete region');
+    response.body.contains('foreign key constraint')
+        ? throw ForeignKeyConstraintException("region")
+        : throw Exception('Failed to delete region');
   }
 }

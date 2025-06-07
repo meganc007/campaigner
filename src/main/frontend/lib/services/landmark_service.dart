@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:frontend/models/location/landmark.dart';
+import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Landmark>> fetchLandmarks(String uuid) async {
@@ -77,6 +78,8 @@ Future<void> deleteLandmark(int id) async {
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {
-    throw Exception('Failed to delete landmark');
+    response.body.contains('foreign key constraint')
+        ? throw ForeignKeyConstraintException("landmark")
+        : throw Exception('Failed to delete landmark');
   }
 }

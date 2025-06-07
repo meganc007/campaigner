@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/location/region.dart';
+import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/region_service.dart';
 import 'package:frontend/widgets/pages/locations/add/add_region_page.dart';
 import 'package:frontend/widgets/reusable/create_new_button.dart';
@@ -79,30 +80,13 @@ class _RegionDetailPageState extends State<RegionDetailPage> {
                       }
                     },
                     onDelete: () async {
-                      final confirmed = await showDialog<bool>(
+                      confirmAndDelete(
                         context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: Text('Delete ${region.name}?'),
-                          content: const Text(
-                            'Are you sure you want to delete this region?',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text('Delete'),
-                            ),
-                          ],
-                        ),
+                        name: region.name,
+                        type: "region",
+                        onDelete: () => deleteRegion(region.id),
+                        onSuccess: _refreshData,
                       );
-
-                      if (confirmed == true) {
-                        await deleteRegion(region.id);
-                        _refreshData();
-                      }
                     },
                   ),
                 )

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/location/country.dart';
 import 'package:frontend/services/country_service.dart';
+import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/widgets/pages/locations/add/add_country_page.dart';
 import 'package:frontend/widgets/reusable/create_new_button.dart';
 import 'package:frontend/widgets/reusable/detail_section.dart';
@@ -82,30 +83,13 @@ class _CountryDetailPageState extends State<CountryDetailPage> {
                       }
                     },
                     onDelete: () async {
-                      final confirmed = await showDialog<bool>(
+                      confirmAndDelete(
                         context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: Text('Delete ${country.name}?'),
-                          content: const Text(
-                            'Are you sure you want to delete this country?',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text('Delete'),
-                            ),
-                          ],
-                        ),
+                        name: country.name,
+                        type: "country",
+                        onDelete: () => deleteCountry(country.id),
+                        onSuccess: _refreshData,
                       );
-
-                      if (confirmed == true) {
-                        await deleteCountry(country.id);
-                        _refreshData();
-                      }
                     },
                   ),
                 )

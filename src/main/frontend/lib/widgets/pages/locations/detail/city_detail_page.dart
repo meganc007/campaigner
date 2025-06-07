@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/location/city.dart';
 import 'package:frontend/services/city_service.dart';
+import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/widgets/pages/locations/add/add_city_page.dart';
 import 'package:frontend/widgets/reusable/create_new_button.dart';
 import 'package:frontend/widgets/reusable/detail_section.dart';
@@ -89,30 +90,13 @@ class _CityDetailPageState extends State<CityDetailPage> {
                       }
                     },
                     onDelete: () async {
-                      final confirmed = await showDialog<bool>(
+                      confirmAndDelete(
                         context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: Text("Delete ${city.name}?"),
-                          content: const Text(
-                            'Are you sure you want to delete this city?',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text('Delete'),
-                            ),
-                          ],
-                        ),
+                        name: city.name,
+                        type: "city",
+                        onDelete: () => deleteCity(city.id),
+                        onSuccess: _refreshData,
                       );
-
-                      if (confirmed == true) {
-                        await deleteCity(city.id);
-                        _refreshData();
-                      }
                     },
                   ),
                 )

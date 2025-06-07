@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:frontend/models/climate.dart';
+import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Climate>> fetchClimates() async {
@@ -55,6 +56,8 @@ Future<void> deleteClimate(int id) async {
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {
-    throw Exception('Failed to delete climate');
+    response.body.contains('foreign key constraint')
+        ? throw ForeignKeyConstraintException("climate")
+        : throw Exception('Failed to delete climate');
   }
 }

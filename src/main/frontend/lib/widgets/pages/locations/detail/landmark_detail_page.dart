@@ -78,32 +78,13 @@ class _LandmarkDetailPageState extends State<LandmarkDetailPage> {
                       }
                     },
                     onDelete: () async {
-                      final confirmed = await showDeleteConfirmationDialog(
+                      confirmAndDelete(
                         context: context,
                         name: landmark.name,
                         type: "landmark",
+                        onDelete: () => deleteLandmark(landmark.id),
+                        onSuccess: _refreshData,
                       );
-
-                      if (confirmed == true) {
-                        try {
-                          await deleteLandmark(landmark.id);
-                          _refreshData();
-                        } catch (e) {
-                          final errorMessage =
-                              e.toString().contains('FOREIGN KEY')
-                              ? 'This landmark is still in use and cannot be deleted.'
-                              : 'Failed to delete: $e';
-
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(errorMessage),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      }
                     },
                   ),
                 )
