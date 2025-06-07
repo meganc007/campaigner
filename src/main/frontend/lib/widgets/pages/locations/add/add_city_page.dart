@@ -11,6 +11,7 @@ import 'package:frontend/services/locations/region_service.dart';
 import 'package:frontend/services/locations/settlement_type_service.dart';
 import 'package:frontend/services/wealth_service.dart';
 import 'package:frontend/services/form_helper.dart';
+import 'package:frontend/widgets/pages/locations/add/add_region_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
@@ -36,6 +37,7 @@ class _AddCityPageState extends State<AddCityPage> {
   List<SettlementType> _settlementTypes = [];
   List<Government> _governments = [];
   List<Region> _regions = [];
+  List<Region> _filteredRegions = [];
   Wealth? _selectedWealth;
   Country? _selectedCountry;
   SettlementType? _selectedSettlementType;
@@ -80,6 +82,21 @@ class _AddCityPageState extends State<AddCityPage> {
     _nameController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onCountryChanged(Country? newCountry) async {
+    setState(() {
+      _selectedCountry = newCountry;
+      _selectedRegion = null;
+
+      if (newCountry != null) {
+        _filteredRegions = _regions
+            .where((region) => region.fkCountry == newCountry.id)
+            .toList();
+      } else {
+        _filteredRegions = [];
+      }
+    });
   }
 
   Future<void> _submitForm() async {
@@ -153,14 +170,13 @@ class _AddCityPageState extends State<AddCityPage> {
                     onChanged: (value) =>
                         setState(() => _selectedWealth = value),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   EntityDropdown<Country>(
                     label: "Country",
                     selected: _selectedCountry,
                     options: _countries,
                     getLabel: (c) => c.name,
-                    onChanged: (value) =>
-                        setState(() => _selectedCountry = value),
+                    onChanged: _onCountryChanged,
                   ),
                   const SizedBox(height: 16),
                   if (_selectedCountry != null)
@@ -193,12 +209,42 @@ class _AddCityPageState extends State<AddCityPage> {
                   EntityDropdown<Region>(
                     label: "Region",
                     selected: _selectedRegion,
-                    options: _regions,
+                    options: _filteredRegions,
                     getLabel: (r) => r.name,
                     onChanged: (value) =>
                         setState(() => _selectedRegion = value),
                   ),
                   const SizedBox(height: 16),
+                  if (_filteredRegions.isEmpty)
+                    DropdownDescription(
+                      "There are no regions associated with that country.",
+                      color: Colors.red,
+                      linkText: "Create one?",
+                      onLinkTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AddRegionPage(
+                              uuid: widget.uuid,
+                              preselectedCountry: _selectedCountry!.id,
+                            ),
+                          ),
+                        );
+                        final updatedRegions = await fetchRegions(widget.uuid);
+                        setState(() {
+                          _regions = updatedRegions;
+                          _filteredRegions = _selectedCountry != null
+                              ? updatedRegions
+                                    .where(
+                                      (region) =>
+                                          region.fkCountry ==
+                                          _selectedCountry!.id,
+                                    )
+                                    .toList()
+                              : [];
+                        });
+                      },
+                    ),
                   if (_selectedRegion != null)
                     DropdownDescription(_selectedRegion!.description),
                   const SizedBox(height: 24),

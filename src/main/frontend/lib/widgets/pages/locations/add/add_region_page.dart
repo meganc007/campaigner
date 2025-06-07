@@ -12,7 +12,8 @@ import 'package:frontend/widgets/reusable/submit_button.dart';
 
 class AddRegionPage extends StatefulWidget {
   final String uuid;
-  const AddRegionPage({super.key, required this.uuid});
+  final int? preselectedCountry;
+  const AddRegionPage({super.key, required this.uuid, this.preselectedCountry});
 
   @override
   State<AddRegionPage> createState() => _AddRegionPageState();
@@ -47,6 +48,12 @@ class _AddRegionPageState extends State<AddRegionPage> {
       setState(() {
         _countries = results[0] as List<Country>;
         _climates = results[1] as List<Climate>;
+
+        if (widget.preselectedCountry != null) {
+          _selectedCountry = _countries.firstWhere(
+            (country) => country.id == widget.preselectedCountry,
+          );
+        }
         _loading = false;
       });
     } catch (e) {

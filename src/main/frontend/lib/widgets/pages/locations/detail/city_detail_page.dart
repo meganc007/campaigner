@@ -70,7 +70,7 @@ class _CityDetailPageState extends State<CityDetailPage> {
                       "Description": city.description,
                       "Wealth": widget.wealthMap[city.fkWealth] ?? 'Unknown',
                       "Country": widget.countryMap[city.fkCountry] ?? 'Unknown',
-                      "Settlment type":
+                      "Settlement type":
                           widget.settlementTypeMap[city.fkSettlement] ??
                           'Unknown',
                       "Government":
