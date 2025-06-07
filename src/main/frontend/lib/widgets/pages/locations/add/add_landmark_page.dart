@@ -111,7 +111,7 @@ class _AddLandmarkPageState extends State<AddLandmarkPage> {
                     label: "Description",
                     maxLines: 3,
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 12),
                   EntityDropdown<Region>(
                     label: "Region",
                     selected: _selectedRegion,
@@ -120,10 +120,10 @@ class _AddLandmarkPageState extends State<AddLandmarkPage> {
                     onChanged: (value) =>
                         setState(() => _selectedRegion = value),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   if (_selectedRegion != null)
                     DropdownDescription(_selectedRegion!.description),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   SubmitButton(
                     isSubmitting: _isSubmitting,
                     onPressed: _submitForm,

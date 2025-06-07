@@ -70,12 +70,15 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
                       "Description": place.description,
                       "Place Type":
                           widget.placeTypeMap[place.fkPlaceType] ?? 'Unknown',
-                      "Terrain":
-                          widget.terrainMap[place.fkTerrain] ?? 'Unknown',
+                      "Terrain": place.fkTerrain != null
+                          ? widget.terrainMap[place.fkTerrain] ?? 'Unknown'
+                          : 'None',
                       "Country":
                           widget.countryMap[place.fkCountry] ?? 'Unknown',
                       "Region": widget.regionMap[place.fkRegion] ?? 'Unknown',
-                      "City": widget.cityMap[place.fkCity] ?? 'Unknown',
+                      "City": place.fkCity != null
+                          ? widget.cityMap[place.fkCity] ?? 'Unknown'
+                          : 'None',
                     },
                     onEdit: () async {
                       final result = await Navigator.push<bool>(

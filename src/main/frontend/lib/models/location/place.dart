@@ -4,7 +4,7 @@ class Place {
   final String description;
   final String fkCampaignUuid;
   final int fkPlaceType;
-  final int fkTerrain;
+  final int? fkTerrain;
   final int fkCountry;
   final int? fkCity;
   final int fkRegion;
@@ -15,7 +15,7 @@ class Place {
     required this.description,
     required this.fkCampaignUuid,
     required this.fkPlaceType,
-    required this.fkTerrain,
+    this.fkTerrain,
     required this.fkCountry,
     this.fkCity,
     required this.fkRegion,

@@ -9,6 +9,7 @@ class EntityDropdown<T> extends StatelessWidget {
   final String Function(T) getLabel;
   final void Function(T?) onChanged;
   final String? Function(T?)? validator;
+  final bool isOptional;
 
   const EntityDropdown({
     super.key,
@@ -18,19 +19,27 @@ class EntityDropdown<T> extends StatelessWidget {
     required this.getLabel,
     required this.onChanged,
     this.validator,
+    this.isOptional = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final items = [
+      if (isOptional)
+        DropdownMenuItem<T>(value: null, child: const Text('None')),
+      ...options.map((item) {
+        return DropdownMenuItem<T>(value: item, child: Text(getLabel(item)));
+      }),
+    ];
     return StyledDropdown<T>(
       label: label,
       value: selected,
-      items: options.map((item) {
-        return DropdownMenuItem<T>(value: item, child: Text(getLabel(item)));
-      }).toList(),
+      items: items,
       onChanged: onChanged,
-      validator:
-          validator ?? (value) => requiredDropdown(value, label.toLowerCase()),
+      validator: isOptional
+          ? null
+          : validator ??
+                (value) => requiredDropdown(value, label.toLowerCase()),
     );
   }
 }

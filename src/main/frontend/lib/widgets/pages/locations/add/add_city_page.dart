@@ -144,7 +144,7 @@ class _AddCityPageState extends State<AddCityPage> {
                     label: "Description",
                     maxLines: 3,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                   EntityDropdown<Wealth>(
                     label: "Wealth",
                     selected: _selectedWealth,
@@ -153,7 +153,7 @@ class _AddCityPageState extends State<AddCityPage> {
                     onChanged: (value) =>
                         setState(() => _selectedWealth = value),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   EntityDropdown<Country>(
                     label: "Country",
                     selected: _selectedCountry,
@@ -162,7 +162,7 @@ class _AddCityPageState extends State<AddCityPage> {
                     onChanged: (value) =>
                         setState(() => _selectedCountry = value),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   if (_selectedCountry != null)
                     DropdownDescription(_selectedCountry!.description),
                   SizedBox(height: 16),
@@ -174,10 +174,10 @@ class _AddCityPageState extends State<AddCityPage> {
                     onChanged: (value) =>
                         setState(() => _selectedSettlementType = value),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   if (_selectedSettlementType != null)
                     DropdownDescription(_selectedSettlementType!.description),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   EntityDropdown<Government>(
                     label: "Government",
                     selected: _selectedGovernment,
@@ -186,10 +186,10 @@ class _AddCityPageState extends State<AddCityPage> {
                     onChanged: (value) =>
                         setState(() => _selectedGovernment = value),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   if (_selectedGovernment != null)
                     DropdownDescription(_selectedGovernment!.description),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   EntityDropdown<Region>(
                     label: "Region",
                     selected: _selectedRegion,
@@ -198,10 +198,10 @@ class _AddCityPageState extends State<AddCityPage> {
                     onChanged: (value) =>
                         setState(() => _selectedRegion = value),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   if (_selectedRegion != null)
                     DropdownDescription(_selectedRegion!.description),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   SubmitButton(
                     isSubmitting: _isSubmitting,
                     onPressed: _submitForm,

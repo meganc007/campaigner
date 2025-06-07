@@ -123,7 +123,7 @@ class _AddRegionPageState extends State<AddRegionPage> {
                     label: "Description",
                     maxLines: 3,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                   EntityDropdown<Country>(
                     label: "Country",
                     selected: _selectedCountry,
@@ -132,10 +132,10 @@ class _AddRegionPageState extends State<AddRegionPage> {
                     onChanged: (value) =>
                         setState(() => _selectedCountry = value),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   if (_selectedCountry != null)
                     DropdownDescription(_selectedCountry!.description),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   EntityDropdown<Climate>(
                     label: "Climate",
                     selected: _selectedClimate,
@@ -144,7 +144,7 @@ class _AddRegionPageState extends State<AddRegionPage> {
                     onChanged: (value) =>
                         setState(() => _selectedClimate = value),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   if (_selectedClimate != null)
                     DropdownDescription(_selectedClimate!.description),
                   const SizedBox(height: 24),

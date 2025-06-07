@@ -35,9 +35,9 @@ Future<bool> createPlace(
   String name,
   String description,
   int fkPlaceType,
-  int fkTerrain,
+  int? fkTerrain,
   int fkCountry,
-  int fkCity,
+  int? fkCity,
   int fkRegion,
 ) async {
   final response = await http.post(
@@ -64,9 +64,9 @@ Future<bool> editPlace(
   String name,
   String description,
   int fkPlaceType,
-  int fkTerrain,
+  int? fkTerrain,
   int fkCountry,
-  int fkCity,
+  int? fkCity,
   int fkRegion,
 ) async {
   final response = await http.put(
