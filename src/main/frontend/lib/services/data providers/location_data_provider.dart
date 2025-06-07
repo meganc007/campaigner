@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/services/locations/city_service.dart';
 import 'package:frontend/services/climate_service.dart';
-import 'package:frontend/services/continent_service.dart';
-import 'package:frontend/services/country_service.dart';
+import 'package:frontend/services/locations/continent_service.dart';
+import 'package:frontend/services/locations/country_service.dart';
 import 'package:frontend/services/government_service.dart';
-import 'package:frontend/services/region_service.dart';
-import 'package:frontend/services/settlement_type_service.dart';
+import 'package:frontend/services/locations/place_type_service.dart';
+import 'package:frontend/services/locations/region_service.dart';
+import 'package:frontend/services/locations/settlement_type_service.dart';
+import 'package:frontend/services/locations/terrain_service.dart';
 import 'package:frontend/services/wealth_service.dart';
 
 class LocationDataProvider extends ChangeNotifier {
@@ -21,6 +24,9 @@ class LocationDataProvider extends ChangeNotifier {
   Map<int, String> _wealthMap = {};
   Map<int, String> _settlementTypeMap = {};
   Map<int, String> _regionMap = {};
+  Map<int, String> _placeTypeMap = {};
+  Map<int, String> _terrainMap = {};
+  Map<int, String> _cityMap = {};
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -33,6 +39,9 @@ class LocationDataProvider extends ChangeNotifier {
   Map<int, String> get settlementTypeMap =>
       Map.unmodifiable(_settlementTypeMap);
   Map<int, String> get regionMap => Map.unmodifiable(_regionMap);
+  Map<int, String> get placeTypeMap => Map.unmodifiable(_placeTypeMap);
+  Map<int, String> get terrainMap => Map.unmodifiable(_terrainMap);
+  Map<int, String> get cityMap => Map.unmodifiable(_cityMap);
 
   Future<void> load() async {
     _isLoading = true;
@@ -47,6 +56,9 @@ class LocationDataProvider extends ChangeNotifier {
       for (var st in await fetchSettlementTypes()) st.id: st.name,
     };
     _regionMap = {for (var r in await fetchRegions(uuid)) r.id: r.name};
+    _placeTypeMap = {for (var pt in await fetchPlaceTypes()) pt.id: pt.name};
+    _terrainMap = {for (var t in await fetchTerrains()) t.id: t.name};
+    _cityMap = {for (var c in await fetchCities(uuid)) c.id: c.name};
 
     _isLoading = false;
     notifyListeners();
@@ -90,6 +102,27 @@ class LocationDataProvider extends ChangeNotifier {
   void updateSettlementType(int id, String name) {
     if (_settlementTypeMap[id] != name) {
       _settlementTypeMap[id] = name;
+      notifyListeners();
+    }
+  }
+
+  void updatePlaceTypes(int id, String name) {
+    if (_placeTypeMap[id] != name) {
+      _placeTypeMap[id] = name;
+      notifyListeners();
+    }
+  }
+
+  void updateTerrains(int id, String name) {
+    if (_terrainMap[id] != name) {
+      _terrainMap[id] = name;
+      notifyListeners();
+    }
+  }
+
+  void updateCities(int id, String name) {
+    if (_cityMap[id] != name) {
+      _cityMap[id] = name;
       notifyListeners();
     }
   }

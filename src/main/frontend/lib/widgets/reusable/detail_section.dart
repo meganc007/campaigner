@@ -80,13 +80,13 @@ class _DetailSectionState extends State<DetailSection> {
                       children: [
                         TextButton(
                           onPressed: widget.onEdit,
-                          child: Text('Edit ${widget.title}'),
+                          child: Text('Edit'),
                         ),
                         Spacer(),
                         TextButton(
                           onPressed: widget.onDelete,
                           child: Text(
-                            'Delete ${widget.title}',
+                            'Delete',
                             style: const TextStyle(color: Colors.red),
                           ),
                         ),

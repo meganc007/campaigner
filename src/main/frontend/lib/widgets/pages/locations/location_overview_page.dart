@@ -178,7 +178,14 @@ class _LocationOverviewPageState extends State<LocationOverviewPage> {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => PlaceDetailPage(uuid: widget.uuid),
+                        builder: (_) => PlaceDetailPage(
+                          uuid: widget.uuid,
+                          placeTypeMap: locationDataProvider.placeTypeMap,
+                          terrainMap: locationDataProvider.terrainMap,
+                          countryMap: locationDataProvider.countryMap,
+                          cityMap: locationDataProvider.cityMap,
+                          regionMap: locationDataProvider.regionMap,
+                        ),
                       ),
                     );
                     await _refreshData();
