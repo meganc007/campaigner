@@ -51,3 +51,28 @@ String? isNameValid(String? value) {
 String? requiredDropdown<T>(T? value, String entityName) {
   return value == null ? 'Please select a $entityName' : null;
 }
+
+Future<bool> showDeleteConfirmationDialog({
+  required BuildContext context,
+  required String name,
+  required String type,
+}) async {
+  return await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Delete $name?'),
+          content: Text('Are you sure you want to delete this $type?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+}
