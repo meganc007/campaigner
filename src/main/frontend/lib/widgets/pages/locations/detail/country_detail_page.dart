@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/location/country.dart';
-import 'package:frontend/services/country_service.dart';
+import 'package:frontend/services/locations/country_service.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/widgets/pages/locations/add/add_country_page.dart';
 import 'package:frontend/widgets/reusable/create_new_button.dart';

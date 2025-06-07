@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/location/continent.dart';
-import 'package:frontend/services/continent_service.dart';
+import 'package:frontend/services/locations/continent_service.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/widgets/pages/locations/add/add_continent_page.dart';
 import 'package:frontend/widgets/reusable/create_new_button.dart';

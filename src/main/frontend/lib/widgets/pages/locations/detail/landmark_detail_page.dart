@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/location/landmark.dart';
 import 'package:frontend/services/form_helper.dart';
-import 'package:frontend/services/landmark_service.dart';
+import 'package:frontend/services/locations/landmark_service.dart';
 import 'package:frontend/widgets/pages/locations/add/add_landmark_page.dart';
 import 'package:frontend/widgets/pages/locations/edit/landmark_edit_page.dart';
 import 'package:frontend/widgets/reusable/create_new_button.dart';
