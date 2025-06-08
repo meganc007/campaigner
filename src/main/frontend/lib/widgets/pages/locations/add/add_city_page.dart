@@ -12,10 +12,12 @@ import 'package:frontend/services/locations/region_service.dart';
 import 'package:frontend/services/locations/settlement_type_service.dart';
 import 'package:frontend/services/wealth_service.dart';
 import 'package:frontend/services/form_helper.dart';
+import 'package:frontend/widgets/pages/locations/add/add_country_page.dart';
 import 'package:frontend/widgets/pages/locations/add/add_region_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
 import 'package:frontend/widgets/reusable/missing_entity_description.dart';
+import 'package:frontend/widgets/reusable/missing_parent.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
@@ -55,6 +57,13 @@ class _AddCityPageState extends State<AddCityPage> {
     _loadInitialData();
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadInitialData() async {
     try {
       final results = await Future.wait([
@@ -70,6 +79,12 @@ class _AddCityPageState extends State<AddCityPage> {
         _settlementTypes = results[2] as List<SettlementType>;
         _governments = results[3] as List<Government>;
         _regions = results[4] as List<Region>;
+
+        if (_countries.length == 1) {
+          _selectedCountry = _countries.first;
+          _filterRegions();
+        }
+
         if (widget.preselectedCountry != null) {
           _selectedCountry = _countries.firstWhereOrNull(
             (country) => country.id == widget.preselectedCountry,
@@ -86,19 +101,15 @@ class _AddCityPageState extends State<AddCityPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
-  }
-
   void _filterRegions() {
     setState(() {
       if (_selectedCountry != null) {
         _filteredRegions = _regions
             .where((region) => region.fkCountry == _selectedCountry!.id)
             .toList();
+        if (_filteredRegions.length == 1) {
+          _selectedRegion = _filteredRegions.first;
+        }
       } else {
         _filteredRegions = [];
       }
@@ -110,6 +121,13 @@ class _AddCityPageState extends State<AddCityPage> {
     setState(() {
       _regions = updatedRegions;
       _filterRegions();
+    });
+  }
+
+  Future<void> _refreshCountries() async {
+    final updatedCountries = await fetchCountries(widget.uuid);
+    setState(() {
+      _countries = updatedCountries;
     });
   }
 
@@ -201,6 +219,19 @@ class _AddCityPageState extends State<AddCityPage> {
                     onChanged: _onCountryChanged,
                   ),
                   const SizedBox(height: 16),
+                  MissingParent(
+                    parents: "countries",
+                    show: _countries.isEmpty,
+                    onCreateTap: (context) async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddCountryPage(uuid: widget.uuid),
+                        ),
+                      );
+                      await _refreshCountries();
+                    },
+                  ),
                   if (_selectedCountry != null)
                     DropdownDescription(_selectedCountry!.description),
                   SizedBox(height: 16),
@@ -237,6 +268,19 @@ class _AddCityPageState extends State<AddCityPage> {
                         setState(() => _selectedRegion = value),
                   ),
                   const SizedBox(height: 16),
+                  MissingParent(
+                    parents: "regions",
+                    show: _regions.isEmpty && _selectedCountry == null,
+                    onCreateTap: (context) async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddRegionPage(uuid: widget.uuid),
+                        ),
+                      );
+                      await _refreshRegions();
+                    },
+                  ),
                   MissingEntityDescription(
                     show: _selectedCountry != null && _filteredRegions.isEmpty,
                     children: "regions",
