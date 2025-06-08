@@ -112,18 +112,31 @@ class _CityEditPageState extends State<CityEditPage> {
     }
   }
 
-  Future<void> _onCountryChanged(Country? newCountry) async {
+  void _filterRegions() {
     setState(() {
-      _selectedCountry = newCountry;
-      _selectedRegion = null;
-
-      if (newCountry != null) {
+      if (_selectedCountry != null) {
         _filteredRegions = _regions
-            .where((region) => region.fkCountry == newCountry.id)
+            .where((region) => region.fkCountry == _selectedCountry!.id)
             .toList();
       } else {
         _filteredRegions = [];
       }
+    });
+  }
+
+  Future<void> _refreshRegions() async {
+    final updatedRegions = await fetchRegions(widget.uuid);
+    setState(() {
+      _regions = updatedRegions;
+      _filterRegions();
+    });
+  }
+
+  Future<void> _onCountryChanged(Country? newCountry) async {
+    setState(() {
+      _selectedCountry = newCountry;
+      _selectedRegion = null;
+      _filterRegions();
     });
   }
 
@@ -256,19 +269,8 @@ class _CityEditPageState extends State<CityEditPage> {
                             ),
                           ),
                         );
-                        final updatedRegions = await fetchRegions(widget.uuid);
+                        await _refreshRegions();
                         setState(() {
-                          _regions = updatedRegions;
-                          _filteredRegions = _selectedCountry != null
-                              ? updatedRegions
-                                    .where(
-                                      (region) =>
-                                          region.fkCountry ==
-                                          _selectedCountry!.id,
-                                    )
-                                    .toList()
-                              : [];
-
                           _selectedRegion = _filteredRegions.firstWhereOrNull(
                             (r) => r.id == _selectedRegion?.id,
                           );

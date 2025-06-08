@@ -86,18 +86,44 @@ class _AddPlacePageState extends State<AddPlacePage> {
     super.dispose();
   }
 
-  void _filterRegionsAndCities() {
-    if (_selectedCountry != null) {
-      _filteredRegions = _regions
-          .where((region) => region.fkCountry == _selectedCountry!.id)
-          .toList();
-      _filteredCities = _cities
-          .where((city) => city.fkCountry == _selectedCountry!.id)
-          .toList();
-    } else {
-      _filteredRegions = [];
-      _filteredCities = [];
-    }
+  void _filterCities() {
+    setState(() {
+      if (_selectedCountry != null) {
+        _filteredCities = _cities
+            .where((city) => city.fkCountry == _selectedCountry!.id)
+            .toList();
+      } else {
+        _filteredCities = [];
+      }
+    });
+  }
+
+  void _filterRegions() {
+    setState(() {
+      if (_selectedCountry != null) {
+        _filteredRegions = _regions
+            .where((region) => region.fkCountry == _selectedCountry!.id)
+            .toList();
+      } else {
+        _filteredRegions = [];
+      }
+    });
+  }
+
+  Future<void> _refreshRegions() async {
+    final updatedRegions = await fetchRegions(widget.uuid);
+    setState(() {
+      _regions = updatedRegions;
+      _filterRegions();
+    });
+  }
+
+  Future<void> _refreshCities() async {
+    final updatedCities = await fetchCities(widget.uuid);
+    setState(() {
+      _cities = updatedCities;
+      _filterCities();
+    });
   }
 
   Future<void> _onCountryChanged(Country? newCountry) async {
@@ -105,7 +131,8 @@ class _AddPlacePageState extends State<AddPlacePage> {
       _selectedCountry = newCountry;
       _selectedRegion = null;
       _selectedCity = null;
-      _filterRegionsAndCities();
+      _filterRegions();
+      _filterCities();
     });
   }
 
@@ -232,11 +259,7 @@ class _AddPlacePageState extends State<AddPlacePage> {
                             ),
                           ),
                         );
-                        final updatedRegions = await fetchRegions(widget.uuid);
-                        setState(() {
-                          _regions = updatedRegions;
-                          _filterRegionsAndCities();
-                        });
+                        await _refreshRegions();
                       },
                     ),
                   if (_selectedRegion != null)
@@ -266,19 +289,7 @@ class _AddPlacePageState extends State<AddPlacePage> {
                             ),
                           ),
                         );
-                        final updatedCities = await fetchCities(widget.uuid);
-                        setState(() {
-                          _cities = updatedCities;
-                          _filteredCities = _selectedCountry != null
-                              ? updatedCities
-                                    .where(
-                                      (city) =>
-                                          city.fkCountry ==
-                                          _selectedCountry!.id,
-                                    )
-                                    .toList()
-                              : [];
-                        });
+                        await _refreshCities();
                       },
                     ),
                   if (_selectedCity != null)

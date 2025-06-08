@@ -104,6 +104,14 @@ class _AddCityPageState extends State<AddCityPage> {
     });
   }
 
+  Future<void> _refreshRegions() async {
+    final updatedRegions = await fetchRegions(widget.uuid);
+    setState(() {
+      _regions = updatedRegions;
+      _filterRegions();
+    });
+  }
+
   Future<void> _onCountryChanged(Country? newCountry) async {
     setState(() {
       _selectedCountry = newCountry;
@@ -243,11 +251,7 @@ class _AddCityPageState extends State<AddCityPage> {
                             ),
                           ),
                         );
-                        final updatedRegions = await fetchRegions(widget.uuid);
-                        setState(() {
-                          _regions = updatedRegions;
-                          _filterRegions();
-                        });
+                        await _refreshRegions();
                       },
                     ),
                   if (_selectedRegion != null)
