@@ -103,6 +103,7 @@ class _CityEditPageState extends State<CityEditPage> {
               r.fkCountry == _selectedCountry!.id,
           orElse: () => _regions.first,
         );
+        _filterRegions();
         _loading = false;
       });
     } catch (e) {
