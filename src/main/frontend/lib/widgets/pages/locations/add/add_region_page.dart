@@ -6,8 +6,10 @@ import 'package:frontend/services/climate_service.dart';
 import 'package:frontend/services/locations/country_service.dart';
 import 'package:frontend/services/locations/region_service.dart';
 import 'package:frontend/services/form_helper.dart';
+import 'package:frontend/widgets/pages/locations/add/add_country_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
+import 'package:frontend/widgets/reusable/missing_parent.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
@@ -40,6 +42,13 @@ class _AddRegionPageState extends State<AddRegionPage> {
     _loadInitialData();
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadInitialData() async {
     try {
       final results = await Future.wait([
@@ -49,6 +58,10 @@ class _AddRegionPageState extends State<AddRegionPage> {
       setState(() {
         _countries = results[0] as List<Country>;
         _climates = results[1] as List<Climate>;
+
+        if (_countries.length == 1) {
+          _selectedCountry = _countries.first;
+        }
 
         if (widget.preselectedCountry != null) {
           _selectedCountry = _countries.firstWhereOrNull(
@@ -65,11 +78,11 @@ class _AddRegionPageState extends State<AddRegionPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
+  Future<void> _refreshCountries() async {
+    final updatedCountries = await fetchCountries(widget.uuid);
+    setState(() {
+      _countries = updatedCountries;
+    });
   }
 
   Future<void> _submitForm() async {
@@ -141,6 +154,22 @@ class _AddRegionPageState extends State<AddRegionPage> {
                         setState(() => _selectedCountry = value),
                   ),
                   const SizedBox(height: 16),
+                  MissingParent(
+                    parents: "countries",
+                    show: _countries.isEmpty,
+                    onCreateTap: (context) async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddCountryPage(uuid: widget.uuid),
+                        ),
+                      );
+                      await _refreshCountries();
+                      if (_countries.isNotEmpty) {
+                        setState(() => _selectedCountry = _countries.first);
+                      }
+                    },
+                  ),
                   if (_selectedCountry != null)
                     DropdownDescription(_selectedCountry!.description),
                   const SizedBox(height: 16),

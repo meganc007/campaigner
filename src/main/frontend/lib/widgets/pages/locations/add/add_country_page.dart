@@ -5,8 +5,10 @@ import 'package:frontend/services/locations/continent_service.dart';
 import 'package:frontend/services/locations/country_service.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/government_service.dart';
+import 'package:frontend/widgets/pages/locations/add/add_continent_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
+import 'package:frontend/widgets/reusable/missing_parent.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
@@ -38,6 +40,13 @@ class _AddCountryPageState extends State<AddCountryPage> {
     _loadInitialData();
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadInitialData() async {
     try {
       final results = await Future.wait([
@@ -47,6 +56,11 @@ class _AddCountryPageState extends State<AddCountryPage> {
       setState(() {
         _governments = results[0] as List<Government>;
         _continents = results[1] as List<Continent>;
+
+        if (_continents.length == 1) {
+          _selectedContinent = _continents.first;
+        }
+
         _loading = false;
       });
     } catch (e) {
@@ -57,11 +71,11 @@ class _AddCountryPageState extends State<AddCountryPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
+  Future<void> _refreshContinents() async {
+    final updatedContinents = await fetchContinents(widget.uuid);
+    setState(() {
+      _continents = updatedContinents;
+    });
   }
 
   Future<void> _submitForm() async {
@@ -133,6 +147,22 @@ class _AddCountryPageState extends State<AddCountryPage> {
                         setState(() => _selectedContinent = value),
                   ),
                   const SizedBox(height: 16),
+                  MissingParent(
+                    show: _continents.isEmpty,
+                    parents: "continents",
+                    onCreateTap: (context) async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddContinentPage(uuid: widget.uuid),
+                        ),
+                      );
+                      await _refreshContinents();
+                      if (_continents.isNotEmpty) {
+                        setState(() => _selectedContinent = _continents.first);
+                      }
+                    },
+                  ),
                   if (_selectedContinent != null)
                     DropdownDescription(_selectedContinent!.description),
                   const SizedBox(height: 16),
