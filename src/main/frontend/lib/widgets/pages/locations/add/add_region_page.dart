@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/climate.dart';
 import 'package:frontend/models/location/country.dart';
@@ -50,7 +51,7 @@ class _AddRegionPageState extends State<AddRegionPage> {
         _climates = results[1] as List<Climate>;
 
         if (widget.preselectedCountry != null) {
-          _selectedCountry = _countries.firstWhere(
+          _selectedCountry = _countries.firstWhereOrNull(
             (country) => country.id == widget.preselectedCountry,
           );
         }

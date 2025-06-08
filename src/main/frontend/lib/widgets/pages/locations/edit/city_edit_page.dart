@@ -241,7 +241,7 @@ class _CityEditPageState extends State<CityEditPage> {
                         setState(() => _selectedRegion = value),
                   ),
                   const SizedBox(height: 16),
-                  if (_filteredRegions.isEmpty)
+                  if (_selectedCountry != null && _filteredRegions.isEmpty)
                     DropdownDescription(
                       "There are no regions associated with that country.",
                       color: Colors.red,

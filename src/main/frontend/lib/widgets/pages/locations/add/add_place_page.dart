@@ -11,6 +11,8 @@ import 'package:frontend/services/locations/place_service.dart';
 import 'package:frontend/services/locations/place_type_service.dart';
 import 'package:frontend/services/locations/region_service.dart';
 import 'package:frontend/services/locations/terrain_service.dart';
+import 'package:frontend/widgets/pages/locations/add/add_city_page.dart';
+import 'package:frontend/widgets/pages/locations/add/add_region_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
@@ -84,23 +86,26 @@ class _AddPlacePageState extends State<AddPlacePage> {
     super.dispose();
   }
 
+  void _filterRegionsAndCities() {
+    if (_selectedCountry != null) {
+      _filteredRegions = _regions
+          .where((region) => region.fkCountry == _selectedCountry!.id)
+          .toList();
+      _filteredCities = _cities
+          .where((city) => city.fkCountry == _selectedCountry!.id)
+          .toList();
+    } else {
+      _filteredRegions = [];
+      _filteredCities = [];
+    }
+  }
+
   Future<void> _onCountryChanged(Country? newCountry) async {
     setState(() {
       _selectedCountry = newCountry;
       _selectedRegion = null;
       _selectedCity = null;
-
-      if (newCountry != null) {
-        _filteredRegions = _regions
-            .where((region) => region.fkCountry == newCountry.id)
-            .toList();
-        _filteredCities = _cities
-            .where((city) => city.fkCountry == newCountry.id)
-            .toList();
-      } else {
-        _filteredCities = [];
-        _filteredRegions = [];
-      }
+      _filterRegionsAndCities();
     });
   }
 
@@ -212,6 +217,28 @@ class _AddPlacePageState extends State<AddPlacePage> {
                     onChanged: _onRegionChanged,
                   ),
                   const SizedBox(height: 16),
+                  if (_selectedCountry != null && _filteredRegions.isEmpty)
+                    DropdownDescription(
+                      "There are no regions associated with that country.",
+                      color: Colors.red,
+                      linkText: "Create one?",
+                      onLinkTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AddRegionPage(
+                              uuid: widget.uuid,
+                              preselectedCountry: _selectedCountry!.id,
+                            ),
+                          ),
+                        );
+                        final updatedRegions = await fetchRegions(widget.uuid);
+                        setState(() {
+                          _regions = updatedRegions;
+                          _filterRegionsAndCities();
+                        });
+                      },
+                    ),
                   if (_selectedRegion != null)
                     DropdownDescription(_selectedRegion!.description),
                   const SizedBox(height: 12),
@@ -224,6 +251,36 @@ class _AddPlacePageState extends State<AddPlacePage> {
                     isOptional: true,
                   ),
                   const SizedBox(height: 16),
+                  if (_selectedCountry != null && _filteredCities.isEmpty)
+                    DropdownDescription(
+                      "There are no cities associated with that country.",
+                      color: Colors.red,
+                      linkText: "Create one?",
+                      onLinkTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AddCityPage(
+                              uuid: widget.uuid,
+                              preselectedCountry: _selectedCountry!.id,
+                            ),
+                          ),
+                        );
+                        final updatedCities = await fetchCities(widget.uuid);
+                        setState(() {
+                          _cities = updatedCities;
+                          _filteredCities = _selectedCountry != null
+                              ? updatedCities
+                                    .where(
+                                      (city) =>
+                                          city.fkCountry ==
+                                          _selectedCountry!.id,
+                                    )
+                                    .toList()
+                              : [];
+                        });
+                      },
+                    ),
                   if (_selectedCity != null)
                     DropdownDescription(_selectedCity!.description),
                   const SizedBox(height: 12),

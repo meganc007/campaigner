@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/government.dart';
 import 'package:frontend/models/location/country.dart';
@@ -19,7 +20,8 @@ import 'package:frontend/widgets/reusable/submit_button.dart';
 
 class AddCityPage extends StatefulWidget {
   final String uuid;
-  const AddCityPage({super.key, required this.uuid});
+  final int? preselectedCountry;
+  const AddCityPage({super.key, required this.uuid, this.preselectedCountry});
 
   @override
   State<AddCityPage> createState() => _AddCityPageState();
@@ -67,6 +69,12 @@ class _AddCityPageState extends State<AddCityPage> {
         _settlementTypes = results[2] as List<SettlementType>;
         _governments = results[3] as List<Government>;
         _regions = results[4] as List<Region>;
+        if (widget.preselectedCountry != null) {
+          _selectedCountry = _countries.firstWhereOrNull(
+            (country) => country.id == widget.preselectedCountry,
+          );
+          _filterRegions();
+        }
         _loading = false;
       });
     } catch (e) {
@@ -84,18 +92,23 @@ class _AddCityPageState extends State<AddCityPage> {
     super.dispose();
   }
 
-  Future<void> _onCountryChanged(Country? newCountry) async {
+  void _filterRegions() {
     setState(() {
-      _selectedCountry = newCountry;
-      _selectedRegion = null;
-
-      if (newCountry != null) {
+      if (_selectedCountry != null) {
         _filteredRegions = _regions
-            .where((region) => region.fkCountry == newCountry.id)
+            .where((region) => region.fkCountry == _selectedCountry!.id)
             .toList();
       } else {
         _filteredRegions = [];
       }
+    });
+  }
+
+  Future<void> _onCountryChanged(Country? newCountry) async {
+    setState(() {
+      _selectedCountry = newCountry;
+      _selectedRegion = null;
+      _filterRegions();
     });
   }
 
@@ -215,7 +228,7 @@ class _AddCityPageState extends State<AddCityPage> {
                         setState(() => _selectedRegion = value),
                   ),
                   const SizedBox(height: 16),
-                  if (_filteredRegions.isEmpty)
+                  if (_selectedCountry != null && _filteredRegions.isEmpty)
                     DropdownDescription(
                       "There are no regions associated with that country.",
                       color: Colors.red,
@@ -233,15 +246,7 @@ class _AddCityPageState extends State<AddCityPage> {
                         final updatedRegions = await fetchRegions(widget.uuid);
                         setState(() {
                           _regions = updatedRegions;
-                          _filteredRegions = _selectedCountry != null
-                              ? updatedRegions
-                                    .where(
-                                      (region) =>
-                                          region.fkCountry ==
-                                          _selectedCountry!.id,
-                                    )
-                                    .toList()
-                              : [];
+                          _filterRegions();
                         });
                       },
                     ),
