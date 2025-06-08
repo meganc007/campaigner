@@ -15,6 +15,7 @@ import 'package:frontend/widgets/pages/locations/add/add_city_page.dart';
 import 'package:frontend/widgets/pages/locations/add/add_region_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
+import 'package:frontend/widgets/reusable/missing_entity_description.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
@@ -244,24 +245,23 @@ class _AddPlacePageState extends State<AddPlacePage> {
                     onChanged: _onRegionChanged,
                   ),
                   const SizedBox(height: 16),
-                  if (_selectedCountry != null && _filteredRegions.isEmpty)
-                    DropdownDescription(
-                      "There are no regions associated with that country.",
-                      color: Colors.red,
-                      linkText: "Create one?",
-                      onLinkTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => AddRegionPage(
-                              uuid: widget.uuid,
-                              preselectedCountry: _selectedCountry!.id,
-                            ),
+                  MissingEntityDescription(
+                    show: _selectedCountry != null && _filteredRegions.isEmpty,
+                    children: "regions",
+                    parent: "country",
+                    onCreateTap: (context) async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddRegionPage(
+                            uuid: widget.uuid,
+                            preselectedCountry: _selectedCountry!.id,
                           ),
-                        );
-                        await _refreshRegions();
-                      },
-                    ),
+                        ),
+                      );
+                      await _refreshRegions();
+                    },
+                  ),
                   if (_selectedRegion != null)
                     DropdownDescription(_selectedRegion!.description),
                   const SizedBox(height: 12),
@@ -274,24 +274,23 @@ class _AddPlacePageState extends State<AddPlacePage> {
                     isOptional: true,
                   ),
                   const SizedBox(height: 16),
-                  if (_selectedCountry != null && _filteredCities.isEmpty)
-                    DropdownDescription(
-                      "There are no cities associated with that country.",
-                      color: Colors.red,
-                      linkText: "Create one?",
-                      onLinkTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => AddCityPage(
-                              uuid: widget.uuid,
-                              preselectedCountry: _selectedCountry!.id,
-                            ),
+                  MissingEntityDescription(
+                    show: _selectedCountry != null && _filteredCities.isEmpty,
+                    children: "cities",
+                    parent: "country",
+                    onCreateTap: (context) async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddCityPage(
+                            uuid: widget.uuid,
+                            preselectedCountry: _selectedCountry!.id,
                           ),
-                        );
-                        await _refreshCities();
-                      },
-                    ),
+                        ),
+                      );
+                      await _refreshCities();
+                    },
+                  ),
                   if (_selectedCity != null)
                     DropdownDescription(_selectedCity!.description),
                   const SizedBox(height: 12),
