@@ -212,9 +212,7 @@ class _LocationOverviewPageState extends State<LocationOverviewPage> {
                   onSeeMore: () async {
                     await Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => TerrainDetailPage(uuid: widget.uuid),
-                      ),
+                      MaterialPageRoute(builder: (_) => TerrainDetailPage()),
                     );
                     await _refreshData();
                   },
