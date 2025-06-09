@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 
-class MissingParent extends StatelessWidget {
+class NoParentEntity extends StatelessWidget {
   final String parents;
   final bool show;
   final Future<void> Function(BuildContext context) onCreateTap;
-  const MissingParent({
+  const NoParentEntity({
     super.key,
     required this.parents,
     required this.show,

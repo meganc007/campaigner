@@ -16,8 +16,8 @@ import 'package:frontend/widgets/pages/locations/add/add_country_page.dart';
 import 'package:frontend/widgets/pages/locations/add/add_region_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
-import 'package:frontend/widgets/reusable/missing_entity_description.dart';
-import 'package:frontend/widgets/reusable/missing_parent.dart';
+import 'package:frontend/widgets/reusable/no_associated_entity.dart';
+import 'package:frontend/widgets/reusable/no_parent_entity.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
@@ -219,17 +219,19 @@ class _AddCityPageState extends State<AddCityPage> {
                     onChanged: _onCountryChanged,
                   ),
                   const SizedBox(height: 16),
-                  MissingParent(
+                  NoParentEntity(
                     parents: "countries",
                     show: _countries.isEmpty,
                     onCreateTap: (context) async {
-                      await Navigator.push(
+                      final bool? didCreate = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => AddCountryPage(uuid: widget.uuid),
                         ),
                       );
-                      await _refreshCountries();
+                      if (didCreate == true) {
+                        await _refreshCountries();
+                      }
                     },
                   ),
                   if (_selectedCountry != null)
@@ -268,25 +270,27 @@ class _AddCityPageState extends State<AddCityPage> {
                         setState(() => _selectedRegion = value),
                   ),
                   const SizedBox(height: 16),
-                  MissingParent(
+                  NoParentEntity(
                     parents: "regions",
                     show: _regions.isEmpty && _selectedCountry == null,
                     onCreateTap: (context) async {
-                      await Navigator.push(
+                      final bool? didCreate = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => AddRegionPage(uuid: widget.uuid),
                         ),
                       );
-                      await _refreshRegions();
+                      if (didCreate == true) {
+                        await _refreshRegions();
+                      }
                     },
                   ),
-                  MissingEntityDescription(
+                  NoAssociatedEntity(
                     show: _selectedCountry != null && _filteredRegions.isEmpty,
                     children: "regions",
                     parent: "country",
                     onCreateTap: (context) async {
-                      await Navigator.push(
+                      final bool? didCreate = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => AddRegionPage(
@@ -295,7 +299,9 @@ class _AddCityPageState extends State<AddCityPage> {
                           ),
                         ),
                       );
-                      await _refreshRegions();
+                      if (didCreate == true) {
+                        await _refreshRegions();
+                      }
                     },
                   ),
                   if (_selectedRegion != null)

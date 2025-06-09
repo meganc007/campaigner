@@ -12,10 +12,12 @@ import 'package:frontend/services/locations/place_type_service.dart';
 import 'package:frontend/services/locations/region_service.dart';
 import 'package:frontend/services/locations/terrain_service.dart';
 import 'package:frontend/widgets/pages/locations/add/add_city_page.dart';
+import 'package:frontend/widgets/pages/locations/add/add_country_page.dart';
 import 'package:frontend/widgets/pages/locations/add/add_region_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
-import 'package:frontend/widgets/reusable/missing_entity_description.dart';
+import 'package:frontend/widgets/reusable/no_associated_entity.dart';
+import 'package:frontend/widgets/reusable/no_parent_entity.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
@@ -27,7 +29,7 @@ class AddPlacePage extends StatefulWidget {
   State<AddPlacePage> createState() => _AddPlacePageState();
 }
 
-class _AddPlacePageState extends State<AddPlacePage> {
+class _AddPlacePageState extends State<AddPlacePage> with RouteAware {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -55,6 +57,13 @@ class _AddPlacePageState extends State<AddPlacePage> {
     _loadInitialData();
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadInitialData() async {
     try {
       final results = await Future.wait([
@@ -70,6 +79,12 @@ class _AddPlacePageState extends State<AddPlacePage> {
         _countries = results[2] as List<Country>;
         _cities = results[3] as List<City>;
         _regions = results[4] as List<Region>;
+
+        if (_countries.length == 1) {
+          _selectedCountry = _countries.first;
+          _filterRegions();
+        }
+
         _loading = false;
       });
     } catch (e) {
@@ -78,13 +93,6 @@ class _AddPlacePageState extends State<AddPlacePage> {
         _loading = false;
       });
     }
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
   }
 
   void _filterCities() {
@@ -105,8 +113,23 @@ class _AddPlacePageState extends State<AddPlacePage> {
         _filteredRegions = _regions
             .where((region) => region.fkCountry == _selectedCountry!.id)
             .toList();
+        if (_filteredRegions.length == 1) {
+          _selectedRegion = _filteredRegions.first;
+          _filterRegions();
+        }
       } else {
         _filteredRegions = [];
+      }
+    });
+  }
+
+  Future<void> _refreshCountries() async {
+    final updatedCountries = await fetchCountries(widget.uuid);
+    setState(() {
+      _countries = updatedCountries;
+      if (_countries.length == 1) {
+        _selectedCountry = _countries.first;
+        _filterRegions();
       }
     });
   }
@@ -224,7 +247,6 @@ class _AddPlacePageState extends State<AddPlacePage> {
                   const SizedBox(height: 16),
                   if (_selectedPlaceType != null)
                     DropdownDescription(_selectedPlaceType!.description),
-
                   const SizedBox(height: 12),
                   EntityDropdown<Country>(
                     label: "Country",
@@ -234,6 +256,22 @@ class _AddPlacePageState extends State<AddPlacePage> {
                     onChanged: _onCountryChanged,
                   ),
                   const SizedBox(height: 16),
+                  NoParentEntity(
+                    parents: "countries",
+                    show: _countries.isEmpty,
+                    onCreateTap: (context) async {
+                      final bool? didCreate = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddCountryPage(uuid: widget.uuid),
+                        ),
+                      );
+
+                      if (didCreate == true) {
+                        await _refreshCountries();
+                      }
+                    },
+                  ),
                   if (_selectedCountry != null)
                     DropdownDescription(_selectedCountry!.description),
                   const SizedBox(height: 12),
@@ -245,12 +283,28 @@ class _AddPlacePageState extends State<AddPlacePage> {
                     onChanged: _onRegionChanged,
                   ),
                   const SizedBox(height: 16),
-                  MissingEntityDescription(
+                  NoParentEntity(
+                    parents: "regions",
+                    show: _regions.isEmpty && _selectedCountry == null,
+                    onCreateTap: (context) async {
+                      final bool? didCreate = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddRegionPage(uuid: widget.uuid),
+                        ),
+                      );
+                      if (didCreate == true) {
+                        await _refreshRegions();
+                        await _refreshCountries();
+                      }
+                    },
+                  ),
+                  NoAssociatedEntity(
                     show: _selectedCountry != null && _filteredRegions.isEmpty,
                     children: "regions",
                     parent: "country",
                     onCreateTap: (context) async {
-                      await Navigator.push(
+                      final bool? didCreate = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => AddRegionPage(
@@ -259,7 +313,9 @@ class _AddPlacePageState extends State<AddPlacePage> {
                           ),
                         ),
                       );
-                      await _refreshRegions();
+                      if (didCreate == true) {
+                        await _refreshRegions();
+                      }
                     },
                   ),
                   if (_selectedRegion != null)
@@ -274,12 +330,12 @@ class _AddPlacePageState extends State<AddPlacePage> {
                     isOptional: true,
                   ),
                   const SizedBox(height: 16),
-                  MissingEntityDescription(
+                  NoAssociatedEntity(
                     show: _selectedCountry != null && _filteredCities.isEmpty,
                     children: "cities",
                     parent: "country",
                     onCreateTap: (context) async {
-                      await Navigator.push(
+                      final bool? didCreate = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => AddCityPage(
@@ -288,7 +344,9 @@ class _AddPlacePageState extends State<AddPlacePage> {
                           ),
                         ),
                       );
-                      await _refreshCities();
+                      if (didCreate == true) {
+                        await _refreshCities();
+                      }
                     },
                   ),
                   if (_selectedCity != null)

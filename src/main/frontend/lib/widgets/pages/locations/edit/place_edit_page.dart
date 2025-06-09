@@ -17,7 +17,7 @@ import 'package:frontend/widgets/pages/locations/add/add_city_page.dart';
 import 'package:frontend/widgets/pages/locations/add/add_region_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
-import 'package:frontend/widgets/reusable/missing_entity_description.dart';
+import 'package:frontend/widgets/reusable/no_associated_entity.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
@@ -272,12 +272,12 @@ class _PlaceEditPageState extends State<PlaceEditPage> {
                     onChanged: _onRegionChanged,
                   ),
                   const SizedBox(height: 16),
-                  MissingEntityDescription(
+                  NoAssociatedEntity(
                     show: _selectedCountry != null && _filteredRegions.isEmpty,
                     children: "regions",
                     parent: "country",
                     onCreateTap: (context) async {
-                      await Navigator.push(
+                      final bool? didCreate = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => AddRegionPage(
@@ -286,12 +286,14 @@ class _PlaceEditPageState extends State<PlaceEditPage> {
                           ),
                         ),
                       );
-                      await _refreshRegions();
-                      setState(() {
-                        _selectedRegion = _filteredRegions.firstWhereOrNull(
-                          (r) => r.id == _selectedRegion?.id,
-                        );
-                      });
+                      if (didCreate == true) {
+                        await _refreshRegions();
+                        setState(() {
+                          _selectedRegion = _filteredRegions.firstWhereOrNull(
+                            (r) => r.id == _selectedRegion?.id,
+                          );
+                        });
+                      }
                     },
                   ),
                   if (_selectedRegion != null)
@@ -306,12 +308,12 @@ class _PlaceEditPageState extends State<PlaceEditPage> {
                     isOptional: true,
                   ),
                   const SizedBox(height: 16),
-                  MissingEntityDescription(
+                  NoAssociatedEntity(
                     show: _selectedCountry != null && _filteredCities.isEmpty,
                     children: "cities",
                     parent: "country",
                     onCreateTap: (context) async {
-                      await Navigator.push(
+                      final bool? didCreate = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => AddCityPage(
@@ -320,12 +322,14 @@ class _PlaceEditPageState extends State<PlaceEditPage> {
                           ),
                         ),
                       );
-                      await _refreshCities();
-                      setState(() {
-                        _selectedCity = _filteredCities.firstWhereOrNull(
-                          (c) => c.id == _selectedCity?.id,
-                        );
-                      });
+                      if (didCreate == true) {
+                        await _refreshCities();
+                        setState(() {
+                          _selectedCity = _filteredCities.firstWhereOrNull(
+                            (c) => c.id == _selectedCity?.id,
+                          );
+                        });
+                      }
                     },
                   ),
                   if (_selectedCity != null)

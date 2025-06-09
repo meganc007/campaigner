@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/models/location/landmark.dart';
 import 'package:frontend/models/location/region.dart';
@@ -55,10 +56,11 @@ class _LandmarkEditPageState extends State<LandmarkEditPage> {
       setState(() {
         _regions = results[0];
 
-        _selectedRegion = _regions.firstWhere(
-          (r) => r.id == widget.landmark.fkRegion,
-          orElse: () => _regions.first,
-        );
+        if (_regions.length == 1) {
+          _selectedRegion = _regions.firstWhereOrNull(
+            (r) => r.id == widget.landmark.fkRegion,
+          );
+        }
         _isLoading = false;
       });
     } catch (e) {

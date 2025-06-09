@@ -16,7 +16,7 @@ import 'package:frontend/services/wealth_service.dart';
 import 'package:frontend/widgets/pages/locations/add/add_region_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
-import 'package:frontend/widgets/reusable/missing_entity_description.dart';
+import 'package:frontend/widgets/reusable/no_associated_entity.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
@@ -256,12 +256,12 @@ class _CityEditPageState extends State<CityEditPage> {
                         setState(() => _selectedRegion = value),
                   ),
                   const SizedBox(height: 16),
-                  MissingEntityDescription(
+                  NoAssociatedEntity(
                     show: _selectedCountry != null && _filteredRegions.isEmpty,
                     children: "regions",
                     parent: "country",
                     onCreateTap: (context) async {
-                      await Navigator.push(
+                      final bool? didCreate = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => AddRegionPage(
@@ -270,12 +270,14 @@ class _CityEditPageState extends State<CityEditPage> {
                           ),
                         ),
                       );
-                      await _refreshRegions();
-                      setState(() {
-                        _selectedRegion = _filteredRegions.firstWhereOrNull(
-                          (r) => r.id == _selectedRegion?.id,
-                        );
-                      });
+                      if (didCreate == true) {
+                        await _refreshRegions();
+                        setState(() {
+                          _selectedRegion = _filteredRegions.firstWhereOrNull(
+                            (r) => r.id == _selectedRegion?.id,
+                          );
+                        });
+                      }
                     },
                   ),
                   if (_selectedRegion != null)

@@ -9,7 +9,7 @@ import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/widgets/pages/locations/add/add_country_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
-import 'package:frontend/widgets/reusable/missing_parent.dart';
+import 'package:frontend/widgets/reusable/no_parent_entity.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
@@ -82,6 +82,9 @@ class _AddRegionPageState extends State<AddRegionPage> {
     final updatedCountries = await fetchCountries(widget.uuid);
     setState(() {
       _countries = updatedCountries;
+      if (_countries.length == 1) {
+        _selectedCountry = _countries.first;
+      }
     });
   }
 
@@ -154,19 +157,18 @@ class _AddRegionPageState extends State<AddRegionPage> {
                         setState(() => _selectedCountry = value),
                   ),
                   const SizedBox(height: 16),
-                  MissingParent(
+                  NoParentEntity(
                     parents: "countries",
                     show: _countries.isEmpty,
                     onCreateTap: (context) async {
-                      await Navigator.push(
+                      final bool? didCreate = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => AddCountryPage(uuid: widget.uuid),
                         ),
                       );
-                      await _refreshCountries();
-                      if (_countries.isNotEmpty) {
-                        setState(() => _selectedCountry = _countries.first);
+                      if (didCreate == true) {
+                        await _refreshCountries();
                       }
                     },
                   ),

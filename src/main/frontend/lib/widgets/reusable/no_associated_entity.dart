@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 
-class MissingEntityDescription extends StatelessWidget {
+class NoAssociatedEntity extends StatelessWidget {
   final String children;
   final String parent;
   final bool show;
   final Future<void> Function(BuildContext context) onCreateTap;
 
-  const MissingEntityDescription({
+  const NoAssociatedEntity({
     super.key,
     required this.children,
     required this.parent,

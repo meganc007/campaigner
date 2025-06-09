@@ -3,8 +3,10 @@ import 'package:frontend/models/location/region.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/locations/landmark_service.dart';
 import 'package:frontend/services/locations/region_service.dart';
+import 'package:frontend/widgets/pages/locations/add/add_region_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
+import 'package:frontend/widgets/reusable/no_parent_entity.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
@@ -34,11 +36,21 @@ class _AddLandmarkPageState extends State<AddLandmarkPage> {
     _loadInitialData();
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadInitialData() async {
     try {
       final results = await Future.wait([fetchRegions(widget.uuid)]);
       setState(() {
         _regions = results[0];
+        if (_regions.length == 1) {
+          _selectedRegion = _regions.first;
+        }
         _isLoading = false;
       });
     } catch (e) {
@@ -49,11 +61,14 @@ class _AddLandmarkPageState extends State<AddLandmarkPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
+  Future<void> _refreshRegions() async {
+    final updatedRegions = await fetchRegions(widget.uuid);
+    setState(() {
+      _regions = updatedRegions;
+      if (_regions.length == 1) {
+        _selectedRegion = _regions.first;
+      }
+    });
   }
 
   Future<void> _submitForm() async {
@@ -121,6 +136,21 @@ class _AddLandmarkPageState extends State<AddLandmarkPage> {
                         setState(() => _selectedRegion = value),
                   ),
                   const SizedBox(height: 16),
+                  NoParentEntity(
+                    parents: "regions",
+                    show: _regions.isEmpty,
+                    onCreateTap: (context) async {
+                      final bool? didCreate = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddRegionPage(uuid: widget.uuid),
+                        ),
+                      );
+                      if (didCreate == true) {
+                        await _refreshRegions();
+                      }
+                    },
+                  ),
                   if (_selectedRegion != null)
                     DropdownDescription(_selectedRegion!.description),
                   const SizedBox(height: 24),

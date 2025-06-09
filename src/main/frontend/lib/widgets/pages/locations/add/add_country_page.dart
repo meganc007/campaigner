@@ -8,7 +8,7 @@ import 'package:frontend/services/government_service.dart';
 import 'package:frontend/widgets/pages/locations/add/add_continent_page.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
-import 'package:frontend/widgets/reusable/missing_parent.dart';
+import 'package:frontend/widgets/reusable/no_parent_entity.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
@@ -60,7 +60,6 @@ class _AddCountryPageState extends State<AddCountryPage> {
         if (_continents.length == 1) {
           _selectedContinent = _continents.first;
         }
-
         _loading = false;
       });
     } catch (e) {
@@ -75,6 +74,10 @@ class _AddCountryPageState extends State<AddCountryPage> {
     final updatedContinents = await fetchContinents(widget.uuid);
     setState(() {
       _continents = updatedContinents;
+
+      if (_continents.isNotEmpty) {
+        _selectedContinent = _continents.first;
+      }
     });
   }
 
@@ -147,19 +150,18 @@ class _AddCountryPageState extends State<AddCountryPage> {
                         setState(() => _selectedContinent = value),
                   ),
                   const SizedBox(height: 16),
-                  MissingParent(
+                  NoParentEntity(
                     show: _continents.isEmpty,
                     parents: "continents",
                     onCreateTap: (context) async {
-                      await Navigator.push(
+                      final bool? didCreate = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => AddContinentPage(uuid: widget.uuid),
                         ),
                       );
-                      await _refreshContinents();
-                      if (_continents.isNotEmpty) {
-                        setState(() => _selectedContinent = _continents.first);
+                      if (didCreate == true) {
+                        await _refreshContinents();
                       }
                     },
                   ),
