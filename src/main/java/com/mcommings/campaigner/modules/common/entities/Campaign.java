@@ -1,9 +1,6 @@
 package com.mcommings.campaigner.modules.common.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.UUID;
@@ -18,7 +15,8 @@ import java.util.UUID;
 public class Campaign {
 
     @Id
-    @Column(name = "campaign_uuid", nullable = false, unique = true, columnDefinition = "varchar(36) default gen_random_uuid()")
+    @GeneratedValue
+    @Column(name = "campaign_uuid", nullable = false, updatable = false, unique = true)
     private UUID uuid;
     @Column(nullable = false)
     private String name;
