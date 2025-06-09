@@ -29,39 +29,21 @@ Future<SettlementType> fetchSettlementType(int id) async {
   }
 }
 
-Future<bool> createSettlementType(
-  String uuid,
-  String name,
-  String description,
-) async {
+Future<bool> createSettlementType(String name, String description) async {
   final response = await http.post(
     Uri.parse('http://10.0.2.2:8080/api/settlements'),
     headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({
-      "name": name,
-      "description": description,
-      "fk_campaign_uuid": uuid,
-    }),
+    body: jsonEncode({"name": name, "description": description}),
   );
 
   return response.statusCode >= 200 && response.statusCode < 300;
 }
 
-Future<bool> editSettlementType(
-  String uuid,
-  int id,
-  String name,
-  String description,
-) async {
+Future<bool> editSettlementType(int id, String name, String description) async {
   final response = await http.put(
     Uri.parse('http://10.0.2.2:8080/api/settlementtypes/$id'),
     headers: {'Content-Type': 'application/json'},
-    body: jsonEncode({
-      "id": id,
-      "name": name,
-      "description": description,
-      "fk_campaign_uuid": uuid,
-    }),
+    body: jsonEncode({"id": id, "name": name, "description": description}),
   );
 
   return response.statusCode >= 200 && response.statusCode < 300;

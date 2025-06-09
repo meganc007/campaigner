@@ -42,7 +42,7 @@ Future<bool> createPlaceType(String name, String description) async {
 
 Future<bool> editPlaceType(int id, String name, String description) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/placetypes'),
+    Uri.parse('http://10.0.2.2:8080/api/placetypes/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"id": id, "name": name, "description": description}),
   );

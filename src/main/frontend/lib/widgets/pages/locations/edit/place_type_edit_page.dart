@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/location/continent.dart';
-import 'package:frontend/services/locations/continent_service.dart';
+import 'package:frontend/models/location/place_type.dart';
 import 'package:frontend/services/form_helper.dart';
+import 'package:frontend/services/locations/place_type_service.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
-class ContinentEditPage extends StatefulWidget {
-  final String uuid;
-  final Continent continent;
-  const ContinentEditPage({
-    super.key,
-    required this.uuid,
-    required this.continent,
-  });
+class PlaceTypeEditPage extends StatefulWidget {
+  final PlaceType placeType;
+  const PlaceTypeEditPage({super.key, required this.placeType});
 
   @override
-  State<ContinentEditPage> createState() => _ContinentEditPageState();
+  State<PlaceTypeEditPage> createState() => _PlaceTypeEditPageState();
 }
 
-class _ContinentEditPageState extends State<ContinentEditPage> {
+class _PlaceTypeEditPageState extends State<PlaceTypeEditPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -28,8 +23,8 @@ class _ContinentEditPageState extends State<ContinentEditPage> {
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.continent.name;
-    _descriptionController.text = widget.continent.description;
+    _nameController.text = widget.placeType.name;
+    _descriptionController.text = widget.placeType.description;
   }
 
   @override
@@ -47,9 +42,8 @@ class _ContinentEditPageState extends State<ContinentEditPage> {
 
     final localContext = context;
 
-    final success = await editContinent(
-      widget.uuid,
-      widget.continent.id,
+    final success = await editPlaceType(
+      widget.placeType.id,
       _nameController.text.trim(),
       _descriptionController.text.trim(),
     );
@@ -61,7 +55,7 @@ class _ContinentEditPageState extends State<ContinentEditPage> {
       context: localContext,
       success: success,
       isMounted: localContext.mounted,
-      entityName: "Continent",
+      entityName: "Place Type",
     );
   }
 
@@ -69,7 +63,7 @@ class _ContinentEditPageState extends State<ContinentEditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Edit ${widget.continent.name}".toUpperCase()),
+        title: Text("Edit ${widget.placeType.name}".toUpperCase()),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),

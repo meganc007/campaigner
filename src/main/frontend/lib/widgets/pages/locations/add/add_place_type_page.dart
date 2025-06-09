@@ -1,36 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/location/continent.dart';
-import 'package:frontend/services/locations/continent_service.dart';
 import 'package:frontend/services/form_helper.dart';
+import 'package:frontend/services/locations/place_type_service.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
-class ContinentEditPage extends StatefulWidget {
-  final String uuid;
-  final Continent continent;
-  const ContinentEditPage({
-    super.key,
-    required this.uuid,
-    required this.continent,
-  });
+class AddPlaceTypePage extends StatefulWidget {
+  const AddPlaceTypePage({super.key});
 
   @override
-  State<ContinentEditPage> createState() => _ContinentEditPageState();
+  State<AddPlaceTypePage> createState() => _AddPlaceTypePageState();
 }
 
-class _ContinentEditPageState extends State<ContinentEditPage> {
+class _AddPlaceTypePageState extends State<AddPlaceTypePage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   bool _isSubmitting = false;
   bool _autoValidate = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController.text = widget.continent.name;
-    _descriptionController.text = widget.continent.description;
-  }
 
   @override
   void dispose() {
@@ -47,9 +33,7 @@ class _ContinentEditPageState extends State<ContinentEditPage> {
 
     final localContext = context;
 
-    final success = await editContinent(
-      widget.uuid,
-      widget.continent.id,
+    final success = await createPlaceType(
       _nameController.text.trim(),
       _descriptionController.text.trim(),
     );
@@ -57,20 +41,18 @@ class _ContinentEditPageState extends State<ContinentEditPage> {
     if (!localContext.mounted) return;
     setState(() => _isSubmitting = false);
 
-    handleSuccessOrFailureOnEdit(
+    handleSuccessOrFailureOnCreate(
       context: localContext,
       success: success,
       isMounted: localContext.mounted,
-      entityName: "Continent",
+      entityName: "Place Type",
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Edit ${widget.continent.name}".toUpperCase()),
-      ),
+      appBar: AppBar(title: Text("Create Place Type".toUpperCase())),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Center(
@@ -96,7 +78,7 @@ class _ContinentEditPageState extends State<ContinentEditPage> {
                 SubmitButton(
                   isSubmitting: _isSubmitting,
                   onPressed: _submitForm,
-                  label: "Update",
+                  label: "Create",
                 ),
               ],
             ),

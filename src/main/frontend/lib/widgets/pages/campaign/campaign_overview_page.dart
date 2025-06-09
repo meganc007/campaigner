@@ -32,6 +32,7 @@ class CampaignOverviewPage extends StatelessWidget {
               "Locations Overview",
               style: Theme.of(context).textTheme.headlineSmall,
             ),
+            Text('Continents: ${locationOverview.continents.length}'),
             Text('Countries: ${locationOverview.countries.length}'),
             Text('Cities: ${locationOverview.cities.length}'),
             Text('Regions: ${locationOverview.regions.length}'),
