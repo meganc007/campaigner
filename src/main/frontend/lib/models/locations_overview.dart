@@ -1,5 +1,5 @@
 import 'package:frontend/models/location/city.dart';
-import 'package:frontend/models/location/climate.dart';
+import 'package:frontend/models/climate.dart';
 import 'package:frontend/models/location/continent.dart';
 import 'package:frontend/models/location/country.dart';
 import 'package:frontend/models/location/landmark.dart';
