@@ -53,7 +53,7 @@ public class LocationOverviewTest {
     }
 
     @Test
-    void whenCampaignUUIDIsNotValid_getLocationOverview_returnsAggregatedLocationData() {
+    void whenCampaignUUIDIsNotValid_getLocationOverview_returnsEmptyList() {
         UUID invalidCampaignId = UUID.randomUUID();
 
         // Mock repository methods to return empty lists
