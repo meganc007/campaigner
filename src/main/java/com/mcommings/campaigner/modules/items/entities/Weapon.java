@@ -32,7 +32,9 @@ public class Weapon {
     private Integer fk_dice_type;
     private int number_of_dice;
     private int damage_modifier;
+    @Column(name = "ismagical")
     private Boolean isMagical;
+    @Column(name = "iscursed")
     private Boolean isCursed;
     private String notes;
 }
