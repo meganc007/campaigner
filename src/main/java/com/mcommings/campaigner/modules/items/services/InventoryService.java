@@ -15,7 +15,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
+import static com.mcommings.campaigner.enums.ErrorMessage.DELETE_NOT_FOUND;
+import static com.mcommings.campaigner.enums.ErrorMessage.UPDATE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -84,12 +85,6 @@ public class InventoryService implements IInventory {
     @Override
     @Transactional
     public void saveInventory(InventoryDTO inventory) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(inventory)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(inventoryRepository, inventory.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
         inventoryMapper.mapToInventoryDto(
                 inventoryRepository.save(inventoryMapper.mapFromInventoryDto(inventory))
         );
@@ -110,16 +105,8 @@ public class InventoryService implements IInventory {
         if (RepositoryHelper.cannotFindId(inventoryRepository, inventoryId)) {
             throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
         }
-        if (RepositoryHelper.nameIsNullOrEmpty(inventory)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(inventoryRepository, inventory.getName(), inventoryId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
 
         return inventoryRepository.findById(inventoryId).map(foundInventory -> {
-            if (inventory.getName() != null) foundInventory.setName(inventory.getName());
-            if (inventory.getDescription() != null) foundInventory.setDescription(inventory.getDescription());
             if (inventory.getFk_campaign_uuid() != null)
                 foundInventory.setFk_campaign_uuid(inventory.getFk_campaign_uuid());
             if (inventory.getFk_person() != null) foundInventory.setFk_person(inventory.getFk_person());
