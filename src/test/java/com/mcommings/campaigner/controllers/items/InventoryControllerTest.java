@@ -53,8 +53,6 @@ public class InventoryControllerTest {
     void setUp() {
         entity = new Inventory();
         entity.setId(VALID_INVENTORY_ID);
-        entity.setName("A name.");
-        entity.setDescription("A description.");
         entity.setFk_campaign_uuid(UUID.randomUUID());
         entity.setFk_person(random.nextInt(100) + 1);
         entity.setFk_item(random.nextInt(100) + 1);
@@ -63,8 +61,6 @@ public class InventoryControllerTest {
 
         dto = new InventoryDTO();
         dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
         dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
         dto.setFk_person(entity.getFk_person());
         dto.setFk_item(entity.getFk_item());
@@ -98,8 +94,7 @@ public class InventoryControllerTest {
 
         mockMvc.perform(get(URI + "/" + VALID_INVENTORY_ID))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(VALID_INVENTORY_ID))
-                .andExpect(jsonPath("$.description").value(dto.getDescription()));
+                .andExpect(jsonPath("$.id").value(VALID_INVENTORY_ID));
     }
 
     @Test
@@ -257,8 +252,6 @@ public class InventoryControllerTest {
         UUID uuid = UUID.randomUUID();
         InventoryDTO requestDto = new InventoryDTO();
         requestDto.setId(2);
-        requestDto.setName("This is a name");
-        requestDto.setDescription("This is a description");
         requestDto.setFk_campaign_uuid(uuid);
 
         String requestJson = objectMapper.writeValueAsString(requestDto);
@@ -275,7 +268,6 @@ public class InventoryControllerTest {
     void whenInventoryIsNotValid_saveInventory_RespondsBadRequest() throws Exception {
         InventoryDTO invalidInventory = new InventoryDTO();
         invalidInventory.setId(2);
-        invalidInventory.setDescription("This is a description");
         invalidInventory.setFk_campaign_uuid(null); // Invalid UUID
 
         String requestJson = objectMapper.writeValueAsString(invalidInventory);
@@ -294,7 +286,6 @@ public class InventoryControllerTest {
         List<String> errors = mapper.readValue(responseBody, new TypeReference<List<String>>() {
         });
 
-        assertTrue(errors.contains("Inventory name cannot be empty"));
         assertTrue(errors.contains("Campaign UUID cannot be null or empty."));
 
         verify(inventoryService, times(0)).saveInventory(any(InventoryDTO.class));
@@ -326,7 +317,6 @@ public class InventoryControllerTest {
     void whenInventoryIdIsValid_updateInventory_RespondsOkRequest() throws Exception {
         InventoryDTO updatedDto = new InventoryDTO();
         updatedDto.setId(VALID_INVENTORY_ID);
-        updatedDto.setDescription("Updated description");
         updatedDto.setFk_campaign_uuid(UUID.randomUUID());
 
         String json = objectMapper.writeValueAsString(updatedDto);
@@ -343,7 +333,6 @@ public class InventoryControllerTest {
     void whenInventoryIdIsInvalid_updateInventory_RespondsBadRequest() throws Exception {
         InventoryDTO updatedDto = new InventoryDTO();
         updatedDto.setId(INVALID_INVENTORY_ID);
-        updatedDto.setDescription("Some update");
         updatedDto.setFk_campaign_uuid(UUID.randomUUID());
 
         String json = objectMapper.writeValueAsString(updatedDto);
@@ -362,7 +351,6 @@ public class InventoryControllerTest {
     void whenInventoryNameIsInvalid_updateInventory_RespondsBadRequest() throws Exception {
         InventoryDTO invalidDto = new InventoryDTO();
         invalidDto.setId(VALID_INVENTORY_ID);
-        invalidDto.setDescription("");
         invalidDto.setFk_campaign_uuid(UUID.randomUUID());
 
         String json = objectMapper.writeValueAsString(invalidDto);

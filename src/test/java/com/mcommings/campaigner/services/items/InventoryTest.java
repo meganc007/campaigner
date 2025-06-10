@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.*;
 
@@ -37,8 +36,6 @@ public class InventoryTest {
         Random random = new Random();
         entity = new Inventory();
         entity.setId(1);
-        entity.setName("Test Inventory");
-        entity.setDescription("A fictional inventory.");
         entity.setFk_campaign_uuid(UUID.randomUUID());
         entity.setFk_person(random.nextInt(100) + 1);
         entity.setFk_item(random.nextInt(100) + 1);
@@ -47,8 +44,6 @@ public class InventoryTest {
 
         dto = new InventoryDTO();
         dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
         dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
         dto.setFk_person(entity.getFk_person());
         dto.setFk_item(entity.getFk_item());
@@ -66,7 +61,6 @@ public class InventoryTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Test Inventory", result.get(0).getName());
     }
 
     @Test
@@ -86,7 +80,6 @@ public class InventoryTest {
         Optional<InventoryDTO> result = inventoryService.getInventory(1);
 
         assertTrue(result.isPresent());
-        assertEquals("Test Inventory", result.get().getName());
     }
 
     @Test
@@ -131,40 +124,6 @@ public class InventoryTest {
     }
 
     @Test
-    public void whenInventoryNameIsInvalid_saveInventory_ThrowsIllegalArgumentException() {
-        InventoryDTO inventoryWithEmptyName = new InventoryDTO();
-        inventoryWithEmptyName.setId(1);
-        inventoryWithEmptyName.setName("");
-        inventoryWithEmptyName.setDescription("A fictional inventory.");
-        inventoryWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
-        inventoryWithEmptyName.setFk_person(1);
-        inventoryWithEmptyName.setFk_item(1);
-        inventoryWithEmptyName.setFk_weapon(1);
-        inventoryWithEmptyName.setFk_place(1);
-
-        InventoryDTO inventoryWithNullName = new InventoryDTO();
-        inventoryWithNullName.setId(1);
-        inventoryWithNullName.setName(null);
-        inventoryWithNullName.setDescription("A fictional inventory.");
-        inventoryWithNullName.setFk_campaign_uuid(UUID.randomUUID());
-        inventoryWithNullName.setFk_person(1);
-        inventoryWithNullName.setFk_item(1);
-        inventoryWithNullName.setFk_weapon(1);
-        inventoryWithNullName.setFk_place(1);
-
-        assertThrows(IllegalArgumentException.class, () -> inventoryService.saveInventory(inventoryWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> inventoryService.saveInventory(inventoryWithNullName));
-    }
-
-    @Test
-    public void whenInventoryNameAlreadyExists_saveInventory_ThrowsDataIntegrityViolationException() {
-        when(inventoryRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-        assertThrows(DataIntegrityViolationException.class, () -> inventoryService.saveInventory(dto));
-        verify(inventoryRepository, times(1)).findByName(dto.getName());
-        verify(inventoryRepository, never()).save(any(Inventory.class));
-    }
-
-    @Test
     void whenInventoryIdExists_deleteInventory_DeletesTheInventory() {
         when(inventoryRepository.existsById(1)).thenReturn(true);
         inventoryService.deleteInventory(1);
@@ -188,7 +147,6 @@ public class InventoryTest {
     @Test
     void whenInventoryIdIsFound_updateInventory_UpdatesTheInventory() {
         InventoryDTO updateDTO = new InventoryDTO();
-        updateDTO.setName("Updated Name");
 
         when(inventoryRepository.findById(1)).thenReturn(Optional.of(entity));
         when(inventoryRepository.existsById(1)).thenReturn(true);
@@ -198,36 +156,13 @@ public class InventoryTest {
         Optional<InventoryDTO> result = inventoryService.updateInventory(1, updateDTO);
 
         assertTrue(result.isPresent());
-        assertEquals("Updated Name", result.get().getName());
     }
 
     @Test
     void whenInventoryIdIsNotFound_updateInventory_ReturnsEmptyOptional() {
         InventoryDTO updateDTO = new InventoryDTO();
-        updateDTO.setName("Updated Name");
 
         when(inventoryRepository.findById(999)).thenReturn(Optional.empty());
         assertThrows(IllegalArgumentException.class, () -> inventoryService.updateInventory(999, updateDTO));
-    }
-
-    @Test
-    public void whenInventoryNameIsInvalid_updateInventory_ThrowsIllegalArgumentException() {
-        InventoryDTO updateEmptyName = new InventoryDTO();
-        updateEmptyName.setName("");
-
-        InventoryDTO updateNullName = new InventoryDTO();
-        updateNullName.setName(null);
-
-        when(inventoryRepository.existsById(1)).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> inventoryService.updateInventory(1, updateEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> inventoryService.updateInventory(1, updateNullName));
-    }
-
-    @Test
-    public void whenInventoryNameAlreadyExists_updateInventory_ThrowsDataIntegrityViolationException() {
-        when(inventoryRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-
-        assertThrows(IllegalArgumentException.class, () -> inventoryService.updateInventory(entity.getId(), dto));
     }
 }
