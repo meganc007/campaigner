@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/campaign.dart';
+import 'package:frontend/models/items_overview.dart';
 import 'package:frontend/models/locations_overview.dart';
 
 class CampaignOverviewPage extends StatelessWidget {
   final Campaign campaign;
   final Future<LocationsOverview> futureLocations;
+  final Future<ItemsOverview> futureItems;
+
   const CampaignOverviewPage({
     super.key,
     required this.campaign,
     required this.futureLocations,
+    required this.futureItems,
   });
 
   @override
