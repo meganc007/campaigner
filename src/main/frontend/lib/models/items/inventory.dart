@@ -1,10 +1,10 @@
 class Inventory {
   final int id;
   final String fkCampaignUuid;
-  final int fkPerson;
-  final int fkItem;
-  final int fkWeapon;
-  final int fkPlace;
+  final int? fkPerson;
+  final int? fkItem;
+  final int? fkWeapon;
+  final int? fkPlace;
 
   const Inventory({
     required this.id,
@@ -16,24 +16,17 @@ class Inventory {
   });
 
   factory Inventory.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {
-        'id': int id,
-        'fk_campaign_uuid': String fkCampaignUuid,
-        'fk_person': int fkPerson,
-        'fk_item': int fkItem,
-        'fk_weapon': int fkWeapon,
-        'fk_place': int fkPlace,
-      } =>
-        Inventory(
-          id: id,
-          fkCampaignUuid: fkCampaignUuid,
-          fkPerson: fkPerson,
-          fkItem: fkItem,
-          fkWeapon: fkWeapon,
-          fkPlace: fkPlace,
-        ),
-      _ => throw const FormatException("Failed to load Inventory."),
-    };
+    try {
+      return Inventory(
+        id: json['id'],
+        fkCampaignUuid: json['fk_campaign_uuid'],
+        fkPerson: json['fk_person'],
+        fkItem: json['fk_item'],
+        fkWeapon: json['fk_weapon'],
+        fkPlace: json['fk_place'],
+      );
+    } catch (e) {
+      throw FormatException('Inventory parse error: $e');
+    }
   }
 }
