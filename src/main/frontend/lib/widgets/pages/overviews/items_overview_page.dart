@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/models/items/inventory.dart';
 import 'package:frontend/models/items_overview.dart';
 import 'package:frontend/models/section.dart';
 import 'package:frontend/services/data%20providers/item_data_provider.dart';
 import 'package:frontend/services/items_overview_service.dart';
 import 'package:frontend/widgets/pages/items/damage_type_detail_page.dart';
+import 'package:frontend/widgets/pages/items/dice_type_detail_page.dart';
+import 'package:frontend/widgets/pages/items/inventory_detail_page.dart';
+import 'package:frontend/widgets/pages/items/item_detail_page.dart';
+import 'package:frontend/widgets/pages/items/item_type_detail_page.dart';
+import 'package:frontend/widgets/pages/items/weapon_detail_page.dart';
+import 'package:frontend/widgets/pages/items/weapon_type_detail_page.dart';
 import 'package:frontend/widgets/pages/overviews/overview_section.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +34,11 @@ class _ItemsOverviewPageState extends State<ItemsOverviewPage> {
   @override
   void initState() {
     super.initState();
-    _future = widget.futureItems;
+    _future = fetchItemsOverview(widget.uuid);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ItemDataProvider>().load();
+    });
   }
 
   Future<void> _refreshData() async {
@@ -41,6 +52,29 @@ class _ItemsOverviewPageState extends State<ItemsOverviewPage> {
 
   List<String> mapNamesToList(List<dynamic> items) {
     return items.map((item) => (item as dynamic).name as String).toList();
+  }
+
+  Map<String, List<Inventory>> groupInventoryByOwner(
+    List<Inventory> inventory,
+    Map<int, String> personNames,
+    Map<int, String> placeNames,
+  ) {
+    final Map<String, List<Inventory>> grouped = {};
+
+    for (final item in inventory) {
+      String ownerKey;
+      if (item.fkPerson != null) {
+        ownerKey = personNames[item.fkPerson!] ?? 'Unknown Person';
+      } else if (item.fkPlace != null) {
+        ownerKey = placeNames[item.fkPlace!] ?? 'Unknown Place';
+      } else {
+        ownerKey = 'Unassigned';
+      }
+
+      grouped.putIfAbsent(ownerKey, () => []).add(item);
+    }
+
+    return grouped;
   }
 
   @override
@@ -64,9 +98,104 @@ class _ItemsOverviewPageState extends State<ItemsOverviewPage> {
                 return const Center(child: Text('No data available.'));
               }
 
+              final inventoryNames = itemDataProvider.inventories
+                  .map((inv) {
+                    if (inv.fkPerson != null &&
+                        itemDataProvider.personMap.containsKey(inv.fkPerson)) {
+                      return itemDataProvider.personMap[inv.fkPerson]!;
+                    } else if (inv.fkPlace != null &&
+                        itemDataProvider.placeMap.containsKey(inv.fkPlace)) {
+                      return itemDataProvider.placeMap[inv.fkPlace]!;
+                    } else {
+                      return 'Unknown';
+                    }
+                  })
+                  .toSet()
+                  .toList();
+
               final itemOverview = snapshot.data!;
 
+              final personNames = itemDataProvider.personMap;
+              final placeNames = itemDataProvider.placeMap;
+
+              final inventoryByOwner = groupInventoryByOwner(
+                itemOverview.inventories,
+                personNames,
+                placeNames,
+              );
+
               final List<Widget> sectionWidgets = [
+                OverviewSection(
+                  section: Section(
+                    "Items".toUpperCase(),
+                    mapNamesToList(itemOverview.items),
+                  ),
+                  onSeeMore: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ItemDetailPage(uuid: widget.uuid),
+                      ),
+                    );
+                    await _refreshData();
+                  },
+                ),
+                OverviewSection(
+                  section: Section(
+                    "Item Types".toUpperCase(),
+                    mapNamesToList(itemOverview.itemTypes),
+                  ),
+                  onSeeMore: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => ItemTypeDetailPage()),
+                    );
+                    await _refreshData();
+                  },
+                ),
+                OverviewSection(
+                  section: Section(
+                    "Weapons".toUpperCase(),
+                    mapNamesToList(itemOverview.weapons),
+                  ),
+                  onSeeMore: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => WeaponDetailPage(uuid: widget.uuid),
+                      ),
+                    );
+                    await _refreshData();
+                  },
+                ),
+                OverviewSection(
+                  section: Section(
+                    "Weapon Types".toUpperCase(),
+                    mapNamesToList(itemOverview.weaponTypes),
+                  ),
+                  onSeeMore: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => WeaponTypeDetailPage()),
+                    );
+                    await _refreshData();
+                  },
+                ),
+                OverviewSection(
+                  section: Section(
+                    "Inventories".toUpperCase(),
+                    inventoryByOwner.keys.toList(),
+                  ),
+                  onSeeMore: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => InventoryDetailPage(uuid: widget.uuid),
+                      ),
+                    );
+                    await _refreshData();
+                  },
+                ),
                 OverviewSection(
                   section: Section(
                     "Damage Types".toUpperCase(),
@@ -76,6 +205,19 @@ class _ItemsOverviewPageState extends State<ItemsOverviewPage> {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => DamageTypeDetailPage()),
+                    );
+                    await _refreshData();
+                  },
+                ),
+                OverviewSection(
+                  section: Section(
+                    "Dice Types".toUpperCase(),
+                    mapNamesToList(itemOverview.diceTypes),
+                  ),
+                  onSeeMore: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => DiceTypeDetailPage()),
                     );
                     await _refreshData();
                   },
