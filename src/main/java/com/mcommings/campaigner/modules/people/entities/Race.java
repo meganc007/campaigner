@@ -18,6 +18,6 @@ public class Race {
     @Column(nullable = false, unique = true)
     private String name;
     private String description;
-    @Column(nullable = false)
+    @Column(nullable = false, name = "isexotic")
     private Boolean isExotic;
 }
