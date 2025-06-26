@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class StyledTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final int maxLines;
   final String? Function(String?)? validator;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextInputType? keyboardType;
   const StyledTextField({
     super.key,
     required this.controller,
     required this.label,
     this.maxLines = 1,
     this.validator,
+    this.inputFormatters,
+    this.keyboardType,
   });
 
   @override
@@ -25,6 +30,8 @@ class StyledTextField extends StatelessWidget {
         controller: controller,
         maxLines: maxLines,
         validator: validator,
+        inputFormatters: inputFormatters,
+        keyboardType: keyboardType,
         decoration: InputDecoration(
           labelText: label,
           border: InputBorder.none,
