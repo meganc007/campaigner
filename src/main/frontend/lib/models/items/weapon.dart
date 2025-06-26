@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class Weapon {
   final int id;
   final String name;

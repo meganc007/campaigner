@@ -95,8 +95,7 @@ class ItemDataProvider extends ChangeNotifier {
       _weaponMap = {for (var w in weapons) w.id: w.name};
       _weaponTypeMap = {for (var wt in weaponTypes) wt.id: wt.name};
       _personMap = {
-        for (var p in people)
-          p.id: '${p.firstName ?? ''} ${p.lastName ?? ''}'.trim(),
+        for (var p in people) p.id: '${p.firstName} ${p.lastName ?? ''}'.trim(),
       };
       _placeMap = {for (var p in places) p.id: p.name};
     } catch (e) {

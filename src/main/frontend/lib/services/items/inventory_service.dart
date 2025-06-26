@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:frontend/models/items/inventory.dart';
+import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Inventory>> fetchInventories(String uuid) async {
@@ -13,5 +14,76 @@ Future<List<Inventory>> fetchInventories(String uuid) async {
     return data.map((json) => Inventory.fromJson(json)).toList();
   } else {
     throw Exception('Failed to load inventories');
+  }
+}
+
+Future<Inventory> fetchInventory(int id) async {
+  final response = await http.get(
+    Uri.parse('http://10.0.2.2:8080/api/inventory/$id'),
+  );
+
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> data = json.decode(response.body);
+    return Inventory.fromJson(data);
+  } else {
+    throw Exception('Failed to load inventory with id $id');
+  }
+}
+
+Future<bool> createInventory(
+  String uuid,
+  int fkPerson,
+  int fkItem,
+  int fkWeapon,
+  int fkPlace,
+) async {
+  final response = await http.post(
+    Uri.parse('http://10.0.2.2:8080/api/inventory'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      "fk_campaign_uuid": uuid,
+      "fk_person": fkPerson,
+      "fk_item": fkItem,
+      "fk_weapon": fkWeapon,
+      "fk_place": fkPlace,
+    }),
+  );
+
+  return response.statusCode >= 200 && response.statusCode < 300;
+}
+
+Future<bool> editInventory(
+  String uuid,
+  int id,
+  int fkPerson,
+  int fkItem,
+  int fkWeapon,
+  int fkPlace,
+) async {
+  final response = await http.post(
+    Uri.parse('http://10.0.2.2:8080/api/inventory'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      "id": id,
+      "fk_campaign_uuid": uuid,
+      "fk_person": fkPerson,
+      "fk_item": fkItem,
+      "fk_weapon": fkWeapon,
+      "fk_place": fkPlace,
+    }),
+  );
+
+  return response.statusCode >= 200 && response.statusCode < 300;
+}
+
+Future<void> deleteInventory(int id) async {
+  final response = await http.delete(
+    Uri.parse('http://10.0.2.2:8080/api/inventory/$id'),
+  );
+
+  if (response.statusCode != 204 && response.statusCode != 200) {
+    response.body.contains('foreign key constraint')
+        ? throw ForeignKeyConstraintException("inventory")
+        : throw Exception('Failed to delete inventory');
   }
 }
