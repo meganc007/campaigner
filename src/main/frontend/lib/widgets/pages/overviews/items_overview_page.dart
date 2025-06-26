@@ -98,21 +98,6 @@ class _ItemsOverviewPageState extends State<ItemsOverviewPage> {
                 return const Center(child: Text('No data available.'));
               }
 
-              final inventoryNames = itemDataProvider.inventories
-                  .map((inv) {
-                    if (inv.fkPerson != null &&
-                        itemDataProvider.personMap.containsKey(inv.fkPerson)) {
-                      return itemDataProvider.personMap[inv.fkPerson]!;
-                    } else if (inv.fkPlace != null &&
-                        itemDataProvider.placeMap.containsKey(inv.fkPlace)) {
-                      return itemDataProvider.placeMap[inv.fkPlace]!;
-                    } else {
-                      return 'Unknown';
-                    }
-                  })
-                  .toSet()
-                  .toList();
-
               final itemOverview = snapshot.data!;
 
               final personNames = itemDataProvider.personMap;
@@ -134,7 +119,10 @@ class _ItemsOverviewPageState extends State<ItemsOverviewPage> {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ItemDetailPage(uuid: widget.uuid),
+                        builder: (_) => ItemDetailPage(
+                          uuid: widget.uuid,
+                          itemTypeMap: itemDataProvider.itemTypeMap,
+                        ),
                       ),
                     );
                     await _refreshData();
