@@ -236,7 +236,7 @@ class _AddCityPageState extends State<AddCityPage> {
                   ),
                   if (_selectedCountry != null)
                     DropdownDescription(_selectedCountry!.description),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   EntityDropdown<SettlementType>(
                     label: "Settlement Type",
                     selected: _selectedSettlementType,

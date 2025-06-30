@@ -81,7 +81,7 @@ Future<bool> editItem(
   bool? isCursed,
   String? notes,
 ) async {
-  final response = await http.post(
+  final response = await http.put(
     Uri.parse('http://10.0.2.2:8080/api/items/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({

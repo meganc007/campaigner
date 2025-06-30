@@ -4,7 +4,11 @@ import 'package:frontend/models/items/item_type.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/items/item_service.dart';
 import 'package:frontend/services/items/item_type_service.dart';
+import 'package:frontend/widgets/reusable/dropdown_boolean.dart';
+import 'package:frontend/widgets/reusable/dropdown_description.dart';
+import 'package:frontend/widgets/reusable/entity_dropdown.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
+import 'package:frontend/widgets/reusable/submit_button.dart';
 
 class AddItemPage extends StatefulWidget {
   final String uuid;
@@ -144,6 +148,11 @@ class _AddItemPageState extends State<AddItemPage> {
                   ),
                   const SizedBox(height: 12),
                   StyledTextField(
+                    controller: _rarityController,
+                    label: "Rarity",
+                  ),
+                  const SizedBox(height: 12),
+                  StyledTextField(
                     controller: _goldValueController,
                     label: 'Gold Value',
                     keyboardType: TextInputType.number,
@@ -157,6 +166,94 @@ class _AddItemPageState extends State<AddItemPage> {
                     },
                   ),
                   const SizedBox(height: 12),
+                  StyledTextField(
+                    controller: _silverValueController,
+                    label: 'Silver Value',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Required';
+                      if (int.tryParse(value) == null) {
+                        return 'Enter a valid number';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  StyledTextField(
+                    controller: _copperValueController,
+                    label: 'Copper Value',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Required';
+                      if (int.tryParse(value) == null) {
+                        return 'Enter a valid number';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  StyledTextField(
+                    controller: _weightController,
+                    label: 'Item Weight (lbs)',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Required';
+                      if (double.tryParse(value) == null) {
+                        return 'Enter a valid number';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  EntityDropdown<ItemType>(
+                    label: "Item Type",
+                    selected: _selectedItemType,
+                    options: _itemTypes,
+                    getLabel: (it) => it.name,
+                    onChanged: (value) =>
+                        setState(() => _selectedItemType = value),
+                  ),
+                  if (_selectedItemType != null)
+                    DropdownDescription(_selectedItemType!.description ?? ''),
+                  SizedBox(
+                    height: _selectedItemType?.description != null ? 16 : 0,
+                  ),
+                  BooleanDropdown(
+                    label: 'Is Magical?',
+                    selected: _isMagical,
+                    onChanged: (value) {
+                      setState(() {
+                        _isMagical = value;
+                      });
+                    },
+                    isOptional: false,
+                  ),
+                  const SizedBox(height: 12),
+                  BooleanDropdown(
+                    label: 'Is Cursed?',
+                    selected: _isCursed,
+                    onChanged: (value) {
+                      setState(() {
+                        _isCursed = value;
+                      });
+                    },
+                    isOptional: false,
+                  ),
+                  const SizedBox(height: 12),
+                  StyledTextField(
+                    controller: _notesController,
+                    label: "Notes",
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 24),
+                  SubmitButton(
+                    isSubmitting: _isSubmitting,
+                    onPressed: _submitForm,
+                    label: "Create",
+                  ),
                 ],
               ),
             ),
