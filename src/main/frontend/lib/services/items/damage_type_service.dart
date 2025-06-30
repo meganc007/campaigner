@@ -40,8 +40,8 @@ Future<bool> createDamageType(String name, String description) async {
 }
 
 Future<bool> editDamageType(int id, String name, String description) async {
-  final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/damagetypes'),
+  final response = await http.put(
+    Uri.parse('http://10.0.2.2:8080/api/damagetypes/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"id": id, "name": name, "description": description}),
   );

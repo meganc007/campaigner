@@ -53,8 +53,8 @@ Future<bool> editDiceType(
   String description,
   int maxRoll,
 ) async {
-  final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/dicetypes'),
+  final response = await http.put(
+    Uri.parse('http://10.0.2.2:8080/api/dicetypes/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,

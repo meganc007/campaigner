@@ -40,8 +40,8 @@ Future<bool> createItemType(String name, String description) async {
 }
 
 Future<bool> editItemType(int id, String name, String description) async {
-  final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/itemtypes'),
+  final response = await http.put(
+    Uri.parse('http://10.0.2.2:8080/api/itemtypes/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"id": id, "name": name, "description": description}),
   );

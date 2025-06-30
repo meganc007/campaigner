@@ -26,7 +26,7 @@ public class ItemTypeService implements IItemType {
     @Override
     public List<ItemTypeDTO> getItemTypes() {
 
-        return itemTypeRepository.findAll()
+        return itemTypeRepository.findAllByOrderByNameAsc()
                 .stream()
                 .map(itemTypeMapper::mapToItemTypeDto)
                 .collect(Collectors.toList());

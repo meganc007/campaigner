@@ -37,7 +37,7 @@ public class ItemRepositoryFacade {
     }
 
     public List<ItemType> findItemTypes() {
-        return itemTypeRepository.findAll();
+        return itemTypeRepository.findAllByOrderByNameAsc();
     }
 
     public List<Weapon> findWeaponsByCampaign(UUID uuid) {

@@ -93,8 +93,8 @@ Future<bool> editWeapon(
   bool? isCursed,
   String? notes,
 ) async {
-  final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/weapons'),
+  final response = await http.put(
+    Uri.parse('http://10.0.2.2:8080/api/weapons/$id'),
     headers: {'Content-': 'application/json'},
     body: jsonEncode({
       "id": id,

@@ -60,8 +60,8 @@ Future<bool> editInventory(
   int fkWeapon,
   int fkPlace,
 ) async {
-  final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/inventory'),
+  final response = await http.put(
+    Uri.parse('http://10.0.2.2:8080/api/inventory/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
