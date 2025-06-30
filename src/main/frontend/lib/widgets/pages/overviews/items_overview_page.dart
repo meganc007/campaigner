@@ -4,6 +4,7 @@ import 'package:frontend/models/items_overview.dart';
 import 'package:frontend/models/section.dart';
 import 'package:frontend/services/data%20providers/item_data_provider.dart';
 import 'package:frontend/services/items_overview_service.dart';
+import 'package:frontend/util/helpers.dart';
 import 'package:frontend/widgets/pages/items/detail/damage_type_detail_page.dart';
 import 'package:frontend/widgets/pages/items/detail/dice_type_detail_page.dart';
 import 'package:frontend/widgets/pages/items/detail/inventory_detail_page.dart';
@@ -90,13 +91,8 @@ class _ItemsOverviewPageState extends State<ItemsOverviewPage> {
           child: FutureBuilder<ItemsOverview>(
             future: _future,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData) {
-                return const Center(child: Text('No data available.'));
-              }
+              final validationResult = futureBuilderValidation(snapshot);
+              if (validationResult != null) return validationResult;
 
               final itemOverview = snapshot.data!;
 
