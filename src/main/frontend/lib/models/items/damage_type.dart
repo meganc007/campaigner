@@ -1,7 +1,7 @@
 class DamageType {
   final int id;
   final String name;
-  final String description;
+  final String? description;
 
   const DamageType({
     required this.id,

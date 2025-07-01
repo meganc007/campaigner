@@ -1,8 +1,8 @@
 class DiceType {
   final int id;
   final String name;
-  final String description;
-  final int maxRoll;
+  final String? description;
+  final int? maxRoll;
 
   const DiceType({
     required this.id,
