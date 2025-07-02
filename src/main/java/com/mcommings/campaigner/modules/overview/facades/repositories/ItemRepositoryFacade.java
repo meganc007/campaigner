@@ -21,11 +21,11 @@ public class ItemRepositoryFacade {
     private final IWeaponTypeRepository weaponTypeRepository;
 
     public List<DamageType> findDamageTypes() {
-        return damageTypeRepository.findAll();
+        return damageTypeRepository.findAllByOrderByNameAsc();
     }
 
     public List<DiceType> findDiceTypes() {
-        return diceTypeRepository.findAll();
+        return diceTypeRepository.findAllByOrderByNameAsc();
     }
 
     public List<Inventory> findInventoryByCampaign(UUID uuid) {
@@ -45,6 +45,6 @@ public class ItemRepositoryFacade {
     }
 
     public List<WeaponType> findWeaponTypes() {
-        return weaponTypeRepository.findAll();
+        return weaponTypeRepository.findAllByOrderByNameAsc();
     }
 }

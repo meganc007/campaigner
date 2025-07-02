@@ -1,7 +1,7 @@
 class WeaponType {
   final int id;
   final String name;
-  final String description;
+  final String? description;
 
   const WeaponType({
     required this.id,
