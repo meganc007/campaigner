@@ -31,7 +31,6 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
       list.sort((a, b) => a.name.compareTo(b.name));
       return list;
     });
-    ;
   }
 
   Future<void> _refreshData() async {
@@ -40,7 +39,6 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
         list.sort((a, b) => a.name.compareTo(b.name));
         return list;
       });
-      ;
     });
   }
 

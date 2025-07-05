@@ -35,7 +35,6 @@ class _WeaponDetailPageState extends State<WeaponDetailPage> {
       list.sort((a, b) => a.name.compareTo(b.name));
       return list;
     });
-    ;
   }
 
   Future<void> _refreshData() async {
@@ -44,7 +43,6 @@ class _WeaponDetailPageState extends State<WeaponDetailPage> {
         list.sort((a, b) => a.name.compareTo(b.name));
         return list;
       });
-      ;
     });
   }
 

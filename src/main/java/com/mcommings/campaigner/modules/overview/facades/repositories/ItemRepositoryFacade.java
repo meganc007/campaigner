@@ -2,10 +2,15 @@ package com.mcommings.campaigner.modules.overview.facades.repositories;
 
 import com.mcommings.campaigner.modules.items.entities.*;
 import com.mcommings.campaigner.modules.items.repositories.*;
+import com.mcommings.campaigner.modules.locations.entities.Place;
+import com.mcommings.campaigner.modules.locations.repositories.IPlaceRepository;
+import com.mcommings.campaigner.modules.people.entities.Person;
+import com.mcommings.campaigner.modules.people.repositories.IPersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -19,6 +24,8 @@ public class ItemRepositoryFacade {
     private final IItemTypeRepository itemTypeRepository;
     private final IWeaponRepository weaponRepository;
     private final IWeaponTypeRepository weaponTypeRepository;
+    private final IPersonRepository personRepository;
+    private final IPlaceRepository placeRepository;
 
     public List<DamageType> findDamageTypes() {
         return damageTypeRepository.findAllByOrderByNameAsc();
@@ -46,5 +53,13 @@ public class ItemRepositoryFacade {
 
     public List<WeaponType> findWeaponTypes() {
         return weaponTypeRepository.findAllByOrderByNameAsc();
+    }
+
+    public Optional<Person> findPerson(int id) {
+        return personRepository.findById(id);
+    }
+
+    public Optional<Place> findPlace(int id) {
+        return placeRepository.findById(id);
     }
 }

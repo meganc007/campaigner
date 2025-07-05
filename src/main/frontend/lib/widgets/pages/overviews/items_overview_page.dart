@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/items/inventory.dart';
 import 'package:frontend/models/items_overview.dart';
 import 'package:frontend/models/section.dart';
 import 'package:frontend/services/data%20providers/item_data_provider.dart';
@@ -55,29 +54,6 @@ class _ItemsOverviewPageState extends State<ItemsOverviewPage> {
     return items.map((item) => (item as dynamic).name as String).toList();
   }
 
-  Map<String, List<Inventory>> groupInventoryByOwner(
-    List<Inventory> inventory,
-    Map<int, String> personNames,
-    Map<int, String> placeNames,
-  ) {
-    final Map<String, List<Inventory>> grouped = {};
-
-    for (final item in inventory) {
-      String ownerKey;
-      if (item.fkPerson != null) {
-        ownerKey = personNames[item.fkPerson!] ?? 'Unknown Person';
-      } else if (item.fkPlace != null) {
-        ownerKey = placeNames[item.fkPlace!] ?? 'Unknown Place';
-      } else {
-        ownerKey = 'Unassigned';
-      }
-
-      grouped.putIfAbsent(ownerKey, () => []).add(item);
-    }
-
-    return grouped;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<ItemDataProvider>(
@@ -96,14 +72,12 @@ class _ItemsOverviewPageState extends State<ItemsOverviewPage> {
 
               final itemOverview = snapshot.data!;
 
-              final personNames = itemDataProvider.personMap;
-              final placeNames = itemDataProvider.placeMap;
+              final Set<String> uniqueNames = itemOverview.inventories
+                  .map((inv) => inv.personName ?? inv.placeName ?? '')
+                  .where((name) => name.isNotEmpty)
+                  .toSet();
 
-              final inventoryByOwner = groupInventoryByOwner(
-                itemOverview.inventories,
-                personNames,
-                placeNames,
-              );
+              final List<String> sortedNames = uniqueNames.toList()..sort();
 
               final List<Widget> sectionWidgets = [
                 OverviewSection(
@@ -171,10 +145,7 @@ class _ItemsOverviewPageState extends State<ItemsOverviewPage> {
                   },
                 ),
                 OverviewSection(
-                  section: Section(
-                    "Inventories".toUpperCase(),
-                    inventoryByOwner.keys.toList(),
-                  ),
+                  section: Section("Inventories".toUpperCase(), sortedNames),
                   onSeeMore: () async {
                     await Navigator.push(
                       context,

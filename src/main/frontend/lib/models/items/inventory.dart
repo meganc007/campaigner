@@ -5,6 +5,8 @@ class Inventory {
   final int? fkItem;
   final int? fkWeapon;
   final int? fkPlace;
+  final String? personName;
+  final String? placeName;
 
   const Inventory({
     required this.id,
@@ -13,6 +15,8 @@ class Inventory {
     required this.fkItem,
     required this.fkWeapon,
     required this.fkPlace,
+    this.personName,
+    this.placeName,
   });
 
   factory Inventory.fromJson(Map<String, dynamic> json) {
@@ -24,6 +28,8 @@ class Inventory {
         fkItem: json['fk_item'],
         fkWeapon: json['fk_weapon'],
         fkPlace: json['fk_place'],
+        personName: json['personName'],
+        placeName: json['placeName'],
       );
     } catch (e) {
       throw FormatException('Inventory parse error: $e');
