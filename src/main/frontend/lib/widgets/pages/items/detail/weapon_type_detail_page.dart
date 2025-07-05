@@ -17,16 +17,23 @@ class WeaponTypeDetailPage extends StatefulWidget {
 
 class _WeaponTypeDetailPageState extends State<WeaponTypeDetailPage> {
   late Future<List<WeaponType>> _futureWeaponTypes;
+  String? selectedCategory;
 
   @override
   void initState() {
     super.initState();
-    _futureWeaponTypes = fetchWeaponTypes();
+    _futureWeaponTypes = fetchWeaponTypes().then((list) {
+      list.sort((a, b) => a.name.compareTo(b.name));
+      return list;
+    });
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      _futureWeaponTypes = fetchWeaponTypes();
+      _futureWeaponTypes = fetchWeaponTypes().then((list) {
+        list.sort((a, b) => a.name.compareTo(b.name));
+        return list;
+      });
     });
   }
 

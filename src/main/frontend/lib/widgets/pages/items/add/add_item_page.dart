@@ -196,7 +196,7 @@ class _AddItemPageState extends State<AddItemPage> {
                   const SizedBox(height: 12),
                   StyledTextField(
                     controller: _weightController,
-                    label: 'Item Weight (lbs)',
+                    label: 'Weight (lbs)',
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     validator: (value) {

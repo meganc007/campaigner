@@ -50,7 +50,7 @@ Future<bool> createWeapon(
 ) async {
   final response = await http.post(
     Uri.parse('http://10.0.2.2:8080/api/weapons'),
-    headers: {'Content-': 'application/json'},
+    headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "name": name,
       "description": description,
@@ -95,7 +95,7 @@ Future<bool> editWeapon(
 ) async {
   final response = await http.put(
     Uri.parse('http://10.0.2.2:8080/api/weapons/$id'),
-    headers: {'Content-': 'application/json'},
+    headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
       "name": name,
