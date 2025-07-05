@@ -45,7 +45,7 @@ class _ItemEditPageState extends State<ItemEditPage> {
     super.initState();
     _loadInitialData();
     _nameController.text = widget.item.name;
-    _descriptionController.text = widget.item.description!;
+    _descriptionController.text = widget.item.description ?? '';
     _rarityController.text = widget.item.rarity!;
     _goldValueController.text = widget.item.goldValue!.toString();
     _silverValueController.text = widget.item.silverValue!.toString();
@@ -53,7 +53,7 @@ class _ItemEditPageState extends State<ItemEditPage> {
     _weightController.text = widget.item.weight!.toString();
     _isMagical = widget.item.isMagical!;
     _isCursed = widget.item.isCursed!;
-    _notesController.text = widget.item.notes!;
+    _notesController.text = widget.item.notes ?? '';
   }
 
   @override

@@ -27,12 +27,20 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   @override
   void initState() {
     super.initState();
-    _futureItems = fetchItems(widget.uuid);
+    _futureItems = fetchItems(widget.uuid).then((list) {
+      list.sort((a, b) => a.name.compareTo(b.name));
+      return list;
+    });
+    ;
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      _futureItems = fetchItems(widget.uuid);
+      _futureItems = fetchItems(widget.uuid).then((list) {
+        list.sort((a, b) => a.name.compareTo(b.name));
+        return list;
+      });
+      ;
     });
   }
 

@@ -31,12 +31,20 @@ class _WeaponDetailPageState extends State<WeaponDetailPage> {
   @override
   void initState() {
     super.initState();
-    _futureWeapons = fetchWeapons(widget.uuid);
+    _futureWeapons = fetchWeapons(widget.uuid).then((list) {
+      list.sort((a, b) => a.name.compareTo(b.name));
+      return list;
+    });
+    ;
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      _futureWeapons = fetchWeapons(widget.uuid);
+      _futureWeapons = fetchWeapons(widget.uuid).then((list) {
+        list.sort((a, b) => a.name.compareTo(b.name));
+        return list;
+      });
+      ;
     });
   }
 
