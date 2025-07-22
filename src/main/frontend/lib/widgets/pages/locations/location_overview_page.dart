@@ -3,6 +3,7 @@ import 'package:frontend/models/locations_overview.dart';
 import 'package:frontend/models/section.dart';
 import 'package:frontend/services/data%20providers/location_data_provider.dart';
 import 'package:frontend/services/locations_overview_service.dart';
+import 'package:frontend/util/helpers.dart';
 import 'package:frontend/widgets/pages/locations/detail/city_detail_page.dart';
 import 'package:frontend/widgets/pages/climate_detail_page.dart';
 import 'package:frontend/widgets/pages/locations/detail/continent_detail_page.dart';
@@ -64,13 +65,8 @@ class _LocationOverviewPageState extends State<LocationOverviewPage> {
           child: FutureBuilder<LocationsOverview>(
             future: _future,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData) {
-                return const Center(child: Text('No data available.'));
-              }
+              final validationResult = futureBuilderValidation(snapshot);
+              if (validationResult != null) return validationResult;
 
               final locationOverview = snapshot.data!;
 

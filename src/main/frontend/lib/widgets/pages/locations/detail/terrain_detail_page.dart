@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/location/terrain.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/locations/terrain_service.dart';
+import 'package:frontend/util/helpers.dart';
 import 'package:frontend/widgets/pages/locations/add/add_terrain_page.dart';
 import 'package:frontend/widgets/pages/locations/edit/terrain_edit_page.dart';
 import 'package:frontend/widgets/reusable/create_new_button.dart';
@@ -38,13 +39,8 @@ class _TerrainDetailPageState extends State<TerrainDetailPage> {
         child: FutureBuilder(
           future: _futureTerrains,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData) {
-              return const Center(child: Text('No data available.'));
-            }
+            final validationResult = futureBuilderValidation(snapshot);
+            if (validationResult != null) return validationResult;
 
             final placeTypes = snapshot.data!;
 

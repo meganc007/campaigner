@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/location/place.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/locations/place_service.dart';
+import 'package:frontend/util/helpers.dart';
 import 'package:frontend/widgets/pages/locations/add/add_place_page.dart';
 import 'package:frontend/widgets/pages/locations/edit/place_edit_page.dart';
 import 'package:frontend/widgets/reusable/create_new_button.dart';
@@ -52,13 +53,8 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
         child: FutureBuilder(
           future: _futurePlaces,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData) {
-              return const Center(child: Text('No data available.'));
-            }
+            final validationResult = futureBuilderValidation(snapshot);
+            if (validationResult != null) return validationResult;
 
             final places = snapshot.data!;
 

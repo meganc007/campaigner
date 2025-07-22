@@ -30,10 +30,10 @@ public class Person {
     private Integer fk_wealth;
     private Integer fk_ability_score;
 
-    @Column(name = "isNPC", nullable = false)
+    @Column(name = "isnpc", nullable = false)
     private Boolean isNPC;
 
-    @Column(name = "isEnemy", nullable = false)
+    @Column(name = "isenemy", nullable = false)
     private Boolean isEnemy;
 
     private String personality;

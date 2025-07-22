@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/campaign.dart';
+import 'package:frontend/models/items_overview.dart';
 import 'package:frontend/models/locations_overview.dart';
+import 'package:frontend/services/data%20providers/item_data_provider.dart';
 import 'package:frontend/services/data%20providers/location_data_provider.dart';
+import 'package:frontend/services/items_overview_service.dart';
 import 'package:frontend/services/locations_overview_service.dart';
 import 'package:frontend/widgets/pages/overviews/calendar_overview_page.dart';
 import 'package:frontend/widgets/pages/campaign/campaign_overview_page.dart';
@@ -23,12 +26,14 @@ class CampaignDetailPage extends StatefulWidget {
 
 class _CampaignDetailPageState extends State<CampaignDetailPage> {
   late Future<LocationsOverview> _futureLocations;
+  late Future<ItemsOverview> _futureItems;
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _futureLocations = fetchLocationsOverview(widget.campaign.uuid);
+    _futureItems = fetchItemsOverview(widget.campaign.uuid);
   }
 
   @override
@@ -46,6 +51,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
       CampaignOverviewPage(
         campaign: widget.campaign,
         futureLocations: _futureLocations,
+        futureItems: _futureItems,
       ),
       ChangeNotifierProvider<LocationDataProvider>(
         create: (_) => LocationDataProvider(widget.campaign.uuid),
@@ -55,7 +61,13 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         ),
       ),
       PeopleOverviewPage(),
-      ItemsOverviewPage(),
+      ChangeNotifierProvider(
+        create: (_) => ItemDataProvider(widget.campaign.uuid),
+        child: ItemsOverviewPage(
+          uuid: widget.campaign.uuid,
+          futureItems: _futureItems,
+        ),
+      ),
       QuestsOverviewPage(),
       CalendarOverviewPage(),
       CommonOverviewPage(),

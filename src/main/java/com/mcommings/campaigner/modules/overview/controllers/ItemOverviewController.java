@@ -1,6 +1,7 @@
 package com.mcommings.campaigner.modules.overview.controllers;
 
 import com.mcommings.campaigner.modules.overview.dtos.ItemOverviewDTO;
+import com.mcommings.campaigner.modules.overview.helpers.InventoryOverview;
 import com.mcommings.campaigner.modules.overview.services.interfaces.IItemOverview;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -20,5 +22,10 @@ public class ItemOverviewController {
     @GetMapping(path = "/{uuid}")
     public ItemOverviewDTO getItemOverview(@PathVariable("uuid") UUID uuid) {
         return itemService.getItemOverview(uuid);
+    }
+
+    @GetMapping(path = "/{uuid}/inventories")
+    public List<InventoryOverview> getInventoryOverview(@PathVariable("uuid") UUID uuid) {
+        return itemService.getInventoryOverview(uuid);
     }
 }
