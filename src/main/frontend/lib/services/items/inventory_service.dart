@@ -32,20 +32,20 @@ Future<Inventory> fetchInventory(int id) async {
 
 Future<bool> createInventory(
   String uuid,
-  int fkPerson,
-  int fkItem,
-  int fkWeapon,
-  int fkPlace,
+  int? fkPerson,
+  int? fkItem,
+  int? fkWeapon,
+  int? fkPlace,
 ) async {
   final response = await http.post(
     Uri.parse('http://10.0.2.2:8080/api/inventory'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "fk_campaign_uuid": uuid,
-      "fk_person": fkPerson,
-      "fk_item": fkItem,
-      "fk_weapon": fkWeapon,
-      "fk_place": fkPlace,
+      if (fkPerson != null) "fk_person": fkPerson,
+      if (fkItem != null) "fk_item": fkItem,
+      if (fkWeapon != null) "fk_weapon": fkWeapon,
+      if (fkPlace != null) "fk_place": fkPlace,
     }),
   );
 
@@ -55,10 +55,10 @@ Future<bool> createInventory(
 Future<bool> editInventory(
   String uuid,
   int id,
-  int fkPerson,
-  int fkItem,
-  int fkWeapon,
-  int fkPlace,
+  int? fkPerson,
+  int? fkItem,
+  int? fkWeapon,
+  int? fkPlace,
 ) async {
   final response = await http.put(
     Uri.parse('http://10.0.2.2:8080/api/inventory/$id'),
@@ -66,10 +66,10 @@ Future<bool> editInventory(
     body: jsonEncode({
       "id": id,
       "fk_campaign_uuid": uuid,
-      "fk_person": fkPerson,
-      "fk_item": fkItem,
-      "fk_weapon": fkWeapon,
-      "fk_place": fkPlace,
+      if (fkPerson != null) "fk_person": fkPerson,
+      if (fkItem != null) "fk_item": fkItem,
+      if (fkWeapon != null) "fk_weapon": fkWeapon,
+      if (fkPlace != null) "fk_place": fkPlace,
     }),
   );
 

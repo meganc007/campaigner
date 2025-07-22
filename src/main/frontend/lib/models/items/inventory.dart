@@ -19,6 +19,11 @@ class Inventory {
     this.placeName,
   });
 
+  @override
+  String toString() {
+    return 'Inventory(id: $id, fkPerson: $fkPerson, fkItem: $fkItem, fkWeapon: $fkWeapon, fkPlace: $fkPlace, personName: $personName, placeName: $placeName)';
+  }
+
   factory Inventory.fromJson(Map<String, dynamic> json) {
     try {
       return Inventory(

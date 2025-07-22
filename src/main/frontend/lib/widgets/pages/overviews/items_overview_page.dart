@@ -150,7 +150,11 @@ class _ItemsOverviewPageState extends State<ItemsOverviewPage> {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => InventoryDetailPage(uuid: widget.uuid),
+                        builder: (_) => InventoryDetailPage(
+                          uuid: widget.uuid,
+                          itemMap: itemDataProvider.itemMap,
+                          weaponMap: itemDataProvider.weaponMap,
+                        ),
                       ),
                     );
                     await _refreshData();

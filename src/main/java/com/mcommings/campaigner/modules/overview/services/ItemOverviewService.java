@@ -26,25 +26,25 @@ public class ItemOverviewService implements IItemOverview {
     private final ItemRepositoryFacade itemRepositoryFacade;
 
     @Override
-    public ItemOverviewDTO getItemOverview(UUID campaignId) {
+    public ItemOverviewDTO getItemOverview(UUID uuid) {
         var damageTypes = itemRepositoryFacade.findDamageTypes()
                 .stream().map(itemMapperFacade::toDamageTypeDto).toList();
 
         var diceTypes = itemRepositoryFacade.findDiceTypes()
                 .stream().map(itemMapperFacade::toDiceTypeDto).toList();
 
-        var inventories = itemRepositoryFacade.findInventoryByCampaign(campaignId)
+        var inventories = itemRepositoryFacade.findInventoryByCampaign(uuid)
                 .stream().map(itemMapperFacade::toInventoryDto).toList();
 
         var inventoryOverviews = mapInventoryDTOtoInventoryOverview(inventories);
 
-        var items = itemRepositoryFacade.findItemsByCampaign(campaignId)
+        var items = itemRepositoryFacade.findItemsByCampaign(uuid)
                 .stream().map(itemMapperFacade::toItemDto).toList();
 
         var itemTypes = itemRepositoryFacade.findItemTypes()
                 .stream().map(itemMapperFacade::toItemTypeDto).toList();
 
-        var weapons = itemRepositoryFacade.findWeaponsByCampaign(campaignId)
+        var weapons = itemRepositoryFacade.findWeaponsByCampaign(uuid)
                 .stream().map(itemMapperFacade::toWeaponDto).toList();
 
         var weaponTypes = itemRepositoryFacade.findWeaponTypes()
@@ -61,6 +61,13 @@ public class ItemOverviewService implements IItemOverview {
                 .build();
     }
 
+    @Override
+    public List<InventoryOverview> getInventoryOverview(UUID uuid) {
+        var inventories = itemRepositoryFacade.findInventoryByCampaign(uuid)
+                .stream().map(itemMapperFacade::toInventoryDto).toList();
+        return mapInventoryDTOtoInventoryOverview(inventories);
+    }
+
     private List<InventoryOverview> mapInventoryDTOtoInventoryOverview(List<InventoryDTO> inventories) {
         List<InventoryOverview> overviews = new ArrayList<>();
         for (InventoryDTO inventory : inventories) {
@@ -74,6 +81,7 @@ public class ItemOverviewService implements IItemOverview {
                     .id(inventory.getId())
                     .fk_campaign_uuid(inventory.getFk_campaign_uuid())
                     .fk_person(inventory.getFk_person())
+                    .fk_item(inventory.getFk_item())
                     .fk_weapon(inventory.getFk_weapon())
                     .fk_place(inventory.getFk_place())
                     .personName(personName)
