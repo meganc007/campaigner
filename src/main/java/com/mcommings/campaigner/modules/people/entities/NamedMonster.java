@@ -28,7 +28,7 @@ public class NamedMonster {
     private Integer fk_wealth;
     private Integer fk_ability_score;
     private Integer fk_generic_monster;
-    @Column(name = "isEnemy", nullable = false)
+    @Column(name = "isenemy", nullable = false)
     private Boolean isEnemy;
     private String personality;
     private String description;

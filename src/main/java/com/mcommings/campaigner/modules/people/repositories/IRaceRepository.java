@@ -12,4 +12,6 @@ public interface IRaceRepository extends JpaRepository<Race, Integer> {
     Optional<Race> findByName(String name);
 
     List<Race> findByIsExotic(Boolean isExotic);
+
+    List<Race> findAllByOrderByNameAsc();
 }
