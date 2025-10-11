@@ -54,6 +54,7 @@ public class ItemTypeTest {
 
     @Test
     public void whenThereAreItemTypes_getItemTypes_ReturnsItemTypes() {
+        when(itemTypeRepository.findAllByOrderByNameAsc()).thenReturn(List.of(entity));
         when(itemTypeRepository.findAll()).thenReturn(List.of(entity));
         List<ItemTypeDTO> result = itemTypeService.getItemTypes();
 
