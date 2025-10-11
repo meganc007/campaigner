@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -41,12 +42,20 @@ public class PeopleRepositoryFacade {
         return jobRepository.findAllByOrderByNameAsc();
     }
 
+    public Optional<Job> findJob(int id) {
+        return jobRepository.findById(id);
+    }
+
     public List<NamedMonster> findNamedMonsters(UUID uuid) {
         return namedMonsterRepository.findByfk_campaign_uuid(uuid);
     }
 
     public List<Person> findPersons(UUID uuid) {
         return personRepository.findByfk_campaign_uuid(uuid);
+    }
+
+    public Optional<Person> findPerson(int id) {
+        return personRepository.findById(id);
     }
 
     public List<Race> findRaces() {
