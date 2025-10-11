@@ -1,7 +1,7 @@
 class NamedMonster {
   final int id;
   final String firstName;
-  final String lastName;
+  final String? lastName;
   final String title;
   final int? fkWealth;
   final int? fkAbilityScore;
@@ -15,7 +15,7 @@ class NamedMonster {
   const NamedMonster({
     required this.id,
     required this.firstName,
-    required this.lastName,
+    this.lastName,
     required this.title,
     this.fkWealth,
     this.fkAbilityScore,
@@ -26,6 +26,15 @@ class NamedMonster {
     required this.notes,
     required this.fkCampaignUuid,
   });
+
+  String get fullName {
+    final f = firstName.trim();
+    final l = (lastName ?? '').trim();
+    if (l.isEmpty) return f;
+    return '$f $l';
+  }
+
+  String get name => fullName;
 
   factory NamedMonster.fromJson(Map<String, dynamic> json) {
     try {

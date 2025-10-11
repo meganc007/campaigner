@@ -31,6 +31,15 @@ class Person {
     required this.fkCampaignUuid,
   });
 
+  String get fullName {
+    final f = firstName.trim();
+    final l = (lastName ?? '').trim();
+    if (l.isEmpty) return f;
+    return '$f $l';
+  }
+
+  String get name => fullName;
+
   factory Person.fromJson(Map<String, dynamic> json) {
     try {
       return Person(
