@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/campaign.dart';
 import 'package:frontend/models/items_overview.dart';
 import 'package:frontend/models/locations_overview.dart';
+import 'package:frontend/models/people_overview.dart';
 import 'package:frontend/services/data%20providers/item_data_provider.dart';
 import 'package:frontend/services/data%20providers/location_data_provider.dart';
+import 'package:frontend/services/data%20providers/people_data_provider.dart';
 import 'package:frontend/services/items_overview_service.dart';
 import 'package:frontend/services/locations_overview_service.dart';
+import 'package:frontend/services/people_overview_service.dart';
 import 'package:frontend/widgets/pages/overviews/calendar_overview_page.dart';
 import 'package:frontend/widgets/pages/campaign/campaign_overview_page.dart';
 import 'package:frontend/widgets/pages/overviews/common_overview_page.dart';
-import 'package:frontend/widgets/pages/overviews/items_overview_page.dart';
+import 'package:frontend/widgets/pages/items/items_overview_page.dart';
 import 'package:frontend/widgets/pages/locations/location_overview_page.dart';
 import 'package:frontend/widgets/main_nav.dart';
-import 'package:frontend/widgets/pages/overviews/people_overview_page.dart';
+import 'package:frontend/widgets/pages/people/people_overview_page.dart';
 import 'package:frontend/widgets/pages/overviews/quests_overview_page.dart';
 import 'package:provider/provider.dart';
 
@@ -27,6 +30,7 @@ class CampaignDetailPage extends StatefulWidget {
 class _CampaignDetailPageState extends State<CampaignDetailPage> {
   late Future<LocationsOverview> _futureLocations;
   late Future<ItemsOverview> _futureItems;
+  late Future<PeopleOverview> _futurePeople;
   int _currentIndex = 0;
 
   @override
@@ -34,6 +38,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     super.initState();
     _futureLocations = fetchLocationsOverview(widget.campaign.uuid);
     _futureItems = fetchItemsOverview(widget.campaign.uuid);
+    _futurePeople = fetchPeopleOverview(widget.campaign.uuid);
   }
 
   @override
@@ -52,6 +57,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         campaign: widget.campaign,
         futureLocations: _futureLocations,
         futureItems: _futureItems,
+        futurePeople: _futurePeople,
       ),
       ChangeNotifierProvider<LocationDataProvider>(
         create: (_) => LocationDataProvider(widget.campaign.uuid),
@@ -60,7 +66,13 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
           futureLocations: _futureLocations,
         ),
       ),
-      PeopleOverviewPage(),
+      ChangeNotifierProvider(
+        create: (_) => PeopleDataProvider(widget.campaign.uuid),
+        child: PeopleOverviewPage(
+          uuid: widget.campaign.uuid,
+          futurePeople: _futurePeople,
+        ),
+      ),
       ChangeNotifierProvider(
         create: (_) => ItemDataProvider(widget.campaign.uuid),
         child: ItemsOverviewPage(
