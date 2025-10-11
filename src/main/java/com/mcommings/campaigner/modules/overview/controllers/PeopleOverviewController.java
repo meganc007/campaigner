@@ -1,6 +1,7 @@
 package com.mcommings.campaigner.modules.overview.controllers;
 
 import com.mcommings.campaigner.modules.overview.dtos.PeopleOverviewDTO;
+import com.mcommings.campaigner.modules.overview.helpers.EventPlacePersonOverview;
 import com.mcommings.campaigner.modules.overview.helpers.JobAssignmentOverview;
 import com.mcommings.campaigner.modules.overview.services.interfaces.IPeopleOverview;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +28,10 @@ public class PeopleOverviewController {
     @GetMapping(path = "/{uuid}/jobAssignments")
     public List<JobAssignmentOverview> getJobAssignmentOverview(@PathVariable("uuid") UUID uuid) {
         return peopleService.getJobAssignmentOverview(uuid);
+    }
+
+    @GetMapping(path = "/{uuid}/eventPlacePersons")
+    public List<EventPlacePersonOverview> getEventPlacePersonOverview(@PathVariable("uuid") UUID uuid) {
+        return peopleService.getEventPlacePersonOverview(uuid);
     }
 }
