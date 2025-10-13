@@ -28,7 +28,7 @@ Future<Race> fetchRace(int id) async {
   }
 }
 
-Future<bool> createRace(String name, String description, bool isExotic) async {
+Future<bool> createRace(String name, String description, bool? isExotic) async {
   final response = await http.post(
     Uri.parse('http://10.0.2.2:8080/api/races'),
     headers: {'Content-Type': 'application/json'},
@@ -46,7 +46,7 @@ Future<bool> editRace(
   int id,
   String name,
   String description,
-  bool isExotic,
+  bool? isExotic,
 ) async {
   final response = await http.put(
     Uri.parse('http://10.0.2.2:8080/api/races/$id'),
