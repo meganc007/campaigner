@@ -7,6 +7,7 @@ import 'package:frontend/models/people/job_assignment.dart';
 import 'package:frontend/models/people/named_monster.dart';
 import 'package:frontend/models/people/person.dart';
 import 'package:frontend/models/people/race.dart';
+import 'package:frontend/models/wealth.dart';
 import 'package:frontend/services/people/ability_score_service.dart';
 import 'package:frontend/services/people/event_place_person_service.dart';
 import 'package:frontend/services/people/generic_monster_service.dart';
@@ -15,6 +16,7 @@ import 'package:frontend/services/people/job_service.dart';
 import 'package:frontend/services/people/named_monster_service.dart';
 import 'package:frontend/services/people/person_service.dart';
 import 'package:frontend/services/people/race_service.dart';
+import 'package:frontend/services/wealth_service.dart';
 
 class PeopleDataProvider extends ChangeNotifier {
   final String uuid;
@@ -36,7 +38,7 @@ class PeopleDataProvider extends ChangeNotifier {
   List<Person> get people => List.unmodifiable(_people);
   // List<Person> get races => List.unmodifiable(_races);
 
-  // Map<int, String> _abilityScoreMap = {};
+  Map<int, String> _abilityScoreMap = {};
   //Map<int, String> _eventPlacePersonMap = {};
   Map<int, String> _genericMonsterMap = {};
   //Map<int, String> _jobAssignmentMap = {};
@@ -44,11 +46,12 @@ class PeopleDataProvider extends ChangeNotifier {
   Map<int, String> _namedMonsterMap = {};
   Map<int, String> _personMap = {};
   Map<int, String> _raceMap = {};
+  Map<int, String> _wealthMap = {};
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  // Map<int, String> get abilityScoreMap => Map.unmodifiable(_abilityScoreMap);
+  Map<int, String> get abilityScoreMap => Map.unmodifiable(_abilityScoreMap);
   // Map<int, String> get eventPlacePersonMap =>
   //     Map.unmodifiable(_eventPlacePersonMap);
   Map<int, String> get genericMonsterMap =>
@@ -58,6 +61,7 @@ class PeopleDataProvider extends ChangeNotifier {
   Map<int, String> get namedMonsterMap => Map.unmodifiable(_namedMonsterMap);
   Map<int, String> get personMap => Map.unmodifiable(_personMap);
   Map<int, String> get raceMap => Map.unmodifiable(_raceMap);
+  Map<int, String> get wealthMap => Map.unmodifiable(_wealthMap);
 
   Future<void> load() async {
     if (_initialized) return;
@@ -75,6 +79,7 @@ class PeopleDataProvider extends ChangeNotifier {
         fetchNamedMonsters(uuid),
         fetchPeople(uuid),
         fetchRaces(),
+        fetchWealth(),
       ]);
 
       final abilityScores = results[0] as List<AbilityScore>;
@@ -85,12 +90,14 @@ class PeopleDataProvider extends ChangeNotifier {
       final namedMonsters = results[5] as List<NamedMonster>;
       final people = results[6] as List<Person>;
       final races = results[7] as List<Race>;
+      final wealth = results[8] as List<Wealth>;
 
       _abilityScores = abilityScores;
       _eventPlacePersons = eventPlacePersons;
       _jobAssignments = jobAssignments;
       _people = people;
 
+      _abilityScoreMap = {for (var as in abilityScores) as.id: as.toString()};
       // _eventPlacePersonMap = {};
       _genericMonsterMap = {for (var gm in genericMonsters) gm.id: gm.name};
       // _jobAssignmentMap = {};
@@ -103,6 +110,7 @@ class PeopleDataProvider extends ChangeNotifier {
         for (var p in people) p.id: '${p.firstName} ${p.lastName ?? ''}'.trim(),
       };
       _raceMap = {for (var r in races) r.id: r.name};
+      _wealthMap = {for (var w in wealth) w.id: w.name};
     } catch (e) {
       _isLoading = false;
       notifyListeners();

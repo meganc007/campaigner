@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/models/people/ability_score.dart';
 import 'package:frontend/models/people_overview.dart';
 import 'package:frontend/models/section.dart';
 import 'package:frontend/services/data%20providers/people_data_provider.dart';
@@ -11,7 +12,7 @@ import 'package:frontend/widgets/pages/people/detail/generic_monster_detail_page
 import 'package:frontend/widgets/pages/people/detail/job_assignment_detail_page.dart';
 import 'package:frontend/widgets/pages/people/detail/job_detail_page.dart';
 import 'package:frontend/widgets/pages/people/detail/named_monster_detail_page.dart';
-import 'package:frontend/widgets/pages/people/detail/people_detail_page.dart';
+import 'package:frontend/widgets/pages/people/detail/person_detail_page.dart';
 import 'package:frontend/widgets/pages/people/detail/race_detail_page.dart';
 import 'package:provider/provider.dart';
 
@@ -56,7 +57,11 @@ class _PeopleOverviewPageState extends State<PeopleOverviewPage> {
   }
 
   List<String> mapIdsToList(List<dynamic> items) {
-    return items.map((item) => (item as dynamic).id as String).toList();
+    return items.map((item) => (item as dynamic).id.toString()).toList();
+  }
+
+  List<String> abilityScoresToString(List<dynamic> items) {
+    return items.map((item) => (item as AbilityScore).toShortString()).toList();
   }
 
   @override
@@ -108,7 +113,12 @@ class _PeopleOverviewPageState extends State<PeopleOverviewPage> {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => PeopleDetailPage(uuid: widget.uuid),
+                        builder: (_) => PersonDetailPage(
+                          uuid: widget.uuid,
+                          raceMap: peopleDataProvider.raceMap,
+                          wealthMap: peopleDataProvider.wealthMap,
+                          abilityScoreMap: peopleDataProvider.abilityScoreMap,
+                        ),
                       ),
                     );
                     await _refreshData();

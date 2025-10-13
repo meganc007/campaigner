@@ -24,6 +24,10 @@ class AbilityScore {
     return 'AbilityScore(id: $id, fkCampaignUuid: $fkCampaignUuid, strength: $strength, dexterity: $dexterity, constitution: $constitution, intelligence: $intelligence, wisdom: $wisdom, charisma: $charisma)';
   }
 
+  String toShortString() {
+    return 'id: $id,\n strength: $strength,\n dexterity: $dexterity,\n constitution: $constitution,\n intelligence: $intelligence,\n wisdom: $wisdom,\n charisma: $charisma';
+  }
+
   factory AbilityScore.fromJson(Map<String, dynamic> json) {
     try {
       return AbilityScore(
