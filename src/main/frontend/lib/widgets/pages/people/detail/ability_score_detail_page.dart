@@ -23,13 +23,13 @@ class _AbilityScoreDetailPageState extends State<AbilityScoreDetailPage> {
   void initState() {
     super.initState();
     setState(() {
-      _futureAbilityScores = fetchAbilityScores();
+      _futureAbilityScores = fetchAbilityScores(widget.uuid);
     });
   }
 
   Future<void> _refreshData() async {
     setState(() {
-      _futureAbilityScores = fetchAbilityScores();
+      _futureAbilityScores = fetchAbilityScores(widget.uuid);
     });
   }
 

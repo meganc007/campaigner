@@ -28,6 +28,10 @@ class AbilityScore {
     return 'id: $id,\n strength: $strength,\n dexterity: $dexterity,\n constitution: $constitution,\n intelligence: $intelligence,\n wisdom: $wisdom,\n charisma: $charisma';
   }
 
+  String statsOnly() {
+    return 'strength: $strength,\n dexterity: $dexterity,\n constitution: $constitution,\n intelligence: $intelligence,\n wisdom: $wisdom,\n charisma: $charisma';
+  }
+
   factory AbilityScore.fromJson(Map<String, dynamic> json) {
     try {
       return AbilityScore(

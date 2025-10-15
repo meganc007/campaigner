@@ -29,19 +29,15 @@ class PeopleDataProvider extends ChangeNotifier {
   List<EventPlacePerson> _eventPlacePersons = [];
   List<JobAssignment> _jobAssignments = [];
   List<Person> _people = [];
-  // List<Race> _races = [];
 
   List<Person> get abilityScores => List.unmodifiable(_abilityScores);
   List<EventPlacePerson> get eventPlacePersons =>
       List.unmodifiable(_eventPlacePersons);
   List<JobAssignment> get jobAssignments => List.unmodifiable(_jobAssignments);
   List<Person> get people => List.unmodifiable(_people);
-  // List<Person> get races => List.unmodifiable(_races);
 
   Map<int, String> _abilityScoreMap = {};
-  //Map<int, String> _eventPlacePersonMap = {};
   Map<int, String> _genericMonsterMap = {};
-  //Map<int, String> _jobAssignmentMap = {};
   Map<int, String> _jobMap = {};
   Map<int, String> _namedMonsterMap = {};
   Map<int, String> _personMap = {};
@@ -52,11 +48,8 @@ class PeopleDataProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Map<int, String> get abilityScoreMap => Map.unmodifiable(_abilityScoreMap);
-  // Map<int, String> get eventPlacePersonMap =>
-  //     Map.unmodifiable(_eventPlacePersonMap);
   Map<int, String> get genericMonsterMap =>
       Map.unmodifiable(_genericMonsterMap);
-  // Map<int, String> get jobAssignmentMap => Map.unmodifiable(_jobAssignmentMap);
   Map<int, String> get jobMap => Map.unmodifiable(_jobMap);
   Map<int, String> get namedMonsterMap => Map.unmodifiable(_namedMonsterMap);
   Map<int, String> get personMap => Map.unmodifiable(_personMap);
@@ -71,7 +64,7 @@ class PeopleDataProvider extends ChangeNotifier {
 
     try {
       final results = await Future.wait([
-        fetchAbilityScores(),
+        fetchAbilityScores(uuid),
         fetchEventPlacePersons(uuid),
         fetchGenericMonsters(uuid),
         fetchJobAssignments(uuid),
@@ -97,10 +90,8 @@ class PeopleDataProvider extends ChangeNotifier {
       _jobAssignments = jobAssignments;
       _people = people;
 
-      _abilityScoreMap = {for (var as in abilityScores) as.id: as.toString()};
-      // _eventPlacePersonMap = {};
+      _abilityScoreMap = {for (var as in abilityScores) as.id: as.statsOnly()};
       _genericMonsterMap = {for (var gm in genericMonsters) gm.id: gm.name};
-      // _jobAssignmentMap = {};
       _jobMap = {for (var j in jobs) j.id: j.name};
       _namedMonsterMap = {
         for (var nm in namedMonsters)

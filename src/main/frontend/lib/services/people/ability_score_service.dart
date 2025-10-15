@@ -4,9 +4,9 @@ import 'package:frontend/models/people/ability_score.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<AbilityScore>> fetchAbilityScores() async {
+Future<List<AbilityScore>> fetchAbilityScores(String uuid) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/abilityScores'),
+    Uri.parse('http://10.0.2.2:8080/api/abilityScores/campaign/$uuid'),
   );
 
   if (response.statusCode == 200) {
