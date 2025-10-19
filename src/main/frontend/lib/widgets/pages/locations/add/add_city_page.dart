@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/models/government.dart';
+import 'package:frontend/models/common/government.dart';
 import 'package:frontend/models/location/country.dart';
 import 'package:frontend/models/location/region.dart';
 import 'package:frontend/models/location/settlement_type.dart';
-import 'package:frontend/models/wealth.dart';
+import 'package:frontend/models/common/wealth.dart';
 import 'package:frontend/services/locations/city_service.dart';
 import 'package:frontend/services/locations/country_service.dart';
 import 'package:frontend/services/government_service.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/people/ability_score.dart';
-import 'package:frontend/models/people_overview.dart';
-import 'package:frontend/models/section.dart';
+import 'package:frontend/models/overviews/people_overview.dart';
+import 'package:frontend/widgets/reusable/section.dart';
 import 'package:frontend/services/data%20providers/people_data_provider.dart';
 import 'package:frontend/services/people_overview_service.dart';
 import 'package:frontend/util/helpers.dart';

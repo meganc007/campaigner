@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/campaign.dart';
-import 'package:frontend/models/items_overview.dart';
-import 'package:frontend/models/locations_overview.dart';
-import 'package:frontend/models/people_overview.dart';
+import 'package:frontend/models/common/campaign.dart';
+import 'package:frontend/models/overviews/items_overview.dart';
+import 'package:frontend/models/overviews/locations_overview.dart';
+import 'package:frontend/models/overviews/people_overview.dart';
 import 'package:frontend/services/data%20providers/item_data_provider.dart';
 import 'package:frontend/services/data%20providers/location_data_provider.dart';
 import 'package:frontend/services/data%20providers/people_data_provider.dart';

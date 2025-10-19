@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:frontend/models/people/ability_score.dart';
 import 'package:frontend/models/people/person.dart';
 import 'package:frontend/models/people/race.dart';
-import 'package:frontend/models/wealth.dart';
+import 'package:frontend/models/common/wealth.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/people/ability_score_service.dart';
 import 'package:frontend/services/people/person_service.dart';

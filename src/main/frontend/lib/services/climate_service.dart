@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:frontend/models/climate.dart';
+import 'package:frontend/models/common/climate.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 

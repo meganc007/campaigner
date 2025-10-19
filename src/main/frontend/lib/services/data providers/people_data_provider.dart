@@ -7,7 +7,7 @@ import 'package:frontend/models/people/job_assignment.dart';
 import 'package:frontend/models/people/named_monster.dart';
 import 'package:frontend/models/people/person.dart';
 import 'package:frontend/models/people/race.dart';
-import 'package:frontend/models/wealth.dart';
+import 'package:frontend/models/common/wealth.dart';
 import 'package:frontend/services/people/ability_score_service.dart';
 import 'package:frontend/services/people/event_place_person_service.dart';
 import 'package:frontend/services/people/generic_monster_service.dart';

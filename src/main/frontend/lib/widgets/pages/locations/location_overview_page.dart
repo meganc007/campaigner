@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/locations_overview.dart';
-import 'package:frontend/models/section.dart';
+import 'package:frontend/models/overviews/locations_overview.dart';
+import 'package:frontend/widgets/reusable/section.dart';
 import 'package:frontend/services/data%20providers/location_data_provider.dart';
 import 'package:frontend/services/locations_overview_service.dart';
 import 'package:frontend/util/helpers.dart';

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:frontend/models/items/inventory.dart';
-import 'package:frontend/models/items_overview.dart';
+import 'package:frontend/models/overviews/items_overview.dart';
 import 'package:http/http.dart' as http;
 
 Future<ItemsOverview> fetchItemsOverview(String uuid) async {

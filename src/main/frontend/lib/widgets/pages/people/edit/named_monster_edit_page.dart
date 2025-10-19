@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/people/ability_score.dart';
 import 'package:frontend/models/people/generic_monster.dart';
 import 'package:frontend/models/people/named_monster.dart';
-import 'package:frontend/models/wealth.dart';
+import 'package:frontend/models/common/wealth.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/people/ability_score_service.dart';
 import 'package:frontend/services/people/generic_monster_service.dart';

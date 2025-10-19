@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:frontend/models/people/event_place_person.dart';
 import 'package:frontend/models/people/job_assignment.dart';
-import 'package:frontend/models/people_overview.dart';
+import 'package:frontend/models/overviews/people_overview.dart';
 import 'package:http/http.dart' as http;
 
 Future<PeopleOverview> fetchPeopleOverview(String uuid) async {
