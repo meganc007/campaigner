@@ -32,15 +32,15 @@ Future<NamedMonster> fetchNamedMonster(int id) async {
 
 Future<bool> createNamedMonster(
   String firstName,
-  String lastName,
-  String title,
+  String? lastName,
+  String? title,
   int? fkWealth,
   int? fkAbilityScore,
   int? fkGenericMonster,
   bool? isEnemy,
   String personality,
   String description,
-  String notes,
+  String? notes,
   String uuid,
 ) async {
   final response = await http.post(
@@ -67,15 +67,15 @@ Future<bool> createNamedMonster(
 Future<bool> editNamedMonster(
   int id,
   String firstName,
-  String lastName,
-  String title,
+  String? lastName,
+  String? title,
   int? fkWealth,
   int? fkAbilityScore,
   int? fkGenericMonster,
   bool? isEnemy,
   String personality,
   String description,
-  String notes,
+  String? notes,
   String uuid,
 ) async {
   final response = await http.put(

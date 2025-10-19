@@ -93,8 +93,8 @@ class _GenericMonsterEditPageState extends State<GenericMonsterEditPage> {
       _nameController.text.trim(),
       description.isNotEmpty ? description : null,
       _selectedAbilityScore?.id,
-      traits.isNotEmpty ? description : null,
-      notes.isNotEmpty ? description : null,
+      traits.isNotEmpty ? traits : null,
+      notes.isNotEmpty ? notes : null,
       widget.uuid,
     );
 

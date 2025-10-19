@@ -151,8 +151,13 @@ class _PeopleOverviewPageState extends State<PeopleOverviewPage> {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            NamedMonsterDetailPage(uuid: widget.uuid),
+                        builder: (_) => NamedMonsterDetailPage(
+                          uuid: widget.uuid,
+                          wealthMap: peopleDataProvider.wealthMap,
+                          abilityScoreMap: peopleDataProvider.abilityScoreMap,
+                          genericMonsterMap:
+                              peopleDataProvider.genericMonsterMap,
+                        ),
                       ),
                     );
                     await _refreshData();

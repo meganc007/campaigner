@@ -2,28 +2,28 @@ class NamedMonster {
   final int id;
   final String firstName;
   final String? lastName;
-  final String title;
+  final String? title;
   final int? fkWealth;
   final int? fkAbilityScore;
   final int? fkGenericMonster;
   final bool? isEnemy;
   final String personality;
   final String description;
-  final String notes;
+  final String? notes;
   final String fkCampaignUuid;
 
   const NamedMonster({
     required this.id,
     required this.firstName,
     this.lastName,
-    required this.title,
+    this.title,
     this.fkWealth,
     this.fkAbilityScore,
     this.fkGenericMonster,
     this.isEnemy,
     required this.personality,
     required this.description,
-    required this.notes,
+    this.notes,
     required this.fkCampaignUuid,
   });
 
