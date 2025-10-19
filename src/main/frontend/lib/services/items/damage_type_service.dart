@@ -25,7 +25,7 @@ Future<DamageType> fetchDamageType(int id) async {
     final Map<String, dynamic> data = json.decode(response.body);
     return DamageType.fromJson(data);
   } else {
-    throw Exception('Failed to load damage types with id $id');
+    throw Exception('Failed to load damage type with id $id');
   }
 }
 

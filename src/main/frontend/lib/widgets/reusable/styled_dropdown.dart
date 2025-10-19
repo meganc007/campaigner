@@ -25,7 +25,7 @@ class StyledDropdown<T> extends StatelessWidget {
         border: Border.all(width: 2, color: Colors.brown.shade700),
       ),
       child: DropdownButtonFormField<T>(
-        value: value,
+        initialValue: value,
         items: items,
         onChanged: onChanged,
         validator: validator,

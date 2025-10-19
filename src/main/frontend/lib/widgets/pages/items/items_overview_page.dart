@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/items_overview.dart';
-import 'package:frontend/models/section.dart';
+import 'package:frontend/models/overviews/items_overview.dart';
+import 'package:frontend/widgets/reusable/section.dart';
 import 'package:frontend/services/data%20providers/item_data_provider.dart';
 import 'package:frontend/services/items_overview_service.dart';
 import 'package:frontend/util/helpers.dart';

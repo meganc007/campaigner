@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:frontend/models/locations_overview.dart';
+import 'package:frontend/models/overviews/locations_overview.dart';
 import 'package:http/http.dart' as http;
 
 Future<LocationsOverview> fetchLocationsOverview(String uuid) async {

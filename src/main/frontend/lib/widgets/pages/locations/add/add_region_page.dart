@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/models/climate.dart';
+import 'package:frontend/models/common/climate.dart';
 import 'package:frontend/models/location/country.dart';
 import 'package:frontend/services/climate_service.dart';
 import 'package:frontend/services/locations/country_service.dart';

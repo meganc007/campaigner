@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:frontend/models/wealth.dart';
+import 'package:frontend/models/common/wealth.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Wealth>> fetchWealth() async {

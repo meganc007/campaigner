@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:frontend/models/government.dart';
+import 'package:frontend/models/common/government.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Government>> fetchGovernments() async {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/government.dart';
+import 'package:frontend/models/common/government.dart';
 import 'package:frontend/models/location/continent.dart';
 import 'package:frontend/models/location/country.dart';
 import 'package:frontend/services/locations/continent_service.dart';

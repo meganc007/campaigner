@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/locations_overview.dart';
-import 'package:frontend/models/section.dart';
+import 'package:frontend/models/overviews/locations_overview.dart';
+import 'package:frontend/widgets/reusable/section.dart';
 import 'package:frontend/services/data%20providers/location_data_provider.dart';
 import 'package:frontend/services/locations_overview_service.dart';
 import 'package:frontend/util/helpers.dart';
 import 'package:frontend/widgets/pages/locations/detail/city_detail_page.dart';
-import 'package:frontend/widgets/pages/climate_detail_page.dart';
+import 'package:frontend/widgets/pages/common/climate_detail_page.dart';
 import 'package:frontend/widgets/pages/locations/detail/continent_detail_page.dart';
 import 'package:frontend/widgets/pages/locations/detail/country_detail_page.dart';
 import 'package:frontend/widgets/pages/locations/detail/landmark_detail_page.dart';

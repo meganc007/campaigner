@@ -1,5 +1,11 @@
 package com.mcommings.campaigner.modules.overview.facades.mappers;
 
+import com.mcommings.campaigner.modules.common.dtos.EventDTO;
+import com.mcommings.campaigner.modules.common.entities.Event;
+import com.mcommings.campaigner.modules.common.mappers.EventMapper;
+import com.mcommings.campaigner.modules.locations.dtos.PlaceDTO;
+import com.mcommings.campaigner.modules.locations.entities.Place;
+import com.mcommings.campaigner.modules.locations.mappers.PlaceMapper;
 import com.mcommings.campaigner.modules.people.dtos.*;
 import com.mcommings.campaigner.modules.people.entities.*;
 import com.mcommings.campaigner.modules.people.mappers.*;
@@ -12,6 +18,8 @@ public class PeopleMapperFacade {
 
     private final AbilityScoreMapper abilityScoreMapper;
     private final EventPlacePersonMapper eventPlacePersonMapper;
+    private final EventMapper eventMapper;
+    private final PlaceMapper placeMapper;
     private final GenericMonsterMapper genericMonsterMapper;
     private final JobAssignmentMapper jobAssignmentMapper;
     private final JobMapper jobMapper;
@@ -25,6 +33,14 @@ public class PeopleMapperFacade {
 
     public EventPlacePersonDTO toEventPlacePersonDTO(EventPlacePerson entity) {
         return eventPlacePersonMapper.mapToEventPlacePersonDto(entity);
+    }
+
+    public EventDTO toEventDTO(Event entity) {
+        return eventMapper.mapToEventDto(entity);
+    }
+
+    public PlaceDTO toPlaceDTO(Place entity) {
+        return placeMapper.mapToPlaceDto(entity);
     }
 
     public GenericMonsterDTO toGenericMonsterDTO(GenericMonster entity) {

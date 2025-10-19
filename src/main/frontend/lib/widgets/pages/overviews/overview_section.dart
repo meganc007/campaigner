@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/section.dart';
+import 'package:frontend/widgets/reusable/section.dart';
 
 class OverviewSection extends StatefulWidget {
   final Section section;

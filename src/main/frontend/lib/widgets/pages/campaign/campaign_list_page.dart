@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/models/campaign.dart';
+import 'package:frontend/models/common/campaign.dart';
 import 'package:frontend/widgets/pages/campaign/add_campaign_page.dart';
 import 'package:frontend/widgets/reusable/create_new_button.dart';
 import 'package:frontend/widgets/pages/campaign/campaign_detail_page.dart';
