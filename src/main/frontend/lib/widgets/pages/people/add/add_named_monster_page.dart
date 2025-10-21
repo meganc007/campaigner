@@ -6,7 +6,7 @@ import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/people/ability_score_service.dart';
 import 'package:frontend/services/people/generic_monster_service.dart';
 import 'package:frontend/services/people/named_monster_service.dart';
-import 'package:frontend/services/wealth_service.dart';
+import 'package:frontend/services/common/wealth_service.dart';
 import 'package:frontend/widgets/reusable/dropdown_boolean.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/services/campaign_service.dart';
+import 'package:frontend/services/common/campaign_service.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';

@@ -3,7 +3,7 @@ import 'package:frontend/models/common/campaign.dart';
 import 'package:frontend/widgets/pages/campaign/add_campaign_page.dart';
 import 'package:frontend/widgets/reusable/create_new_button.dart';
 import 'package:frontend/widgets/pages/campaign/campaign_detail_page.dart';
-import 'package:frontend/services/campaign_service.dart';
+import 'package:frontend/services/common/campaign_service.dart';
 
 class CampaignListPage extends StatefulWidget {
   const CampaignListPage({super.key});

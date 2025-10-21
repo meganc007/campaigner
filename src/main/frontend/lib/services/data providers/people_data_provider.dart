@@ -16,7 +16,7 @@ import 'package:frontend/services/people/job_service.dart';
 import 'package:frontend/services/people/named_monster_service.dart';
 import 'package:frontend/services/people/person_service.dart';
 import 'package:frontend/services/people/race_service.dart';
-import 'package:frontend/services/wealth_service.dart';
+import 'package:frontend/services/common/wealth_service.dart';
 
 class PeopleDataProvider extends ChangeNotifier {
   final String uuid;
