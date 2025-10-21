@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/items/inventory.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/items/inventory_service.dart';
-import 'package:frontend/services/items_overview_service.dart';
+import 'package:frontend/services/overviews/items_overview_service.dart';
 import 'package:frontend/util/helpers.dart';
 import 'package:frontend/widgets/pages/items/add/add_inventory_page.dart';
 import 'package:frontend/widgets/pages/items/edit/inventory_edit_page.dart';
