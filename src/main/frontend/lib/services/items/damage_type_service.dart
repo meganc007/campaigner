@@ -56,7 +56,7 @@ Future<void> deleteDamageType(int id) async {
 
   if (response.statusCode != 204 && response.statusCode != 200) {
     response.body.contains('foreign key constraint')
-        ? throw ForeignKeyConstraintException("damagetypes")
-        : throw Exception('Failed to delete damage types');
+        ? throw ForeignKeyConstraintException("damagetype")
+        : throw Exception('Failed to delete damage type');
   }
 }
