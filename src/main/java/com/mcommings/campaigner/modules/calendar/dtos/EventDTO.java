@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.common.dtos;
+package com.mcommings.campaigner.modules.calendar.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

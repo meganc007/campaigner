@@ -1,10 +1,10 @@
-package com.mcommings.campaigner.services.common;
+package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.modules.common.dtos.EventDTO;
-import com.mcommings.campaigner.modules.common.entities.Event;
-import com.mcommings.campaigner.modules.common.mappers.EventMapper;
-import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
-import com.mcommings.campaigner.modules.common.services.EventService;
+import com.mcommings.campaigner.modules.calendar.dtos.EventDTO;
+import com.mcommings.campaigner.modules.calendar.entities.Event;
+import com.mcommings.campaigner.modules.calendar.mappers.EventMapper;
+import com.mcommings.campaigner.modules.calendar.repositories.IEventRepository;
+import com.mcommings.campaigner.modules.calendar.services.EventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

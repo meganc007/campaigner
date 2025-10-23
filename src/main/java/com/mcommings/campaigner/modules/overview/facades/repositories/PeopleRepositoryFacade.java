@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.modules.overview.facades.repositories;
 
-import com.mcommings.campaigner.modules.common.entities.Event;
-import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
+import com.mcommings.campaigner.modules.calendar.entities.Event;
+import com.mcommings.campaigner.modules.calendar.repositories.IEventRepository;
 import com.mcommings.campaigner.modules.locations.entities.Place;
 import com.mcommings.campaigner.modules.locations.repositories.IPlaceRepository;
 import com.mcommings.campaigner.modules.people.entities.*;

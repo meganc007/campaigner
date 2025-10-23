@@ -1,11 +1,11 @@
-package com.mcommings.campaigner.controllers.common;
+package com.mcommings.campaigner.controllers.calendar;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mcommings.campaigner.modules.common.controllers.EventController;
-import com.mcommings.campaigner.modules.common.dtos.EventDTO;
-import com.mcommings.campaigner.modules.common.entities.Event;
-import com.mcommings.campaigner.modules.common.services.EventService;
+import com.mcommings.campaigner.modules.calendar.controllers.EventController;
+import com.mcommings.campaigner.modules.calendar.dtos.EventDTO;
+import com.mcommings.campaigner.modules.calendar.entities.Event;
+import com.mcommings.campaigner.modules.calendar.services.EventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

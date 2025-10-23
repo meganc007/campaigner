@@ -1,9 +1,9 @@
-package com.mcommings.campaigner.modules.common.services;
+package com.mcommings.campaigner.modules.calendar.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.common.dtos.EventDTO;
-import com.mcommings.campaigner.modules.common.mappers.EventMapper;
-import com.mcommings.campaigner.modules.common.repositories.IEventRepository;
+import com.mcommings.campaigner.modules.calendar.dtos.EventDTO;
+import com.mcommings.campaigner.modules.calendar.mappers.EventMapper;
+import com.mcommings.campaigner.modules.calendar.repositories.IEventRepository;
 import com.mcommings.campaigner.modules.common.services.interfaces.IEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;

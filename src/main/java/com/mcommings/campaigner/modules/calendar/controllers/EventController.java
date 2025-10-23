@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.modules.common.controllers;
+package com.mcommings.campaigner.modules.calendar.controllers;
 
-import com.mcommings.campaigner.modules.common.dtos.EventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.EventDTO;
 import com.mcommings.campaigner.modules.common.services.interfaces.IEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

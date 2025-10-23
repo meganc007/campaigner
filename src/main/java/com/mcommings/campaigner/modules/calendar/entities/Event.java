@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.common.entities;
+package com.mcommings.campaigner.modules.calendar.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
