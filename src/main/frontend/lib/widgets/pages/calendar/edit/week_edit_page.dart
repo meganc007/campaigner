@@ -22,7 +22,6 @@ class WeekEditPage extends StatefulWidget {
 
 class _WeekEditPageState extends State<WeekEditPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _weekNumberController = TextEditingController();
   bool _isSubmitting = false;
@@ -37,7 +36,6 @@ class _WeekEditPageState extends State<WeekEditPage> {
   void initState() {
     super.initState();
     _loadInitialData();
-    _nameController.text = widget.week.name;
     _descriptionController.text = widget.week.description;
     _weekNumberController.text = widget.week.weekNumber.toString();
   }
@@ -62,8 +60,8 @@ class _WeekEditPageState extends State<WeekEditPage> {
 
   @override
   void dispose() {
-    _nameController.dispose();
     _descriptionController.dispose();
+    _weekNumberController.dispose();
     super.dispose();
   }
 
@@ -83,7 +81,6 @@ class _WeekEditPageState extends State<WeekEditPage> {
 
     final success = await editWeek(
       widget.week.id,
-      _nameController.text.trim(),
       _descriptionController.text.trim(),
       widget.uuid,
       int.parse(_weekNumberController.text.trim()),
@@ -110,7 +107,9 @@ class _WeekEditPageState extends State<WeekEditPage> {
       return Center(child: Text("Error: $_error"));
     }
     return Scaffold(
-      appBar: AppBar(title: Text("Edit ${widget.week.name}".toUpperCase())),
+      appBar: AppBar(
+        title: Text("Edit ${widget.week.weekNumber}".toUpperCase()),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Center(
@@ -121,12 +120,6 @@ class _WeekEditPageState extends State<WeekEditPage> {
                 : AutovalidateMode.disabled,
             child: Column(
               children: [
-                StyledTextField(
-                  controller: _nameController,
-                  label: "Name",
-                  validator: isNameValid,
-                ),
-                const SizedBox(height: 12),
                 StyledTextField(
                   controller: _descriptionController,
                   label: "Description",

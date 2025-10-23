@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/models/calendar/week.dart';
 import 'package:frontend/models/overviews/calendar_overview.dart';
 import 'package:frontend/services/data%20providers/calendar_data_provider.dart';
 import 'package:frontend/services/overviews/calendar_overview_service.dart';
@@ -51,6 +52,10 @@ class _CalendarOverviewPageState extends State<CalendarOverviewPage> {
 
   List<String> mapNamesToList(List<dynamic> items) {
     return items.map((item) => (item as dynamic).name as String).toList();
+  }
+
+  List<String> mapWeekNumberToList(List<Week> weeks) {
+    return weeks.map((week) => week.weekNumber.toString()).toList();
   }
 
   @override
@@ -120,7 +125,7 @@ class _CalendarOverviewPageState extends State<CalendarOverviewPage> {
                 OverviewSection(
                   section: Section(
                     "Weeks".toUpperCase(),
-                    mapNamesToList(calendarOverview.weeks),
+                    mapWeekNumberToList(calendarOverview.weeks),
                   ),
                   onSeeMore: () async {
                     await Navigator.push(

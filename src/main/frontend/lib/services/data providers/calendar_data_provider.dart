@@ -37,7 +37,7 @@ class CalendarDataProvider extends ChangeNotifier {
   Map<int, String> _moonMap = {};
   Map<int, String> _sunMap = {};
   Map<int, String> _monthMap = {};
-  Map<int, String> _weekMap = {};
+  Map<int, int> _weekMap = {};
   Map<int, String> _dayMap = {};
   Map<int, String> _celestialEventMap = {};
 
@@ -47,7 +47,7 @@ class CalendarDataProvider extends ChangeNotifier {
   Map<int, String> get moonMap => Map.unmodifiable(_moonMap);
   Map<int, String> get sunMap => Map.unmodifiable(_sunMap);
   Map<int, String> get monthMap => Map.unmodifiable(_monthMap);
-  Map<int, String> get weekMap => Map.unmodifiable(_weekMap);
+  Map<int, int> get weekMap => Map.unmodifiable(_weekMap);
   Map<int, String> get dayMap => Map.unmodifiable(_dayMap);
   Map<int, String> get celestialEventMap =>
       Map.unmodifiable(_celestialEventMap);
@@ -85,7 +85,7 @@ class CalendarDataProvider extends ChangeNotifier {
       _moonMap = {for (var moon in moons) moon.id: moon.name};
       _sunMap = {for (var s in suns) s.id: s.name};
       _monthMap = {for (var month in months) month.id: month.name};
-      _weekMap = {for (var w in weeks) w.id: w.name};
+      _weekMap = {for (var w in weeks) w.id: w.weekNumber};
       _dayMap = {for (var d in days) d.id: d.name};
       _celestialEventMap = {for (var ce in celestialEvents) ce.id: ce.name};
     } catch (e) {
@@ -119,9 +119,9 @@ class CalendarDataProvider extends ChangeNotifier {
     }
   }
 
-  void updateWeek(int id, String name) {
-    if (_weekMap[id] != name) {
-      _weekMap[id] = name;
+  void updateWeek(int id, int weekNumber) {
+    if (_weekMap[id] != weekNumber) {
+      _weekMap[id] = weekNumber;
       notifyListeners();
     }
   }

@@ -29,7 +29,6 @@ Future<Week> fetchWeek(int id) async {
 }
 
 Future<bool> createWeek(
-  String name,
   String description,
   String uuid,
   int weekNumber,
@@ -39,7 +38,6 @@ Future<bool> createWeek(
     Uri.parse('http://10.0.2.2:8080/api/weeks'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
-      "name": name,
       "description": description,
       "fk_campaign_uuid": uuid,
       "week_number": weekNumber,
@@ -52,7 +50,6 @@ Future<bool> createWeek(
 
 Future<bool> editWeek(
   int id,
-  String name,
   String description,
   String uuid,
   int weekNumber,
@@ -63,7 +60,6 @@ Future<bool> editWeek(
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
-      "name": name,
       "description": description,
       "fk_campaign_uuid": uuid,
       "week_number": weekNumber,

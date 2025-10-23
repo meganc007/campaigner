@@ -10,7 +10,7 @@ import 'package:frontend/widgets/reusable/detail_section.dart';
 
 class DayDetailPage extends StatefulWidget {
   final String uuid;
-  final Map<int, String> weekMap;
+  final Map<int, int> weekMap;
   const DayDetailPage({super.key, required this.uuid, required this.weekMap});
 
   @override
@@ -56,7 +56,7 @@ class _DayDetailPageState extends State<DayDetailPage> {
                     title: day.name,
                     fields: {
                       "Description": day.description,
-                      "Week": widget.weekMap[day.fkWeek] ?? 'Unknown',
+                      "Week": widget.weekMap[day.fkWeek].toString(),
                     },
                     onEdit: () async {
                       final result = await Navigator.push<bool>(

@@ -19,7 +19,6 @@ class AddWeekPage extends StatefulWidget {
 
 class _AddWeekPageState extends State<AddWeekPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _weekNumberController = TextEditingController();
   bool _isSubmitting = false;
@@ -53,8 +52,8 @@ class _AddWeekPageState extends State<AddWeekPage> {
 
   @override
   void dispose() {
-    _nameController.dispose();
     _descriptionController.dispose();
+    _weekNumberController.dispose();
     super.dispose();
   }
 
@@ -67,7 +66,6 @@ class _AddWeekPageState extends State<AddWeekPage> {
     final localContext = context;
 
     final success = await createWeek(
-      _nameController.text.trim(),
       _descriptionController.text.trim(),
       widget.uuid,
       int.parse(_weekNumberController.text.trim()),
@@ -105,12 +103,6 @@ class _AddWeekPageState extends State<AddWeekPage> {
                 : AutovalidateMode.disabled,
             child: Column(
               children: [
-                StyledTextField(
-                  controller: _nameController,
-                  label: "Name",
-                  validator: isNameValid,
-                ),
-                const SizedBox(height: 12),
                 StyledTextField(
                   controller: _descriptionController,
                   label: "Description",

@@ -118,7 +118,7 @@ class _AddDayPageState extends State<AddDayPage> {
                   label: "Week",
                   selected: _selectedWeek,
                   options: _weeks,
-                  getLabel: (w) => w.name,
+                  getLabel: (w) => w.weekNumber.toString(),
                   onChanged: (value) => setState(() => _selectedWeek = value),
                 ),
                 if (_selectedWeek != null)

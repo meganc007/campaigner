@@ -24,14 +24,14 @@ class _WeekDetailPageState extends State<WeekDetailPage> {
   void initState() {
     super.initState();
     _futureWeeks = fetchWeeks(widget.uuid).then((list) {
-      list.sort((a, b) => a.name.compareTo(b.name));
+      list.sort((a, b) => a.weekNumber.compareTo(b.weekNumber));
       return list;
     });
   }
 
   Future<void> _refreshData() async {
     _futureWeeks = fetchWeeks(widget.uuid).then((list) {
-      list.sort((a, b) => a.name.compareTo(b.name));
+      list.sort((a, b) => a.weekNumber.compareTo(b.weekNumber));
       return list;
     });
   }
@@ -53,11 +53,11 @@ class _WeekDetailPageState extends State<WeekDetailPage> {
             final weekWidgets = weeks
                 .map(
                   (week) => DetailSection(
-                    title: week.name,
+                    title: week.weekNumber.toString(),
                     fields: {
                       "Description": week.description,
                       "Week": week.weekNumber.toString(),
-                      "Month": widget.monthMap[week.fkMonth] ?? 'Unknown',
+                      "Month": widget.monthMap[week.fkMonth] ?? '',
                     },
                     onEdit: () async {
                       final result = await Navigator.push<bool>(
@@ -74,7 +74,7 @@ class _WeekDetailPageState extends State<WeekDetailPage> {
                     onDelete: () async {
                       confirmAndDelete(
                         context: context,
-                        name: week.name,
+                        name: week.weekNumber.toString(),
                         type: "week",
                         onDelete: () => deleteWeek(week.id),
                         onSuccess: _refreshData,

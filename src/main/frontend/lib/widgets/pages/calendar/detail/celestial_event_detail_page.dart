@@ -13,7 +13,7 @@ class CelestialEventDetailPage extends StatefulWidget {
   final Map<int, String> moonMap;
   final Map<int, String> sunMap;
   final Map<int, String> monthMap;
-  final Map<int, String> weekMap;
+  final Map<int, int> weekMap;
   final Map<int, String> dayMap;
   const CelestialEventDetailPage({
     super.key,
@@ -74,8 +74,7 @@ class _CelestialEventDetailPageState extends State<CelestialEventDetailPage> {
                       "Sun": widget.sunMap[celestialEvent.fkSun] ?? 'Unknown',
                       "Month":
                           widget.monthMap[celestialEvent.fkMonth] ?? 'Unknown',
-                      "Week":
-                          widget.weekMap[celestialEvent.fkWeek] ?? 'Unknown',
+                      "Week": widget.weekMap[celestialEvent.fkWeek].toString(),
                       "Day": widget.dayMap[celestialEvent.fkDay] ?? 'Unknown',
                       "Event Year": celestialEvent.eventYear.toString(),
                     },

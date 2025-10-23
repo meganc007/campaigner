@@ -35,6 +35,8 @@ class _DayEditPageState extends State<DayEditPage> {
   void initState() {
     super.initState();
     _loadInitialData();
+    _nameController.text = widget.day.name;
+    _descriptionController.text = widget.day.description;
   }
 
   Future<void> _loadInitialData() async {
@@ -133,7 +135,7 @@ class _DayEditPageState extends State<DayEditPage> {
                   label: "Week",
                   selected: _selectedWeek,
                   options: _weeks,
-                  getLabel: (w) => w.name,
+                  getLabel: (w) => w.weekNumber.toString(),
                   onChanged: _onWeekChanged,
                 ),
                 if (_selectedWeek != null)
