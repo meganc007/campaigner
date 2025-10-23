@@ -6,6 +6,7 @@ import 'package:frontend/util/helpers.dart';
 import 'package:frontend/widgets/pages/calendar/detail/celestial_event_detail_page.dart';
 import 'package:frontend/widgets/pages/calendar/detail/day_detail_page.dart';
 import 'package:frontend/widgets/pages/calendar/detail/month_detail_page.dart';
+import 'package:frontend/widgets/pages/calendar/detail/moon_detail_page.dart';
 import 'package:frontend/widgets/pages/calendar/detail/sun_detail_page.dart';
 import 'package:frontend/widgets/pages/calendar/detail/week_detail_page.dart';
 import 'package:frontend/widgets/pages/overviews/overview_section.dart';
@@ -32,7 +33,11 @@ class _CalendarOverviewPageState extends State<CalendarOverviewPage> {
   @override
   void initState() {
     super.initState();
-    _future = widget.futureCalendar;
+    _future = fetchCalendarOverview(widget.uuid);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CalendarDataProvider>().load();
+    });
   }
 
   Future<void> _refreshData() async {
@@ -91,7 +96,7 @@ class _CalendarOverviewPageState extends State<CalendarOverviewPage> {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => SunDetailPage(uuid: widget.uuid),
+                        builder: (_) => MoonDetailPage(uuid: widget.uuid),
                       ),
                     );
                     await _refreshData();
