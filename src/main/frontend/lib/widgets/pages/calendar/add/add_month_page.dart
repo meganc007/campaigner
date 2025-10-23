@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/services/common/campaign_service.dart';
+import 'package:frontend/services/calendar/month_service.dart';
 import 'package:frontend/services/form_helper.dart';
+import 'package:frontend/widgets/reusable/entity_dropdown.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
-class AddCampaignPage extends StatefulWidget {
-  const AddCampaignPage({super.key});
+class AddMonthPage extends StatefulWidget {
+  final String uuid;
+  const AddMonthPage({super.key, required this.uuid});
 
   @override
-  State<AddCampaignPage> createState() => _AddCampaignPageState();
+  State<AddMonthPage> createState() => _AddMonthPageState();
 }
 
-class _AddCampaignPageState extends State<AddCampaignPage> {
+class _AddMonthPageState extends State<AddMonthPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   bool _isSubmitting = false;
   bool _autoValidate = false;
+
+  String? _selectedSeason;
 
   @override
   void dispose() {
@@ -33,9 +37,11 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
 
     final localContext = context;
 
-    final success = await createCampaign(
+    final success = await createMonth(
       _nameController.text.trim(),
       _descriptionController.text.trim(),
+      widget.uuid,
+      _selectedSeason!,
     );
 
     if (!localContext.mounted) return;
@@ -45,14 +51,14 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
       context: localContext,
       success: success,
       isMounted: localContext.mounted,
-      entityName: "Campaign",
+      entityName: "Month",
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Create New Campaign".toUpperCase())),
+      appBar: AppBar(title: Text("Create Month".toUpperCase())),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Center(
@@ -73,6 +79,14 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                   controller: _descriptionController,
                   label: "Description",
                   maxLines: 3,
+                ),
+                const SizedBox(height: 12),
+                EntityDropdown<String>(
+                  label: "Season",
+                  selected: _selectedSeason,
+                  options: ["Spring", "Summer", "Autumn", "Winter"],
+                  getLabel: (s) => s,
+                  onChanged: (value) => setState(() => _selectedSeason = value),
                 ),
                 const SizedBox(height: 24),
                 SubmitButton(

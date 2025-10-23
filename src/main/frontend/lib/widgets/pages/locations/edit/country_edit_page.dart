@@ -5,7 +5,7 @@ import 'package:frontend/models/location/country.dart';
 import 'package:frontend/services/locations/continent_service.dart';
 import 'package:frontend/services/locations/country_service.dart';
 import 'package:frontend/services/form_helper.dart';
-import 'package:frontend/services/government_service.dart';
+import 'package:frontend/services/common/government_service.dart';
 import 'package:frontend/widgets/reusable/dropdown_description.dart';
 import 'package:frontend/widgets/reusable/entity_dropdown.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';

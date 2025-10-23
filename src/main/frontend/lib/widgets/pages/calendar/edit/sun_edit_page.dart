@@ -1,22 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/services/common/campaign_service.dart';
+import 'package:frontend/models/calendar/sun.dart';
+import 'package:frontend/services/calendar/sun_service.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/widgets/reusable/styled_text_field.dart';
 import 'package:frontend/widgets/reusable/submit_button.dart';
 
-class AddCampaignPage extends StatefulWidget {
-  const AddCampaignPage({super.key});
+class SunEditPage extends StatefulWidget {
+  final String uuid;
+  final Sun sun;
+  const SunEditPage({super.key, required this.uuid, required this.sun});
 
   @override
-  State<AddCampaignPage> createState() => _AddCampaignPageState();
+  State<SunEditPage> createState() => _SunEditPageState();
 }
 
-class _AddCampaignPageState extends State<AddCampaignPage> {
+class _SunEditPageState extends State<SunEditPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   bool _isSubmitting = false;
   bool _autoValidate = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = widget.sun.name;
+    _descriptionController.text = widget.sun.description;
+  }
 
   @override
   void dispose() {
@@ -33,26 +43,28 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
 
     final localContext = context;
 
-    final success = await createCampaign(
+    final success = await editSun(
+      widget.sun.id,
       _nameController.text.trim(),
       _descriptionController.text.trim(),
+      widget.uuid,
     );
 
     if (!localContext.mounted) return;
     setState(() => _isSubmitting = false);
 
-    handleSuccessOrFailureOnCreate(
+    handleSuccessOrFailureOnEdit(
       context: localContext,
       success: success,
       isMounted: localContext.mounted,
-      entityName: "Campaign",
+      entityName: "Sun",
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Create New Campaign".toUpperCase())),
+      appBar: AppBar(title: Text("Edit ${widget.sun.name}".toUpperCase())),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Center(
@@ -78,7 +90,7 @@ class _AddCampaignPageState extends State<AddCampaignPage> {
                 SubmitButton(
                   isSubmitting: _isSubmitting,
                   onPressed: _submitForm,
-                  label: "Create",
+                  label: "Edit",
                 ),
               ],
             ),

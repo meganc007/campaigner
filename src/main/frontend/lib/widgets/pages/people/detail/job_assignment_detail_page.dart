@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/people/job_assignment.dart';
 import 'package:frontend/services/form_helper.dart';
 import 'package:frontend/services/people/job_assignment_service.dart';
-import 'package:frontend/services/people_overview_service.dart';
+import 'package:frontend/services/overviews/people_overview_service.dart';
 import 'package:frontend/util/helpers.dart';
 import 'package:frontend/widgets/pages/people/add/add_job_assignment_page.dart';
 import 'package:frontend/widgets/pages/people/edit/job_assignment_edit_page.dart';

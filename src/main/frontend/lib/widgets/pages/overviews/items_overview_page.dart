@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/overviews/items_overview.dart';
 import 'package:frontend/widgets/reusable/section.dart';
 import 'package:frontend/services/data%20providers/item_data_provider.dart';
-import 'package:frontend/services/items_overview_service.dart';
+import 'package:frontend/services/overviews/items_overview_service.dart';
 import 'package:frontend/util/helpers.dart';
 import 'package:frontend/widgets/pages/items/detail/damage_type_detail_page.dart';
 import 'package:frontend/widgets/pages/items/detail/dice_type_detail_page.dart';

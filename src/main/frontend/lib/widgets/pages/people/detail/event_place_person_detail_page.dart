@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/people/event_place_person.dart';
-import 'package:frontend/services/people_overview_service.dart';
+import 'package:frontend/services/overviews/people_overview_service.dart';
 
 class EventPlacePersonDetailPage extends StatefulWidget {
   final String uuid;

@@ -3,7 +3,7 @@ import 'package:frontend/models/people/ability_score.dart';
 import 'package:frontend/models/overviews/people_overview.dart';
 import 'package:frontend/widgets/reusable/section.dart';
 import 'package:frontend/services/data%20providers/people_data_provider.dart';
-import 'package:frontend/services/people_overview_service.dart';
+import 'package:frontend/services/overviews/people_overview_service.dart';
 import 'package:frontend/util/helpers.dart';
 import 'package:frontend/widgets/pages/overviews/overview_section.dart';
 import 'package:frontend/widgets/pages/people/detail/ability_score_detail_page.dart';

@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/common/campaign.dart';
+import 'package:frontend/models/overviews/calendar_overview.dart';
 import 'package:frontend/models/overviews/items_overview.dart';
 import 'package:frontend/models/overviews/locations_overview.dart';
 import 'package:frontend/models/overviews/people_overview.dart';
+import 'package:frontend/services/data%20providers/calendar_data_provider.dart';
 import 'package:frontend/services/data%20providers/item_data_provider.dart';
 import 'package:frontend/services/data%20providers/location_data_provider.dart';
 import 'package:frontend/services/data%20providers/people_data_provider.dart';
-import 'package:frontend/services/items_overview_service.dart';
-import 'package:frontend/services/locations_overview_service.dart';
-import 'package:frontend/services/people_overview_service.dart';
+import 'package:frontend/services/overviews/calendar_overview_service.dart';
+import 'package:frontend/services/overviews/items_overview_service.dart';
+import 'package:frontend/services/overviews/locations_overview_service.dart';
+import 'package:frontend/services/overviews/people_overview_service.dart';
 import 'package:frontend/widgets/pages/overviews/calendar_overview_page.dart';
-import 'package:frontend/widgets/pages/campaign/campaign_overview_page.dart';
+import 'package:frontend/widgets/pages/overviews/campaign_overview_page.dart';
 import 'package:frontend/widgets/pages/overviews/common_overview_page.dart';
-import 'package:frontend/widgets/pages/items/items_overview_page.dart';
-import 'package:frontend/widgets/pages/locations/location_overview_page.dart';
+import 'package:frontend/widgets/pages/overviews/items_overview_page.dart';
+import 'package:frontend/widgets/pages/overviews/location_overview_page.dart';
 import 'package:frontend/widgets/main_nav.dart';
 import 'package:frontend/widgets/pages/people/people_overview_page.dart';
 import 'package:frontend/widgets/pages/overviews/quests_overview_page.dart';
@@ -31,6 +34,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
   late Future<LocationsOverview> _futureLocations;
   late Future<ItemsOverview> _futureItems;
   late Future<PeopleOverview> _futurePeople;
+  late Future<CalendarOverview> _futureCalendar;
   int _currentIndex = 0;
 
   @override
@@ -39,6 +43,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     _futureLocations = fetchLocationsOverview(widget.campaign.uuid);
     _futureItems = fetchItemsOverview(widget.campaign.uuid);
     _futurePeople = fetchPeopleOverview(widget.campaign.uuid);
+    _futureCalendar = fetchCalendarOverview(widget.campaign.uuid);
   }
 
   @override
@@ -81,7 +86,14 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         ),
       ),
       QuestsOverviewPage(),
-      CalendarOverviewPage(),
+      ChangeNotifierProvider(
+        create: (_) => CalendarDataProvider(widget.campaign.uuid),
+        child: CalendarOverviewPage(
+          uuid: widget.campaign.uuid,
+          futureCalendar: _futureCalendar,
+        ),
+      ),
+
       CommonOverviewPage(),
     ];
 

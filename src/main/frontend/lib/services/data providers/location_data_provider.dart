@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/services/locations/city_service.dart';
-import 'package:frontend/services/climate_service.dart';
+import 'package:frontend/services/common/climate_service.dart';
 import 'package:frontend/services/locations/continent_service.dart';
 import 'package:frontend/services/locations/country_service.dart';
-import 'package:frontend/services/government_service.dart';
+import 'package:frontend/services/common/government_service.dart';
 import 'package:frontend/services/locations/place_type_service.dart';
 import 'package:frontend/services/locations/region_service.dart';
 import 'package:frontend/services/locations/settlement_type_service.dart';
 import 'package:frontend/services/locations/terrain_service.dart';
-import 'package:frontend/services/wealth_service.dart';
+import 'package:frontend/services/common/wealth_service.dart';
 
 class LocationDataProvider extends ChangeNotifier {
   final String uuid;
