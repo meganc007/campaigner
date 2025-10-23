@@ -61,6 +61,7 @@ public class CalendarOverviewTest {
         when(calendarRepositoryFacade.findWeeks(invalidCampaignId)).thenReturn(Collections.emptyList());
         when(calendarRepositoryFacade.findDays(invalidCampaignId)).thenReturn(Collections.emptyList());
         when(calendarRepositoryFacade.findCelestialEvents(invalidCampaignId)).thenReturn(Collections.emptyList());
+        when(calendarRepositoryFacade.findEvents(invalidCampaignId)).thenReturn(Collections.emptyList());
 
         CalendarOverviewDTO result = calendarOverviewService.getCalendarOverview(invalidCampaignId);
 
@@ -72,6 +73,7 @@ public class CalendarOverviewTest {
         assertTrue(result.getWeeks().isEmpty());
         assertTrue(result.getDays().isEmpty());
         assertTrue(result.getCelestialEvents().isEmpty());
+        assertTrue(result.getEvents().isEmpty());
 
         verify(calendarRepositoryFacade).findSuns(invalidCampaignId);
         verify(calendarRepositoryFacade).findMoons(invalidCampaignId);
@@ -79,5 +81,6 @@ public class CalendarOverviewTest {
         verify(calendarRepositoryFacade).findWeeks(invalidCampaignId);
         verify(calendarRepositoryFacade).findDays(invalidCampaignId);
         verify(calendarRepositoryFacade).findCelestialEvents(invalidCampaignId);
+        verify(calendarRepositoryFacade).findEvents(invalidCampaignId);
     }
 }

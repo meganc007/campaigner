@@ -36,6 +36,9 @@ public class CalendarOverviewService implements ICalendarOverview {
         var celestialEvents = calendarRepositoryFacade.findCelestialEvents(uuid)
                 .stream().map(calendarMapperFacade::toCelestialEventDto).toList();
 
+        var events = calendarRepositoryFacade.findEvents(uuid)
+                .stream().map(calendarMapperFacade::toEventDto).toList();
+
 
         return CalendarOverviewDTO.builder()
                 .suns(suns)
@@ -44,6 +47,7 @@ public class CalendarOverviewService implements ICalendarOverview {
                 .weeks(weeks)
                 .days(days)
                 .celestialEvents(celestialEvents)
+                .events(events)
                 .build();
     }
 }
