@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/calendar/celestial_event.dart';
 import 'package:frontend/models/calendar/day.dart';
+import 'package:frontend/models/calendar/event.dart';
 import 'package:frontend/models/calendar/month.dart';
 import 'package:frontend/models/calendar/moon.dart';
 import 'package:frontend/models/calendar/sun.dart';
 import 'package:frontend/models/calendar/week.dart';
 import 'package:frontend/services/calendar/celestial_event_service.dart';
 import 'package:frontend/services/calendar/day_service.dart';
+import 'package:frontend/services/calendar/event_service.dart';
 import 'package:frontend/services/calendar/month_service.dart';
 import 'package:frontend/services/calendar/moon_service.dart';
 import 'package:frontend/services/calendar/sun_service.dart';
@@ -25,6 +27,7 @@ class CalendarDataProvider extends ChangeNotifier {
   List<Week> _weeks = [];
   List<Day> _days = [];
   List<CelestialEvent> _celestialEvents = [];
+  List<Event> _events = [];
 
   List<Sun> get suns => List.unmodifiable(_suns);
   List<Moon> get moons => List.unmodifiable(_moons);
@@ -33,6 +36,7 @@ class CalendarDataProvider extends ChangeNotifier {
   List<Day> get days => List.unmodifiable(_days);
   List<CelestialEvent> get celestialEvents =>
       List.unmodifiable(_celestialEvents);
+  List<Event> get events => List.unmodifiable(_events);
 
   Map<int, String> _moonMap = {};
   Map<int, String> _sunMap = {};
@@ -40,6 +44,7 @@ class CalendarDataProvider extends ChangeNotifier {
   Map<int, int> _weekMap = {};
   Map<int, String> _dayMap = {};
   Map<int, String> _celestialEventMap = {};
+  Map<int, String> _eventMap = {};
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -51,6 +56,7 @@ class CalendarDataProvider extends ChangeNotifier {
   Map<int, String> get dayMap => Map.unmodifiable(_dayMap);
   Map<int, String> get celestialEventMap =>
       Map.unmodifiable(_celestialEventMap);
+  Map<int, String> get eventMap => Map.unmodifiable(_eventMap);
 
   Future<void> load() async {
     if (_initialized) return;
@@ -66,6 +72,7 @@ class CalendarDataProvider extends ChangeNotifier {
         fetchWeeks(uuid),
         fetchDays(uuid),
         fetchCelestialEvents(uuid),
+        fetchEvents(uuid),
       ]);
 
       final suns = results[0] as List<Sun>;
@@ -74,6 +81,7 @@ class CalendarDataProvider extends ChangeNotifier {
       final weeks = results[3] as List<Week>;
       final days = results[4] as List<Day>;
       final celestialEvents = results[5] as List<CelestialEvent>;
+      final events = results[6] as List<Event>;
 
       _suns = suns;
       _moons = moons;
@@ -81,6 +89,7 @@ class CalendarDataProvider extends ChangeNotifier {
       _weeks = weeks;
       _days = days;
       _celestialEvents = celestialEvents;
+      _events = events;
 
       _moonMap = {for (var moon in moons) moon.id: moon.name};
       _sunMap = {for (var s in suns) s.id: s.name};
@@ -88,6 +97,7 @@ class CalendarDataProvider extends ChangeNotifier {
       _weekMap = {for (var w in weeks) w.id: w.weekNumber};
       _dayMap = {for (var d in days) d.id: d.name};
       _celestialEventMap = {for (var ce in celestialEvents) ce.id: ce.name};
+      _eventMap = {for (var e in events) e.id: e.name};
     } catch (e) {
       _isLoading = false;
       notifyListeners();
@@ -136,6 +146,13 @@ class CalendarDataProvider extends ChangeNotifier {
   void updateCelestialEvent(int id, String name) {
     if (_celestialEventMap[id] != name) {
       _celestialEventMap[id] = name;
+      notifyListeners();
+    }
+  }
+
+  void updateEvent(int id, String name) {
+    if (_eventMap[id] != name) {
+      _eventMap[id] = name;
       notifyListeners();
     }
   }

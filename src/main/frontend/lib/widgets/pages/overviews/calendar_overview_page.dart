@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:frontend/models/calendar/week.dart';
 import 'package:frontend/models/overviews/calendar_overview.dart';
 import 'package:frontend/services/data%20providers/calendar_data_provider.dart';
+import 'package:frontend/services/data%20providers/location_data_provider.dart';
 import 'package:frontend/services/overviews/calendar_overview_service.dart';
 import 'package:frontend/util/helpers.dart';
 import 'package:frontend/widgets/pages/calendar/detail/celestial_event_detail_page.dart';
 import 'package:frontend/widgets/pages/calendar/detail/day_detail_page.dart';
+import 'package:frontend/widgets/pages/calendar/detail/event_detail_page.dart';
 import 'package:frontend/widgets/pages/calendar/detail/month_detail_page.dart';
 import 'package:frontend/widgets/pages/calendar/detail/moon_detail_page.dart';
 import 'package:frontend/widgets/pages/calendar/detail/sun_detail_page.dart';
@@ -60,9 +62,9 @@ class _CalendarOverviewPageState extends State<CalendarOverviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CalendarDataProvider>(
-      builder: (context, calendarDataProvider, child) {
-        if (calendarDataProvider.isLoading) {
+    return Consumer2<CalendarDataProvider, LocationDataProvider>(
+      builder: (context, calendarDataProvider, locationDataProvider, child) {
+        if (calendarDataProvider.isLoading || locationDataProvider.isLoading) {
           return const Center(child: CircularProgressIndicator());
         }
 
@@ -174,6 +176,29 @@ class _CalendarOverviewPageState extends State<CalendarOverviewPage> {
                           monthMap: calendarDataProvider.monthMap,
                           weekMap: calendarDataProvider.weekMap,
                           dayMap: calendarDataProvider.dayMap,
+                        ),
+                      ),
+                    );
+                    await _refreshData();
+                  },
+                ),
+                OverviewSection(
+                  section: Section(
+                    "Events".toUpperCase(),
+                    mapNamesToList(calendarOverview.events),
+                  ),
+                  onSeeMore: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => EventDetailPage(
+                          uuid: widget.uuid,
+                          monthMap: calendarDataProvider.monthMap,
+                          weekMap: calendarDataProvider.weekMap,
+                          dayMap: calendarDataProvider.dayMap,
+                          continentMap: locationDataProvider.continentMap,
+                          countryMap: locationDataProvider.countryMap,
+                          cityMap: locationDataProvider.cityMap,
                         ),
                       ),
                     );
