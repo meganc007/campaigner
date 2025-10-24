@@ -2,11 +2,12 @@ import 'dart:convert';
 
 import 'package:frontend/models/items/inventory.dart';
 import 'package:frontend/models/overviews/items_overview.dart';
+import 'package:frontend/services/api.dart';
 import 'package:http/http.dart' as http;
 
 Future<ItemsOverview> fetchItemsOverview(String uuid) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/items-overview/$uuid'),
+    Uri.parse('${Api.baseUrl}/items-overview/$uuid'),
   );
 
   if (response.statusCode == 200) {
@@ -19,7 +20,7 @@ Future<ItemsOverview> fetchItemsOverview(String uuid) async {
 
 Future<List<Inventory>> fetchInventoriesFromItemsOverview(String uuid) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/items-overview/$uuid/inventories'),
+    Uri.parse('${Api.baseUrl}/items-overview/$uuid/inventories'),
   );
 
   if (response.statusCode == 200) {

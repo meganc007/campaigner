@@ -1,6 +1,6 @@
 package com.mcommings.campaigner.modules.common.services.interfaces;
 
-import com.mcommings.campaigner.modules.common.dtos.EventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.EventDTO;
 
 import java.util.List;
 import java.util.Optional;

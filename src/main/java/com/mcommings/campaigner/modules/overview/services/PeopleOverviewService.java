@@ -1,7 +1,7 @@
 package com.mcommings.campaigner.modules.overview.services;
 
 import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.common.dtos.EventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.EventDTO;
 import com.mcommings.campaigner.modules.locations.dtos.PlaceDTO;
 import com.mcommings.campaigner.modules.overview.dtos.PeopleOverviewDTO;
 import com.mcommings.campaigner.modules.overview.facades.mappers.PeopleMapperFacade;

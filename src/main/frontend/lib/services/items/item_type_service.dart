@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 import 'package:frontend/models/items/item_type.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<ItemType>> fetchItemTypes() async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/itemtypes'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/itemtypes'));
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);
     return data.map((json) => ItemType.fromJson(json)).toList();
@@ -17,9 +16,7 @@ Future<List<ItemType>> fetchItemTypes() async {
 }
 
 Future<ItemType> fetchItemType(int id) async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/itemtypes/$id'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/itemtypes/$id'));
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = json.decode(response.body);
@@ -31,7 +28,7 @@ Future<ItemType> fetchItemType(int id) async {
 
 Future<bool> createItemType(String name, String description) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/itemtypes'),
+    Uri.parse('${Api.baseUrl}/itemtypes'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"name": name, "description": description}),
   );
@@ -41,7 +38,7 @@ Future<bool> createItemType(String name, String description) async {
 
 Future<bool> editItemType(int id, String name, String description) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/itemtypes/$id'),
+    Uri.parse('${Api.baseUrl}/itemtypes/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"id": id, "name": name, "description": description}),
   );
@@ -50,9 +47,7 @@ Future<bool> editItemType(int id, String name, String description) async {
 }
 
 Future<void> deleteItemType(int id) async {
-  final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/itemtypes/$id'),
-  );
+  final response = await http.delete(Uri.parse('${Api.baseUrl}/itemtypes/$id'));
 
   if (response.statusCode != 204 && response.statusCode != 200) {
     response.body.contains('foreign key constraint')

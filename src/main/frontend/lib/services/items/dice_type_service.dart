@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 import 'package:frontend/models/items/dice_type.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<DiceType>> fetchDiceTypes() async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/dicetypes'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/dicetypes'));
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);
     return data.map((json) => DiceType.fromJson(json)).toList();
@@ -17,9 +16,7 @@ Future<List<DiceType>> fetchDiceTypes() async {
 }
 
 Future<DiceType> fetchDiceType(int id) async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/dicetypes/$id'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/dicetypes/$id'));
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = json.decode(response.body);
@@ -35,7 +32,7 @@ Future<bool> createDiceType(
   int maxRoll,
 ) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/dicetypes'),
+    Uri.parse('${Api.baseUrl}/dicetypes'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "name": name,
@@ -54,7 +51,7 @@ Future<bool> editDiceType(
   int maxRoll,
 ) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/dicetypes/$id'),
+    Uri.parse('${Api.baseUrl}/dicetypes/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
@@ -68,9 +65,7 @@ Future<bool> editDiceType(
 }
 
 Future<void> deleteDiceType(int id) async {
-  final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/dicetypes/$id'),
-  );
+  final response = await http.delete(Uri.parse('${Api.baseUrl}/dicetypes/$id'));
 
   if (response.statusCode != 204 && response.statusCode != 200) {
     response.body.contains('foreign key constraint')

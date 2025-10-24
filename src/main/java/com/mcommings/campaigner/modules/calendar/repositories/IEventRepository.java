@@ -1,6 +1,6 @@
-package com.mcommings.campaigner.modules.common.repositories;
+package com.mcommings.campaigner.modules.calendar.repositories;
 
-import com.mcommings.campaigner.modules.common.entities.Event;
+import com.mcommings.campaigner.modules.calendar.entities.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

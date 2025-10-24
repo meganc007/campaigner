@@ -20,4 +20,5 @@ public class CalendarOverviewDTO {
     private List<WeekDTO> weeks;
     private List<DayDTO> days;
     private List<CelestialEventDTO> celestialEvents;
+    private List<EventDTO> events;
 }

@@ -1,5 +1,6 @@
 import 'package:frontend/models/calendar/celestial_event.dart';
 import 'package:frontend/models/calendar/day.dart';
+import 'package:frontend/models/calendar/event.dart';
 import 'package:frontend/models/calendar/month.dart';
 import 'package:frontend/models/calendar/moon.dart';
 import 'package:frontend/models/calendar/sun.dart';
@@ -12,6 +13,7 @@ class CalendarOverview {
   final List<Week> weeks;
   final List<Day> days;
   final List<CelestialEvent> celestialEvents;
+  final List<Event> events;
 
   const CalendarOverview({
     required this.suns,
@@ -20,6 +22,7 @@ class CalendarOverview {
     required this.weeks,
     required this.days,
     required this.celestialEvents,
+    required this.events,
   });
 
   factory CalendarOverview.fromJson(Map<String, dynamic> json) {
@@ -42,6 +45,9 @@ class CalendarOverview {
             .toList(),
         celestialEvents: (json['celestialEvents'] as List<dynamic>)
             .map((ce) => CelestialEvent.fromJson(ce as Map<String, dynamic>))
+            .toList(),
+        events: (json['events'] as List<dynamic>)
+            .map((ce) => Event.fromJson(ce as Map<String, dynamic>))
             .toList(),
       );
     } catch (e) {

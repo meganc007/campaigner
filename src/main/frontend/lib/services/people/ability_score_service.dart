@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:frontend/models/people/ability_score.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<AbilityScore>> fetchAbilityScores(String uuid) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/abilityScores/campaign/$uuid'),
+    Uri.parse('${Api.baseUrl}/abilityScores/campaign/$uuid'),
   );
 
   if (response.statusCode == 200) {
@@ -19,7 +20,7 @@ Future<List<AbilityScore>> fetchAbilityScores(String uuid) async {
 
 Future<AbilityScore> fetchAbilityScore(int id) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/abilityScores/$id'),
+    Uri.parse('${Api.baseUrl}/abilityScores/$id'),
   );
 
   if (response.statusCode == 200) {
@@ -40,7 +41,7 @@ Future<bool> createAbilityScore(
   int charisma,
 ) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/abilityScores'),
+    Uri.parse('${Api.baseUrl}/abilityScores'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "fk_campaign_uuid": uuid,
@@ -67,7 +68,7 @@ Future<bool> editAbilityScore(
   int charisma,
 ) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/abilityScores/$id'),
+    Uri.parse('${Api.baseUrl}/abilityScores/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
@@ -85,7 +86,7 @@ Future<bool> editAbilityScore(
 
 Future<void> deleteAbilityScore(int id) async {
   final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/abilityScores/$id'),
+    Uri.parse('${Api.baseUrl}/abilityScores/$id'),
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {

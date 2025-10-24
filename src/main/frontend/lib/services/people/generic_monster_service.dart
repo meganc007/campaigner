@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:frontend/models/people/generic_monster.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<GenericMonster>> fetchGenericMonsters(String uuid) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/genericMonsters/campaign/$uuid'),
+    Uri.parse('${Api.baseUrl}/genericMonsters/campaign/$uuid'),
   );
 
   if (response.statusCode == 200) {
@@ -19,7 +20,7 @@ Future<List<GenericMonster>> fetchGenericMonsters(String uuid) async {
 
 Future<GenericMonster> fetchGenericMonster(int id) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/genericMonsters/$id'),
+    Uri.parse('${Api.baseUrl}/genericMonsters/$id'),
   );
 
   if (response.statusCode == 200) {
@@ -39,7 +40,7 @@ Future<bool> createGenericMonster(
   String uuid,
 ) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/genericMonsters'),
+    Uri.parse('${Api.baseUrl}/genericMonsters'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "name": name,
@@ -64,7 +65,7 @@ Future<bool> editGenericMonster(
   String uuid,
 ) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/genericMonsters/$id'),
+    Uri.parse('${Api.baseUrl}/genericMonsters/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
@@ -82,7 +83,7 @@ Future<bool> editGenericMonster(
 
 Future<void> deleteGenericMonster(int id) async {
   final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/genericMonsters/$id'),
+    Uri.parse('${Api.baseUrl}/genericMonsters/$id'),
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {

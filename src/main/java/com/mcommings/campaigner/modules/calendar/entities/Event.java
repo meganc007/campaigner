@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.common.entities;
+package com.mcommings.campaigner.modules.calendar.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,9 +26,9 @@ public class Event {
     private Integer fk_month;
     private Integer fk_week;
     private Integer fk_day;
-    private Integer fk_city;
     private Integer fk_continent;
     private Integer fk_country;
+    private Integer fk_city;
     @Column(nullable = false)
     private UUID fk_campaign_uuid;
 }

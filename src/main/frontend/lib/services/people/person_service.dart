@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:frontend/models/people/person.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Person>> fetchPeople(String uuid) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/people/campaign/$uuid'),
+    Uri.parse('${Api.baseUrl}/people/campaign/$uuid'),
   );
 
   if (response.statusCode == 200) {
@@ -18,9 +19,7 @@ Future<List<Person>> fetchPeople(String uuid) async {
 }
 
 Future<Person> fetchPerson(int id) async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/people/$id'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/people/$id'));
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = json.decode(response.body);
@@ -46,7 +45,7 @@ Future<bool> createPerson(
   String uuid,
 ) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/people'),
+    Uri.parse('${Api.baseUrl}/people'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "firstName": firstName,
@@ -85,7 +84,7 @@ Future<bool> editPerson(
   String uuid,
 ) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/people/$id'),
+    Uri.parse('${Api.baseUrl}/people/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
@@ -109,9 +108,7 @@ Future<bool> editPerson(
 }
 
 Future<void> deletePerson(int id) async {
-  final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/people/$id'),
-  );
+  final response = await http.delete(Uri.parse('${Api.baseUrl}/people/$id'));
 
   if (response.statusCode != 204 && response.statusCode != 200) {
     response.body.contains('foreign key constraint')

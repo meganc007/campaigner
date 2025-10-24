@@ -42,6 +42,7 @@ public class CalendarOverviewControllerTest {
                 .weeks(Collections.emptyList())
                 .days(Collections.emptyList())
                 .celestialEvents(Collections.emptyList())
+                .events(Collections.emptyList())
                 .build();
 
         when(calendarOverviewService.getCalendarOverview(campaignId)).thenReturn(dto);
@@ -63,6 +64,7 @@ public class CalendarOverviewControllerTest {
                 .weeks(Collections.emptyList())
                 .days(Collections.emptyList())
                 .celestialEvents(Collections.emptyList())
+                .events(Collections.emptyList())
                 .build();
 
         when(calendarOverviewService.getCalendarOverview(invalidCampaignId)).thenReturn(emptyOverview);
@@ -80,7 +82,9 @@ public class CalendarOverviewControllerTest {
                 .andExpect(jsonPath("$.days").isArray())
                 .andExpect(jsonPath("$.days").isEmpty())
                 .andExpect(jsonPath("$.celestialEvents").isArray())
-                .andExpect(jsonPath("$.celestialEvents").isEmpty());
+                .andExpect(jsonPath("$.celestialEvents").isEmpty())
+                .andExpect(jsonPath("$.events").isArray())
+                .andExpect(jsonPath("$.events").isEmpty());
 
         verify(calendarOverviewService).getCalendarOverview(invalidCampaignId);
     }

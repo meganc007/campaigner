@@ -1,8 +1,8 @@
 package com.mcommings.campaigner.modules.overview.facades.mappers;
 
-import com.mcommings.campaigner.modules.common.dtos.EventDTO;
-import com.mcommings.campaigner.modules.common.entities.Event;
-import com.mcommings.campaigner.modules.common.mappers.EventMapper;
+import com.mcommings.campaigner.modules.calendar.dtos.EventDTO;
+import com.mcommings.campaigner.modules.calendar.entities.Event;
+import com.mcommings.campaigner.modules.calendar.mappers.EventMapper;
 import com.mcommings.campaigner.modules.locations.dtos.PlaceDTO;
 import com.mcommings.campaigner.modules.locations.entities.Place;
 import com.mcommings.campaigner.modules.locations.mappers.PlaceMapper;

@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.common.dtos;
+package com.mcommings.campaigner.modules.calendar.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,9 +24,9 @@ public class EventDTO {
     private Integer fk_month;
     private Integer fk_week;
     private Integer fk_day;
-    private Integer fk_city;
     private Integer fk_continent;
     private Integer fk_country;
+    private Integer fk_city;
     @NotNull(message = "Campaign UUID cannot be null or empty.")
     private UUID fk_campaign_uuid;
 }

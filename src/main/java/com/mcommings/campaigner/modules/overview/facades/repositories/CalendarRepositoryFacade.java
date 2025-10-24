@@ -18,6 +18,7 @@ public class CalendarRepositoryFacade {
     private final IWeekRepository weekRepository;
     private final IDayRepository dayRepository;
     private final ICelestialEventRepository celestialEventRepository;
+    private final IEventRepository eventRepository;
 
     public List<Sun> findSuns(UUID uuid) {
         return sunRepository.findByfk_campaign_uuid(uuid);
@@ -41,5 +42,9 @@ public class CalendarRepositoryFacade {
 
     public List<CelestialEvent> findCelestialEvents(UUID uuid) {
         return celestialEventRepository.findByfk_campaign_uuid(uuid);
+    }
+
+    public List<Event> findEvents(UUID uuid) {
+        return eventRepository.findByfk_campaign_uuid(uuid);
     }
 }

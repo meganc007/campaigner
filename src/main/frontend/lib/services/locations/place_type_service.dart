@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 import 'package:frontend/models/location/place_type.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<PlaceType>> fetchPlaceTypes() async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/placetypes'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/placetypes'));
 
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);
@@ -18,9 +17,7 @@ Future<List<PlaceType>> fetchPlaceTypes() async {
 }
 
 Future<PlaceType> fetchPlaceType(int id) async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/placetypes/$id'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/placetypes/$id'));
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = json.decode(response.body);
@@ -32,7 +29,7 @@ Future<PlaceType> fetchPlaceType(int id) async {
 
 Future<bool> createPlaceType(String name, String description) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/placetypes'),
+    Uri.parse('${Api.baseUrl}/placetypes'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"name": name, "description": description}),
   );
@@ -42,7 +39,7 @@ Future<bool> createPlaceType(String name, String description) async {
 
 Future<bool> editPlaceType(int id, String name, String description) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/placetypes/$id'),
+    Uri.parse('${Api.baseUrl}/placetypes/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"id": id, "name": name, "description": description}),
   );
@@ -52,7 +49,7 @@ Future<bool> editPlaceType(int id, String name, String description) async {
 
 Future<void> deletePlaceType(int id) async {
   final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/placetypes/$id'),
+    Uri.parse('${Api.baseUrl}/placetypes/$id'),
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {

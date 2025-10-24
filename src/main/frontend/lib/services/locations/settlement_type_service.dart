@@ -1,12 +1,11 @@
 import 'dart:convert';
 
 import 'package:frontend/models/location/settlement_type.dart';
+import 'package:frontend/services/api.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<SettlementType>> fetchSettlementTypes() async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/settlementtypes'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/settlementtypes'));
 
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);
@@ -18,7 +17,7 @@ Future<List<SettlementType>> fetchSettlementTypes() async {
 
 Future<SettlementType> fetchSettlementType(int id) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/settlementtypes/$id'),
+    Uri.parse('${Api.baseUrl}/settlementtypes/$id'),
   );
 
   if (response.statusCode == 200) {
@@ -31,7 +30,7 @@ Future<SettlementType> fetchSettlementType(int id) async {
 
 Future<bool> createSettlementType(String name, String description) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/settlements'),
+    Uri.parse('${Api.baseUrl}/settlements'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"name": name, "description": description}),
   );
@@ -41,7 +40,7 @@ Future<bool> createSettlementType(String name, String description) async {
 
 Future<bool> editSettlementType(int id, String name, String description) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/settlementtypes/$id'),
+    Uri.parse('${Api.baseUrl}/settlementtypes/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"id": id, "name": name, "description": description}),
   );
@@ -51,7 +50,7 @@ Future<bool> editSettlementType(int id, String name, String description) async {
 
 Future<void> deleteSettlementType(int id) async {
   final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/settlementtypes/$id'),
+    Uri.parse('${Api.baseUrl}/settlementtypes/$id'),
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {

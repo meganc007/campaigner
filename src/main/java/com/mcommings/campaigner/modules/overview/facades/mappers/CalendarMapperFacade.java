@@ -16,6 +16,7 @@ public class CalendarMapperFacade {
     private final WeekMapper weekMapper;
     private final DayMapper dayMapper;
     private final CelestialEventMapper celestialEventMapper;
+    private final EventMapper eventMapper;
 
     public SunDTO toSunDto(Sun entity) {
         return sunMapper.mapToSunDto(entity);
@@ -39,5 +40,9 @@ public class CalendarMapperFacade {
 
     public CelestialEventDTO toCelestialEventDto(CelestialEvent entity) {
         return celestialEventMapper.mapToCelestialEventDto(entity);
+    }
+
+    public EventDTO toEventDto(Event entity) {
+        return eventMapper.mapToEventDto(entity);
     }
 }

@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:frontend/models/items/inventory.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Inventory>> fetchInventories(String uuid) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/inventory/campaign/$uuid'),
+    Uri.parse('${Api.baseUrl}/inventory/campaign/$uuid'),
   );
 
   if (response.statusCode == 200) {
@@ -18,9 +19,7 @@ Future<List<Inventory>> fetchInventories(String uuid) async {
 }
 
 Future<Inventory> fetchInventory(int id) async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/inventory/$id'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/inventory/$id'));
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = json.decode(response.body);
@@ -38,7 +37,7 @@ Future<bool> createInventory(
   int? fkPlace,
 ) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/inventory'),
+    Uri.parse('${Api.baseUrl}/inventory'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "fk_campaign_uuid": uuid,
@@ -61,7 +60,7 @@ Future<bool> editInventory(
   int? fkPlace,
 ) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/inventory/$id'),
+    Uri.parse('${Api.baseUrl}/inventory/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
@@ -77,9 +76,7 @@ Future<bool> editInventory(
 }
 
 Future<void> deleteInventory(int id) async {
-  final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/inventory/$id'),
-  );
+  final response = await http.delete(Uri.parse('${Api.baseUrl}/inventory/$id'));
 
   if (response.statusCode != 204 && response.statusCode != 200) {
     response.body.contains('foreign key constraint')
