@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:frontend/models/calendar/moon.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Moon>> fetchMoons(String uuid) async {
-  final response = await http.get(Uri.parse('http://10.0.2.2:8080/api/moons'));
+  final response = await http.get(Uri.parse('${Api.baseUrl}/moons'));
 
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);
@@ -16,9 +17,7 @@ Future<List<Moon>> fetchMoons(String uuid) async {
 }
 
 Future<Moon> fetchMoon(int id) async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/moons/$id'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/moons/$id'));
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = json.decode(response.body);
@@ -30,7 +29,7 @@ Future<Moon> fetchMoon(int id) async {
 
 Future<bool> createMoon(String name, String description, String uuid) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/moons'),
+    Uri.parse('${Api.baseUrl}/moons'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "name": name,
@@ -49,7 +48,7 @@ Future<bool> editMoon(
   String uuid,
 ) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/moons/$id'),
+    Uri.parse('${Api.baseUrl}/moons/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
@@ -63,9 +62,7 @@ Future<bool> editMoon(
 }
 
 Future<void> deleteMoon(int id) async {
-  final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/moons/$id'),
-  );
+  final response = await http.delete(Uri.parse('${Api.baseUrl}/moons/$id'));
 
   if (response.statusCode != 204 && response.statusCode != 200) {
     response.body.contains('foreign key constraint')

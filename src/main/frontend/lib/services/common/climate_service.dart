@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 import 'package:frontend/models/common/climate.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Climate>> fetchClimates() async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/climates'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/climates'));
 
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);
@@ -18,9 +17,7 @@ Future<List<Climate>> fetchClimates() async {
 }
 
 Future<Climate> fetchClimate(int id) async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/climates/$id'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/climates/$id'));
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = json.decode(response.body);
@@ -32,7 +29,7 @@ Future<Climate> fetchClimate(int id) async {
 
 Future<bool> createClimate(String name, String description) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/climates'),
+    Uri.parse('${Api.baseUrl}/climates'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"name": name, "description": description}),
   );
@@ -42,7 +39,7 @@ Future<bool> createClimate(String name, String description) async {
 
 Future<bool> editClimate(int id, String name, String description) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/climates/$id'),
+    Uri.parse('${Api.baseUrl}/climates/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({"id": id, "name": name, "description": description}),
   );
@@ -51,9 +48,7 @@ Future<bool> editClimate(int id, String name, String description) async {
 }
 
 Future<void> deleteClimate(int id) async {
-  final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/climates/$id'),
-  );
+  final response = await http.delete(Uri.parse('${Api.baseUrl}/climates/$id'));
 
   if (response.statusCode != 204 && response.statusCode != 200) {
     response.body.contains('foreign key constraint')

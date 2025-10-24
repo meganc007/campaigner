@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:frontend/models/location/region.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Region>> fetchRegions(String uuid) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/regions/campaign/$uuid'),
+    Uri.parse('${Api.baseUrl}/regions/campaign/$uuid'),
   );
 
   if (response.statusCode == 200) {
@@ -18,9 +19,7 @@ Future<List<Region>> fetchRegions(String uuid) async {
 }
 
 Future<Region> fetchRegion(int id) async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/regions/$id'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/regions/$id'));
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> data = json.decode(response.body);
@@ -38,7 +37,7 @@ Future<bool> createRegion(
   int climate,
 ) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/regions'),
+    Uri.parse('${Api.baseUrl}/regions'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "name": name,
@@ -61,7 +60,7 @@ Future<bool> editRegion(
   int climate,
 ) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/regions/$id'),
+    Uri.parse('${Api.baseUrl}/regions/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
@@ -77,9 +76,7 @@ Future<bool> editRegion(
 }
 
 Future<void> deleteRegion(int id) async {
-  final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/regions/$id'),
-  );
+  final response = await http.delete(Uri.parse('${Api.baseUrl}/regions/$id'));
 
   if (response.statusCode != 204 && response.statusCode != 200) {
     response.body.contains('foreign key constraint')

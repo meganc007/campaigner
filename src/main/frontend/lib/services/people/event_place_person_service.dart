@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:frontend/models/people/event_place_person.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<EventPlacePerson>> fetchEventPlacePersons(String uuid) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/eventsPlacesPeople/campaign/$uuid'),
+    Uri.parse('${Api.baseUrl}/eventsPlacesPeople/campaign/$uuid'),
   );
 
   if (response.statusCode == 200) {
@@ -19,7 +20,7 @@ Future<List<EventPlacePerson>> fetchEventPlacePersons(String uuid) async {
 
 Future<EventPlacePerson> fetchEventPlacePerson(int id) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/eventsPlacesPeople/$id'),
+    Uri.parse('${Api.baseUrl}/eventsPlacesPeople/$id'),
   );
 
   if (response.statusCode == 200) {
@@ -37,7 +38,7 @@ Future<bool> createEventPlacePerson(
   String uuid,
 ) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/eventsPlacesPeople'),
+    Uri.parse('${Api.baseUrl}/eventsPlacesPeople'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       if (fkEvent != null) "fk_event": fkEvent,
@@ -58,7 +59,7 @@ Future<bool> editEventPlacePerson(
   String uuid,
 ) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/eventsPlacesPeople/$id'),
+    Uri.parse('${Api.baseUrl}/eventsPlacesPeople/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
@@ -74,7 +75,7 @@ Future<bool> editEventPlacePerson(
 
 Future<void> deleteEventPlacePerson(int id) async {
   final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/eventsPlacesPeople/$id'),
+    Uri.parse('${Api.baseUrl}/eventsPlacesPeople/$id'),
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {

@@ -1,13 +1,12 @@
 import 'dart:convert';
 
 import 'package:frontend/models/calendar/celestial_event.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<CelestialEvent>> fetchCelestialEvents(String uuid) async {
-  final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/celestialevents'),
-  );
+  final response = await http.get(Uri.parse('${Api.baseUrl}/celestialevents'));
 
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);
@@ -19,7 +18,7 @@ Future<List<CelestialEvent>> fetchCelestialEvents(String uuid) async {
 
 Future<CelestialEvent> fetchCelestialEvent(int id) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/celestialevents/$id'),
+    Uri.parse('${Api.baseUrl}/celestialevents/$id'),
   );
 
   if (response.statusCode == 200) {
@@ -42,7 +41,7 @@ Future<bool> createCelestialEvent(
   int eventYear,
 ) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/celestialevents'),
+    Uri.parse('${Api.baseUrl}/celestialevents'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "name": name,
@@ -73,7 +72,7 @@ Future<bool> editCelestialEvent(
   int eventYear,
 ) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/celestialevents/$id'),
+    Uri.parse('${Api.baseUrl}/celestialevents/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
@@ -94,7 +93,7 @@ Future<bool> editCelestialEvent(
 
 Future<void> deleteCelestialEvent(int id) async {
   final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/celestialEvents/$id'),
+    Uri.parse('${Api.baseUrl}/celestialEvents/$id'),
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {

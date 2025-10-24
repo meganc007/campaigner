@@ -3,11 +3,12 @@ import 'dart:convert';
 import 'package:frontend/models/people/event_place_person.dart';
 import 'package:frontend/models/people/job_assignment.dart';
 import 'package:frontend/models/overviews/people_overview.dart';
+import 'package:frontend/services/api.dart';
 import 'package:http/http.dart' as http;
 
 Future<PeopleOverview> fetchPeopleOverview(String uuid) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/people-overview/$uuid'),
+    Uri.parse('${Api.baseUrl}/people-overview/$uuid'),
   );
 
   if (response.statusCode == 200) {
@@ -22,7 +23,7 @@ Future<List<JobAssignment>> fetchJobAssignmentsFromPeopleOverview(
   String uuid,
 ) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/people-overview/$uuid/jobAssignments'),
+    Uri.parse('${Api.baseUrl}/people-overview/$uuid/jobAssignments'),
   );
 
   if (response.statusCode == 200) {
@@ -37,9 +38,7 @@ Future<List<EventPlacePerson>> fetchEventPlacePersonsFromPeopleOverview(
   String uuid,
 ) async {
   final response = await http.get(
-    Uri.parse(
-      'http://10.0.2.2:8080/api/people-overview/$uuid/eventPlacePersons',
-    ),
+    Uri.parse('${Api.baseUrl}/people-overview/$uuid/eventPlacePersons'),
   );
 
   if (response.statusCode == 200) {

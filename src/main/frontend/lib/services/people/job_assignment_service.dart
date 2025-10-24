@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:frontend/models/people/job_assignment.dart';
+import 'package:frontend/services/api.dart';
 import 'package:frontend/services/error_handling.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<JobAssignment>> fetchJobAssignments(String uuid) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/jobAssignments/campaign/$uuid'),
+    Uri.parse('${Api.baseUrl}/jobAssignments/campaign/$uuid'),
   );
 
   if (response.statusCode == 200) {
@@ -19,7 +20,7 @@ Future<List<JobAssignment>> fetchJobAssignments(String uuid) async {
 
 Future<JobAssignment> fetchJobAssignment(int id) async {
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:8080/api/jobAssignments/$id'),
+    Uri.parse('${Api.baseUrl}/jobAssignments/$id'),
   );
 
   if (response.statusCode == 200) {
@@ -32,7 +33,7 @@ Future<JobAssignment> fetchJobAssignment(int id) async {
 
 Future<bool> createJobAssignment(int? fkPerson, int? fkJob, String uuid) async {
   final response = await http.post(
-    Uri.parse('http://10.0.2.2:8080/api/jobAssignments'),
+    Uri.parse('${Api.baseUrl}/jobAssignments'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       if (fkPerson != null) "fk_person": fkPerson,
@@ -51,7 +52,7 @@ Future<bool> editJobAssignment(
   String uuid,
 ) async {
   final response = await http.put(
-    Uri.parse('http://10.0.2.2:8080/api/jobAssignments/$id'),
+    Uri.parse('${Api.baseUrl}/jobAssignments/$id'),
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "id": id,
@@ -66,7 +67,7 @@ Future<bool> editJobAssignment(
 
 Future<void> deleteJobAssignment(int id) async {
   final response = await http.delete(
-    Uri.parse('http://10.0.2.2:8080/api/jobAssignments/$id'),
+    Uri.parse('${Api.baseUrl}/jobAssignments/$id'),
   );
 
   if (response.statusCode != 204 && response.statusCode != 200) {
