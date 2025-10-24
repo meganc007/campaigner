@@ -40,7 +40,9 @@ class _AddEventPageState extends State<AddEventPage> {
   List<Day> _days = [];
   List<Continent> _continents = [];
   List<Country> _countries = [];
+  List<Country> _filteredCountries = [];
   List<City> _cities = [];
+  List<City> _filteredCities = [];
 
   Month? _selectedMonth;
   Week? _selectedWeek;
@@ -56,6 +58,14 @@ class _AddEventPageState extends State<AddEventPage> {
   void initState() {
     super.initState();
     _loadInitialData();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _eventYearController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadInitialData() async {
@@ -85,12 +95,50 @@ class _AddEventPageState extends State<AddEventPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    _eventYearController.dispose();
-    super.dispose();
+  void _filterCountries() {
+    setState(() {
+      if (_selectedContinent != null) {
+        _filteredCountries = _countries
+            .where((country) => country.fkContinent == _selectedContinent!.id)
+            .toList();
+        if (_filteredCountries.length == 1) {
+          _selectedCountry = _filteredCountries.first;
+        }
+      } else {
+        _filteredCountries = [];
+      }
+    });
+  }
+
+  void _filterCities() {
+    setState(() {
+      if (_selectedCountry != null) {
+        _filteredCities = _cities
+            .where((city) => city.fkCountry == _selectedCountry!.id)
+            .toList();
+        if (_filteredCities.length == 1) {
+          _selectedCity = _filteredCities.first;
+        }
+      } else {
+        _filteredCities = [];
+      }
+    });
+  }
+
+  Future<void> _onContinentChanged(Continent? newContinent) async {
+    setState(() {
+      _selectedContinent = newContinent;
+      _selectedCountry = null;
+      _filterCountries();
+    });
+  }
+
+  Future<void> _onCountryChanged(Country? newCountry) async {
+    setState(() {
+      _selectedCountry = newCountry;
+      _selectedCity = null;
+      _filterCities();
+    });
   }
 
   Future<void> _submitForm() async {
@@ -213,8 +261,7 @@ class _AddEventPageState extends State<AddEventPage> {
                     selected: _selectedContinent,
                     options: _continents,
                     getLabel: (continent) => continent.name,
-                    onChanged: (value) =>
-                        setState(() => _selectedContinent = value),
+                    onChanged: _onContinentChanged,
                   ),
                   if (_selectedContinent != null)
                     DropdownDescription(_selectedContinent!.description),
@@ -225,10 +272,9 @@ class _AddEventPageState extends State<AddEventPage> {
                   EntityDropdown<Country>(
                     label: "Country",
                     selected: _selectedCountry,
-                    options: _countries,
+                    options: _filteredCountries,
                     getLabel: (country) => country.name,
-                    onChanged: (value) =>
-                        setState(() => _selectedCountry = value),
+                    onChanged: _onCountryChanged,
                   ),
                   if (_selectedCountry != null)
                     DropdownDescription(_selectedCountry!.description),
@@ -239,7 +285,7 @@ class _AddEventPageState extends State<AddEventPage> {
                   EntityDropdown<City>(
                     label: "City",
                     selected: _selectedCity,
-                    options: _cities,
+                    options: _filteredCities,
                     getLabel: (city) => city.name,
                     onChanged: (value) => setState(() => _selectedCity = value),
                   ),

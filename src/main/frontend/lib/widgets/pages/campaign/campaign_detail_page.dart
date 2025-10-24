@@ -14,7 +14,6 @@ import 'package:frontend/services/overviews/locations_overview_service.dart';
 import 'package:frontend/services/overviews/people_overview_service.dart';
 import 'package:frontend/widgets/pages/overviews/calendar_overview_page.dart';
 import 'package:frontend/widgets/pages/overviews/campaign_overview_page.dart';
-import 'package:frontend/widgets/pages/overviews/common_overview_page.dart';
 import 'package:frontend/widgets/pages/overviews/items_overview_page.dart';
 import 'package:frontend/widgets/pages/overviews/location_overview_page.dart';
 import 'package:frontend/widgets/main_nav.dart';
@@ -86,15 +85,21 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         ),
       ),
       QuestsOverviewPage(),
-      ChangeNotifierProvider(
-        create: (_) => CalendarDataProvider(widget.campaign.uuid),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => LocationDataProvider(widget.campaign.uuid),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => CalendarDataProvider(widget.campaign.uuid),
+          ),
+        ],
         child: CalendarOverviewPage(
           uuid: widget.campaign.uuid,
           futureCalendar: _futureCalendar,
+          futureLocation: _futureLocations,
         ),
       ),
-
-      CommonOverviewPage(),
     ];
 
     return Scaffold(

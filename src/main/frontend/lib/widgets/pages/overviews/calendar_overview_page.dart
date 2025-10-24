@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/models/calendar/week.dart';
 import 'package:frontend/models/overviews/calendar_overview.dart';
+import 'package:frontend/models/overviews/locations_overview.dart';
 import 'package:frontend/services/data%20providers/calendar_data_provider.dart';
 import 'package:frontend/services/data%20providers/location_data_provider.dart';
 import 'package:frontend/services/overviews/calendar_overview_service.dart';
@@ -19,11 +20,13 @@ import 'package:provider/provider.dart';
 class CalendarOverviewPage extends StatefulWidget {
   final String uuid;
   final Future<CalendarOverview> futureCalendar;
+  final Future<LocationsOverview> futureLocation;
 
   const CalendarOverviewPage({
     super.key,
     required this.uuid,
     required this.futureCalendar,
+    required this.futureLocation,
   });
 
   @override

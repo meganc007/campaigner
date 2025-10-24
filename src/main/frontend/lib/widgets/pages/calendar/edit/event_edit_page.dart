@@ -43,7 +43,9 @@ class _EventEditPageState extends State<EventEditPage> {
   List<Day> _days = [];
   List<Continent> _continents = [];
   List<Country> _countries = [];
+  List<Country> _filteredCountries = [];
   List<City> _cities = [];
+  List<City> _filteredCities = [];
 
   Month? _selectedMonth;
   Week? _selectedWeek;
@@ -62,6 +64,14 @@ class _EventEditPageState extends State<EventEditPage> {
     _nameController.text = widget.event.name;
     _descriptionController.text = widget.event.description;
     _eventYearController.text = widget.event.eventYear.toString();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _eventYearController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadInitialData() async {
@@ -100,6 +110,8 @@ class _EventEditPageState extends State<EventEditPage> {
         _selectedCity = _cities.firstWhereOrNull(
           (city) => city.id == widget.event.fkCity,
         );
+        _filterCountries();
+        _filterCities();
         _loading = false;
       });
     } catch (e) {
@@ -110,12 +122,34 @@ class _EventEditPageState extends State<EventEditPage> {
     }
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    _eventYearController.dispose();
-    super.dispose();
+  void _filterCountries() {
+    setState(() {
+      if (_selectedContinent != null) {
+        _filteredCountries = _countries
+            .where((country) => country.fkContinent == _selectedContinent!.id)
+            .toList();
+        if (_filteredCountries.length == 1) {
+          _selectedCountry = _filteredCountries.first;
+        }
+      } else {
+        _filteredCountries = [];
+      }
+    });
+  }
+
+  void _filterCities() {
+    setState(() {
+      if (_selectedCountry != null) {
+        _filteredCities = _cities
+            .where((city) => city.fkCountry == _selectedCountry!.id)
+            .toList();
+        if (_filteredCities.length == 1) {
+          _selectedCity = _filteredCities.first;
+        }
+      } else {
+        _filteredCities = [];
+      }
+    });
   }
 
   Future<void> _onMonthChanged(Month? newMonth) async {
@@ -139,12 +173,14 @@ class _EventEditPageState extends State<EventEditPage> {
   Future<void> _onContinentChanged(Continent? newContinent) async {
     setState(() {
       _selectedContinent = newContinent;
+      _filterCountries();
     });
   }
 
   Future<void> _onCountryChanged(Country? newCountry) async {
     setState(() {
       _selectedCountry = newCountry;
+      _filterCities();
     });
   }
 
@@ -285,7 +321,7 @@ class _EventEditPageState extends State<EventEditPage> {
                   EntityDropdown<Country>(
                     label: "Country",
                     selected: _selectedCountry,
-                    options: _countries,
+                    options: _filteredCountries,
                     getLabel: (country) => country.name,
                     onChanged: _onCountryChanged,
                   ),
@@ -298,7 +334,7 @@ class _EventEditPageState extends State<EventEditPage> {
                   EntityDropdown<City>(
                     label: "City",
                     selected: _selectedCity,
-                    options: _cities,
+                    options: _filteredCities,
                     getLabel: (city) => city.name,
                     onChanged: _onCityChanged,
                   ),

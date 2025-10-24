@@ -79,15 +79,6 @@ class MainNav extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.account_balance),
-            title: const Text("Common"),
-            selected: currentIndex == 6,
-            onTap: () {
-              onSelect(6);
-              Navigator.pop(context);
-            },
-          ),
         ],
       ),
     );
