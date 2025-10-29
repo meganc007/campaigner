@@ -17,7 +17,7 @@ import 'package:frontend/widgets/pages/overviews/campaign_overview_page.dart';
 import 'package:frontend/widgets/pages/overviews/items_overview_page.dart';
 import 'package:frontend/widgets/pages/overviews/location_overview_page.dart';
 import 'package:frontend/widgets/main_nav.dart';
-import 'package:frontend/widgets/pages/people/people_overview_page.dart';
+import 'package:frontend/widgets/pages/overviews/people_overview_page.dart';
 import 'package:frontend/widgets/pages/overviews/quests_overview_page.dart';
 import 'package:provider/provider.dart';
 
