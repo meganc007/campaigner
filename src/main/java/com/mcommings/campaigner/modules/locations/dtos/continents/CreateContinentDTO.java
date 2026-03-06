@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.locations.dtos;
+package com.mcommings.campaigner.modules.locations.dtos.continents;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,16 +9,17 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-
-@Builder
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ContinentDTO {
-    private int id;
+@AllArgsConstructor
+@Builder
+public class CreateContinentDTO {
+
     @NotBlank(message = "Continent name cannot be empty")
     private String name;
+
     private String description;
+
     @NotNull(message = "Campaign UUID cannot be null or empty.")
-    private UUID fk_campaign_uuid;
+    private UUID campaignUuid;
 }
