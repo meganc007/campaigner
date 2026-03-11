@@ -13,4 +13,6 @@ public interface IContinentRepository extends JpaRepository<Continent, Integer> 
     List<Continent> findByCampaign_Uuid(UUID uuid);
 
     boolean existsByNameAndCampaign_UuidAndIdNot(String name, UUID campaignUuid, Integer id);
+
+    boolean existsByNameAndCampaign_Uuid(String name, UUID campaignUuid);
 }

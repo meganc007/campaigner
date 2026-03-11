@@ -8,7 +8,12 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
-@Table(name = "continents")
+@Table(name = "continents",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"name", "fk_campaign_uuid"}
+                )
+        })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Continent {
