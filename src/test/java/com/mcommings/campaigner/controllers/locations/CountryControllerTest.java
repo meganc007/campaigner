@@ -28,7 +28,7 @@ public class CountryControllerTest extends BaseControllerTest {
 
     //GET all
     @Test
-    void getContinents_returnsList() throws Exception {
+    void getCountries_returnsList() throws Exception {
 
         when(countryService.getAll())
                 .thenReturn(List.of(LocationsTestDataFactory.viewCountryDTO()));

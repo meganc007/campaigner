@@ -2,13 +2,11 @@ package com.mcommings.campaigner.modules.locations.services;
 
 import com.mcommings.campaigner.config.BaseService;
 import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
-import com.mcommings.campaigner.modules.common.repositories.IGovernmentRepository;
 import com.mcommings.campaigner.modules.locations.dtos.countries.CreateCountryDTO;
 import com.mcommings.campaigner.modules.locations.dtos.countries.UpdateCountryDTO;
 import com.mcommings.campaigner.modules.locations.dtos.countries.ViewCountryDTO;
 import com.mcommings.campaigner.modules.locations.entities.Country;
 import com.mcommings.campaigner.modules.locations.mappers.CountryMapper;
-import com.mcommings.campaigner.modules.locations.repositories.IContinentRepository;
 import com.mcommings.campaigner.modules.locations.repositories.ICountryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,8 +25,6 @@ public class CountryService extends BaseService<
         UpdateCountryDTO> {
 
     private final ICountryRepository countryRepository;
-    private final IContinentRepository continentRepository;
-    private final IGovernmentRepository governmentRepository;
     private final ICampaignRepository campaignRepository;
     private final CountryMapper countryMapper;
 

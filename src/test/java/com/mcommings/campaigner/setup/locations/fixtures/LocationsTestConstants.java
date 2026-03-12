@@ -10,6 +10,7 @@ public final class LocationsTestConstants {
     //SHARED
     public static final UUID CAMPAIGN_UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
     public static final int GOVERNMENT_ID = 1;
+    public static final int WEALTH_ID = 1;
 
     //CONTINENT
     public static final int CONTINENT_ID = 1;
@@ -21,5 +22,14 @@ public final class LocationsTestConstants {
     public static final String COUNTRY_NAME = "Test Continent";
     public static final String COUNTRY_DESCRIPTION = "A fictional land";
 
+    //CITY
+    public static final int CITY_ID = 1;
+    public static final String CITY_NAME = "Test City";
+    public static final String CITY_DESCRIPTION = "A fictional city";
 
+    //SETTLEMENT TYPE
+    public static final int SETTLEMENTTYPE_ID = 1;
+
+    //REGION
+    public static final int REGION_ID = 1;
 }

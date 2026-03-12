@@ -1,237 +1,300 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.modules.locations.dtos.CityDTO;
+import com.mcommings.campaigner.modules.common.entities.Campaign;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.modules.locations.dtos.cities.CreateCityDTO;
+import com.mcommings.campaigner.modules.locations.dtos.cities.UpdateCityDTO;
+import com.mcommings.campaigner.modules.locations.dtos.cities.ViewCityDTO;
 import com.mcommings.campaigner.modules.locations.entities.City;
 import com.mcommings.campaigner.modules.locations.mappers.CityMapper;
 import com.mcommings.campaigner.modules.locations.repositories.ICityRepository;
 import com.mcommings.campaigner.modules.locations.services.CityService;
+import com.mcommings.campaigner.setup.locations.factories.LocationsTestDataFactory;
+import com.mcommings.campaigner.setup.locations.fixtures.LocationsTestConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class CityTest {
-
-    @Mock
-    private CityMapper cityMapper;
 
     @Mock
     private ICityRepository cityRepository;
 
+    @Mock
+    private ICampaignRepository campaignRepository;
+
+    @Mock
+    private CityMapper cityMapper;
+
     @InjectMocks
     private CityService cityService;
 
-    private City entity;
-    private CityDTO dto;
+    private City city;
+    private ViewCityDTO viewDto;
+    private CreateCityDTO createDto;
+    private UpdateCityDTO updateDto;
 
     @BeforeEach
     void setUp() {
-        Random random = new Random();
-        entity = new City();
-        entity.setId(1);
-        entity.setName("Test City");
-        entity.setDescription("A fictional city.");
-        entity.setFk_campaign_uuid(UUID.randomUUID());
-        entity.setFk_wealth(random.nextInt(100) + 1);
-        entity.setFk_country(random.nextInt(100) + 1);
-        entity.setFk_settlement(random.nextInt(100) + 1);
-        entity.setFk_government(random.nextInt(100) + 1);
-        entity.setFk_region(random.nextInt(100) + 1);
-
-        dto = new CityDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
-        dto.setFk_wealth(entity.getFk_wealth());
-        dto.setFk_country(entity.getFk_country());
-        dto.setFk_settlement(entity.getFk_settlement());
-        dto.setFk_government(entity.getFk_government());
-        dto.setFk_region(entity.getFk_region());
-
-        when(cityMapper.mapToCityDto(entity)).thenReturn(dto);
-        when(cityMapper.mapFromCityDto(dto)).thenReturn(entity);
+        city = LocationsTestDataFactory.city();
+        viewDto = LocationsTestDataFactory.viewCityDTO();
+        createDto = LocationsTestDataFactory.createCityDTO();
+        updateDto = LocationsTestDataFactory.updateCityDTO();
     }
 
     @Test
-    public void whenThereAreCities_getCities_ReturnsCities() {
-        when(cityRepository.findAll()).thenReturn(List.of(entity));
-        List<CityDTO> result = cityService.getCities();
+    void getAll_returnsMappedDtos() {
 
-        assertNotNull(result);
+        when(cityRepository.findAll()).thenReturn(List.of(city));
+        when(cityMapper.toDto(city)).thenReturn(viewDto);
+
+        List<ViewCityDTO> result = cityService.getAll();
+
         assertEquals(1, result.size());
-        assertEquals("Test City", result.get(0).getName());
+        assertEquals(viewDto, result.get(0));
+
+        verify(cityRepository).findAll();
+        verify(cityMapper).toDto(city);
     }
 
     @Test
-    public void whenThereAreNoCities_getCities_ReturnsEmptyList() {
-        when(cityRepository.findAll()).thenReturn(Collections.emptyList());
+    void getCitiesByCampaignUUID_returnsMappedList() {
 
-        List<CityDTO> result = cityService.getCities();
+        when(cityRepository.findByCampaign_Uuid(LocationsTestConstants.CAMPAIGN_UUID))
+                .thenReturn(List.of(city));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when there are no cities.");
-    }
+        when(cityMapper.toDto(city))
+                .thenReturn(viewDto);
 
-    @Test
-    void whenThereIsACity_getCity_ReturnsCityById() {
-        when(cityRepository.findById(1)).thenReturn(Optional.of(entity));
+        List<ViewCityDTO> result =
+                cityService.getCitiesByCampaignUUID(
+                        LocationsTestConstants.CAMPAIGN_UUID);
 
-        Optional<CityDTO> result = cityService.getCity(1);
-
-        assertTrue(result.isPresent());
-        assertEquals("Test City", result.get().getName());
-    }
-
-    @Test
-    void whenThereIsNotACity_getCity_ReturnsNothing() {
-        when(cityRepository.findById(999)).thenReturn(Optional.empty());
-
-        Optional<CityDTO> result = cityService.getCity(999);
-
-        assertTrue(result.isEmpty(), "Expected empty Optional when city is not found.");
-    }
-
-    @Test
-    void whenCampaignUUIDIsValid_getCitiesByCampaignUUID_ReturnsCities() {
-        UUID campaignUUID = entity.getFk_campaign_uuid();
-        when(cityRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
-
-        List<CityDTO> result = cityService.getCitiesByCampaignUUID(campaignUUID);
-
-        assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
+        assertEquals(viewDto, result.get(0));
+
+        verify(cityRepository)
+                .findByCampaign_Uuid(LocationsTestConstants.CAMPAIGN_UUID);
+
+        verify(cityMapper).toDto(city);
     }
 
     @Test
-    void whenCampaignUUIDIsInvalid_getCitiesByCampaignUUID_ReturnsNothing() {
-        UUID campaignUUID = UUID.randomUUID();
-        when(cityRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
+    void getCitiesByWealthId_returnsMappedList() {
+        when(cityRepository.findByWealth_Id(LocationsTestConstants.CONTINENT_ID))
+                .thenReturn(List.of(city));
 
-        List<CityDTO> result = cityService.getCitiesByCampaignUUID(campaignUUID);
+        when(cityMapper.toDto(city))
+                .thenReturn(viewDto);
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when no cities match the campaign UUID.");
+        List<ViewCityDTO> result =
+                cityService.getCitiesByWealthId(
+                        LocationsTestConstants.CONTINENT_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(cityRepository)
+                .findByWealth_Id((LocationsTestConstants.CONTINENT_ID));
+
+        verify(cityMapper).toDto(city);
     }
 
     @Test
-    void whenCityIsValid_saveCity_SavesTheCity() {
-        when(cityRepository.save(entity)).thenReturn(entity);
+    void getCitiesByCountryId_returnsMappedList() {
+        when(cityRepository.findByCountry_Id(LocationsTestConstants.CONTINENT_ID))
+                .thenReturn(List.of(city));
 
-        cityService.saveCity(dto);
+        when(cityMapper.toDto(city))
+                .thenReturn(viewDto);
 
-        verify(cityRepository, times(1)).save(entity);
+        List<ViewCityDTO> result =
+                cityService.getCitiesByCountryId(
+                        LocationsTestConstants.CONTINENT_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(cityRepository)
+                .findByCountry_Id((LocationsTestConstants.CONTINENT_ID));
+
+        verify(cityMapper).toDto(city);
     }
 
     @Test
-    public void whenCityNameIsInvalid_saveCity_ThrowsIllegalArgumentException() {
-        CityDTO cityWithEmptyName = new CityDTO();
-        cityWithEmptyName.setId(1);
-        cityWithEmptyName.setName("");
-        cityWithEmptyName.setDescription("A fictional city.");
-        cityWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
-        cityWithEmptyName.setFk_wealth(1);
-        cityWithEmptyName.setFk_country(1);
-        cityWithEmptyName.setFk_settlement(1);
-        cityWithEmptyName.setFk_government(1);
-        cityWithEmptyName.setFk_region(1);
+    void getCitiesBySettlementTypeId_returnsMappedList() {
+        when(cityRepository.findBySettlementType_Id(LocationsTestConstants.CONTINENT_ID))
+                .thenReturn(List.of(city));
 
-        CityDTO cityWithNullName = new CityDTO();
-        cityWithNullName.setId(1);
-        cityWithNullName.setName(null);
-        cityWithNullName.setDescription("A fictional city.");
-        cityWithNullName.setFk_campaign_uuid(UUID.randomUUID());
-        cityWithNullName.setFk_wealth(1);
-        cityWithNullName.setFk_country(1);
-        cityWithNullName.setFk_settlement(1);
-        cityWithNullName.setFk_government(1);
-        cityWithNullName.setFk_region(1);
+        when(cityMapper.toDto(city))
+                .thenReturn(viewDto);
 
-        assertThrows(IllegalArgumentException.class, () -> cityService.saveCity(cityWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> cityService.saveCity(cityWithNullName));
+        List<ViewCityDTO> result =
+                cityService.getCitiesBySettlementTypeId(
+                        LocationsTestConstants.CONTINENT_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(cityRepository)
+                .findBySettlementType_Id((LocationsTestConstants.CONTINENT_ID));
+
+        verify(cityMapper).toDto(city);
     }
 
     @Test
-    public void whenCityNameAlreadyExists_saveCity_ThrowsDataIntegrityViolationException() {
-        when(cityRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-        assertThrows(DataIntegrityViolationException.class, () -> cityService.saveCity(dto));
-        verify(cityRepository, times(1)).findByName(dto.getName());
-        verify(cityRepository, never()).save(any(City.class));
+    void getCitiesByGovernmentId_returnsMappedList() {
+        when(cityRepository.findByGovernment_Id(LocationsTestConstants.CONTINENT_ID))
+                .thenReturn(List.of(city));
+
+        when(cityMapper.toDto(city))
+                .thenReturn(viewDto);
+
+        List<ViewCityDTO> result =
+                cityService.getCitiesByGovernmentId(
+                        LocationsTestConstants.CONTINENT_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(cityRepository)
+                .findByGovernment_Id((LocationsTestConstants.CONTINENT_ID));
+
+        verify(cityMapper).toDto(city);
     }
 
     @Test
-    void whenCityIdExists_deleteCity_DeletesTheCity() {
-        when(cityRepository.existsById(1)).thenReturn(true);
-        cityService.deleteCity(1);
-        verify(cityRepository, times(1)).deleteById(1);
+    void getCitiesByRegionId_returnsMappedList() {
+        when(cityRepository.findByRegion_Id(LocationsTestConstants.CONTINENT_ID))
+                .thenReturn(List.of(city));
+
+        when(cityMapper.toDto(city))
+                .thenReturn(viewDto);
+
+        List<ViewCityDTO> result =
+                cityService.getCitiesByRegionId(
+                        LocationsTestConstants.CONTINENT_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(cityRepository)
+                .findByRegion_Id((LocationsTestConstants.CONTINENT_ID));
+
+        verify(cityMapper).toDto(city);
     }
 
     @Test
-    void whenCityIdDoesNotExist_deleteCity_ThrowsIllegalArgumentException() {
-        when(cityRepository.existsById(999)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> cityService.deleteCity(999));
+    void getById_whenExists_returnsDto() {
+
+        when(cityRepository.findById(city.getId()))
+                .thenReturn(Optional.of(city));
+
+        when(cityMapper.toDto(city))
+                .thenReturn(viewDto);
+
+        ViewCityDTO result = cityService.getById(city.getId());
+
+        assertEquals(viewDto, result);
+
+        verify(cityRepository).findById(city.getId());
+        verify(cityMapper).toDto(city);
     }
 
     @Test
-    void whenDeleteCityFails_deleteCity_ThrowsException() {
-        when(cityRepository.existsById(1)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(cityRepository).deleteById(1);
+    void getById_whenMissing_throwsException() {
 
-        assertThrows(RuntimeException.class, () -> cityService.deleteCity(1));
+        when(cityRepository.findById(city.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cityService.getById(city.getId())
+        );
+
+        verify(cityRepository).findById(city.getId());
     }
 
     @Test
-    void whenCityIdIsFound_updateCity_UpdatesTheCity() {
-        CityDTO updateDTO = new CityDTO();
-        updateDTO.setName("Updated Name");
+    void create_whenValid_savesAndReturnsDto() {
 
-        when(cityRepository.findById(1)).thenReturn(Optional.of(entity));
-        when(cityRepository.existsById(1)).thenReturn(true);
-        when(cityRepository.save(entity)).thenReturn(entity);
-        when(cityMapper.mapToCityDto(entity)).thenReturn(updateDTO);
+        Campaign campaign = new Campaign();
+        campaign.setUuid(createDto.getCampaignUuid());
 
-        Optional<CityDTO> result = cityService.updateCity(1, updateDTO);
+        when(cityMapper.toEntity(createDto)).thenReturn(city);
+        when(campaignRepository.getReferenceById(createDto.getCampaignUuid()))
+                .thenReturn(campaign);
 
-        assertTrue(result.isPresent());
-        assertEquals("Updated Name", result.get().getName());
+        when(cityRepository.save(city)).thenReturn(city);
+        when(cityMapper.toDto(city)).thenReturn(viewDto);
+
+        ViewCityDTO result = cityService.create(createDto);
+
+        assertEquals(viewDto, result);
+
+        verify(cityMapper).toEntity(createDto);
+        verify(campaignRepository).getReferenceById(createDto.getCampaignUuid());
+        verify(cityRepository).save(city);
+        verify(cityMapper).toDto(city);
     }
 
     @Test
-    void whenCityIdIsNotFound_updateCity_ReturnsEmptyOptional() {
-        CityDTO updateDTO = new CityDTO();
-        updateDTO.setName("Updated Name");
+    void update_whenValid_updatesAndReturnsDto() {
 
-        when(cityRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> cityService.updateCity(999, updateDTO));
+        Campaign campaign = new Campaign();
+        campaign.setUuid(updateDto.getCampaignUuid());
+
+        when(cityRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.of(city));
+
+        when(campaignRepository.getReferenceById(updateDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(cityRepository.save(city)).thenReturn(city);
+        when(cityMapper.toDto(city)).thenReturn(viewDto);
+
+        ViewCityDTO result = cityService.update(updateDto);
+
+        assertEquals(viewDto, result);
+
+        verify(cityRepository).findById(updateDto.getId());
+        verify(cityMapper).updateCityFromDto(updateDto, city);
+        verify(campaignRepository).getReferenceById(updateDto.getCampaignUuid());
+        verify(cityRepository).save(city);
+        verify(cityMapper).toDto(city);
     }
 
     @Test
-    public void whenCityNameIsInvalid_updateCity_ThrowsIllegalArgumentException() {
-        CityDTO updateEmptyName = new CityDTO();
-        updateEmptyName.setName("");
+    void update_whenMissing_throwsException() {
 
-        CityDTO updateNullName = new CityDTO();
-        updateNullName.setName(null);
+        when(cityRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.empty());
 
-        when(cityRepository.existsById(1)).thenReturn(true);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cityService.update(updateDto)
+        );
 
-        assertThrows(IllegalArgumentException.class, () -> cityService.updateCity(1, updateEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> cityService.updateCity(1, updateNullName));
+        verify(cityRepository).findById(updateDto.getId());
     }
 
     @Test
-    public void whenCityNameAlreadyExists_updateCity_ThrowsDataIntegrityViolationException() {
-        when(cityRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+    void delete_callsRepository() {
 
-        assertThrows(IllegalArgumentException.class, () -> cityService.updateCity(entity.getId(), dto));
+        cityService.delete(city.getId());
+
+        verify(cityRepository).deleteById(city.getId());
     }
 }
