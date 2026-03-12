@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class BaseService<
         Entity,
@@ -36,6 +37,14 @@ public abstract class BaseService<
             Function<UUID, List<Entity>> queryFunction) {
 
         return queryFunction.apply(campaignUuid)
+                .stream()
+                .map(this::toViewDto)
+                .toList();
+    }
+
+    public <T> List<ViewDto> getByQuery(Function<T, List<Entity>> queryFunction, T value) {
+
+        return queryFunction.apply(value)
                 .stream()
                 .map(this::toViewDto)
                 .toList();
@@ -77,6 +86,20 @@ public abstract class BaseService<
 
     public void delete(IdType idType) {
         getRepository().deleteById(idType);
+    }
+
+    protected List<ViewDto> mapList(List<Entity> entities) {
+        return entities.stream()
+                .map(this::toViewDto)
+                .toList();
+    }
+
+    protected <T> List<ViewDto> query(Function<T, List<Entity>> query, T value) {
+        return mapList(query.apply(value));
+    }
+
+    protected List<ViewDto> query(Supplier<List<Entity>> query) {
+        return mapList(query.get());
     }
 
 }

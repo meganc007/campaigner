@@ -69,10 +69,6 @@ public class ContinentService extends BaseService<
 
     public List<ViewContinentDTO> getContinentsByCampaignUUID(UUID uuid) {
 
-        return continentRepository
-                .findByCampaign_Uuid(uuid)
-                .stream()
-                .map(continentMapper::toDto)
-                .toList();
+        return query(continentRepository::findByCampaign_Uuid, uuid);
     }
 }

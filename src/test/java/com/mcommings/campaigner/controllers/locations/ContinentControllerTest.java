@@ -7,6 +7,7 @@ import com.mcommings.campaigner.modules.locations.dtos.continents.UpdateContinen
 import com.mcommings.campaigner.modules.locations.dtos.continents.ViewContinentDTO;
 import com.mcommings.campaigner.modules.locations.services.ContinentService;
 import com.mcommings.campaigner.setup.locations.factories.LocationsTestDataFactory;
+import com.mcommings.campaigner.setup.locations.fixtures.LocationsTestConstants;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -49,6 +50,20 @@ public class ContinentControllerTest extends BaseControllerTest {
         get("/api/continents/1")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(dto.getId()));
+    }
+
+    //GET by CampaignUUID
+    @Test
+    void getContinentsByCampaignUUID_returnsContinents() throws Exception {
+
+        when(continentService.getContinentsByCampaignUUID(LocationsTestConstants.CAMPAIGN_UUID))
+                .thenReturn(List.of(LocationsTestDataFactory.viewContinentDTO()));
+
+        get("/api/continents/campaign/" + LocationsTestConstants.CAMPAIGN_UUID)
+                .andExpect(status().isOk());
+
+        verify(continentService)
+                .getContinentsByCampaignUUID(LocationsTestConstants.CAMPAIGN_UUID);
     }
 
     //POST
