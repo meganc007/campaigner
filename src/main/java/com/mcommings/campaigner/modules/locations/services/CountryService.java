@@ -1,107 +1,86 @@
 package com.mcommings.campaigner.modules.locations.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.locations.dtos.CountryDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.modules.common.repositories.IGovernmentRepository;
+import com.mcommings.campaigner.modules.locations.dtos.countries.CreateCountryDTO;
+import com.mcommings.campaigner.modules.locations.dtos.countries.UpdateCountryDTO;
+import com.mcommings.campaigner.modules.locations.dtos.countries.ViewCountryDTO;
+import com.mcommings.campaigner.modules.locations.entities.Country;
 import com.mcommings.campaigner.modules.locations.mappers.CountryMapper;
+import com.mcommings.campaigner.modules.locations.repositories.IContinentRepository;
 import com.mcommings.campaigner.modules.locations.repositories.ICountryRepository;
-import com.mcommings.campaigner.modules.locations.services.interfaces.ICountry;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class CountryService implements ICountry {
+public class CountryService extends BaseService<
+        Country,
+        Integer,
+        ViewCountryDTO,
+        CreateCountryDTO,
+        UpdateCountryDTO> {
 
     private final ICountryRepository countryRepository;
+    private final IContinentRepository continentRepository;
+    private final IGovernmentRepository governmentRepository;
+    private final ICampaignRepository campaignRepository;
     private final CountryMapper countryMapper;
 
     @Override
-    public List<CountryDTO> getCountries() {
-        return countryRepository.findAll()
-                .stream()
-                .map(countryMapper::mapToCountryDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<Country, Integer> getRepository() {
+        return countryRepository;
     }
 
     @Override
-    public Optional<CountryDTO> getCountry(int countryId) {
-        return countryRepository.findById(countryId)
-                .map(countryMapper::mapToCountryDto);
+    protected ViewCountryDTO toViewDto(Country entity) {
+        return countryMapper.toDto(entity);
     }
 
     @Override
-    public List<CountryDTO> getCountriesByCampaignUUID(UUID uuid) {
-        return countryRepository.findByfk_campaign_uuid(uuid)
-                .stream()
-                .map(countryMapper::mapToCountryDto)
-                .collect(Collectors.toList());
-    }
+    protected Country toEntity(CreateCountryDTO dto) {
+        Country entity = countryMapper.toEntity(dto);
 
-    @Override
-    public List<CountryDTO> getCountriesByContinentId(int continentId) {
-        return countryRepository.findByfk_continent(continentId)
-                .stream()
-                .map(countryMapper::mapToCountryDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<CountryDTO> getCountriesByGovernmentId(int governmentId) {
-        return countryRepository.findByfk_government(governmentId)
-                .stream()
-                .map(countryMapper::mapToCountryDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void saveCountry(CountryDTO country) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(country)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(countryRepository, country.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-        countryMapper.mapToCountryDto(
-                countryRepository.save(countryMapper.mapFromCountryDto(country))
+        entity.setCampaign(
+                campaignRepository.getReferenceById(dto.getCampaignUuid())
         );
+        return entity;
     }
 
     @Override
-    public void deleteCountry(int countryId) throws IllegalArgumentException {
-        if (RepositoryHelper.cannotFindId(countryRepository, countryId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
+    protected void updateEntity(UpdateCountryDTO dto, Country entity) {
+        countryMapper.updateCountryFromDto(dto, entity);
+
+        if (dto.getCampaignUuid() != null) {
+            entity.setCampaign(
+                    campaignRepository.getReferenceById(dto.getCampaignUuid())
+            );
         }
-        countryRepository.deleteById(countryId);
     }
 
     @Override
-    public Optional<CountryDTO> updateCountry(int countryId, CountryDTO country) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(countryRepository, countryId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(country)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(countryRepository, country.getName(), countryId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        return countryRepository.findById(countryId).map(foundCountry -> {
-            if (country.getName() != null) foundCountry.setName(country.getName());
-            if (country.getDescription() != null) foundCountry.setDescription(country.getDescription());
-            if (country.getFk_campaign_uuid() != null) foundCountry.setFk_campaign_uuid(country.getFk_campaign_uuid());
-            if (country.getFk_continent() != null) foundCountry.setFk_continent(country.getFk_continent());
-            if (country.getFk_government() != null) foundCountry.setFk_government(country.getFk_government());
-
-            return countryMapper.mapToCountryDto(countryRepository.save(foundCountry));
-        });
+    protected Integer getId(UpdateCountryDTO dto) {
+        return dto.getId();
     }
+
+    public List<ViewCountryDTO> getCountriesByCampaignUUID(UUID uuid) {
+
+        return query(countryRepository::findByCampaign_Uuid, uuid);
+    }
+
+    public List<ViewCountryDTO> getCountriesByContinentId(int continentId) {
+
+        return query(countryRepository::findByContinent_Id, continentId);
+    }
+
+    public List<ViewCountryDTO> getCountriesByGovernmentId(int governmentId) {
+
+        return query(countryRepository::findByGovernment_Id, governmentId);
+    }
+
 }

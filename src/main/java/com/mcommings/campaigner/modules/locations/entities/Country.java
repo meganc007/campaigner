@@ -36,7 +36,7 @@ public class Country {
     @JoinColumn(name = "fk_continent")
     private Continent continent;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_government")
     private Government government;
 }
