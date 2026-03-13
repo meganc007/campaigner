@@ -1,83 +1,50 @@
 package com.mcommings.campaigner.modules.locations.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.locations.dtos.TerrainDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.locations.dtos.terrains.CreateTerrainDTO;
+import com.mcommings.campaigner.modules.locations.dtos.terrains.UpdateTerrainDTO;
+import com.mcommings.campaigner.modules.locations.dtos.terrains.ViewTerrainDTO;
+import com.mcommings.campaigner.modules.locations.entities.Terrain;
 import com.mcommings.campaigner.modules.locations.mappers.TerrainMapper;
 import com.mcommings.campaigner.modules.locations.repositories.ITerrainRepository;
-import com.mcommings.campaigner.modules.locations.services.interfaces.ITerrain;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class TerrainService implements ITerrain {
+public class TerrainService extends BaseService<
+        Terrain,
+        Integer,
+        ViewTerrainDTO,
+        CreateTerrainDTO,
+        UpdateTerrainDTO> {
 
     private final ITerrainRepository terrainRepository;
     private final TerrainMapper terrainMapper;
 
     @Override
-    public List<TerrainDTO> getTerrains() {
-
-        return terrainRepository.findAll()
-                .stream()
-                .map(terrainMapper::mapToTerrainDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<Terrain, Integer> getRepository() {
+        return terrainRepository;
     }
 
     @Override
-    public Optional<TerrainDTO> getTerrain(int terrainId) {
-
-        return terrainRepository.findById(terrainId)
-                .map(terrainMapper::mapToTerrainDto);
+    protected ViewTerrainDTO toViewDto(Terrain entity) {
+        return terrainMapper.toDto(entity);
     }
 
     @Override
-    public void saveTerrain(TerrainDTO terrain) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(terrain)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(terrainRepository, terrain.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        terrainMapper.mapToTerrainDto(
-                terrainRepository.save(
-                        terrainMapper.mapFromTerrainDto(terrain))
-        );
+    protected Terrain toEntity(CreateTerrainDTO dto) {
+        return terrainMapper.toEntity(dto);
     }
 
     @Override
-    public void deleteTerrain(int terrainId) throws IllegalArgumentException {
-        if (RepositoryHelper.cannotFindId(terrainRepository, terrainId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        terrainRepository.deleteById(terrainId);
+    protected void updateEntity(UpdateTerrainDTO dto, Terrain entity) {
+        terrainMapper.updateTerrainFromDto(dto, entity);
     }
 
     @Override
-    public Optional<TerrainDTO> updateTerrain(int terrainId, TerrainDTO terrain) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(terrainRepository, terrainId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(terrain)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(terrainRepository, terrain.getName(), terrainId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        return terrainRepository.findById(terrainId).map(foundTerrain -> {
-            if (terrain.getName() != null) foundTerrain.setName(terrain.getName());
-            if (terrain.getDescription() != null) foundTerrain.setDescription(terrain.getDescription());
-
-            return terrainMapper.mapToTerrainDto(terrainRepository.save(foundTerrain));
-        });
+    protected Integer getId(UpdateTerrainDTO dto) {
+        return dto.getId();
     }
 }

@@ -1,44 +1,45 @@
 package com.mcommings.campaigner.modules.locations.controllers;
 
-import com.mcommings.campaigner.modules.locations.dtos.SettlementTypeDTO;
-import com.mcommings.campaigner.modules.locations.services.interfaces.ISettlementType;
+import com.mcommings.campaigner.modules.locations.dtos.settlement_types.CreateSettlementTypeDTO;
+import com.mcommings.campaigner.modules.locations.dtos.settlement_types.UpdateSettlementTypeDTO;
+import com.mcommings.campaigner.modules.locations.dtos.settlement_types.ViewSettlementTypeDTO;
+import com.mcommings.campaigner.modules.locations.services.SettlementTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/settlementtypes")
 public class SettlementTypeController {
 
-    private final ISettlementType settlementTypeService;
+    private final SettlementTypeService settlementTypeService;
 
     @GetMapping
-    public List<SettlementTypeDTO> getSettlementTypes() {
-        return settlementTypeService.getSettlementTypes();
+    public List<ViewSettlementTypeDTO> getSettlementTypes() {
+
+        return settlementTypeService.getAll();
     }
 
     @GetMapping(path = "/{settlementTypeId}")
-    public SettlementTypeDTO getSettlementType(@PathVariable("settlementTypeId") int settlementTypeId) {
-        return settlementTypeService.getSettlementType(settlementTypeId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewSettlementTypeDTO getSettlementType(@PathVariable int settlementTypeId) {
+        return settlementTypeService.getById(settlementTypeId);
     }
 
     @PostMapping
-    public void saveSettlementType(@Valid @RequestBody SettlementTypeDTO settlementType) {
-        settlementTypeService.saveSettlementType(settlementType);
+    public ViewSettlementTypeDTO saveSettlementType(@Valid @RequestBody CreateSettlementTypeDTO settlementType) {
+        return settlementTypeService.create(settlementType);
     }
 
-    @DeleteMapping(path = "{settlementTypeId}")
-    public void deleteSettlementType(@PathVariable("settlementTypeId") int settlementTypeId) {
-        settlementTypeService.deleteSettlementType(settlementTypeId);
+    @PutMapping
+    public ViewSettlementTypeDTO updateSettlementType(@Valid @RequestBody UpdateSettlementTypeDTO settlementType) {
+        return settlementTypeService.update(settlementType);
     }
 
-    @PutMapping(path = "{settlementTypeId}")
-    public void updateSettlementType(@PathVariable("settlementTypeId") int settlementTypeId, @RequestBody SettlementTypeDTO settlementType) {
-        settlementTypeService.updateSettlementType(settlementTypeId, settlementType);
+    @DeleteMapping(path = "/{settlementTypeId}")
+    public void deleteSettlementType(@PathVariable int settlementTypeId) {
+        settlementTypeService.delete(settlementTypeId);
     }
 }

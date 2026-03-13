@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.locations.controllers;
 
-import com.mcommings.campaigner.modules.locations.dtos.CountryDTO;
-import com.mcommings.campaigner.modules.locations.services.interfaces.ICountry;
+import com.mcommings.campaigner.modules.locations.dtos.countries.CreateCountryDTO;
+import com.mcommings.campaigner.modules.locations.dtos.countries.UpdateCountryDTO;
+import com.mcommings.campaigner.modules.locations.dtos.countries.ViewCountryDTO;
+import com.mcommings.campaigner.modules.locations.services.CountryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,52 +11,57 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/countries")
 public class CountryController {
 
-    private final ICountry countryService;
+    private final CountryService countryService;
 
     @GetMapping
-    public List<CountryDTO> getCountries() {
-        return countryService.getCountries();
+    public List<ViewCountryDTO> getCountries() {
+
+        return countryService.getAll();
     }
 
     @GetMapping(path = "/{countryId}")
-    public CountryDTO getCountry(@PathVariable("countryId") int countryId) {
-        return countryService.getCountry(countryId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewCountryDTO getCountry(@PathVariable int countryId) {
+        return countryService.getById(countryId);
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<CountryDTO> getCountriesByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ViewCountryDTO> getCountriesByCampaignUUID(@PathVariable UUID uuid) {
         return countryService.getCountriesByCampaignUUID(uuid);
     }
 
     @GetMapping(path = "/continent/{continentId}")
-    public List<CountryDTO> getCountriesByContinentId(@PathVariable("continentId") int continentId) {
+    public List<ViewCountryDTO> getCountriesByContinentId(
+            @PathVariable int continentId) {
+
         return countryService.getCountriesByContinentId(continentId);
     }
 
     @GetMapping(path = "/government/{governmentId}")
-    public List<CountryDTO> getCountriesByGovernmentId(@PathVariable("governmentId") int governmentId) {
+    public List<ViewCountryDTO> getCountriesByGovernmentId(
+            @PathVariable int governmentId) {
+
         return countryService.getCountriesByGovernmentId(governmentId);
     }
 
     @PostMapping
-    public void saveCountry(@Valid @RequestBody CountryDTO country) {
-        countryService.saveCountry(country);
+    public ViewCountryDTO saveCountry(@Valid @RequestBody CreateCountryDTO country) {
+        return countryService.create(country);
     }
 
-    @DeleteMapping(path = "{countryId}")
-    public void deleteCountry(@PathVariable("countryId") int countryId) {
-        countryService.deleteCountry(countryId);
+    @PutMapping
+    public ViewCountryDTO updateCountry(@Valid @RequestBody UpdateCountryDTO country) {
+        return countryService.update(country);
     }
 
-    @PutMapping(path = "{countryId}")
-    public void updateCountry(@PathVariable("countryId") int countryId, @RequestBody CountryDTO country) {
-        countryService.updateCountry(countryId, country);
+    @DeleteMapping(path = "/{countryId}")
+    public void deleteCountry(@PathVariable int countryId) {
+
+        countryService.delete(countryId);
     }
+
 }

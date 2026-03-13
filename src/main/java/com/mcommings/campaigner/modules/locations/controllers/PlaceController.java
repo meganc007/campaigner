@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.locations.controllers;
 
-import com.mcommings.campaigner.modules.locations.dtos.PlaceDTO;
-import com.mcommings.campaigner.modules.locations.services.interfaces.IPlace;
+import com.mcommings.campaigner.modules.locations.dtos.places.CreatePlaceDTO;
+import com.mcommings.campaigner.modules.locations.dtos.places.UpdatePlaceDTO;
+import com.mcommings.campaigner.modules.locations.dtos.places.ViewPlaceDTO;
+import com.mcommings.campaigner.modules.locations.services.PlaceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,57 +11,68 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/places")
 public class PlaceController {
 
-    private final IPlace placeService;
+    private final PlaceService placeService;
 
     @GetMapping
-    public List<PlaceDTO> getPlaces() {
-        return placeService.getPlaces();
+    public List<ViewPlaceDTO> getPlaces() {
+
+        return placeService.getAll();
     }
 
     @GetMapping(path = "/{placeId}")
-    public PlaceDTO getPlace(@PathVariable("placeId") int placeId) {
-        return placeService.getPlace(placeId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewPlaceDTO getPlace(@PathVariable int placeId) {
+        return placeService.getById(placeId);
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<PlaceDTO> getPlacesByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ViewPlaceDTO> getPlacesByCampaignUUID(@PathVariable UUID uuid) {
         return placeService.getPlacesByCampaignUUID(uuid);
     }
 
+    @GetMapping(path = "/placetype/{placeTypeId}")
+    public List<ViewPlaceDTO> getPlacesByPlaceTypeId(@PathVariable int placeTypeId) {
+        return placeService.getPlacesByPlaceTypeId(placeTypeId);
+    }
+
+    @GetMapping(path = "/terrain/{terrainId}")
+    public List<ViewPlaceDTO> getPlacesByTerrainId(@PathVariable int terrainId) {
+        return placeService.getPlacesByTerrainId(terrainId);
+    }
+
     @GetMapping(path = "/country/{countryId}")
-    public List<PlaceDTO> getPlacesByCountryId(@PathVariable("countryId") int countryId) {
+    public List<ViewPlaceDTO> getPlacesByCountryId(@PathVariable int countryId) {
         return placeService.getPlacesByCountryId(countryId);
     }
 
     @GetMapping(path = "/city/{cityId}")
-    public List<PlaceDTO> getPlacesByCityId(@PathVariable("cityId") int cityId) {
+    public List<ViewPlaceDTO> getPlacesByCityId(@PathVariable int cityId) {
         return placeService.getPlacesByCityId(cityId);
     }
 
     @GetMapping(path = "/region/{regionId}")
-    public List<PlaceDTO> getPlacesByRegionId(@PathVariable("regionId") int regionId) {
+    public List<ViewPlaceDTO> getPlacesByRegionId(@PathVariable int regionId) {
         return placeService.getPlacesByRegionId(regionId);
     }
 
     @PostMapping
-    public void savePlace(@Valid @RequestBody PlaceDTO place) {
-        placeService.savePlace(place);
+    public ViewPlaceDTO savePlace(@Valid @RequestBody CreatePlaceDTO place) {
+
+        return placeService.create(place);
     }
 
-    @DeleteMapping(path = "{placeId}")
-    public void deletePlace(@PathVariable("placeId") int placeId) {
-        placeService.deletePlace(placeId);
+    @PutMapping
+    public ViewPlaceDTO updatePlace(@Valid @RequestBody UpdatePlaceDTO place) {
+        return placeService.update(place);
     }
 
-    @PutMapping(path = "{placeId}")
-    public void updatePlace(@PathVariable("placeId") int placeId, @RequestBody PlaceDTO place) {
-        placeService.updatePlace(placeId, place);
+    @DeleteMapping(path = "/{placeId}")
+    public void deletePlace(@PathVariable int placeId) {
+
+        placeService.delete(placeId);
     }
 }

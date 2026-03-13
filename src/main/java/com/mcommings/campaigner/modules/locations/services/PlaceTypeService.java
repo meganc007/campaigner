@@ -1,83 +1,50 @@
 package com.mcommings.campaigner.modules.locations.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.locations.dtos.PlaceTypeDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.locations.dtos.place_types.CreatePlaceTypeDTO;
+import com.mcommings.campaigner.modules.locations.dtos.place_types.UpdatePlaceTypeDTO;
+import com.mcommings.campaigner.modules.locations.dtos.place_types.ViewPlaceTypeDTO;
+import com.mcommings.campaigner.modules.locations.entities.PlaceType;
 import com.mcommings.campaigner.modules.locations.mappers.PlaceTypeMapper;
 import com.mcommings.campaigner.modules.locations.repositories.IPlaceTypesRepository;
-import com.mcommings.campaigner.modules.locations.services.interfaces.IPlaceType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class PlaceTypeService implements IPlaceType {
+public class PlaceTypeService extends BaseService<
+        PlaceType,
+        Integer,
+        ViewPlaceTypeDTO,
+        CreatePlaceTypeDTO,
+        UpdatePlaceTypeDTO> {
 
     private final IPlaceTypesRepository placeTypesRepository;
     private final PlaceTypeMapper placeTypeMapper;
 
     @Override
-    public List<PlaceTypeDTO> getPlaceTypes() {
-
-        return placeTypesRepository.findAll()
-                .stream()
-                .map(placeTypeMapper::mapToPlaceTypeDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<PlaceType, Integer> getRepository() {
+        return placeTypesRepository;
     }
 
     @Override
-    public Optional<PlaceTypeDTO> getPlaceType(int placeTypeId) {
-
-        return placeTypesRepository.findById(placeTypeId)
-                .map(placeTypeMapper::mapToPlaceTypeDto);
+    protected ViewPlaceTypeDTO toViewDto(PlaceType entity) {
+        return placeTypeMapper.toDto(entity);
     }
 
     @Override
-    public void savePlaceType(PlaceTypeDTO placeType) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(placeType)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(placeTypesRepository, placeType.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        placeTypeMapper.mapToPlaceTypeDto(
-                placeTypesRepository.save(
-                        placeTypeMapper.mapFromPlaceTypeDto(placeType))
-        );
+    protected PlaceType toEntity(CreatePlaceTypeDTO dto) {
+        return placeTypeMapper.toEntity(dto);
     }
 
     @Override
-    public void deletePlaceType(int placeTypeId) throws IllegalArgumentException {
-        if (RepositoryHelper.cannotFindId(placeTypesRepository, placeTypeId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        placeTypesRepository.deleteById(placeTypeId);
+    protected void updateEntity(UpdatePlaceTypeDTO dto, PlaceType entity) {
+        placeTypeMapper.updatePlaceTypeFromDto(dto, entity);
     }
 
     @Override
-    public Optional<PlaceTypeDTO> updatePlaceType(int placeTypeId, PlaceTypeDTO placeType) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(placeTypesRepository, placeTypeId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(placeType)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(placeTypesRepository, placeType.getName(), placeTypeId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        return placeTypesRepository.findById(placeTypeId).map(foundPlaceType -> {
-            if (placeType.getName() != null) foundPlaceType.setName(placeType.getName());
-            if (placeType.getDescription() != null) foundPlaceType.setDescription(placeType.getDescription());
-
-            return placeTypeMapper.mapToPlaceTypeDto(placeTypesRepository.save(foundPlaceType));
-        });
+    protected Integer getId(UpdatePlaceTypeDTO dto) {
+        return dto.getId();
     }
 }

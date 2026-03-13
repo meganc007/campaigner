@@ -1,44 +1,46 @@
 package com.mcommings.campaigner.modules.locations.controllers;
 
-import com.mcommings.campaigner.modules.locations.dtos.PlaceTypeDTO;
-import com.mcommings.campaigner.modules.locations.services.interfaces.IPlaceType;
+import com.mcommings.campaigner.modules.locations.dtos.place_types.CreatePlaceTypeDTO;
+import com.mcommings.campaigner.modules.locations.dtos.place_types.UpdatePlaceTypeDTO;
+import com.mcommings.campaigner.modules.locations.dtos.place_types.ViewPlaceTypeDTO;
+import com.mcommings.campaigner.modules.locations.services.PlaceTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/placetypes")
 public class PlaceTypeController {
 
-    private final IPlaceType placeTypeService;
+    private final PlaceTypeService placeTypeService;
 
     @GetMapping
-    public List<PlaceTypeDTO> getPlaceTypes() {
-        return placeTypeService.getPlaceTypes();
+    public List<ViewPlaceTypeDTO> getPlaceTypes() {
+
+        return placeTypeService.getAll();
     }
 
     @GetMapping(path = "/{placeTypeId}")
-    public PlaceTypeDTO getPlaceType(@PathVariable("placeTypeId") int placeTypeId) {
-        return placeTypeService.getPlaceType(placeTypeId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewPlaceTypeDTO getPlaceType(@PathVariable int placeTypeId) {
+        return placeTypeService.getById(placeTypeId);
     }
 
     @PostMapping
-    public void savePlaceType(@Valid @RequestBody PlaceTypeDTO placeType) {
-        placeTypeService.savePlaceType(placeType);
+    public ViewPlaceTypeDTO savePlaceType(@Valid @RequestBody CreatePlaceTypeDTO placeType) {
+        return placeTypeService.create(placeType);
     }
 
-    @DeleteMapping(path = "{placeTypeId}")
-    public void deletePlaceType(@PathVariable("placeTypeId") int placeTypeId) {
-        placeTypeService.deletePlaceType(placeTypeId);
+    @PutMapping
+    public ViewPlaceTypeDTO updatePlaceType(@Valid @RequestBody UpdatePlaceTypeDTO placeType) {
+        return placeTypeService.update(placeType);
     }
 
-    @PutMapping(path = "{placeTypeId}")
-    public void updatePlaceType(@PathVariable("placeTypeId") int placeTypeId, @RequestBody PlaceTypeDTO placeType) {
-        placeTypeService.updatePlaceType(placeTypeId, placeType);
+    @DeleteMapping(path = "/{placeTypeId}")
+    public void deletePlaceType(@PathVariable int placeTypeId) {
+        placeTypeService.delete(placeTypeId);
     }
+
 }

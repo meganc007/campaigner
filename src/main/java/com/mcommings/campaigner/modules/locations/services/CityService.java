@@ -1,110 +1,91 @@
 package com.mcommings.campaigner.modules.locations.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.locations.dtos.CityDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.modules.locations.dtos.cities.CreateCityDTO;
+import com.mcommings.campaigner.modules.locations.dtos.cities.UpdateCityDTO;
+import com.mcommings.campaigner.modules.locations.dtos.cities.ViewCityDTO;
+import com.mcommings.campaigner.modules.locations.entities.City;
 import com.mcommings.campaigner.modules.locations.mappers.CityMapper;
 import com.mcommings.campaigner.modules.locations.repositories.ICityRepository;
-import com.mcommings.campaigner.modules.locations.services.interfaces.ICity;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class CityService implements ICity {
+public class CityService extends BaseService<
+        City,
+        Integer,
+        ViewCityDTO,
+        CreateCityDTO,
+        UpdateCityDTO> {
 
     private final ICityRepository cityRepository;
+    private final ICampaignRepository campaignRepository;
     private final CityMapper cityMapper;
 
     @Override
-    public List<CityDTO> getCities() {
-        return cityRepository.findAll()
-                .stream()
-                .map(cityMapper::mapToCityDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<City, Integer> getRepository() {
+        return cityRepository;
     }
 
     @Override
-    public Optional<CityDTO> getCity(int cityId) {
-        return cityRepository.findById(cityId)
-                .map(cityMapper::mapToCityDto);
+    protected ViewCityDTO toViewDto(City entity) {
+        return cityMapper.toDto(entity);
     }
 
     @Override
-    public List<CityDTO> getCitiesByCampaignUUID(UUID uuid) {
-        return cityRepository.findByfk_campaign_uuid(uuid)
-                .stream()
-                .map(cityMapper::mapToCityDto)
-                .collect(Collectors.toList());
-    }
+    protected City toEntity(CreateCityDTO dto) {
+        City entity = cityMapper.toEntity(dto);
 
-    @Override
-    public List<CityDTO> getCitiesByCountryId(int countryId) {
-        return cityRepository.findByfk_country(countryId)
-                .stream()
-                .map(cityMapper::mapToCityDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<CityDTO> getCitiesByRegionId(int regionId) {
-        return cityRepository.findByfk_region(regionId)
-                .stream()
-                .map(cityMapper::mapToCityDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void saveCity(CityDTO city) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(city)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(cityRepository, city.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-        cityMapper.mapToCityDto(
-                cityRepository.save(cityMapper.mapFromCityDto(city))
+        entity.setCampaign(
+                campaignRepository.getReferenceById(dto.getCampaignUuid())
         );
+        return entity;
     }
 
     @Override
-    public void deleteCity(int cityId) throws IllegalArgumentException {
-        if (RepositoryHelper.cannotFindId(cityRepository, cityId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
+    protected void updateEntity(UpdateCityDTO dto, City entity) {
+        cityMapper.updateCityFromDto(dto, entity);
+
+        if (dto.getCampaignUuid() != null) {
+            entity.setCampaign(
+                    campaignRepository.getReferenceById(dto.getCampaignUuid())
+            );
         }
-        cityRepository.deleteById(cityId);
     }
 
     @Override
-    public Optional<CityDTO> updateCity(int cityId, CityDTO city) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(cityRepository, cityId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(city)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(cityRepository, city.getName(), cityId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        return cityRepository.findById(cityId).map(foundCity -> {
-            if (city.getName() != null) foundCity.setName(city.getName());
-            if (city.getDescription() != null) foundCity.setDescription(city.getDescription());
-            if (city.getFk_campaign_uuid() != null) foundCity.setFk_campaign_uuid(city.getFk_campaign_uuid());
-            if (city.getFk_country() != null) foundCity.setFk_country(city.getFk_country());
-            if (city.getFk_wealth() != null) foundCity.setFk_wealth(city.getFk_wealth());
-            if (city.getFk_settlement() != null) foundCity.setFk_settlement(city.getFk_settlement());
-            if (city.getFk_government() != null) foundCity.setFk_government(city.getFk_government());
-            if (city.getFk_region() != null) foundCity.setFk_region(city.getFk_region());
-
-            return cityMapper.mapToCityDto(cityRepository.save(foundCity));
-        });
+    protected Integer getId(UpdateCityDTO dto) {
+        return dto.getId();
     }
+
+    public List<ViewCityDTO> getCitiesByCampaignUUID(UUID uuid) {
+        return query(cityRepository::findByCampaign_Uuid, uuid);
+    }
+
+    public List<ViewCityDTO> getCitiesByWealthId(int wealthId) {
+        return query(cityRepository::findByWealth_Id, wealthId);
+    }
+
+    public List<ViewCityDTO> getCitiesByCountryId(int countryId) {
+        return query(cityRepository::findByCountry_Id, countryId);
+    }
+
+    public List<ViewCityDTO> getCitiesBySettlementTypeId(int settlementTypeId) {
+        return query(cityRepository::findBySettlementType_Id, settlementTypeId);
+    }
+
+    public List<ViewCityDTO> getCitiesByGovernmentId(int governmentId) {
+        return query(cityRepository::findByGovernment_Id, governmentId);
+    }
+
+    public List<ViewCityDTO> getCitiesByRegionId(int regionId) {
+        return query(cityRepository::findByRegion_Id, regionId);
+    }
+
 }

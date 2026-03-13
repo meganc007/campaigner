@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.locations.controllers;
 
-import com.mcommings.campaigner.modules.locations.dtos.LandmarkDTO;
-import com.mcommings.campaigner.modules.locations.services.interfaces.ILandmark;
+import com.mcommings.campaigner.modules.locations.dtos.landmarks.CreateLandmarkDTO;
+import com.mcommings.campaigner.modules.locations.dtos.landmarks.UpdateLandmarkDTO;
+import com.mcommings.campaigner.modules.locations.dtos.landmarks.ViewLandmarkDTO;
+import com.mcommings.campaigner.modules.locations.services.LandmarkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,47 +11,49 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/landmarks")
 public class LandmarkController {
 
-    private final ILandmark landmarkService;
+    private final LandmarkService landmarkService;
 
     @GetMapping
-    public List<LandmarkDTO> getLandmarks() {
-        return landmarkService.getLandmarks();
+    public List<ViewLandmarkDTO> getLandmarks() {
+
+        return landmarkService.getAll();
     }
 
     @GetMapping(path = "/{landmarkId}")
-    public LandmarkDTO getLandmark(@PathVariable("landmarkId") int landmarkId) {
-        return landmarkService.getLandmark(landmarkId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewLandmarkDTO getLandmark(@PathVariable int landmarkId) {
+        return landmarkService.getById(landmarkId);
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<LandmarkDTO> getLandmarksByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ViewLandmarkDTO> getLandmarksByCampaignUUID(@PathVariable UUID uuid) {
         return landmarkService.getLandmarksByCampaignUUID(uuid);
     }
 
     @GetMapping(path = "/region/{regionId}")
-    public List<LandmarkDTO> getLandmarksByRegionId(@PathVariable("regionId") int regionId) {
+    public List<ViewLandmarkDTO> getLandmarksByRegionId(@PathVariable int regionId) {
         return landmarkService.getLandmarksByRegionId(regionId);
     }
 
     @PostMapping
-    public void saveLandmark(@Valid @RequestBody LandmarkDTO landmark) {
-        landmarkService.saveLandmark(landmark);
+    public ViewLandmarkDTO saveLandmark(@Valid @RequestBody CreateLandmarkDTO landmark) {
+
+        return landmarkService.create(landmark);
     }
 
-    @DeleteMapping(path = "{landmarkId}")
-    public void deleteLandmark(@PathVariable("landmarkId") int landmarkId) {
-        landmarkService.deleteLandmark(landmarkId);
+    @PutMapping
+    public ViewLandmarkDTO updateLandmark(@Valid @RequestBody UpdateLandmarkDTO landmark) {
+        return landmarkService.update(landmark);
     }
 
-    @PutMapping(path = "{landmarkId}")
-    public void updateLandmark(@PathVariable("landmarkId") int landmarkId, @RequestBody LandmarkDTO landmark) {
-        landmarkService.updateLandmark(landmarkId, landmark);
+    @DeleteMapping(path = "/{landmarkId}")
+    public void deleteLandmark(@PathVariable int landmarkId) {
+        landmarkService.delete(landmarkId);
     }
+
+
 }

@@ -1,94 +1,74 @@
 package com.mcommings.campaigner.modules.locations.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.locations.dtos.ContinentDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.modules.locations.dtos.continents.CreateContinentDTO;
+import com.mcommings.campaigner.modules.locations.dtos.continents.UpdateContinentDTO;
+import com.mcommings.campaigner.modules.locations.dtos.continents.ViewContinentDTO;
+import com.mcommings.campaigner.modules.locations.entities.Continent;
 import com.mcommings.campaigner.modules.locations.mappers.ContinentMapper;
 import com.mcommings.campaigner.modules.locations.repositories.IContinentRepository;
-import com.mcommings.campaigner.modules.locations.services.interfaces.IContinent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class ContinentService implements IContinent {
+public class ContinentService extends BaseService<
+        Continent,
+        Integer,
+        ViewContinentDTO,
+        CreateContinentDTO,
+        UpdateContinentDTO> {
 
     private final IContinentRepository continentRepository;
+    private final ICampaignRepository campaignRepository;
     private final ContinentMapper continentMapper;
 
     @Override
-    public List<ContinentDTO> getContinents() {
-        return continentRepository.findAll()
-                .stream()
-                .map(continentMapper::mapToContinentDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<Continent, Integer> getRepository() {
+        return continentRepository;
     }
 
     @Override
-    public Optional<ContinentDTO> getContinent(int continentId) {
-
-        return continentRepository.findById(continentId)
-                .map(continentMapper::mapToContinentDto);
+    protected ViewContinentDTO toViewDto(Continent entity) {
+        return continentMapper.toDto(entity);
     }
 
     @Override
-    public List<ContinentDTO> getContinentsByCampaignUUID(UUID uuid) {
+    protected Continent toEntity(CreateContinentDTO dto) {
 
-        return continentRepository.findByfk_campaign_uuid(uuid)
-                .stream()
-                .map(continentMapper::mapToContinentDto)
-                .collect(Collectors.toList());
-    }
+        Continent entity = continentMapper.toEntity(dto);
 
-    @Override
-    public void saveContinent(ContinentDTO continent) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(continent)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(continentRepository, continent.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        continentMapper.mapToContinentDto(
-                continentRepository.save(
-                        continentMapper.mapFromContinentDto(continent))
+        entity.setCampaign(
+                campaignRepository.getReferenceById(dto.getCampaignUuid())
         );
+
+        return entity;
     }
 
     @Override
-    public void deleteContinent(int continentId) throws IllegalArgumentException {
-        if (RepositoryHelper.cannotFindId(continentRepository, continentId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
+    protected void updateEntity(UpdateContinentDTO dto, Continent entity) {
+
+        continentMapper.updateContinentFromDto(dto, entity);
+
+        if (dto.getCampaignUuid() != null) {
+            entity.setCampaign(
+                    campaignRepository.getReferenceById(dto.getCampaignUuid())
+            );
         }
-        continentRepository.deleteById(continentId);
     }
 
     @Override
-    public Optional<ContinentDTO> updateContinent(int continentId, ContinentDTO continent) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(continentRepository, continentId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(continent)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(continentRepository, continent.getName(), continentId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
+    protected Integer getId(UpdateContinentDTO dto) {
+        return dto.getId();
+    }
 
-        return continentRepository.findById(continentId).map(foundContinent -> {
-            if (continent.getName() != null) foundContinent.setName(continent.getName());
-            if (continent.getDescription() != null) foundContinent.setDescription(continent.getDescription());
-            if (continent.getFk_campaign_uuid() != null)
-                foundContinent.setFk_campaign_uuid(continent.getFk_campaign_uuid());
+    public List<ViewContinentDTO> getContinentsByCampaignUUID(UUID uuid) {
 
-            return continentMapper.mapToContinentDto(continentRepository.save(foundContinent));
-        });
+        return query(continentRepository::findByCampaign_Uuid, uuid);
     }
 }

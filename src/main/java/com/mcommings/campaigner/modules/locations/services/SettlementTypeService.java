@@ -1,84 +1,50 @@
 package com.mcommings.campaigner.modules.locations.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.locations.dtos.SettlementTypeDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.locations.dtos.settlement_types.CreateSettlementTypeDTO;
+import com.mcommings.campaigner.modules.locations.dtos.settlement_types.UpdateSettlementTypeDTO;
+import com.mcommings.campaigner.modules.locations.dtos.settlement_types.ViewSettlementTypeDTO;
+import com.mcommings.campaigner.modules.locations.entities.SettlementType;
 import com.mcommings.campaigner.modules.locations.mappers.SettlementTypeMapper;
 import com.mcommings.campaigner.modules.locations.repositories.ISettlementTypeRepository;
-import com.mcommings.campaigner.modules.locations.services.interfaces.ISettlementType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class SettlementTypeService implements ISettlementType {
+public class SettlementTypeService extends BaseService<
+        SettlementType,
+        Integer,
+        ViewSettlementTypeDTO,
+        CreateSettlementTypeDTO,
+        UpdateSettlementTypeDTO> {
 
     private final ISettlementTypeRepository settlementTypeRepository;
     private final SettlementTypeMapper settlementTypeMapper;
 
     @Override
-    public List<SettlementTypeDTO> getSettlementTypes() {
-
-        return settlementTypeRepository.findAll()
-                .stream()
-                .map(settlementTypeMapper::mapToSettlementTypeDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<SettlementType, Integer> getRepository() {
+        return settlementTypeRepository;
     }
 
     @Override
-    public Optional<SettlementTypeDTO> getSettlementType(int settlementTypeId) {
-
-        return settlementTypeRepository.findById(settlementTypeId)
-                .map(settlementTypeMapper::mapToSettlementTypeDto);
+    protected ViewSettlementTypeDTO toViewDto(SettlementType entity) {
+        return settlementTypeMapper.toDto(entity);
     }
 
     @Override
-    public void saveSettlementType(SettlementTypeDTO settlementType) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(settlementType)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(settlementTypeRepository, settlementType.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        settlementTypeMapper.mapToSettlementTypeDto(
-                settlementTypeRepository.save(
-                        settlementTypeMapper.mapFromSettlementTypeDto(settlementType))
-        );
+    protected SettlementType toEntity(CreateSettlementTypeDTO dto) {
+        return settlementTypeMapper.toEntity(dto);
     }
 
     @Override
-    public void deleteSettlementType(int settlementTypeId) throws IllegalArgumentException {
-        if (RepositoryHelper.cannotFindId(settlementTypeRepository, settlementTypeId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        settlementTypeRepository.deleteById(settlementTypeId);
+    protected void updateEntity(UpdateSettlementTypeDTO dto, SettlementType entity) {
+        settlementTypeMapper.updateSettlementTypeFromDto(dto, entity);
     }
 
     @Override
-    public Optional<SettlementTypeDTO> updateSettlementType(int settlementTypeId, SettlementTypeDTO settlementType) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(settlementTypeRepository, settlementTypeId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(settlementType)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(settlementTypeRepository, settlementType.getName(), settlementTypeId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        return settlementTypeRepository.findById(settlementTypeId).map(foundSettlementType -> {
-            if (settlementType.getName() != null) foundSettlementType.setName(settlementType.getName());
-            if (settlementType.getDescription() != null)
-                foundSettlementType.setDescription(settlementType.getDescription());
-
-            return settlementTypeMapper.mapToSettlementTypeDto(settlementTypeRepository.save(foundSettlementType));
-        });
+    protected Integer getId(UpdateSettlementTypeDTO dto) {
+        return dto.getId();
     }
 }

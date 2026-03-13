@@ -7,7 +7,12 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
-@Table(name = "terrains")
+@Table(name = "terrains",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"name", "description"}
+                )
+        })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Terrain {
