@@ -15,6 +15,9 @@ import com.mcommings.campaigner.modules.locations.dtos.landmarks.ViewLandmarkDTO
 import com.mcommings.campaigner.modules.locations.dtos.place_types.CreatePlaceTypeDTO;
 import com.mcommings.campaigner.modules.locations.dtos.place_types.UpdatePlaceTypeDTO;
 import com.mcommings.campaigner.modules.locations.dtos.place_types.ViewPlaceTypeDTO;
+import com.mcommings.campaigner.modules.locations.dtos.places.CreatePlaceDTO;
+import com.mcommings.campaigner.modules.locations.dtos.places.UpdatePlaceDTO;
+import com.mcommings.campaigner.modules.locations.dtos.places.ViewPlaceDTO;
 import com.mcommings.campaigner.modules.locations.dtos.regions.CreateRegionDTO;
 import com.mcommings.campaigner.modules.locations.dtos.regions.UpdateRegionDTO;
 import com.mcommings.campaigner.modules.locations.dtos.regions.ViewRegionDTO;
@@ -292,6 +295,48 @@ public class LocationsTestDataFactory {
         dto.setId(LocationsTestConstants.REGION_ID);
         dto.setName(LocationsTestConstants.REGION_NAME);
         dto.setDescription(LocationsTestConstants.REGION_DESCRIPTION);
+        dto.setCampaignUuid(LocationsTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    //PLACE
+
+    public static Place place() {
+        return PlaceBuilder.aPlace().build();
+    }
+
+    public static ViewPlaceDTO viewPlaceDTO() {
+        ViewPlaceDTO dto = new ViewPlaceDTO();
+        dto.setId(LocationsTestConstants.PLACE_ID);
+        dto.setName(LocationsTestConstants.PLACE_NAME);
+        dto.setDescription(LocationsTestConstants.PLACE_DESCRIPTION);
+        dto.setCampaignUuid(LocationsTestConstants.CAMPAIGN_UUID);
+        dto.setPlaceTypeId(LocationsTestConstants.PLACETYPE_ID);
+        dto.setTerrainId(LocationsTestConstants.TERRAIN_ID);
+        dto.setCountryId(LocationsTestConstants.COUNTRY_ID);
+        dto.setCityId(LocationsTestConstants.CITY_ID);
+        dto.setRegionId(LocationsTestConstants.REGION_ID);
+        return dto;
+    }
+
+    public static CreatePlaceDTO createPlaceDTO() {
+        CreatePlaceDTO dto = new CreatePlaceDTO();
+        dto.setName(LocationsTestConstants.PLACE_NAME);
+        dto.setDescription(LocationsTestConstants.PLACE_DESCRIPTION);
+        dto.setCampaignUuid(LocationsTestConstants.CAMPAIGN_UUID);
+        dto.setPlaceTypeId(LocationsTestConstants.PLACETYPE_ID);
+        dto.setTerrainId(LocationsTestConstants.TERRAIN_ID);
+        dto.setCountryId(LocationsTestConstants.COUNTRY_ID);
+        dto.setCityId(LocationsTestConstants.CITY_ID);
+        dto.setRegionId(LocationsTestConstants.REGION_ID);
+        return dto;
+    }
+
+    public static UpdatePlaceDTO updatePlaceDTO() {
+        UpdatePlaceDTO dto = new UpdatePlaceDTO();
+        dto.setId(LocationsTestConstants.PLACE_ID);
+        dto.setName(LocationsTestConstants.PLACE_NAME);
+        dto.setDescription(LocationsTestConstants.PLACE_DESCRIPTION);
         dto.setCampaignUuid(LocationsTestConstants.CAMPAIGN_UUID);
         return dto;
     }

@@ -92,7 +92,7 @@ public class RegionTest {
 
     @Test
     void getRegionsByClimateId_returnsMappedList() {
-        when(regionRepository.findByClimate_Id(LocationsTestConstants.CONTINENT_ID))
+        when(regionRepository.findByClimate_Id(LocationsTestConstants.CLIMATE_ID))
                 .thenReturn(List.of(region));
 
         when(regionMapper.toDto(region))
@@ -100,20 +100,20 @@ public class RegionTest {
 
         List<ViewRegionDTO> result =
                 regionService.getRegionsByClimateId(
-                        LocationsTestConstants.CONTINENT_ID);
+                        LocationsTestConstants.CLIMATE_ID);
 
         assertEquals(1, result.size());
         assertEquals(viewDto, result.get(0));
 
         verify(regionRepository)
-                .findByClimate_Id((LocationsTestConstants.CONTINENT_ID));
+                .findByClimate_Id((LocationsTestConstants.CLIMATE_ID));
 
         verify(regionMapper).toDto(region);
     }
 
     @Test
     void getRegionsByCountryId_returnsMappedList() {
-        when(regionRepository.findByCountry_Id(LocationsTestConstants.CONTINENT_ID))
+        when(regionRepository.findByCountry_Id(LocationsTestConstants.COUNTRY_ID))
                 .thenReturn(List.of(region));
 
         when(regionMapper.toDto(region))
@@ -121,13 +121,13 @@ public class RegionTest {
 
         List<ViewRegionDTO> result =
                 regionService.getRegionsByCountryId(
-                        LocationsTestConstants.CONTINENT_ID);
+                        LocationsTestConstants.COUNTRY_ID);
 
         assertEquals(1, result.size());
         assertEquals(viewDto, result.get(0));
 
         verify(regionRepository)
-                .findByCountry_Id((LocationsTestConstants.CONTINENT_ID));
+                .findByCountry_Id((LocationsTestConstants.COUNTRY_ID));
 
         verify(regionMapper).toDto(region);
     }

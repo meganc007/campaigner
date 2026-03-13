@@ -52,4 +52,9 @@ public final class LocationsTestConstants {
     public static final int REGION_ID = 1;
     public static final String REGION_NAME = "Test Region";
     public static final String REGION_DESCRIPTION = "A fictional region";
+
+    //PLACE
+    public static final int PLACE_ID = 1;
+    public static final String PLACE_NAME = "Test Place";
+    public static final String PLACE_DESCRIPTION = "A fictional place";
 }

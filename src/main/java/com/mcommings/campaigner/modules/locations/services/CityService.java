@@ -88,5 +88,4 @@ public class CityService extends BaseService<
         return query(cityRepository::findByRegion_Id, regionId);
     }
 
-
 }

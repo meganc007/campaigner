@@ -93,7 +93,7 @@ public class CityTest {
 
     @Test
     void getCitiesByWealthId_returnsMappedList() {
-        when(cityRepository.findByWealth_Id(LocationsTestConstants.CONTINENT_ID))
+        when(cityRepository.findByWealth_Id(LocationsTestConstants.WEALTH_ID))
                 .thenReturn(List.of(city));
 
         when(cityMapper.toDto(city))
@@ -101,20 +101,20 @@ public class CityTest {
 
         List<ViewCityDTO> result =
                 cityService.getCitiesByWealthId(
-                        LocationsTestConstants.CONTINENT_ID);
+                        LocationsTestConstants.WEALTH_ID);
 
         assertEquals(1, result.size());
         assertEquals(viewDto, result.get(0));
 
         verify(cityRepository)
-                .findByWealth_Id((LocationsTestConstants.CONTINENT_ID));
+                .findByWealth_Id((LocationsTestConstants.WEALTH_ID));
 
         verify(cityMapper).toDto(city);
     }
 
     @Test
     void getCitiesByCountryId_returnsMappedList() {
-        when(cityRepository.findByCountry_Id(LocationsTestConstants.CONTINENT_ID))
+        when(cityRepository.findByCountry_Id(LocationsTestConstants.COUNTRY_ID))
                 .thenReturn(List.of(city));
 
         when(cityMapper.toDto(city))
@@ -122,20 +122,20 @@ public class CityTest {
 
         List<ViewCityDTO> result =
                 cityService.getCitiesByCountryId(
-                        LocationsTestConstants.CONTINENT_ID);
+                        LocationsTestConstants.COUNTRY_ID);
 
         assertEquals(1, result.size());
         assertEquals(viewDto, result.get(0));
 
         verify(cityRepository)
-                .findByCountry_Id((LocationsTestConstants.CONTINENT_ID));
+                .findByCountry_Id((LocationsTestConstants.COUNTRY_ID));
 
         verify(cityMapper).toDto(city);
     }
 
     @Test
     void getCitiesBySettlementTypeId_returnsMappedList() {
-        when(cityRepository.findBySettlementType_Id(LocationsTestConstants.CONTINENT_ID))
+        when(cityRepository.findBySettlementType_Id(LocationsTestConstants.SETTLEMENTTYPE_ID))
                 .thenReturn(List.of(city));
 
         when(cityMapper.toDto(city))
@@ -143,20 +143,20 @@ public class CityTest {
 
         List<ViewCityDTO> result =
                 cityService.getCitiesBySettlementTypeId(
-                        LocationsTestConstants.CONTINENT_ID);
+                        LocationsTestConstants.SETTLEMENTTYPE_ID);
 
         assertEquals(1, result.size());
         assertEquals(viewDto, result.get(0));
 
         verify(cityRepository)
-                .findBySettlementType_Id((LocationsTestConstants.CONTINENT_ID));
+                .findBySettlementType_Id((LocationsTestConstants.SETTLEMENTTYPE_ID));
 
         verify(cityMapper).toDto(city);
     }
 
     @Test
     void getCitiesByGovernmentId_returnsMappedList() {
-        when(cityRepository.findByGovernment_Id(LocationsTestConstants.CONTINENT_ID))
+        when(cityRepository.findByGovernment_Id(LocationsTestConstants.GOVERNMENT_ID))
                 .thenReturn(List.of(city));
 
         when(cityMapper.toDto(city))
@@ -164,20 +164,20 @@ public class CityTest {
 
         List<ViewCityDTO> result =
                 cityService.getCitiesByGovernmentId(
-                        LocationsTestConstants.CONTINENT_ID);
+                        LocationsTestConstants.GOVERNMENT_ID);
 
         assertEquals(1, result.size());
         assertEquals(viewDto, result.get(0));
 
         verify(cityRepository)
-                .findByGovernment_Id((LocationsTestConstants.CONTINENT_ID));
+                .findByGovernment_Id((LocationsTestConstants.GOVERNMENT_ID));
 
         verify(cityMapper).toDto(city);
     }
 
     @Test
     void getCitiesByRegionId_returnsMappedList() {
-        when(cityRepository.findByRegion_Id(LocationsTestConstants.CONTINENT_ID))
+        when(cityRepository.findByRegion_Id(LocationsTestConstants.REGION_ID))
                 .thenReturn(List.of(city));
 
         when(cityMapper.toDto(city))
@@ -185,13 +185,13 @@ public class CityTest {
 
         List<ViewCityDTO> result =
                 cityService.getCitiesByRegionId(
-                        LocationsTestConstants.CONTINENT_ID);
+                        LocationsTestConstants.REGION_ID);
 
         assertEquals(1, result.size());
         assertEquals(viewDto, result.get(0));
 
         verify(cityRepository)
-                .findByRegion_Id((LocationsTestConstants.CONTINENT_ID));
+                .findByRegion_Id((LocationsTestConstants.REGION_ID));
 
         verify(cityMapper).toDto(city);
     }
