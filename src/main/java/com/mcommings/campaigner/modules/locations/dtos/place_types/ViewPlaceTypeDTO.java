@@ -1,6 +1,5 @@
-package com.mcommings.campaigner.modules.locations.dtos;
+package com.mcommings.campaigner.modules.locations.dtos.place_types;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SettlementTypeDTO {
+public class ViewPlaceTypeDTO {
     private int id;
-    @NotBlank(message = "SettlementType name cannot be empty")
     private String name;
     private String description;
 }

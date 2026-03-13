@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.locations.controllers;
 
-import com.mcommings.campaigner.modules.locations.dtos.RegionDTO;
-import com.mcommings.campaigner.modules.locations.services.interfaces.IRegion;
+import com.mcommings.campaigner.modules.locations.dtos.regions.CreateRegionDTO;
+import com.mcommings.campaigner.modules.locations.dtos.regions.UpdateRegionDTO;
+import com.mcommings.campaigner.modules.locations.dtos.regions.ViewRegionDTO;
+import com.mcommings.campaigner.modules.locations.services.RegionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,47 +11,53 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/regions")
 public class RegionController {
 
-    private final IRegion regionService;
+    private final RegionService regionService;
 
     @GetMapping
-    public List<RegionDTO> getRegions() {
-        return regionService.getRegions();
+    public List<ViewRegionDTO> getRegions() {
+
+        return regionService.getAll();
     }
 
     @GetMapping(path = "/{regionId}")
-    public RegionDTO getRegion(@PathVariable("regionId") int regionId) {
-        return regionService.getRegion(regionId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewRegionDTO getRegion(@PathVariable int regionId) {
+        return regionService.getById(regionId);
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<RegionDTO> getRegionsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ViewRegionDTO> getRegionsByCampaignUUID(@PathVariable UUID uuid) {
         return regionService.getRegionsByCampaignUUID(uuid);
     }
 
+    @GetMapping(path = "/climate/{climateId}")
+    public List<ViewRegionDTO> getRegionsByClimateId(@PathVariable int climateId) {
+        return regionService.getRegionsByClimateId(climateId);
+    }
+
     @GetMapping(path = "/country/{countryId}")
-    public List<RegionDTO> getRegionsByCountryId(@PathVariable("countryId") int countryId) {
+    public List<ViewRegionDTO> getRegionsByCountryId(@PathVariable int countryId) {
         return regionService.getRegionsByCountryId(countryId);
     }
 
     @PostMapping
-    public void saveRegion(@Valid @RequestBody RegionDTO region) {
-        regionService.saveRegion(region);
+    public ViewRegionDTO saveRegion(@Valid @RequestBody CreateRegionDTO region) {
+
+        return regionService.create(region);
     }
 
-    @DeleteMapping(path = "{regionId}")
-    public void deleteRegion(@PathVariable("regionId") int regionId) {
-        regionService.deleteRegion(regionId);
+    @PutMapping
+    public ViewRegionDTO updateRegion(@Valid @RequestBody UpdateRegionDTO region) {
+        return regionService.update(region);
     }
 
-    @PutMapping(path = "{regionId}")
-    public void updateRegion(@PathVariable("regionId") int regionId, @RequestBody RegionDTO region) {
-        regionService.updateRegion(regionId, region);
+    @DeleteMapping(path = "/{regionId}")
+    public void deleteRegion(@PathVariable int regionId) {
+
+        regionService.delete(regionId);
     }
 }

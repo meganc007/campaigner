@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.locations.dtos;
+package com.mcommings.campaigner.modules.locations.dtos.landmarks;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,17 +9,20 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-@Builder
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class LandmarkDTO {
+@AllArgsConstructor
+@Builder
+public class CreateLandmarkDTO {
 
-    private int id;
     @NotBlank(message = "Landmark name cannot be empty")
     private String name;
+
     private String description;
-    @NotNull(message = "Campaign UUID cannot be null or empty.")
-    private UUID fk_campaign_uuid;
-    private Integer fk_region;
+
+    @NotNull(message = "Campaign UUID cannot be null or empty")
+    private UUID campaignUuid;
+
+    @NotNull(message = "Region cannot be empty")
+    private Integer regionId;
 }

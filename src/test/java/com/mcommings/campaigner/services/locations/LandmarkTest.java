@@ -1,220 +1,218 @@
 package com.mcommings.campaigner.services.locations;
 
-import com.mcommings.campaigner.modules.locations.dtos.LandmarkDTO;
+import com.mcommings.campaigner.modules.common.entities.Campaign;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.modules.locations.dtos.landmarks.CreateLandmarkDTO;
+import com.mcommings.campaigner.modules.locations.dtos.landmarks.UpdateLandmarkDTO;
+import com.mcommings.campaigner.modules.locations.dtos.landmarks.ViewLandmarkDTO;
 import com.mcommings.campaigner.modules.locations.entities.Landmark;
 import com.mcommings.campaigner.modules.locations.mappers.LandmarkMapper;
 import com.mcommings.campaigner.modules.locations.repositories.ILandmarkRepository;
 import com.mcommings.campaigner.modules.locations.services.LandmarkService;
+import com.mcommings.campaigner.setup.locations.factories.LocationsTestDataFactory;
+import com.mcommings.campaigner.setup.locations.fixtures.LocationsTestConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class LandmarkTest {
-
-    @Mock
-    private LandmarkMapper landmarkMapper;
 
     @Mock
     private ILandmarkRepository landmarkRepository;
 
+    @Mock
+    private ICampaignRepository campaignRepository;
+    
+    @Mock
+    private LandmarkMapper landmarkMapper;
+
     @InjectMocks
     private LandmarkService landmarkService;
 
-    private Landmark entity;
-    private LandmarkDTO dto;
+    private Landmark landmark;
+    private ViewLandmarkDTO viewDto;
+    private CreateLandmarkDTO createDto;
+    private UpdateLandmarkDTO updateDto;
 
     @BeforeEach
     void setUp() {
-        Random random = new Random();
-        entity = new Landmark();
-        entity.setId(1);
-        entity.setName("Test Landmark");
-        entity.setDescription("A fictional landmark.");
-        entity.setFk_campaign_uuid(UUID.randomUUID());
-        entity.setFk_region(random.nextInt(100) + 1);
-
-        dto = new LandmarkDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
-        dto.setFk_region(entity.getFk_region());
-
-        // Mocking the mapper behavior
-        when(landmarkMapper.mapToLandmarkDto(entity)).thenReturn(dto);
-        when(landmarkMapper.mapFromLandmarkDto(dto)).thenReturn(entity);
+        landmark = LocationsTestDataFactory.landmark();
+        viewDto = LocationsTestDataFactory.viewLandmarkDTO();
+        createDto = LocationsTestDataFactory.createLandmarkDTO();
+        updateDto = LocationsTestDataFactory.updateLandmarkDTO();
     }
 
     @Test
-    public void whenThereAreLandmarks_getLandmarks_ReturnsLandmarks() {
-        when(landmarkRepository.findAll()).thenReturn(List.of(entity));
-        List<LandmarkDTO> result = landmarkService.getLandmarks();
+    void getAll_returnsMappedDtos() {
 
-        assertNotNull(result);
+        when(landmarkRepository.findAll()).thenReturn(List.of(landmark));
+        when(landmarkMapper.toDto(landmark)).thenReturn(viewDto);
+
+        List<ViewLandmarkDTO> result = landmarkService.getAll();
+
         assertEquals(1, result.size());
-        assertEquals("Test Landmark", result.get(0).getName());
+        assertEquals(viewDto, result.get(0));
+
+        verify(landmarkRepository).findAll();
+        verify(landmarkMapper).toDto(landmark);
     }
 
     @Test
-    public void whenThereAreNoLandmarks_getLandmarks_ReturnsEmptyList() {
-        when(landmarkRepository.findAll()).thenReturn(Collections.emptyList());
+    void getLandmarksByCampaignUUID_returnsMappedList() {
 
-        List<LandmarkDTO> result = landmarkService.getLandmarks();
+        when(landmarkRepository.findByCampaign_Uuid(LocationsTestConstants.CAMPAIGN_UUID))
+                .thenReturn(List.of(landmark));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when there are no landmarks.");
-    }
+        when(landmarkMapper.toDto(landmark))
+                .thenReturn(viewDto);
 
-    @Test
-    void getLandmark_ReturnsLandmarkById() {
-        when(landmarkRepository.findById(1)).thenReturn(Optional.of(entity));
+        List<ViewLandmarkDTO> result =
+                landmarkService.getLandmarksByCampaignUUID(
+                        LocationsTestConstants.CAMPAIGN_UUID);
 
-        Optional<LandmarkDTO> result = landmarkService.getLandmark(1);
-
-        assertTrue(result.isPresent());
-        assertEquals("Test Landmark", result.get().getName());
-    }
-
-    @Test
-    void whenThereIsNotALandmark_getLandmark_ReturnsNothing() {
-        when(landmarkRepository.findById(999)).thenReturn(Optional.empty());
-
-        Optional<LandmarkDTO> result = landmarkService.getLandmark(999);
-
-        assertTrue(result.isEmpty(), "Expected empty Optional when landmark is not found.");
-    }
-
-    @Test
-    void whenCampaignUUIDIsValid_getLandmarksByCampaignUUID_ReturnsLandmarks() {
-        UUID campaignUUID = entity.getFk_campaign_uuid();
-        when(landmarkRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
-
-        List<LandmarkDTO> result = landmarkService.getLandmarksByCampaignUUID(campaignUUID);
-
-        assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
+        assertEquals(viewDto, result.get(0));
+
+        verify(landmarkRepository)
+                .findByCampaign_Uuid(LocationsTestConstants.CAMPAIGN_UUID);
+
+        verify(landmarkMapper).toDto(landmark);
     }
 
     @Test
-    void whenCampaignUUIDIsInvalid_getLandmarksByCampaignUUID_ReturnsNothing() {
-        UUID campaignUUID = UUID.randomUUID();
-        when(landmarkRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
+    void getLandmarksByRegionId_returnsMappedList() {
 
-        List<LandmarkDTO> result = landmarkService.getLandmarksByCampaignUUID(campaignUUID);
+        when(landmarkRepository.findByRegion_Id(LocationsTestConstants.REGION_ID))
+                .thenReturn(List.of(landmark));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when no landmarks match the campaign UUID.");
+        when(landmarkMapper.toDto(landmark))
+                .thenReturn(viewDto);
+
+        List<ViewLandmarkDTO> result =
+                landmarkService.getLandmarksByRegionId(
+                        LocationsTestConstants.REGION_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(landmarkRepository)
+                .findByRegion_Id((LocationsTestConstants.REGION_ID));
+
+        verify(landmarkMapper).toDto(landmark);
+    }
+
+
+    @Test
+    void getById_whenExists_returnsDto() {
+
+        when(landmarkRepository.findById(landmark.getId()))
+                .thenReturn(Optional.of(landmark));
+
+        when(landmarkMapper.toDto(landmark))
+                .thenReturn(viewDto);
+
+        ViewLandmarkDTO result = landmarkService.getById(landmark.getId());
+
+        assertEquals(viewDto, result);
+
+        verify(landmarkRepository).findById(landmark.getId());
+        verify(landmarkMapper).toDto(landmark);
     }
 
     @Test
-    void whenLandmarkIsValid_saveLandmark_SavesTheLandmark() {
-        when(landmarkRepository.save(entity)).thenReturn(entity);
+    void getById_whenMissing_throwsException() {
 
-        landmarkService.saveLandmark(dto);
+        when(landmarkRepository.findById(landmark.getId()))
+                .thenReturn(Optional.empty());
 
-        verify(landmarkRepository, times(1)).save(entity);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> landmarkService.getById(landmark.getId())
+        );
+
+        verify(landmarkRepository).findById(landmark.getId());
     }
 
     @Test
-    public void whenLandmarkNameIsInvalid_saveLandmark_ThrowsIllegalArgumentException() {
-        LandmarkDTO landmarkWithEmptyName = new LandmarkDTO();
-        landmarkWithEmptyName.setId(1);
-        landmarkWithEmptyName.setName("");
-        landmarkWithEmptyName.setDescription("A fictional landmark.");
-        landmarkWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
+    void create_whenValid_savesAndReturnsDto() {
 
-        LandmarkDTO landmarkWithNullName = new LandmarkDTO();
-        landmarkWithNullName.setId(1);
-        landmarkWithNullName.setName(null);
-        landmarkWithNullName.setDescription("A fictional landmark.");
-        landmarkWithNullName.setFk_campaign_uuid(UUID.randomUUID());
+        Campaign campaign = new Campaign();
+        campaign.setUuid(createDto.getCampaignUuid());
 
-        assertThrows(IllegalArgumentException.class, () -> landmarkService.saveLandmark(landmarkWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> landmarkService.saveLandmark(landmarkWithNullName));
+        when(landmarkMapper.toEntity(createDto)).thenReturn(landmark);
+        when(campaignRepository.getReferenceById(createDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(landmarkRepository.save(landmark)).thenReturn(landmark);
+        when(landmarkMapper.toDto(landmark)).thenReturn(viewDto);
+
+        ViewLandmarkDTO result = landmarkService.create(createDto);
+
+        assertEquals(viewDto, result);
+
+        verify(landmarkMapper).toEntity(createDto);
+        verify(campaignRepository).getReferenceById(createDto.getCampaignUuid());
+        verify(landmarkRepository).save(landmark);
+        verify(landmarkMapper).toDto(landmark);
     }
 
     @Test
-    public void whenLandmarkNameAlreadyExists_saveLandmark_ThrowsDataIntegrityViolationException() {
-        when(landmarkRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-        assertThrows(DataIntegrityViolationException.class, () -> landmarkService.saveLandmark(dto));
-        verify(landmarkRepository, times(1)).findByName(dto.getName());
-        verify(landmarkRepository, never()).save(any(Landmark.class));
+    void update_whenValid_updatesAndReturnsDto() {
+
+        Campaign campaign = new Campaign();
+        campaign.setUuid(updateDto.getCampaignUuid());
+
+        when(landmarkRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.of(landmark));
+
+        when(campaignRepository.getReferenceById(updateDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(landmarkRepository.save(landmark)).thenReturn(landmark);
+        when(landmarkMapper.toDto(landmark)).thenReturn(viewDto);
+
+        ViewLandmarkDTO result = landmarkService.update(updateDto);
+
+        assertEquals(viewDto, result);
+
+        verify(landmarkRepository).findById(updateDto.getId());
+        verify(landmarkMapper).updateLandmarkFromDto(updateDto, landmark);
+        verify(campaignRepository).getReferenceById(updateDto.getCampaignUuid());
+        verify(landmarkRepository).save(landmark);
+        verify(landmarkMapper).toDto(landmark);
     }
 
     @Test
-    void whenLandmarkIdExists_deleteLandmark_DeletesTheLandmark() {
-        when(landmarkRepository.existsById(1)).thenReturn(true);
-        landmarkService.deleteLandmark(1);
-        verify(landmarkRepository, times(1)).deleteById(1);
+    void update_whenMissing_throwsException() {
+
+        when(landmarkRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> landmarkService.update(updateDto)
+        );
+
+        verify(landmarkRepository).findById(updateDto.getId());
     }
 
     @Test
-    void whenLandmarkIdDoesNotExist_deleteLandmark_ThrowsIllegalArgumentException() {
-        when(landmarkRepository.existsById(999)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> landmarkService.deleteLandmark(999));
-    }
+    void delete_callsRepository() {
 
-    @Test
-    void whenDeleteLandmarkFails_deleteLandmark_ThrowsException() {
-        when(landmarkRepository.existsById(1)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(landmarkRepository).deleteById(1);
+        landmarkService.delete(landmark.getId());
 
-        assertThrows(RuntimeException.class, () -> landmarkService.deleteLandmark(1));
-    }
-
-    @Test
-    void whenLandmarkIdIsFound_updateLandmark_UpdatesTheLandmark() {
-        LandmarkDTO updateDTO = new LandmarkDTO();
-        updateDTO.setName("Updated Name");
-
-        when(landmarkRepository.findById(1)).thenReturn(Optional.of(entity));
-        when(landmarkRepository.existsById(1)).thenReturn(true);
-        when(landmarkRepository.save(entity)).thenReturn(entity);
-        when(landmarkMapper.mapToLandmarkDto(entity)).thenReturn(updateDTO);
-
-        Optional<LandmarkDTO> result = landmarkService.updateLandmark(1, updateDTO);
-
-        assertTrue(result.isPresent());
-        assertEquals("Updated Name", result.get().getName());
-    }
-
-    @Test
-    void whenLandmarkIdIsNotFound_updateLandmark_ReturnsEmptyOptional() {
-        LandmarkDTO updateDTO = new LandmarkDTO();
-        updateDTO.setName("Updated Name");
-
-        when(landmarkRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> landmarkService.updateLandmark(999, updateDTO));
-    }
-
-    @Test
-    public void whenLandmarkNameIsInvalid_updateLandmark_ThrowsIllegalArgumentException() {
-        LandmarkDTO updateEmptyName = new LandmarkDTO();
-        updateEmptyName.setName("");
-
-        LandmarkDTO updateNullName = new LandmarkDTO();
-        updateNullName.setName(null);
-
-        when(landmarkRepository.existsById(1)).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> landmarkService.updateLandmark(1, updateEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> landmarkService.updateLandmark(1, updateNullName));
-    }
-
-    @Test
-    public void whenLandmarkNameAlreadyExists_updateLandmark_ThrowsDataIntegrityViolationException() {
-        when(landmarkRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-
-        assertThrows(IllegalArgumentException.class, () -> landmarkService.updateLandmark(entity.getId(), dto));
+        verify(landmarkRepository).deleteById(landmark.getId());
     }
 }

@@ -7,7 +7,12 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
-@Table(name = "place_types")
+@Table(name = "place_types",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"name", "description"}
+                )
+        })
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlaceType {

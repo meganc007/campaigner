@@ -74,7 +74,7 @@ public class CityController {
         return cityService.update(city);
     }
 
-    @DeleteMapping(path = "{cityId}")
+    @DeleteMapping(path = "/{cityId}")
     public void deleteCity(@PathVariable int cityId) {
 
         cityService.delete(cityId);
