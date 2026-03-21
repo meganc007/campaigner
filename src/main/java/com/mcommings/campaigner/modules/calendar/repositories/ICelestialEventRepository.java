@@ -2,8 +2,6 @@ package com.mcommings.campaigner.modules.calendar.repositories;
 
 import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,24 +13,21 @@ public interface ICelestialEventRepository extends JpaRepository<CelestialEvent,
 
     Optional<CelestialEvent> findByName(String name);
 
-    @Query("SELECT ce FROM CelestialEvent ce WHERE ce.fk_campaign_uuid = :uuid")
-    List<CelestialEvent> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
+    List<CelestialEvent> findByCampaign_Uuid(UUID uuid);
 
-    @Query("SELECT ce FROM CelestialEvent ce WHERE ce.fk_moon = :id")
-    List<CelestialEvent> findByfk_moon(@Param("id") Integer id);
+    List<CelestialEvent> findByMoon_Id(Integer moonId);
 
-    @Query("SELECT ce FROM CelestialEvent ce WHERE ce.fk_sun = :id")
-    List<CelestialEvent> findByfk_sun(@Param("id") Integer id);
+    List<CelestialEvent> findBySun_Id(Integer sunId);
 
-    @Query("SELECT ce FROM CelestialEvent ce WHERE ce.fk_month = :id")
-    List<CelestialEvent> findByfk_month(@Param("id") Integer id);
+    List<CelestialEvent> findByMonth_Id(Integer monthId);
 
-    @Query("SELECT ce FROM CelestialEvent ce WHERE ce.fk_week = :id")
-    List<CelestialEvent> findByfk_week(@Param("id") Integer id);
+    List<CelestialEvent> findByWeek_Id(Integer weekId);
 
-    @Query("SELECT ce FROM CelestialEvent ce WHERE ce.fk_day = :id")
-    List<CelestialEvent> findByfk_day(@Param("id") Integer id);
+    List<CelestialEvent> findByDay_Id(Integer dayId);
 
-    @Query("SELECT ce FROM CelestialEvent ce WHERE ce.event_year = :id")
-    List<CelestialEvent> getByevent_year(int id);
+    List<CelestialEvent> findByYear_Id(int yearId);
+
+    boolean existsByNameAndCampaign_UuidAndIdNot(String name, UUID campaignUuid, Integer id);
+
+    boolean existsByNameAndCampaign_Uuid(String name, UUID campaignUuid);
 }
