@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.common.dtos;
+package com.mcommings.campaigner.modules.common.dtos.wealth;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WealthDTO {
-    private int id;
+public class CreateWealthDTO {
+
     @NotBlank(message = "Wealth name cannot be empty")
     private String name;
 }

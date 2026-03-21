@@ -1,75 +1,54 @@
 package com.mcommings.campaigner.modules.common.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.common.dtos.WealthDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.common.dtos.wealth.CreateWealthDTO;
+import com.mcommings.campaigner.modules.common.dtos.wealth.UpdateWealthDTO;
+import com.mcommings.campaigner.modules.common.dtos.wealth.ViewWealthDTO;
+import com.mcommings.campaigner.modules.common.entities.Wealth;
 import com.mcommings.campaigner.modules.common.mappers.WealthMapper;
 import com.mcommings.campaigner.modules.common.repositories.IWealthRepository;
-import com.mcommings.campaigner.modules.common.services.interfaces.IWealth;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class WealthService implements IWealth {
+public class WealthService extends BaseService<
+        Wealth,
+        Integer,
+        ViewWealthDTO,
+        CreateWealthDTO,
+        UpdateWealthDTO> {
 
     private final IWealthRepository wealthRepository;
     private final WealthMapper wealthMapper;
 
     @Override
-    public List<WealthDTO> getWealth() {
-
-        return wealthRepository.findAll().stream()
-                .map(wealthMapper::mapToWealthDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<Wealth, Integer> getRepository() {
+        return wealthRepository;
     }
 
     @Override
-    public void saveWealth(WealthDTO wealth) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(wealth)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(wealthRepository, wealth.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        wealthMapper.mapToWealthDto(
-                wealthRepository.save(
-                        wealthMapper.mapFromWealthDto(wealth))
-        );
+    protected ViewWealthDTO toViewDto(Wealth entity) {
+        return wealthMapper.toDto(entity);
     }
 
     @Override
-    public void deleteWealth(int wealthId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(wealthRepository, wealthId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
+    protected Wealth toEntity(CreateWealthDTO dto) {
 
-        wealthRepository.deleteById(wealthId);
+        Wealth entity = wealthMapper.toEntity(dto);
+
+        return entity;
     }
 
     @Override
-    public Optional<WealthDTO> updateWealth(int wealthId, WealthDTO wealth) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(wealthRepository, wealthId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(wealth)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(wealthRepository, wealth.getName(), wealthId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
+    protected void updateEntity(UpdateWealthDTO dto, Wealth entity) {
 
-        return wealthRepository.findById(wealthId).map(foundWealth -> {
-            if (wealth.getName() != null) foundWealth.setName(wealth.getName());
+        wealthMapper.updateWealthFromDto(dto, entity);
+    }
 
-            return wealthMapper.mapToWealthDto(wealthRepository.save(foundWealth));
-        });
+    @Override
+    protected Integer getId(UpdateWealthDTO dto) {
+        return dto.getId();
     }
 }
