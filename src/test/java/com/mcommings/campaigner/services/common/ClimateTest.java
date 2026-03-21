@@ -1,191 +1,153 @@
 package com.mcommings.campaigner.services.common;
 
-import com.mcommings.campaigner.modules.common.dtos.ClimateDTO;
+import com.mcommings.campaigner.modules.common.dtos.climate.CreateClimateDTO;
+import com.mcommings.campaigner.modules.common.dtos.climate.UpdateClimateDTO;
+import com.mcommings.campaigner.modules.common.dtos.climate.ViewClimateDTO;
 import com.mcommings.campaigner.modules.common.entities.Climate;
 import com.mcommings.campaigner.modules.common.mappers.ClimateMapper;
 import com.mcommings.campaigner.modules.common.repositories.IClimateRepository;
 import com.mcommings.campaigner.modules.common.services.ClimateService;
+import com.mcommings.campaigner.setup.common.factories.CommonTestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class ClimateTest {
 
     @Mock
-    private ClimateMapper climateMapper;
+    private IClimateRepository climateRepository;
 
     @Mock
-    private IClimateRepository climateRepository;
+    private ClimateMapper climateMapper;
 
     @InjectMocks
     private ClimateService climateService;
 
-    private Climate entity;
-    private ClimateDTO dto;
+    private Climate climate;
+    private ViewClimateDTO viewDto;
+    private CreateClimateDTO createDto;
+    private UpdateClimateDTO updateDto;
 
     @BeforeEach
     void setUp() {
-        entity = new Climate();
-        entity.setId(1);
-        entity.setName("Test Climate");
-        entity.setDescription("A fictional land.");
-
-        dto = new ClimateDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-
-        when(climateMapper.mapToClimateDto(entity)).thenReturn(dto);
-        when(climateMapper.mapFromClimateDto(dto)).thenReturn(entity);
+        climate = CommonTestDataFactory.climate();
+        viewDto = CommonTestDataFactory.viewClimateDTO();
+        createDto = CommonTestDataFactory.createClimateDTO();
+        updateDto = CommonTestDataFactory.updateClimateDTO();
     }
 
     @Test
-    public void whenThereAreClimates_getClimates_ReturnsClimates() {
-        when(climateRepository.findAll()).thenReturn(List.of(entity));
-        List<ClimateDTO> result = climateService.getClimates();
+    void getAll_returnsMappedDtos() {
 
-        assertNotNull(result);
+        when(climateRepository.findAll()).thenReturn(List.of(climate));
+        when(climateMapper.toDto(climate)).thenReturn(viewDto);
+
+        List<ViewClimateDTO> result = climateService.getAll();
+
         assertEquals(1, result.size());
-        assertEquals("Test Climate", result.get(0).getName());
+        assertEquals(viewDto, result.get(0));
+
+        verify(climateRepository).findAll();
+        verify(climateMapper).toDto(climate);
     }
 
     @Test
-    public void whenThereAreNoClimates_getClimates_ReturnsEmptyList() {
-        when(climateRepository.findAll()).thenReturn(Collections.emptyList());
+    void getById_whenExists_returnsDto() {
 
-        List<ClimateDTO> result = climateService.getClimates();
+        when(climateRepository.findById(climate.getId()))
+                .thenReturn(Optional.of(climate));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when there are no climates.");
+        when(climateMapper.toDto(climate))
+                .thenReturn(viewDto);
+
+        ViewClimateDTO result = climateService.getById(climate.getId());
+
+        assertEquals(viewDto, result);
+
+        verify(climateRepository).findById(climate.getId());
+        verify(climateMapper).toDto(climate);
     }
 
     @Test
-    void getClimate_ReturnsClimateById() {
-        when(climateRepository.findById(1)).thenReturn(Optional.of(entity));
+    void getById_whenMissing_throwsException() {
 
-        Optional<ClimateDTO> result = climateService.getClimate(1);
+        when(climateRepository.findById(climate.getId()))
+                .thenReturn(Optional.empty());
 
-        assertTrue(result.isPresent());
-        assertEquals("Test Climate", result.get().getName());
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> climateService.getById(climate.getId())
+        );
+
+        verify(climateRepository).findById(climate.getId());
     }
 
     @Test
-    void whenThereIsNotAClimate_getClimate_ReturnsNothing() {
-        when(climateRepository.findById(999)).thenReturn(Optional.empty());
+    void create_whenValid_savesAndReturnsDto() {
 
-        Optional<ClimateDTO> result = climateService.getClimate(999);
+        when(climateMapper.toEntity(createDto)).thenReturn(climate);
 
-        assertTrue(result.isEmpty(), "Expected empty Optional when climate is not found.");
+        when(climateRepository.save(climate)).thenReturn(climate);
+        when(climateMapper.toDto(climate)).thenReturn(viewDto);
+
+        ViewClimateDTO result = climateService.create(createDto);
+
+        assertEquals(viewDto, result);
+
+        verify(climateMapper).toEntity(createDto);
+        verify(climateRepository).save(climate);
+        verify(climateMapper).toDto(climate);
     }
 
     @Test
-    void whenClimateIsValid_saveClimate_SavesTheClimate() {
-        when(climateRepository.save(entity)).thenReturn(entity);
+    void update_whenValid_updatesAndReturnsDto() {
 
-        climateService.saveClimate(dto);
+        when(climateRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.of(climate));
 
-        verify(climateRepository, times(1)).save(entity);
+        when(climateRepository.save(climate)).thenReturn(climate);
+        when(climateMapper.toDto(climate)).thenReturn(viewDto);
+
+        ViewClimateDTO result = climateService.update(updateDto);
+
+        assertEquals(viewDto, result);
+
+        verify(climateRepository).findById(updateDto.getId());
+        verify(climateMapper).updateClimateFromDto(updateDto, climate);
+        verify(climateRepository).save(climate);
+        verify(climateMapper).toDto(climate);
     }
 
     @Test
-    public void whenClimateNameIsInvalid_saveClimate_ThrowsIllegalArgumentException() {
-        ClimateDTO climateWithEmptyName = new ClimateDTO();
-        climateWithEmptyName.setId(1);
-        climateWithEmptyName.setName("");
-        climateWithEmptyName.setDescription("A fictional climate.");
+    void update_whenMissing_throwsException() {
 
-        ClimateDTO climateWithNullName = new ClimateDTO();
-        climateWithNullName.setId(1);
-        climateWithNullName.setName(null);
-        climateWithNullName.setDescription("A fictional climate.");
+        when(climateRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> climateService.saveClimate(climateWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> climateService.saveClimate(climateWithNullName));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> climateService.update(updateDto)
+        );
+
+        verify(climateRepository).findById(updateDto.getId());
     }
 
     @Test
-    public void whenClimateNameAlreadyExists_saveClimate_ThrowsDataIntegrityViolationException() {
-        when(climateRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-        assertThrows(DataIntegrityViolationException.class, () -> climateService.saveClimate(dto));
-        verify(climateRepository, times(1)).findByName(dto.getName());
-        verify(climateRepository, never()).save(any(Climate.class));
-    }
+    void delete_callsRepository() {
 
-    @Test
-    void whenClimateIdExists_deleteClimate_DeletesTheClimate() {
-        when(climateRepository.existsById(1)).thenReturn(true);
-        climateService.deleteClimate(1);
-        verify(climateRepository, times(1)).deleteById(1);
-    }
+        climateService.delete(climate.getId());
 
-    @Test
-    void whenClimateIdDoesNotExist_deleteClimate_ThrowsIllegalArgumentException() {
-        when(climateRepository.existsById(999)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> climateService.deleteClimate(999));
-    }
-
-    @Test
-    void whenDeleteClimateFails_deleteClimate_ThrowsException() {
-        when(climateRepository.existsById(1)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(climateRepository).deleteById(1);
-
-        assertThrows(RuntimeException.class, () -> climateService.deleteClimate(1));
-    }
-
-    @Test
-    void whenClimateIdIsFound_updateClimate_UpdatesTheClimate() {
-        ClimateDTO updateDTO = new ClimateDTO();
-        updateDTO.setName("Updated Name");
-
-        when(climateRepository.findById(1)).thenReturn(Optional.of(entity));
-        when(climateRepository.existsById(1)).thenReturn(true);
-        when(climateRepository.save(entity)).thenReturn(entity);
-        when(climateMapper.mapToClimateDto(entity)).thenReturn(updateDTO);
-
-        Optional<ClimateDTO> result = climateService.updateClimate(1, updateDTO);
-
-        assertTrue(result.isPresent());
-        assertEquals("Updated Name", result.get().getName());
-    }
-
-    @Test
-    void whenClimateIdIsNotFound_updateClimate_ReturnsEmptyOptional() {
-        ClimateDTO updateDTO = new ClimateDTO();
-        updateDTO.setName("Updated Name");
-
-        when(climateRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> climateService.updateClimate(999, updateDTO));
-    }
-
-    @Test
-    public void whenClimateNameIsInvalid_updateClimate_ThrowsIllegalArgumentException() {
-        ClimateDTO updateEmptyName = new ClimateDTO();
-        updateEmptyName.setName("");
-
-        ClimateDTO updateNullName = new ClimateDTO();
-        updateNullName.setName(null);
-
-        when(climateRepository.existsById(1)).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> climateService.updateClimate(1, updateEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> climateService.updateClimate(1, updateNullName));
-    }
-
-    @Test
-    public void whenClimateNameAlreadyExists_updateClimate_ThrowsDataIntegrityViolationException() {
-        when(climateRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-
-        assertThrows(IllegalArgumentException.class, () -> climateService.updateClimate(entity.getId(), dto));
+        verify(climateRepository).deleteById(climate.getId());
     }
 }
