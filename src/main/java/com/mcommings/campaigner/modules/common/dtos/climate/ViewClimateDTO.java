@@ -1,6 +1,5 @@
-package com.mcommings.campaigner.modules.common.dtos;
+package com.mcommings.campaigner.modules.common.dtos.climate;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WealthDTO {
+public class ViewClimateDTO {
     private int id;
-    @NotBlank(message = "Wealth name cannot be empty")
     private String name;
+    private String description;
 }

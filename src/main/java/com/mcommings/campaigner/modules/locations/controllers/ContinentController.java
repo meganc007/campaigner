@@ -34,7 +34,7 @@ public class ContinentController {
     }
 
     @PostMapping
-    public ViewContinentDTO saveContinent(@Valid @RequestBody CreateContinentDTO continent) {
+    public ViewContinentDTO createContinent(@Valid @RequestBody CreateContinentDTO continent) {
         return continentService.create(continent);
     }
 

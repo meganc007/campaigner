@@ -1,44 +1,45 @@
 package com.mcommings.campaigner.modules.common.controllers;
 
-import com.mcommings.campaigner.modules.common.dtos.GovernmentDTO;
-import com.mcommings.campaigner.modules.common.services.interfaces.IGovernment;
+import com.mcommings.campaigner.modules.common.dtos.government.CreateGovernmentDTO;
+import com.mcommings.campaigner.modules.common.dtos.government.UpdateGovernmentDTO;
+import com.mcommings.campaigner.modules.common.dtos.government.ViewGovernmentDTO;
+import com.mcommings.campaigner.modules.common.services.GovernmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/governments")
 public class GovernmentController {
 
-    private final IGovernment governmentService;
+    private final GovernmentService governmentService;
     
     @GetMapping
-    public List<GovernmentDTO> getGovernments() {
-        return governmentService.getGovernments();
+    public List<ViewGovernmentDTO> getGovernments() {
+        return governmentService.getAll();
     }
 
     @GetMapping(path = "/{governmentId}")
-    public GovernmentDTO getGovernment(@PathVariable("governmentId") int governmentId) {
-        return governmentService.getGovernment(governmentId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewGovernmentDTO getGovernment(@PathVariable int governmentId) {
+        return governmentService.getById(governmentId);
     }
     
     @PostMapping
-    public void saveGovernment(@Valid @RequestBody GovernmentDTO government) {
-        governmentService.saveGovernment(government);
+    public ViewGovernmentDTO createGovernment(@Valid @RequestBody CreateGovernmentDTO government) {
+        return governmentService.create(government);
     }
 
-    @DeleteMapping(path = "{governmentId}")
-    public void deleteGovernment(@PathVariable("governmentId") int governmentId) {
-        governmentService.deleteGovernment(governmentId);
+    @PutMapping
+    public void updateGovernment(@Valid @RequestBody UpdateGovernmentDTO government) {
+        governmentService.update(government);
     }
 
-    @PutMapping(path = "{governmentId}")
-    public void updateGovernment(@PathVariable("governmentId") int governmentId, @RequestBody GovernmentDTO government) {
-        governmentService.updateGovernment(governmentId, government);
+    @DeleteMapping(path = "/{governmentId}")
+    public void deleteGovernment(@PathVariable int governmentId) {
+        governmentService.delete(governmentId);
     }
+
 }

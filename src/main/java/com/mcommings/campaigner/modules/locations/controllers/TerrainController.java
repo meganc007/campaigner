@@ -29,7 +29,7 @@ public class TerrainController {
     }
 
     @PostMapping
-    public ViewTerrainDTO saveTerrain(@Valid @RequestBody CreateTerrainDTO terrain) {
+    public ViewTerrainDTO createTerrain(@Valid @RequestBody CreateTerrainDTO terrain) {
         return terrainService.create(terrain);
     }
 

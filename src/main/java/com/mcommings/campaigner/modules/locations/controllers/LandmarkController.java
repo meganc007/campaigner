@@ -40,7 +40,7 @@ public class LandmarkController {
     }
 
     @PostMapping
-    public ViewLandmarkDTO saveLandmark(@Valid @RequestBody CreateLandmarkDTO landmark) {
+    public ViewLandmarkDTO createLandmark(@Valid @RequestBody CreateLandmarkDTO landmark) {
 
         return landmarkService.create(landmark);
     }

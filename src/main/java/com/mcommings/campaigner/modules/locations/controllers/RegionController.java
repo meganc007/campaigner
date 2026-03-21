@@ -45,7 +45,7 @@ public class RegionController {
     }
 
     @PostMapping
-    public ViewRegionDTO saveRegion(@Valid @RequestBody CreateRegionDTO region) {
+    public ViewRegionDTO createRegion(@Valid @RequestBody CreateRegionDTO region) {
 
         return regionService.create(region);
     }

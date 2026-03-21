@@ -64,7 +64,7 @@ public class CityController {
     }
 
     @PostMapping
-    public ViewCityDTO saveCity(@Valid @RequestBody CreateCityDTO city) {
+    public ViewCityDTO createCity(@Valid @RequestBody CreateCityDTO city) {
 
         return cityService.create(city);
     }

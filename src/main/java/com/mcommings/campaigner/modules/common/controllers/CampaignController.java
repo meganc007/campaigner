@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.common.controllers;
 
-import com.mcommings.campaigner.modules.common.dtos.CampaignDTO;
-import com.mcommings.campaigner.modules.common.services.interfaces.ICampaign;
+import com.mcommings.campaigner.modules.common.dtos.campaigns.CreateCampaignDTO;
+import com.mcommings.campaigner.modules.common.dtos.campaigns.UpdateCampaignDTO;
+import com.mcommings.campaigner.modules.common.dtos.campaigns.ViewCampaignDTO;
+import com.mcommings.campaigner.modules.common.services.CampaignService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,38 +11,38 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/campaigns")
 public class CampaignController {
 
-    private final ICampaign campaignService;
+    private final CampaignService campaignService;
 
     @GetMapping
-    public List<CampaignDTO> getCampaigns() {
-        return campaignService.getCampaigns();
+    public List<ViewCampaignDTO> getCampaigns() {
+        return campaignService.getAll();
     }
 
     @GetMapping(path = "/{uuid}")
-    public CampaignDTO getCampaign(@PathVariable("uuid") UUID uuid) {
+    public ViewCampaignDTO getCampaign(@PathVariable UUID uuid) {
 
-        return campaignService.getCampaign(uuid).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+        return campaignService.getById(uuid);
     }
 
     @PostMapping
-    public void saveCampaign(@Valid @RequestBody CampaignDTO campaign) {
-        campaignService.saveCampaign(campaign);
+    public ViewCampaignDTO createCampaign(@Valid @RequestBody CreateCampaignDTO campaign) {
+
+        return campaignService.create(campaign);
     }
 
-    @DeleteMapping(path = "{uuid}")
-    public void deleteCampaign(@PathVariable("uuid") UUID uuid) {
-        campaignService.deleteCampaign(uuid);
+    @PutMapping
+    public void updateCampaign(@Valid @RequestBody UpdateCampaignDTO campaign) {
+        campaignService.update(campaign);
     }
-    
-    @PutMapping(path = "{uuid}")
-    public void updateCampaign(@PathVariable("uuid") UUID uuid, @RequestBody CampaignDTO campaign) {
-        campaignService.updateCampaign(uuid, campaign);
+
+    @DeleteMapping(path = "/{uuid}")
+    public void deleteCampaign(@PathVariable UUID uuid) {
+        campaignService.delete(uuid);
     }
+
 }

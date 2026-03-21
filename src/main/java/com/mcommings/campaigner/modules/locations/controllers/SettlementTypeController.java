@@ -29,7 +29,7 @@ public class SettlementTypeController {
     }
 
     @PostMapping
-    public ViewSettlementTypeDTO saveSettlementType(@Valid @RequestBody CreateSettlementTypeDTO settlementType) {
+    public ViewSettlementTypeDTO createSettlementType(@Valid @RequestBody CreateSettlementTypeDTO settlementType) {
         return settlementTypeService.create(settlementType);
     }
 

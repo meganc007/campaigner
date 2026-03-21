@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.common.controllers;
 
-import com.mcommings.campaigner.modules.common.dtos.WealthDTO;
-import com.mcommings.campaigner.modules.common.services.interfaces.IWealth;
+import com.mcommings.campaigner.modules.common.dtos.wealth.CreateWealthDTO;
+import com.mcommings.campaigner.modules.common.dtos.wealth.UpdateWealthDTO;
+import com.mcommings.campaigner.modules.common.dtos.wealth.ViewWealthDTO;
+import com.mcommings.campaigner.modules.common.services.WealthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -12,26 +14,30 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping(path = "api/wealth")
 public class WealthController {
-    private final IWealth wealthService;
+    private final WealthService wealthService;
 
     @GetMapping
-    public List<WealthDTO> getWealth() {
+    public List<ViewWealthDTO> getWealths() {
+        return wealthService.getAll();
+    }
 
-        return wealthService.getWealth();
+    @GetMapping(path = "/{wealthId}")
+    public ViewWealthDTO getWealth(@PathVariable int wealthId) {
+        return wealthService.getById(wealthId);
     }
 
     @PostMapping
-    public void saveWealth(@Valid @RequestBody WealthDTO wealth) {
-        wealthService.saveWealth(wealth);
+    public ViewWealthDTO createWealth(@Valid @RequestBody CreateWealthDTO wealth) {
+        return wealthService.create(wealth);
     }
 
-    @DeleteMapping(path = "{wealthId}")
+    @PutMapping
+    public void updateWealth(@Valid @RequestBody UpdateWealthDTO wealth) {
+        wealthService.update(wealth);
+    }
+
+    @DeleteMapping(path = "/{wealthId}")
     public void deleteWealth(@PathVariable int wealthId) {
-        wealthService.deleteWealth(wealthId);
-    }
-
-    @PutMapping(path = "{wealthId}")
-    public void updateWealth(@PathVariable int wealthId, @RequestBody WealthDTO wealth) {
-        wealthService.updateWealth(wealthId, wealth);
+        wealthService.delete(wealthId);
     }
 }

@@ -7,7 +7,12 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
-@Table(name = "wealth")
+@Table(name = "wealth",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"name", "id"}
+                )
+        })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Wealth {
@@ -15,6 +20,7 @@ public class Wealth {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false)
     private String name;
 }

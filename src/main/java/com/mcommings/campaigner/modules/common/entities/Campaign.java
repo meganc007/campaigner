@@ -18,7 +18,9 @@ public class Campaign {
     @GeneratedValue
     @Column(name = "campaign_uuid", nullable = false, updatable = false, unique = true)
     private UUID uuid;
+
     @Column(nullable = false)
     private String name;
+
     private String description;
 }

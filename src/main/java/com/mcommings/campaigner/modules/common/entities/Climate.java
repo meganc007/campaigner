@@ -7,7 +7,12 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
-@Table(name = "climates")
+@Table(name = "climates",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"name", "id"}
+                )
+        })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Climate {
@@ -15,8 +20,10 @@ public class Climate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false)
     private String name;
+
     @Column(nullable = false)
     private String description;
 }
