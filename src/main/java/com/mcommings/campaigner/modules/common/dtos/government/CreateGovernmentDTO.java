@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.common.dtos;
+package com.mcommings.campaigner.modules.common.dtos.government;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -10,10 +10,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GovernmentDTO {
-    private int id;
+public class CreateGovernmentDTO {
+
     @NotBlank(message = "Government name cannot be empty")
     private String name;
+
     @NotBlank(message = "Government description cannot be empty")
     private String description;
 }

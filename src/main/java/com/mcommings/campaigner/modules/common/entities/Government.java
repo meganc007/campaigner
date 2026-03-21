@@ -7,15 +7,22 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
-@Table(name = "governments")
+@Table(name = "governments",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"name", "id"}
+                )
+        })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Government {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false)
     private String name;
+
     @Column(nullable = false)
     private String description;
 
