@@ -30,7 +30,7 @@ public class CampaignController {
     }
 
     @PostMapping
-    public ViewCampaignDTO saveCampaign(@Valid @RequestBody CreateCampaignDTO campaign) {
+    public ViewCampaignDTO createCampaign(@Valid @RequestBody CreateCampaignDTO campaign) {
 
         return campaignService.create(campaign);
     }

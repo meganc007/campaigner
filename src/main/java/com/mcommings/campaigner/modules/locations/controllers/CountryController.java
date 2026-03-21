@@ -49,7 +49,7 @@ public class CountryController {
     }
 
     @PostMapping
-    public ViewCountryDTO saveCountry(@Valid @RequestBody CreateCountryDTO country) {
+    public ViewCountryDTO createCountry(@Valid @RequestBody CreateCountryDTO country) {
         return countryService.create(country);
     }
 

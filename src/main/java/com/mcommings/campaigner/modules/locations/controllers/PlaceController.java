@@ -60,7 +60,7 @@ public class PlaceController {
     }
 
     @PostMapping
-    public ViewPlaceDTO savePlace(@Valid @RequestBody CreatePlaceDTO place) {
+    public ViewPlaceDTO createPlace(@Valid @RequestBody CreatePlaceDTO place) {
 
         return placeService.create(place);
     }

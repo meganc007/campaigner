@@ -29,7 +29,7 @@ public class PlaceTypeController {
     }
 
     @PostMapping
-    public ViewPlaceTypeDTO savePlaceType(@Valid @RequestBody CreatePlaceTypeDTO placeType) {
+    public ViewPlaceTypeDTO createPlaceType(@Valid @RequestBody CreatePlaceTypeDTO placeType) {
         return placeTypeService.create(placeType);
     }
 
