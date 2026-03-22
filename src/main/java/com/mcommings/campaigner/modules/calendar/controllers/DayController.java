@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.calendar.controllers;
 
-import com.mcommings.campaigner.modules.calendar.dtos.DayDTO;
-import com.mcommings.campaigner.modules.calendar.services.interfaces.IDay;
+import com.mcommings.campaigner.modules.calendar.dtos.days.CreateDayDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.days.UpdateDayDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.days.ViewDayDTO;
+import com.mcommings.campaigner.modules.calendar.services.DayService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,47 +11,47 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/days")
 public class DayController {
 
-    private final IDay dayService;
+    private final DayService dayService;
 
     @GetMapping
-    public List<DayDTO> getDays() {
-        return dayService.getDays();
+    public List<ViewDayDTO> getDays() {
+
+        return dayService.getAll();
     }
 
     @GetMapping(path = "/{dayId}")
-    public DayDTO getDay(@PathVariable("dayId") int dayId) {
-        return dayService.getDay(dayId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewDayDTO getDay(@PathVariable int dayId) {
+        return dayService.getById(dayId);
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<DayDTO> getDaysByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ViewDayDTO> getDaysByCampaignUUID(@PathVariable UUID uuid) {
         return dayService.getDaysByCampaignUUID(uuid);
     }
 
     @GetMapping(path = "/week/{weekId}")
-    public List<DayDTO> getDaysByWeek(@PathVariable("weekId") int weekId) {
-        return dayService.getDaysByWeek(weekId);
+    public List<ViewDayDTO> getDaysByWeek(@PathVariable int weekId) {
+        return dayService.getDaysByWeekId(weekId);
     }
 
     @PostMapping
-    public void saveDay(@Valid @RequestBody DayDTO day) {
-        dayService.saveDay(day);
+    public ViewDayDTO createDay(@Valid @RequestBody CreateDayDTO day) {
+        return dayService.create(day);
     }
 
-    @DeleteMapping(path = "{dayId}")
-    public void deleteDay(@PathVariable("dayId") int dayId) {
-        dayService.deleteDay(dayId);
+    @PutMapping
+    public ViewDayDTO updateDay(@Valid @RequestBody UpdateDayDTO day) {
+        return dayService.update(day);
     }
 
-    @PutMapping(path = "{dayId}")
-    public void updateDay(@PathVariable("dayId") int dayId, @RequestBody DayDTO day) {
-        dayService.updateDay(dayId, day);
+    @DeleteMapping(path = "/{dayId}")
+    public void deleteDay(@PathVariable int dayId) {
+
+        dayService.delete(dayId);
     }
 }

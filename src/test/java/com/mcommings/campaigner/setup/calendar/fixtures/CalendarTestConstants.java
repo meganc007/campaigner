@@ -31,4 +31,6 @@ public class CalendarTestConstants {
 
     //DAY
     public static final int DAY_ID = 1;
+    public static final String DAY_NAME = "Test Day";
+    public static final String DAY_DESCRIPTION = "Day Description";
 }
