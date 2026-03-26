@@ -37,7 +37,7 @@ public class CalendarTestConstants {
     public static final String DAY_NAME = "Test Day";
     public static final String DAY_DESCRIPTION = "Day Description";
 
-    //    EVENTS
+    //EVENTS
     public static final int EVENT_ID = 1;
     public static final String EVENT_NAME = "Test Event";
     public static final String EVENT_DESCRIPTION = "A description";

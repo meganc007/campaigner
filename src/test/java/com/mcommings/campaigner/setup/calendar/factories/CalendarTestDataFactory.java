@@ -12,14 +12,11 @@ import com.mcommings.campaigner.modules.calendar.dtos.events.ViewEventDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.months.CreateMonthDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.months.UpdateMonthDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.months.ViewMonthDTO;
-import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
-import com.mcommings.campaigner.modules.calendar.entities.Day;
-import com.mcommings.campaigner.modules.calendar.entities.Event;
-import com.mcommings.campaigner.modules.calendar.entities.Month;
-import com.mcommings.campaigner.setup.calendar.builders.CelestialEventBuilder;
-import com.mcommings.campaigner.setup.calendar.builders.DayBuilder;
-import com.mcommings.campaigner.setup.calendar.builders.EventBuilder;
-import com.mcommings.campaigner.setup.calendar.builders.MonthBuilder;
+import com.mcommings.campaigner.modules.calendar.dtos.moons.CreateMoonDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.moons.UpdateMoonDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.moons.ViewMoonDTO;
+import com.mcommings.campaigner.modules.calendar.entities.*;
+import com.mcommings.campaigner.setup.calendar.builders.*;
 import com.mcommings.campaigner.setup.calendar.fixtures.CalendarTestConstants;
 import com.mcommings.campaigner.setup.locations.fixtures.LocationsTestConstants;
 
@@ -174,6 +171,37 @@ public class CalendarTestDataFactory {
         dto.setId(CalendarTestConstants.MONTH_ID);
         dto.setName(CalendarTestConstants.MONTH_NAME);
         dto.setDescription(CalendarTestConstants.MONTH_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    //MOONS
+    public static Moon moon() {
+        return MoonBuilder.aMoon().build();
+    }
+
+    public static ViewMoonDTO viewMoonDTO() {
+        ViewMoonDTO dto = new ViewMoonDTO();
+        dto.setId(CalendarTestConstants.MOON_ID);
+        dto.setName(CalendarTestConstants.MOON_NAME);
+        dto.setDescription(CalendarTestConstants.MOON_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    public static CreateMoonDTO createMoonDTO() {
+        CreateMoonDTO dto = new CreateMoonDTO();
+        dto.setName(CalendarTestConstants.MOON_NAME);
+        dto.setDescription(CalendarTestConstants.MOON_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    public static UpdateMoonDTO updateMoonDTO() {
+        UpdateMoonDTO dto = new UpdateMoonDTO();
+        dto.setId(CalendarTestConstants.MOON_ID);
+        dto.setName(CalendarTestConstants.MOON_NAME);
+        dto.setDescription(CalendarTestConstants.MOON_DESCRIPTION);
         dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
         return dto;
     }
