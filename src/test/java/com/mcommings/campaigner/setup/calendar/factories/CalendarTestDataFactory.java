@@ -15,6 +15,9 @@ import com.mcommings.campaigner.modules.calendar.dtos.months.ViewMonthDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.moons.CreateMoonDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.moons.UpdateMoonDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.moons.ViewMoonDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.suns.CreateSunDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.suns.UpdateSunDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.suns.ViewSunDTO;
 import com.mcommings.campaigner.modules.calendar.entities.*;
 import com.mcommings.campaigner.setup.calendar.builders.*;
 import com.mcommings.campaigner.setup.calendar.fixtures.CalendarTestConstants;
@@ -202,6 +205,37 @@ public class CalendarTestDataFactory {
         dto.setId(CalendarTestConstants.MOON_ID);
         dto.setName(CalendarTestConstants.MOON_NAME);
         dto.setDescription(CalendarTestConstants.MOON_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    //SUNS
+    public static Sun sun() {
+        return SunBuilder.aSun().build();
+    }
+
+    public static ViewSunDTO viewSunDTO() {
+        ViewSunDTO dto = new ViewSunDTO();
+        dto.setId(CalendarTestConstants.SUN_ID);
+        dto.setName(CalendarTestConstants.SUN_NAME);
+        dto.setDescription(CalendarTestConstants.SUN_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    public static CreateSunDTO createSunDTO() {
+        CreateSunDTO dto = new CreateSunDTO();
+        dto.setName(CalendarTestConstants.SUN_NAME);
+        dto.setDescription(CalendarTestConstants.SUN_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    public static UpdateSunDTO updateSunDTO() {
+        UpdateSunDTO dto = new UpdateSunDTO();
+        dto.setId(CalendarTestConstants.SUN_ID);
+        dto.setName(CalendarTestConstants.SUN_NAME);
+        dto.setDescription(CalendarTestConstants.SUN_DESCRIPTION);
         dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
         return dto;
     }
