@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.calendar.controllers;
 
-import com.mcommings.campaigner.modules.calendar.dtos.MonthDTO;
-import com.mcommings.campaigner.modules.calendar.services.interfaces.IMonth;
+import com.mcommings.campaigner.modules.calendar.dtos.months.CreateMonthDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.months.UpdateMonthDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.months.ViewMonthDTO;
+import com.mcommings.campaigner.modules.calendar.services.MonthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,42 +11,42 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/months")
 public class MonthController {
 
-    private final IMonth monthService;
+    private final MonthService monthService;
 
     @GetMapping
-    public List<MonthDTO> getMonths() {
-        return monthService.getMonths();
+    public List<ViewMonthDTO> getMonths() {
+
+        return monthService.getAll();
     }
 
     @GetMapping(path = "/{monthId}")
-    public MonthDTO getMonth(@PathVariable("monthId") int monthId) {
-        return monthService.getMonth(monthId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewMonthDTO getMonth(@PathVariable int monthId) {
+        return monthService.getById(monthId);
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<MonthDTO> getMonthsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ViewMonthDTO> getMonthsByCampaignUUID(@PathVariable UUID uuid) {
         return monthService.getMonthsByCampaignUUID(uuid);
     }
 
     @PostMapping
-    public void saveMonth(@Valid @RequestBody MonthDTO month) {
-        monthService.saveMonth(month);
+    public ViewMonthDTO createMonth(@Valid @RequestBody CreateMonthDTO month) {
+        return monthService.create(month);
     }
 
-    @DeleteMapping(path = "{monthId}")
-    public void deleteMonth(@PathVariable("monthId") int monthId) {
-        monthService.deleteMonth(monthId);
+    @PutMapping
+    public ViewMonthDTO updateMonth(@Valid @RequestBody UpdateMonthDTO month) {
+        return monthService.update(month);
     }
 
-    @PutMapping(path = "{monthId}")
-    public void updateMonth(@PathVariable("monthId") int monthId, @RequestBody MonthDTO month) {
-        monthService.updateMonth(monthId, month);
+    @DeleteMapping(path = "/{monthId}")
+    public void deleteMonth(@PathVariable int monthId) {
+
+        monthService.delete(monthId);
     }
 }

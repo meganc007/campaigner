@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.calendar.dtos;
+package com.mcommings.campaigner.modules.calendar.dtos.months;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,17 +9,20 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-@Builder
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class MonthDTO {
+@AllArgsConstructor
+@Builder
+public class CreateMonthDTO {
 
-    private int id;
     @NotBlank(message = "Month name cannot be empty")
     private String name;
+
     private String description;
-    @NotNull(message = "Campaign UUID cannot be null or empty.")
-    private UUID fk_campaign_uuid;
+
+    @NotNull(message = "Campaign UUID cannot be null or empty")
+    private UUID campaignUuid;
+
+    @NotBlank(message = "Season cannot be empty")
     private String season;
 }

@@ -25,6 +25,9 @@ public class CalendarTestConstants {
 
     //MONTH
     public static final int MONTH_ID = 1;
+    public static final String MONTH_NAME = "Test Month";
+    public static final String MONTH_DESCRIPTION = "Month Description";
+    public static final String MONTH_SEASON = "Winter";
 
     //WEEK
     public static final int WEEK_ID = 1;

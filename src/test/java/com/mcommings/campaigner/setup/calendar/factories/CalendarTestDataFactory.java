@@ -9,12 +9,17 @@ import com.mcommings.campaigner.modules.calendar.dtos.days.ViewDayDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.events.CreateEventDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.events.UpdateEventDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.events.ViewEventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.months.CreateMonthDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.months.UpdateMonthDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.months.ViewMonthDTO;
 import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
 import com.mcommings.campaigner.modules.calendar.entities.Day;
 import com.mcommings.campaigner.modules.calendar.entities.Event;
+import com.mcommings.campaigner.modules.calendar.entities.Month;
 import com.mcommings.campaigner.setup.calendar.builders.CelestialEventBuilder;
 import com.mcommings.campaigner.setup.calendar.builders.DayBuilder;
 import com.mcommings.campaigner.setup.calendar.builders.EventBuilder;
+import com.mcommings.campaigner.setup.calendar.builders.MonthBuilder;
 import com.mcommings.campaigner.setup.calendar.fixtures.CalendarTestConstants;
 import com.mcommings.campaigner.setup.locations.fixtures.LocationsTestConstants;
 
@@ -136,6 +141,39 @@ public class CalendarTestDataFactory {
         dto.setId(CalendarTestConstants.EVENT_ID);
         dto.setName(CalendarTestConstants.EVENT_NAME);
         dto.setDescription(CalendarTestConstants.EVENT_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    //MONTHS
+    public static Month month() {
+        return MonthBuilder.aMonth().build();
+    }
+
+    public static ViewMonthDTO viewMonthDTO() {
+        ViewMonthDTO dto = new ViewMonthDTO();
+        dto.setId(CalendarTestConstants.MONTH_ID);
+        dto.setName(CalendarTestConstants.MONTH_NAME);
+        dto.setDescription(CalendarTestConstants.MONTH_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        dto.setSeason(CalendarTestConstants.MONTH_SEASON);
+        return dto;
+    }
+
+    public static CreateMonthDTO createMonthDTO() {
+        CreateMonthDTO dto = new CreateMonthDTO();
+        dto.setName(CalendarTestConstants.MONTH_NAME);
+        dto.setDescription(CalendarTestConstants.MONTH_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        dto.setSeason(CalendarTestConstants.MONTH_SEASON);
+        return dto;
+    }
+
+    public static UpdateMonthDTO updateMonthDTO() {
+        UpdateMonthDTO dto = new UpdateMonthDTO();
+        dto.setId(CalendarTestConstants.MONTH_ID);
+        dto.setName(CalendarTestConstants.MONTH_NAME);
+        dto.setDescription(CalendarTestConstants.MONTH_DESCRIPTION);
         dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
         return dto;
     }
