@@ -1,6 +1,5 @@
-package com.mcommings.campaigner.modules.items.dtos;
+package com.mcommings.campaigner.modules.items.dtos.damage_types;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DamageTypeDTO {
-
+public class ViewDamageTypeDTO {
     private int id;
-    @NotBlank(message = "DamageType name cannot be empty")
     private String name;
     private String description;
 }
