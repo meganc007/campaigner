@@ -31,6 +31,8 @@ public class CalendarTestConstants {
 
     //WEEK
     public static final int WEEK_ID = 1;
+    public static final String WEEK_DESCRIPTION = "Week Description";
+    public static final int WEEK_NUMBER = 2;
 
     //DAY
     public static final int DAY_ID = 1;

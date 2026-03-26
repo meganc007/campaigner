@@ -18,6 +18,9 @@ import com.mcommings.campaigner.modules.calendar.dtos.moons.ViewMoonDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.suns.CreateSunDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.suns.UpdateSunDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.suns.ViewSunDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.weeks.CreateWeekDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.weeks.UpdateWeekDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.weeks.ViewWeekDTO;
 import com.mcommings.campaigner.modules.calendar.entities.*;
 import com.mcommings.campaigner.setup.calendar.builders.*;
 import com.mcommings.campaigner.setup.calendar.fixtures.CalendarTestConstants;
@@ -236,6 +239,38 @@ public class CalendarTestDataFactory {
         dto.setId(CalendarTestConstants.SUN_ID);
         dto.setName(CalendarTestConstants.SUN_NAME);
         dto.setDescription(CalendarTestConstants.SUN_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    //WEEKS
+    public static Week week() {
+        return WeekBuilder.aWeek().build();
+    }
+
+    public static ViewWeekDTO viewWeekDTO() {
+        ViewWeekDTO dto = new ViewWeekDTO();
+        dto.setId(CalendarTestConstants.WEEK_ID);
+        dto.setDescription(CalendarTestConstants.WEEK_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        dto.setMonthId(CalendarTestConstants.MONTH_ID);
+        dto.setWeekNumber(CalendarTestConstants.WEEK_NUMBER);
+        return dto;
+    }
+
+    public static CreateWeekDTO createWeekDTO() {
+        CreateWeekDTO dto = new CreateWeekDTO();
+        dto.setDescription(CalendarTestConstants.WEEK_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        dto.setMonthId(CalendarTestConstants.MONTH_ID);
+        dto.setWeekNumber(CalendarTestConstants.WEEK_NUMBER);
+        return dto;
+    }
+
+    public static UpdateWeekDTO updateWeekDTO() {
+        UpdateWeekDTO dto = new UpdateWeekDTO();
+        dto.setId(CalendarTestConstants.WEEK_ID);
+        dto.setDescription(CalendarTestConstants.WEEK_DESCRIPTION);
         dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
         return dto;
     }
