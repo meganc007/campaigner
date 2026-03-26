@@ -6,11 +6,17 @@ import com.mcommings.campaigner.modules.calendar.dtos.celestial_events.ViewCeles
 import com.mcommings.campaigner.modules.calendar.dtos.days.CreateDayDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.days.UpdateDayDTO;
 import com.mcommings.campaigner.modules.calendar.dtos.days.ViewDayDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.events.CreateEventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.events.UpdateEventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.events.ViewEventDTO;
 import com.mcommings.campaigner.modules.calendar.entities.CelestialEvent;
 import com.mcommings.campaigner.modules.calendar.entities.Day;
+import com.mcommings.campaigner.modules.calendar.entities.Event;
 import com.mcommings.campaigner.setup.calendar.builders.CelestialEventBuilder;
 import com.mcommings.campaigner.setup.calendar.builders.DayBuilder;
+import com.mcommings.campaigner.setup.calendar.builders.EventBuilder;
 import com.mcommings.campaigner.setup.calendar.fixtures.CalendarTestConstants;
+import com.mcommings.campaigner.setup.locations.fixtures.LocationsTestConstants;
 
 public class CalendarTestDataFactory {
 
@@ -86,6 +92,50 @@ public class CalendarTestDataFactory {
         dto.setId(CalendarTestConstants.DAY_ID);
         dto.setName(CalendarTestConstants.DAY_NAME);
         dto.setDescription(CalendarTestConstants.DAY_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    //EVENTS
+    public static Event event() {
+        return EventBuilder.aEvent().build();
+    }
+
+    public static ViewEventDTO viewEventDTO() {
+        ViewEventDTO dto = new ViewEventDTO();
+        dto.setId(CalendarTestConstants.EVENT_ID);
+        dto.setName(CalendarTestConstants.EVENT_NAME);
+        dto.setDescription(CalendarTestConstants.EVENT_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        dto.setMonthId(CalendarTestConstants.MONTH_ID);
+        dto.setWeekId(CalendarTestConstants.WEEK_ID);
+        dto.setDayId(CalendarTestConstants.DAY_ID);
+        dto.setContinentId(LocationsTestConstants.CONTINENT_ID);
+        dto.setCountryId(LocationsTestConstants.COUNTRY_ID);
+        dto.setCityId(LocationsTestConstants.CITY_ID);
+        return dto;
+    }
+
+    public static CreateEventDTO createEventDTO() {
+        CreateEventDTO dto = new CreateEventDTO();
+        dto.setName(CalendarTestConstants.EVENT_NAME);
+        dto.setDescription(CalendarTestConstants.EVENT_DESCRIPTION);
+        dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
+        dto.setMonthId(CalendarTestConstants.MONTH_ID);
+        dto.setWeekId(CalendarTestConstants.WEEK_ID);
+        dto.setDayId(CalendarTestConstants.DAY_ID);
+        dto.setYear(CalendarTestConstants.EVENT_YEAR);
+        dto.setContinentId(LocationsTestConstants.CONTINENT_ID);
+        dto.setCountryId(LocationsTestConstants.COUNTRY_ID);
+        dto.setCityId(LocationsTestConstants.CITY_ID);
+        return dto;
+    }
+
+    public static UpdateEventDTO updateEventDTO() {
+        UpdateEventDTO dto = new UpdateEventDTO();
+        dto.setId(CalendarTestConstants.EVENT_ID);
+        dto.setName(CalendarTestConstants.EVENT_NAME);
+        dto.setDescription(CalendarTestConstants.EVENT_DESCRIPTION);
         dto.setCampaignUuid(CalendarTestConstants.CAMPAIGN_UUID);
         return dto;
     }

@@ -1,245 +1,350 @@
 package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.modules.calendar.dtos.EventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.events.CreateEventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.events.UpdateEventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.events.ViewEventDTO;
 import com.mcommings.campaigner.modules.calendar.entities.Event;
 import com.mcommings.campaigner.modules.calendar.mappers.EventMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.IEventRepository;
 import com.mcommings.campaigner.modules.calendar.services.EventService;
+import com.mcommings.campaigner.modules.common.entities.Campaign;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.setup.calendar.factories.CalendarTestDataFactory;
+import com.mcommings.campaigner.setup.calendar.fixtures.CalendarTestConstants;
+import com.mcommings.campaigner.setup.locations.fixtures.LocationsTestConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class EventTest {
-
-    @Mock
-    private EventMapper eventMapper;
 
     @Mock
     private IEventRepository eventRepository;
 
+    @Mock
+    private ICampaignRepository campaignRepository;
+
+    @Mock
+    private EventMapper eventMapper;
+
     @InjectMocks
     private EventService eventService;
 
-    private Event entity;
-    private EventDTO dto;
+    private Event event;
+    private ViewEventDTO viewDto;
+    private CreateEventDTO createDto;
+    private UpdateEventDTO updateDto;
 
     @BeforeEach
     void setUp() {
-        Random random = new Random();
-        entity = new Event();
-        entity.setId(1);
-        entity.setName("Test Event");
-        entity.setDescription("A fictional event.");
-        entity.setFk_campaign_uuid(UUID.randomUUID());
-        entity.setEventYear(random.nextInt(100) + 1);
-        entity.setFk_month(random.nextInt(100) + 1);
-        entity.setFk_week(random.nextInt(100) + 1);
-        entity.setFk_day(random.nextInt(100) + 1);
-        entity.setFk_city(random.nextInt(100) + 1);
-        entity.setFk_continent(random.nextInt(100) + 1);
-        entity.setFk_country(random.nextInt(100) + 1);
-
-        dto = new EventDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
-        dto.setEventYear(entity.getEventYear());
-        dto.setFk_month(entity.getFk_month());
-        dto.setFk_week(entity.getFk_week());
-        dto.setFk_day(entity.getFk_day());
-        dto.setFk_city(entity.getFk_city());
-        dto.setFk_continent(entity.getFk_continent());
-        dto.setFk_country(entity.getFk_country());
-
-        when(eventMapper.mapToEventDto(entity)).thenReturn(dto);
-        when(eventMapper.mapFromEventDto(dto)).thenReturn(entity);
+        event = CalendarTestDataFactory.event();
+        viewDto = CalendarTestDataFactory.viewEventDTO();
+        createDto = CalendarTestDataFactory.createEventDTO();
+        updateDto = CalendarTestDataFactory.updateEventDTO();
     }
 
     @Test
-    public void whenThereAreEvents_getEvents_ReturnsEvents() {
-        when(eventRepository.findAll()).thenReturn(List.of(entity));
-        List<EventDTO> result = eventService.getEvents();
+    void getAll_returnsMappedDtos() {
 
-        assertNotNull(result);
+        when(eventRepository.findAll()).thenReturn(List.of(event));
+        when(eventMapper.toDto(event)).thenReturn(viewDto);
+
+        List<ViewEventDTO> result = eventService.getAll();
+
         assertEquals(1, result.size());
-        assertEquals("Test Event", result.get(0).getName());
+        assertEquals(viewDto, result.get(0));
+
+        verify(eventRepository).findAll();
+        verify(eventMapper).toDto(event);
     }
 
     @Test
-    public void whenThereAreNoEvents_getEvents_ReturnsEmptyList() {
-        when(eventRepository.findAll()).thenReturn(Collections.emptyList());
+    void getEventsByCampaignUUID_returnsMappedList() {
 
-        List<EventDTO> result = eventService.getEvents();
+        when(eventRepository.findByCampaign_Uuid(CalendarTestConstants.CAMPAIGN_UUID))
+                .thenReturn(List.of(event));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when there are no events.");
-    }
+        when(eventMapper.toDto(event))
+                .thenReturn(viewDto);
 
-    @Test
-    void whenThereIsAEvent_getEvent_ReturnsEventById() {
-        when(eventRepository.findById(1)).thenReturn(Optional.of(entity));
+        List<ViewEventDTO> result =
+                eventService.getEventsByCampaignUUID(
+                        CalendarTestConstants.CAMPAIGN_UUID);
 
-        Optional<EventDTO> result = eventService.getEvent(1);
-
-        assertTrue(result.isPresent());
-        assertEquals("Test Event", result.get().getName());
-    }
-
-    @Test
-    void whenThereIsNotAEvent_getEvent_ReturnsNothing() {
-        when(eventRepository.findById(999)).thenReturn(Optional.empty());
-
-        Optional<EventDTO> result = eventService.getEvent(999);
-
-        assertTrue(result.isEmpty(), "Expected empty Optional when city is not found.");
-    }
-
-    @Test
-    void whenCampaignUUIDIsValid_getEventsByCampaignUUID_ReturnsEvents() {
-        UUID campaignUUID = entity.getFk_campaign_uuid();
-        when(eventRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
-
-        List<EventDTO> result = eventService.getEventsByCampaignUUID(campaignUUID);
-
-        assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
+        assertEquals(viewDto, result.get(0));
+
+        verify(eventRepository)
+                .findByCampaign_Uuid(CalendarTestConstants.CAMPAIGN_UUID);
+
+        verify(eventMapper).toDto(event);
     }
 
     @Test
-    void whenCampaignUUIDIsInvalid_getEventsByCampaignUUID_ReturnsNothing() {
-        UUID campaignUUID = UUID.randomUUID();
-        when(eventRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
+    void getEventsByMonthId_returnsMappedList() {
 
-        List<EventDTO> result = eventService.getEventsByCampaignUUID(campaignUUID);
+        when(eventRepository.findByMonth_Id(CalendarTestConstants.MONTH_ID))
+                .thenReturn(List.of(event));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when no events match the campaign UUID.");
+        when(eventMapper.toDto(event))
+                .thenReturn(viewDto);
+
+        List<ViewEventDTO> result =
+                eventService.getEventsByMonthId(
+                        CalendarTestConstants.MONTH_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(eventRepository)
+                .findByMonth_Id((CalendarTestConstants.MONTH_ID));
+
+        verify(eventMapper).toDto(event);
     }
 
     @Test
-    void whenEventIsValid_saveEvent_SavesTheEvent() {
-        when(eventRepository.save(entity)).thenReturn(entity);
+    void getEventsByWeekId_returnsMappedList() {
 
-        eventService.saveEvent(dto);
+        when(eventRepository.findByWeek_Id(CalendarTestConstants.WEEK_ID))
+                .thenReturn(List.of(event));
 
-        verify(eventRepository, times(1)).save(entity);
+        when(eventMapper.toDto(event))
+                .thenReturn(viewDto);
+
+        List<ViewEventDTO> result =
+                eventService.getEventsByWeekId(
+                        CalendarTestConstants.WEEK_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(eventRepository)
+                .findByWeek_Id((CalendarTestConstants.WEEK_ID));
+
+        verify(eventMapper).toDto(event);
     }
 
     @Test
-    public void whenEventNameIsInvalid_saveEvent_ThrowsIllegalArgumentException() {
-        EventDTO eventWithEmptyName = new EventDTO();
-        eventWithEmptyName.setId(1);
-        eventWithEmptyName.setName("");
-        eventWithEmptyName.setDescription("A fictional event.");
-        eventWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
-        eventWithEmptyName.setEventYear(1);
-        eventWithEmptyName.setFk_month(1);
-        eventWithEmptyName.setFk_week(1);
-        eventWithEmptyName.setFk_day(1);
-        eventWithEmptyName.setFk_city(1);
-        eventWithEmptyName.setFk_continent(1);
-        eventWithEmptyName.setFk_country(1);
+    void getEventsByDayId_returnsMappedList() {
 
-        EventDTO eventWithNullName = new EventDTO();
-        eventWithNullName.setId(1);
-        eventWithNullName.setName(null);
-        eventWithNullName.setDescription("A fictional event.");
-        eventWithNullName.setFk_campaign_uuid(UUID.randomUUID());
-        eventWithNullName.setEventYear(1);
-        eventWithNullName.setFk_month(1);
-        eventWithNullName.setFk_week(1);
-        eventWithNullName.setFk_day(1);
-        eventWithNullName.setFk_city(1);
-        eventWithNullName.setFk_continent(1);
-        eventWithNullName.setFk_country(1);
+        when(eventRepository.findByDay_Id(CalendarTestConstants.DAY_ID))
+                .thenReturn(List.of(event));
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.saveEvent(eventWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> eventService.saveEvent(eventWithNullName));
+        when(eventMapper.toDto(event))
+                .thenReturn(viewDto);
+
+        List<ViewEventDTO> result =
+                eventService.getEventsByDayId(
+                        CalendarTestConstants.DAY_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(eventRepository)
+                .findByDay_Id((CalendarTestConstants.DAY_ID));
+
+        verify(eventMapper).toDto(event);
     }
 
     @Test
-    public void whenEventNameAlreadyExists_saveEvent_ThrowsDataIntegrityViolationException() {
-        when(eventRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-        assertThrows(DataIntegrityViolationException.class, () -> eventService.saveEvent(dto));
-        verify(eventRepository, times(1)).findByName(dto.getName());
-        verify(eventRepository, never()).save(any(Event.class));
+    void getEventsByYear_returnsMappedList() {
+
+        when(eventRepository.findByYear_Id(CalendarTestConstants.EVENT_YEAR))
+                .thenReturn(List.of(event));
+
+        when(eventMapper.toDto(event))
+                .thenReturn(viewDto);
+
+        List<ViewEventDTO> result =
+                eventService.getEventsByYear(
+                        CalendarTestConstants.EVENT_YEAR);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(eventRepository)
+                .findByYear_Id((CalendarTestConstants.EVENT_YEAR));
+
+        verify(eventMapper).toDto(event);
     }
 
     @Test
-    void whenEventIdExists_deleteEvent_DeletesTheEvent() {
-        when(eventRepository.existsById(1)).thenReturn(true);
-        eventService.deleteEvent(1);
-        verify(eventRepository, times(1)).deleteById(1);
+    void getEventsByContinentId_returnsMappedList() {
+
+        when(eventRepository.findByContinent_Id(LocationsTestConstants.CONTINENT_ID))
+                .thenReturn(List.of(event));
+
+        when(eventMapper.toDto(event))
+                .thenReturn(viewDto);
+
+        List<ViewEventDTO> result =
+                eventService.getEventsByContinentId(
+                        LocationsTestConstants.CONTINENT_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(eventRepository)
+                .findByContinent_Id((LocationsTestConstants.CONTINENT_ID));
+
+        verify(eventMapper).toDto(event);
     }
 
     @Test
-    void whenEventIdDoesNotExist_deleteEvent_ThrowsIllegalArgumentException() {
-        when(eventRepository.existsById(999)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> eventService.deleteEvent(999));
+    void getEventsByCountryId_returnsMappedList() {
+
+        when(eventRepository.findByCountry_Id(LocationsTestConstants.COUNTRY_ID))
+                .thenReturn(List.of(event));
+
+        when(eventMapper.toDto(event))
+                .thenReturn(viewDto);
+
+        List<ViewEventDTO> result =
+                eventService.getEventsByCountryId(
+                        LocationsTestConstants.COUNTRY_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(eventRepository)
+                .findByCountry_Id((LocationsTestConstants.COUNTRY_ID));
+
+        verify(eventMapper).toDto(event);
     }
 
     @Test
-    void whenDeleteEventFails_deleteEvent_ThrowsException() {
-        when(eventRepository.existsById(1)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(eventRepository).deleteById(1);
+    void getEventsByCityId_returnsMappedList() {
 
-        assertThrows(RuntimeException.class, () -> eventService.deleteEvent(1));
+        when(eventRepository.findByCity_Id(LocationsTestConstants.CITY_ID))
+                .thenReturn(List.of(event));
+
+        when(eventMapper.toDto(event))
+                .thenReturn(viewDto);
+
+        List<ViewEventDTO> result =
+                eventService.getEventsByCityId(
+                        LocationsTestConstants.CITY_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(eventRepository)
+                .findByCity_Id((LocationsTestConstants.CITY_ID));
+
+        verify(eventMapper).toDto(event);
     }
 
     @Test
-    void whenEventIdIsFound_updateEvent_UpdatesTheEvent() {
-        EventDTO updateDTO = new EventDTO();
-        updateDTO.setName("Updated Name");
+    void getById_whenExists_returnsDto() {
 
-        when(eventRepository.findById(1)).thenReturn(Optional.of(entity));
-        when(eventRepository.existsById(1)).thenReturn(true);
-        when(eventRepository.save(entity)).thenReturn(entity);
-        when(eventMapper.mapToEventDto(entity)).thenReturn(updateDTO);
+        when(eventRepository.findById(event.getId()))
+                .thenReturn(Optional.of(event));
 
-        Optional<EventDTO> result = eventService.updateEvent(1, updateDTO);
+        when(eventMapper.toDto(event))
+                .thenReturn(viewDto);
 
-        assertTrue(result.isPresent());
-        assertEquals("Updated Name", result.get().getName());
+        ViewEventDTO result = eventService.getById(event.getId());
+
+        assertEquals(viewDto, result);
+
+        verify(eventRepository).findById(event.getId());
+        verify(eventMapper).toDto(event);
     }
 
     @Test
-    void whenEventIdIsNotFound_updateEvent_ReturnsEmptyOptional() {
-        EventDTO updateDTO = new EventDTO();
-        updateDTO.setName("Updated Name");
+    void getById_whenMissing_throwsException() {
 
-        when(eventRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> eventService.updateEvent(999, updateDTO));
+        when(eventRepository.findById(event.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> eventService.getById(event.getId())
+        );
+
+        verify(eventRepository).findById(event.getId());
     }
 
     @Test
-    public void whenEventNameIsInvalid_updateEvent_ThrowsIllegalArgumentException() {
-        EventDTO updateEmptyName = new EventDTO();
-        updateEmptyName.setName("");
+    void create_whenValid_savesAndReturnsDto() {
 
-        EventDTO updateNullName = new EventDTO();
-        updateNullName.setName(null);
+        Campaign campaign = new Campaign();
+        campaign.setUuid(createDto.getCampaignUuid());
 
-        when(eventRepository.existsById(1)).thenReturn(true);
+        when(eventMapper.toEntity(createDto)).thenReturn(event);
+        when(campaignRepository.getReferenceById(createDto.getCampaignUuid()))
+                .thenReturn(campaign);
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.updateEvent(1, updateEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> eventService.updateEvent(1, updateNullName));
+        when(eventRepository.save(event)).thenReturn(event);
+        when(eventMapper.toDto(event)).thenReturn(viewDto);
+
+        ViewEventDTO result = eventService.create(createDto);
+
+        assertEquals(viewDto, result);
+
+        verify(eventMapper).toEntity(createDto);
+        verify(campaignRepository).getReferenceById(createDto.getCampaignUuid());
+        verify(eventRepository).save(event);
+        verify(eventMapper).toDto(event);
     }
 
     @Test
-    public void whenEventNameAlreadyExists_updateEvent_ThrowsDataIntegrityViolationException() {
-        when(eventRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
+    void update_whenValid_updatesAndReturnsDto() {
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.updateEvent(entity.getId(), dto));
+        Campaign campaign = new Campaign();
+        campaign.setUuid(updateDto.getCampaignUuid());
+
+        when(eventRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.of(event));
+
+        when(campaignRepository.getReferenceById(updateDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(eventRepository.save(event)).thenReturn(event);
+        when(eventMapper.toDto(event)).thenReturn(viewDto);
+
+        ViewEventDTO result = eventService.update(updateDto);
+
+        assertEquals(viewDto, result);
+
+        verify(eventRepository).findById(updateDto.getId());
+        verify(eventMapper).updateEventFromDto(updateDto, event);
+        verify(campaignRepository).getReferenceById(updateDto.getCampaignUuid());
+        verify(eventRepository).save(event);
+        verify(eventMapper).toDto(event);
+    }
+
+    @Test
+    void update_whenMissing_throwsException() {
+
+        when(eventRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> eventService.update(updateDto)
+        );
+
+        verify(eventRepository).findById(updateDto.getId());
+    }
+
+    @Test
+    void delete_callsRepository() {
+
+        eventService.delete(event.getId());
+
+        verify(eventRepository).deleteById(event.getId());
     }
 }
