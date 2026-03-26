@@ -1,220 +1,195 @@
 package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.modules.calendar.dtos.MonthDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.months.CreateMonthDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.months.UpdateMonthDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.months.ViewMonthDTO;
 import com.mcommings.campaigner.modules.calendar.entities.Month;
 import com.mcommings.campaigner.modules.calendar.mappers.MonthMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.IMonthRepository;
 import com.mcommings.campaigner.modules.calendar.services.MonthService;
+import com.mcommings.campaigner.modules.common.entities.Campaign;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.setup.calendar.factories.CalendarTestDataFactory;
+import com.mcommings.campaigner.setup.calendar.fixtures.CalendarTestConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class MonthTest {
-    @Mock
-    private MonthMapper monthMapper;
 
     @Mock
     private IMonthRepository monthRepository;
 
+    @Mock
+    private ICampaignRepository campaignRepository;
+    
+    @Mock
+    private MonthMapper monthMapper;
+
     @InjectMocks
     private MonthService monthService;
 
-    private Month entity;
-    private MonthDTO dto;
+    private Month month;
+    private ViewMonthDTO viewDto;
+    private CreateMonthDTO createDto;
+    private UpdateMonthDTO updateDto;
 
     @BeforeEach
     void setUp() {
-        Random random = new Random();
-        entity = new Month();
-        entity.setId(1);
-        entity.setName("Test Month");
-        entity.setDescription("A fictional month.");
-        entity.setFk_campaign_uuid(UUID.randomUUID());
-        entity.setSeason("A random season");
-
-        dto = new MonthDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
-        dto.setSeason(entity.getSeason());
-
-        when(monthMapper.mapToMonthDto(entity)).thenReturn(dto);
-        when(monthMapper.mapFromMonthDto(dto)).thenReturn(entity);
+        month = CalendarTestDataFactory.month();
+        viewDto = CalendarTestDataFactory.viewMonthDTO();
+        createDto = CalendarTestDataFactory.createMonthDTO();
+        updateDto = CalendarTestDataFactory.updateMonthDTO();
     }
 
     @Test
-    public void whenThereAreMonths_getMonths_ReturnsMonths() {
-        when(monthRepository.findAll()).thenReturn(List.of(entity));
-        List<MonthDTO> result = monthService.getMonths();
+    void getAll_returnsMappedDtos() {
 
-        assertNotNull(result);
+        when(monthRepository.findAll()).thenReturn(List.of(month));
+        when(monthMapper.toDto(month)).thenReturn(viewDto);
+
+        List<ViewMonthDTO> result = monthService.getAll();
+
         assertEquals(1, result.size());
-        assertEquals("Test Month", result.get(0).getName());
+        assertEquals(viewDto, result.get(0));
+
+        verify(monthRepository).findAll();
+        verify(monthMapper).toDto(month);
     }
 
     @Test
-    public void whenThereAreNoMonths_getMonths_ReturnsEmptyList() {
-        when(monthRepository.findAll()).thenReturn(Collections.emptyList());
+    void getMonthsByCampaignUUID_returnsMappedList() {
 
-        List<MonthDTO> result = monthService.getMonths();
+        when(monthRepository.findByCampaign_Uuid(CalendarTestConstants.CAMPAIGN_UUID))
+                .thenReturn(List.of(month));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when there are no months.");
-    }
+        when(monthMapper.toDto(month))
+                .thenReturn(viewDto);
 
-    @Test
-    void whenThereIsAMonth_getMonth_ReturnsMonthById() {
-        when(monthRepository.findById(1)).thenReturn(Optional.of(entity));
+        List<ViewMonthDTO> result =
+                monthService.getMonthsByCampaignUUID(
+                        CalendarTestConstants.CAMPAIGN_UUID);
 
-        Optional<MonthDTO> result = monthService.getMonth(1);
-
-        assertTrue(result.isPresent());
-        assertEquals("Test Month", result.get().getName());
-    }
-
-    @Test
-    void whenThereIsNotAMonth_getMonth_ReturnsNothing() {
-        when(monthRepository.findById(999)).thenReturn(Optional.empty());
-
-        Optional<MonthDTO> result = monthService.getMonth(999);
-
-        assertTrue(result.isEmpty(), "Expected empty Optional when month is not found.");
-    }
-
-    @Test
-    void whenCampaignUUIDIsValid_getMonthsByCampaignUUID_ReturnsMonths() {
-        UUID campaignUUID = entity.getFk_campaign_uuid();
-        when(monthRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
-
-        List<MonthDTO> result = monthService.getMonthsByCampaignUUID(campaignUUID);
-
-        assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
+        assertEquals(viewDto, result.get(0));
+
+        verify(monthRepository)
+                .findByCampaign_Uuid(CalendarTestConstants.CAMPAIGN_UUID);
+
+        verify(monthMapper).toDto(month);
     }
 
     @Test
-    void whenCampaignUUIDIsInvalid_getMonthsByCampaignUUID_ReturnsNothing() {
-        UUID campaignUUID = UUID.randomUUID();
-        when(monthRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
+    void getById_whenExists_returnsDto() {
 
-        List<MonthDTO> result = monthService.getMonthsByCampaignUUID(campaignUUID);
+        when(monthRepository.findById(month.getId()))
+                .thenReturn(Optional.of(month));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when no months match the campaign UUID.");
+        when(monthMapper.toDto(month))
+                .thenReturn(viewDto);
+
+        ViewMonthDTO result = monthService.getById(month.getId());
+
+        assertEquals(viewDto, result);
+
+        verify(monthRepository).findById(month.getId());
+        verify(monthMapper).toDto(month);
     }
 
     @Test
-    void whenMonthIsValid_saveMonth_SavesTheMonth() {
-        when(monthRepository.save(entity)).thenReturn(entity);
+    void getById_whenMissing_throwsException() {
 
-        monthService.saveMonth(dto);
+        when(monthRepository.findById(month.getId()))
+                .thenReturn(Optional.empty());
 
-        verify(monthRepository, times(1)).save(entity);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> monthService.getById(month.getId())
+        );
+
+        verify(monthRepository).findById(month.getId());
     }
 
     @Test
-    public void whenMonthNameIsInvalid_saveMonth_ThrowsIllegalArgumentException() {
-        MonthDTO monthWithEmptyName = new MonthDTO();
-        monthWithEmptyName.setId(1);
-        monthWithEmptyName.setName("");
-        monthWithEmptyName.setDescription("A fictional month.");
-        monthWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
-        monthWithEmptyName.setSeason("Random season");
+    void create_whenValid_savesAndReturnsDto() {
 
-        MonthDTO monthWithNullName = new MonthDTO();
-        monthWithNullName.setId(1);
-        monthWithNullName.setName(null);
-        monthWithNullName.setDescription("A fictional month.");
-        monthWithNullName.setFk_campaign_uuid(UUID.randomUUID());
-        monthWithNullName.setSeason("A season");
+        Campaign campaign = new Campaign();
+        campaign.setUuid(createDto.getCampaignUuid());
 
-        assertThrows(IllegalArgumentException.class, () -> monthService.saveMonth(monthWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> monthService.saveMonth(monthWithNullName));
+        when(monthMapper.toEntity(createDto)).thenReturn(month);
+        when(campaignRepository.getReferenceById(createDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(monthRepository.save(month)).thenReturn(month);
+        when(monthMapper.toDto(month)).thenReturn(viewDto);
+
+        ViewMonthDTO result = monthService.create(createDto);
+
+        assertEquals(viewDto, result);
+
+        verify(monthMapper).toEntity(createDto);
+        verify(campaignRepository).getReferenceById(createDto.getCampaignUuid());
+        verify(monthRepository).save(month);
+        verify(monthMapper).toDto(month);
     }
 
     @Test
-    public void whenMonthNameAlreadyExists_saveMonth_ThrowsDataIntegrityViolationException() {
-        when(monthRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-        assertThrows(DataIntegrityViolationException.class, () -> monthService.saveMonth(dto));
-        verify(monthRepository, times(1)).findByName(dto.getName());
-        verify(monthRepository, never()).save(any(Month.class));
+    void update_whenValid_updatesAndReturnsDto() {
+
+        Campaign campaign = new Campaign();
+        campaign.setUuid(updateDto.getCampaignUuid());
+
+        when(monthRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.of(month));
+
+        when(campaignRepository.getReferenceById(updateDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(monthRepository.save(month)).thenReturn(month);
+        when(monthMapper.toDto(month)).thenReturn(viewDto);
+
+        ViewMonthDTO result = monthService.update(updateDto);
+
+        assertEquals(viewDto, result);
+
+        verify(monthRepository).findById(updateDto.getId());
+        verify(monthMapper).updateMonthFromDto(updateDto, month);
+        verify(campaignRepository).getReferenceById(updateDto.getCampaignUuid());
+        verify(monthRepository).save(month);
+        verify(monthMapper).toDto(month);
     }
 
     @Test
-    void whenMonthIdExists_deleteMonth_DeletesTheMonth() {
-        when(monthRepository.existsById(1)).thenReturn(true);
-        monthService.deleteMonth(1);
-        verify(monthRepository, times(1)).deleteById(1);
+    void update_whenMissing_throwsException() {
+
+        when(monthRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> monthService.update(updateDto)
+        );
+
+        verify(monthRepository).findById(updateDto.getId());
     }
 
     @Test
-    void whenMonthIdDoesNotExist_deleteMonth_ThrowsIllegalArgumentException() {
-        when(monthRepository.existsById(999)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> monthService.deleteMonth(999));
-    }
+    void delete_callsRepository() {
 
-    @Test
-    void whenDeleteMonthFails_deleteMonth_ThrowsException() {
-        when(monthRepository.existsById(1)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(monthRepository).deleteById(1);
+        monthService.delete(month.getId());
 
-        assertThrows(RuntimeException.class, () -> monthService.deleteMonth(1));
-    }
-
-    @Test
-    void whenMonthIdIsFound_updateMonth_UpdatesTheMonth() {
-        MonthDTO updateDTO = new MonthDTO();
-        updateDTO.setName("Updated Name");
-
-        when(monthRepository.findById(1)).thenReturn(Optional.of(entity));
-        when(monthRepository.existsById(1)).thenReturn(true);
-        when(monthRepository.save(entity)).thenReturn(entity);
-        when(monthMapper.mapToMonthDto(entity)).thenReturn(updateDTO);
-
-        Optional<MonthDTO> result = monthService.updateMonth(1, updateDTO);
-
-        assertTrue(result.isPresent());
-        assertEquals("Updated Name", result.get().getName());
-    }
-
-    @Test
-    void whenMonthIdIsNotFound_updateMonth_ReturnsEmptyOptional() {
-        MonthDTO updateDTO = new MonthDTO();
-        updateDTO.setName("Updated Name");
-
-        when(monthRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> monthService.updateMonth(999, updateDTO));
-    }
-
-    @Test
-    public void whenMonthNameIsInvalid_updateMonth_ThrowsIllegalArgumentException() {
-        MonthDTO updateEmptyName = new MonthDTO();
-        updateEmptyName.setName("");
-
-        MonthDTO updateNullName = new MonthDTO();
-        updateNullName.setName(null);
-
-        when(monthRepository.existsById(1)).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> monthService.updateMonth(1, updateEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> monthService.updateMonth(1, updateNullName));
-    }
-
-    @Test
-    public void whenMonthNameAlreadyExists_updateMonth_ThrowsDataIntegrityViolationException() {
-        when(monthRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-
-        assertThrows(IllegalArgumentException.class, () -> monthService.updateMonth(entity.getId(), dto));
+        verify(monthRepository).deleteById(month.getId());
     }
 }

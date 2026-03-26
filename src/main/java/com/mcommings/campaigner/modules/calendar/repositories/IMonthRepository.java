@@ -2,8 +2,6 @@ package com.mcommings.campaigner.modules.calendar.repositories;
 
 import com.mcommings.campaigner.modules.calendar.entities.Month;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,6 +14,9 @@ public interface IMonthRepository extends JpaRepository<Month, Integer> {
 
     List<Month> findBySeason(String season);
 
-    @Query("SELECT m FROM Month m WHERE m.fk_campaign_uuid = :uuid")
-    List<Month> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
+    List<Month> findByCampaign_Uuid(UUID uuid);
+
+    boolean existsByNameAndCampaign_UuidAndIdNot(String name, UUID campaignUuid, Integer id);
+
+    boolean existsByNameAndCampaign_Uuid(String name, UUID campaignUuid);
 }

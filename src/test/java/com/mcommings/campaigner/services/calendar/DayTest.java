@@ -1,221 +1,217 @@
 package com.mcommings.campaigner.services.calendar;
 
-import com.mcommings.campaigner.modules.calendar.dtos.DayDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.days.CreateDayDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.days.UpdateDayDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.days.ViewDayDTO;
 import com.mcommings.campaigner.modules.calendar.entities.Day;
 import com.mcommings.campaigner.modules.calendar.mappers.DayMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.IDayRepository;
 import com.mcommings.campaigner.modules.calendar.services.DayService;
+import com.mcommings.campaigner.modules.common.entities.Campaign;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.setup.calendar.factories.CalendarTestDataFactory;
+import com.mcommings.campaigner.setup.calendar.fixtures.CalendarTestConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class DayTest {
-
-    @Mock
-    private DayMapper dayMapper;
 
     @Mock
     private IDayRepository dayRepository;
 
+    @Mock
+    private ICampaignRepository campaignRepository;
+    
+    @Mock
+    private DayMapper dayMapper;
+
     @InjectMocks
     private DayService dayService;
 
-    private Day entity;
-    private DayDTO dto;
+    private Day day;
+    private ViewDayDTO viewDto;
+    private CreateDayDTO createDto;
+    private UpdateDayDTO updateDto;
 
     @BeforeEach
     void setUp() {
-        Random random = new Random();
-        entity = new Day();
-        entity.setId(1);
-        entity.setName("Test Day");
-        entity.setDescription("A fictional day.");
-        entity.setFk_campaign_uuid(UUID.randomUUID());
-        entity.setFk_week(random.nextInt(100) + 1);
-
-        dto = new DayDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
-        dto.setFk_week(entity.getFk_week());
-
-        when(dayMapper.mapToDayDto(entity)).thenReturn(dto);
-        when(dayMapper.mapFromDayDto(dto)).thenReturn(entity);
+        day = CalendarTestDataFactory.day();
+        viewDto = CalendarTestDataFactory.viewDayDTO();
+        createDto = CalendarTestDataFactory.createDayDTO();
+        updateDto = CalendarTestDataFactory.updateDayDTO();
     }
 
     @Test
-    public void whenThereAreDays_getDays_ReturnsDays() {
-        when(dayRepository.findAll()).thenReturn(List.of(entity));
-        List<DayDTO> result = dayService.getDays();
+    void getAll_returnsMappedDtos() {
 
-        assertNotNull(result);
+        when(dayRepository.findAll()).thenReturn(List.of(day));
+        when(dayMapper.toDto(day)).thenReturn(viewDto);
+
+        List<ViewDayDTO> result = dayService.getAll();
+
         assertEquals(1, result.size());
-        assertEquals("Test Day", result.get(0).getName());
+        assertEquals(viewDto, result.get(0));
+
+        verify(dayRepository).findAll();
+        verify(dayMapper).toDto(day);
     }
 
     @Test
-    public void whenThereAreNoDays_getDays_ReturnsEmptyList() {
-        when(dayRepository.findAll()).thenReturn(Collections.emptyList());
+    void getDaysByCampaignUUID_returnsMappedList() {
 
-        List<DayDTO> result = dayService.getDays();
+        when(dayRepository.findByCampaign_Uuid(CalendarTestConstants.CAMPAIGN_UUID))
+                .thenReturn(List.of(day));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when there are no days.");
-    }
+        when(dayMapper.toDto(day))
+                .thenReturn(viewDto);
 
-    @Test
-    void whenThereIsADay_getDay_ReturnsDayById() {
-        when(dayRepository.findById(1)).thenReturn(Optional.of(entity));
+        List<ViewDayDTO> result =
+                dayService.getDaysByCampaignUUID(
+                        CalendarTestConstants.CAMPAIGN_UUID);
 
-        Optional<DayDTO> result = dayService.getDay(1);
-
-        assertTrue(result.isPresent());
-        assertEquals("Test Day", result.get().getName());
-    }
-
-    @Test
-    void whenThereIsNotADay_getDay_ReturnsNothing() {
-        when(dayRepository.findById(999)).thenReturn(Optional.empty());
-
-        Optional<DayDTO> result = dayService.getDay(999);
-
-        assertTrue(result.isEmpty(), "Expected empty Optional when day is not found.");
-    }
-
-    @Test
-    void whenCampaignUUIDIsValid_getDaysByCampaignUUID_ReturnsDays() {
-        UUID campaignUUID = entity.getFk_campaign_uuid();
-        when(dayRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
-
-        List<DayDTO> result = dayService.getDaysByCampaignUUID(campaignUUID);
-
-        assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
+        assertEquals(viewDto, result.get(0));
+
+        verify(dayRepository)
+                .findByCampaign_Uuid(CalendarTestConstants.CAMPAIGN_UUID);
+
+        verify(dayMapper).toDto(day);
     }
 
     @Test
-    void whenCampaignUUIDIsInvalid_getDaysByCampaignUUID_ReturnsNothing() {
-        UUID campaignUUID = UUID.randomUUID();
-        when(dayRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
+    void getDaysByWeekId_returnsMappedList() {
 
-        List<DayDTO> result = dayService.getDaysByCampaignUUID(campaignUUID);
+        when(dayRepository.findByWeek_Id(CalendarTestConstants.WEEK_ID))
+                .thenReturn(List.of(day));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when no days match the campaign UUID.");
+        when(dayMapper.toDto(day))
+                .thenReturn(viewDto);
+
+        List<ViewDayDTO> result =
+                dayService.getDaysByWeekId(
+                        CalendarTestConstants.WEEK_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(dayRepository)
+                .findByWeek_Id((CalendarTestConstants.WEEK_ID));
+
+        verify(dayMapper).toDto(day);
     }
 
     @Test
-    void whenDayIsValid_saveDay_SavesTheDay() {
-        when(dayRepository.save(entity)).thenReturn(entity);
+    void getById_whenExists_returnsDto() {
 
-        dayService.saveDay(dto);
+        when(dayRepository.findById(day.getId()))
+                .thenReturn(Optional.of(day));
 
-        verify(dayRepository, times(1)).save(entity);
+        when(dayMapper.toDto(day))
+                .thenReturn(viewDto);
+
+        ViewDayDTO result = dayService.getById(day.getId());
+
+        assertEquals(viewDto, result);
+
+        verify(dayRepository).findById(day.getId());
+        verify(dayMapper).toDto(day);
     }
 
     @Test
-    public void whenDayNameIsInvalid_saveDay_ThrowsIllegalArgumentException() {
-        DayDTO dayWithEmptyName = new DayDTO();
-        dayWithEmptyName.setId(1);
-        dayWithEmptyName.setName("");
-        dayWithEmptyName.setDescription("A fictional day.");
-        dayWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
-        dayWithEmptyName.setFk_week(1);
+    void getById_whenMissing_throwsException() {
 
-        DayDTO dayWithNullName = new DayDTO();
-        dayWithNullName.setId(1);
-        dayWithNullName.setName(null);
-        dayWithNullName.setDescription("A fictional day.");
-        dayWithNullName.setFk_campaign_uuid(UUID.randomUUID());
-        dayWithNullName.setFk_week(1);
+        when(dayRepository.findById(day.getId()))
+                .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> dayService.saveDay(dayWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> dayService.saveDay(dayWithNullName));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> dayService.getById(day.getId())
+        );
+
+        verify(dayRepository).findById(day.getId());
     }
 
     @Test
-    public void whenDayNameAlreadyExists_saveDay_ThrowsDataIntegrityViolationException() {
-        when(dayRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-        assertThrows(DataIntegrityViolationException.class, () -> dayService.saveDay(dto));
-        verify(dayRepository, times(1)).findByName(dto.getName());
-        verify(dayRepository, never()).save(any(Day.class));
+    void create_whenValid_savesAndReturnsDto() {
+
+        Campaign campaign = new Campaign();
+        campaign.setUuid(createDto.getCampaignUuid());
+
+        when(dayMapper.toEntity(createDto)).thenReturn(day);
+        when(campaignRepository.getReferenceById(createDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(dayRepository.save(day)).thenReturn(day);
+        when(dayMapper.toDto(day)).thenReturn(viewDto);
+
+        ViewDayDTO result = dayService.create(createDto);
+
+        assertEquals(viewDto, result);
+
+        verify(dayMapper).toEntity(createDto);
+        verify(campaignRepository).getReferenceById(createDto.getCampaignUuid());
+        verify(dayRepository).save(day);
+        verify(dayMapper).toDto(day);
     }
 
     @Test
-    void whenDayIdExists_deleteDay_DeletesTheDay() {
-        when(dayRepository.existsById(1)).thenReturn(true);
-        dayService.deleteDay(1);
-        verify(dayRepository, times(1)).deleteById(1);
+    void update_whenValid_updatesAndReturnsDto() {
+
+        Campaign campaign = new Campaign();
+        campaign.setUuid(updateDto.getCampaignUuid());
+
+        when(dayRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.of(day));
+
+        when(campaignRepository.getReferenceById(updateDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(dayRepository.save(day)).thenReturn(day);
+        when(dayMapper.toDto(day)).thenReturn(viewDto);
+
+        ViewDayDTO result = dayService.update(updateDto);
+
+        assertEquals(viewDto, result);
+
+        verify(dayRepository).findById(updateDto.getId());
+        verify(dayMapper).updateDayFromDto(updateDto, day);
+        verify(campaignRepository).getReferenceById(updateDto.getCampaignUuid());
+        verify(dayRepository).save(day);
+        verify(dayMapper).toDto(day);
     }
 
     @Test
-    void whenDayIdDoesNotExist_deleteDay_ThrowsIllegalArgumentException() {
-        when(dayRepository.existsById(999)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> dayService.deleteDay(999));
+    void update_whenMissing_throwsException() {
+
+        when(dayRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> dayService.update(updateDto)
+        );
+
+        verify(dayRepository).findById(updateDto.getId());
     }
 
     @Test
-    void whenDeleteDayFails_deleteDay_ThrowsException() {
-        when(dayRepository.existsById(1)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(dayRepository).deleteById(1);
+    void delete_callsRepository() {
 
-        assertThrows(RuntimeException.class, () -> dayService.deleteDay(1));
-    }
+        dayService.delete(day.getId());
 
-    @Test
-    void whenDayIdIsFound_updateDay_UpdatesTheDay() {
-        DayDTO updateDTO = new DayDTO();
-        updateDTO.setName("Updated Name");
-
-        when(dayRepository.findById(1)).thenReturn(Optional.of(entity));
-        when(dayRepository.existsById(1)).thenReturn(true);
-        when(dayRepository.save(entity)).thenReturn(entity);
-        when(dayMapper.mapToDayDto(entity)).thenReturn(updateDTO);
-
-        Optional<DayDTO> result = dayService.updateDay(1, updateDTO);
-
-        assertTrue(result.isPresent());
-        assertEquals("Updated Name", result.get().getName());
-    }
-
-    @Test
-    void whenDayIdIsNotFound_updateDay_ReturnsEmptyOptional() {
-        DayDTO updateDTO = new DayDTO();
-        updateDTO.setName("Updated Name");
-
-        when(dayRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> dayService.updateDay(999, updateDTO));
-    }
-
-    @Test
-    public void whenDayNameIsInvalid_updateDay_ThrowsIllegalArgumentException() {
-        DayDTO updateEmptyName = new DayDTO();
-        updateEmptyName.setName("");
-
-        DayDTO updateNullName = new DayDTO();
-        updateNullName.setName(null);
-
-        when(dayRepository.existsById(1)).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> dayService.updateDay(1, updateEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> dayService.updateDay(1, updateNullName));
-    }
-
-    @Test
-    public void whenDayNameAlreadyExists_updateDay_ThrowsDataIntegrityViolationException() {
-        when(dayRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-
-        assertThrows(IllegalArgumentException.class, () -> dayService.updateDay(entity.getId(), dto));
+        verify(dayRepository).deleteById(day.getId());
     }
 }

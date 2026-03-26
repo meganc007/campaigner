@@ -1,96 +1,72 @@
 package com.mcommings.campaigner.modules.calendar.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.calendar.dtos.SunDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.calendar.dtos.suns.CreateSunDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.suns.UpdateSunDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.suns.ViewSunDTO;
+import com.mcommings.campaigner.modules.calendar.entities.Sun;
 import com.mcommings.campaigner.modules.calendar.mappers.SunMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.ISunRepository;
-import com.mcommings.campaigner.modules.calendar.services.interfaces.ISun;
-import jakarta.transaction.Transactional;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class SunService implements ISun {
+public class SunService extends BaseService<
+        Sun,
+        Integer,
+        ViewSunDTO,
+        CreateSunDTO,
+        UpdateSunDTO> {
 
     private final ISunRepository sunRepository;
+    private final ICampaignRepository campaignRepository;
     private final SunMapper sunMapper;
 
     @Override
-    public List<SunDTO> getSuns() {
-
-        return sunRepository.findAll()
-                .stream()
-                .map(sunMapper::mapToSunDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<Sun, Integer> getRepository() {
+        return sunRepository;
     }
 
     @Override
-    public Optional<SunDTO> getSun(int sunId) {
-        return sunRepository.findById(sunId)
-                .map(sunMapper::mapToSunDto);
+    protected ViewSunDTO toViewDto(Sun entity) {
+        return sunMapper.toDto(entity);
     }
 
     @Override
-    public List<SunDTO> getSunsByCampaignUUID(UUID uuid) {
+    protected Sun toEntity(CreateSunDTO dto) {
+        Sun entity = sunMapper.toEntity(dto);
 
-        return sunRepository.findByfk_campaign_uuid(uuid)
-                .stream()
-                .map(sunMapper::mapToSunDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public void saveSun(SunDTO sun) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(sun)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(sunRepository, sun.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-        sunMapper.mapToSunDto(
-                sunRepository.save(sunMapper.mapFromSunDto(sun))
+        entity.setCampaign(
+                campaignRepository.getReferenceById(dto.getCampaignUuid())
         );
+        return entity;
     }
 
     @Override
-    @Transactional
-    public void deleteSun(int sunId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(sunRepository, sunId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
+    protected void updateEntity(UpdateSunDTO dto, Sun entity) {
+        sunMapper.updateSunFromDto(dto, entity);
+
+        if (dto.getCampaignUuid() != null) {
+            entity.setCampaign(
+                    campaignRepository.getReferenceById(dto.getCampaignUuid())
+            );
         }
-        sunRepository.deleteById(sunId);
     }
 
     @Override
-    @Transactional
-    public Optional<SunDTO> updateSun(int sunId, SunDTO sun) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(sunRepository, sunId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(sun)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(sunRepository, sun.getName(), sunId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
+    protected Integer getId(UpdateSunDTO dto) {
+        return dto.getId();
+    }
 
-        return sunRepository.findById(sunId).map(foundSun -> {
-            if (sun.getName() != null) foundSun.setName(sun.getName());
-            if (sun.getDescription() != null) foundSun.setDescription(sun.getDescription());
-            if (sun.getFk_campaign_uuid() != null) foundSun.setFk_campaign_uuid(sun.getFk_campaign_uuid());
+    public List<ViewSunDTO> getSunsByCampaignUUID(UUID uuid) {
 
-            return sunMapper.mapToSunDto(sunRepository.save(foundSun));
-        });
+        return query(sunRepository::findByCampaign_Uuid, uuid);
     }
 
 }

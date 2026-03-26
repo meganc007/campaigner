@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.calendar.dtos;
+package com.mcommings.campaigner.modules.calendar.dtos.moons;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,12 +13,13 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SunDTO {
+public class CreateMoonDTO {
 
-    private int id;
-    @NotBlank(message = "Sun name cannot be empty")
+    @NotBlank(message = "Moon name cannot be empty")
     private String name;
+
     private String description;
-    @NotNull(message = "Campaign UUID cannot be null or empty.")
-    private UUID fk_campaign_uuid;
+
+    @NotNull(message = "Campaign UUID cannot be null or empty")
+    private UUID campaignUuid;
 }

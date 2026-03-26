@@ -1,155 +1,106 @@
 package com.mcommings.campaigner.modules.calendar.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.calendar.dtos.EventDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.calendar.dtos.events.CreateEventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.events.UpdateEventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.events.ViewEventDTO;
+import com.mcommings.campaigner.modules.calendar.entities.Event;
 import com.mcommings.campaigner.modules.calendar.mappers.EventMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.IEventRepository;
-import com.mcommings.campaigner.modules.common.services.interfaces.IEvent;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class EventService implements IEvent {
+public class EventService extends BaseService<
+        Event,
+        Integer,
+        ViewEventDTO,
+        CreateEventDTO,
+        UpdateEventDTO> {
 
     private final IEventRepository eventRepository;
+    private final ICampaignRepository campaignRepository;
     private final EventMapper eventMapper;
 
     @Override
-    public List<EventDTO> getEvents() {
-        return eventRepository.findAll()
-                .stream()
-                .map(eventMapper::mapToEventDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<Event, Integer> getRepository() {
+        return eventRepository;
     }
 
     @Override
-    public Optional<EventDTO> getEvent(int eventId) {
-        return eventRepository.findById(eventId)
-                .map(eventMapper::mapToEventDto);
+    protected ViewEventDTO toViewDto(Event entity) {
+        return eventMapper.toDto(entity);
     }
 
     @Override
-    public List<EventDTO> getEventsByCampaignUUID(UUID uuid) {
-        return eventRepository.findByfk_campaign_uuid(uuid)
-                .stream()
-                .map(eventMapper::mapToEventDto)
-                .collect(Collectors.toList());
-    }
+    protected Event toEntity(CreateEventDTO dto) {
+        Event entity = eventMapper.toEntity(dto);
 
-    @Override
-    public List<EventDTO> getEventsByYear(int year) {
-        return eventRepository.findByEventYear(year)
-                .stream()
-                .map(eventMapper::mapToEventDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EventDTO> getEventsByMonth(int monthId) {
-        return eventRepository.findByfk_month(monthId)
-                .stream()
-                .map(eventMapper::mapToEventDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EventDTO> getEventsByWeek(int weekId) {
-        return eventRepository.findByfk_week(weekId)
-                .stream()
-                .map(eventMapper::mapToEventDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EventDTO> getEventsByDay(int dayId) {
-        return eventRepository.findByfk_day(dayId)
-                .stream()
-                .map(eventMapper::mapToEventDto)
-                .collect(Collectors.toList());
-    }
-
-
-    @Override
-    public List<EventDTO> getEventsByContinent(int continentId) {
-        return eventRepository.findByfk_continent(continentId)
-                .stream()
-                .map(eventMapper::mapToEventDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EventDTO> getEventsByCountry(int countryId) {
-        return eventRepository.findByfk_country(countryId)
-                .stream()
-                .map(eventMapper::mapToEventDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<EventDTO> getEventsByCity(int cityId) {
-
-        return eventRepository.findByfk_city(cityId)
-                .stream()
-                .map(eventMapper::mapToEventDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public void saveEvent(EventDTO event) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(event)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(eventRepository, event.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        eventMapper.mapToEventDto(
-                eventRepository.save(
-                        eventMapper.mapFromEventDto(event))
+        entity.setCampaign(
+                campaignRepository.getReferenceById(dto.getCampaignUuid())
         );
+        return entity;
     }
 
     @Override
-    public void deleteEvent(int eventId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(eventRepository, eventId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
+    protected void updateEntity(UpdateEventDTO dto, Event entity) {
+        eventMapper.updateEventFromDto(dto, entity);
+
+        if (dto.getCampaignUuid() != null) {
+            entity.setCampaign(
+                    campaignRepository.getReferenceById(dto.getCampaignUuid())
+            );
         }
-        eventRepository.deleteById(eventId);
     }
 
     @Override
-    public Optional<EventDTO> updateEvent(int eventId, EventDTO event) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(eventRepository, eventId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(event)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(eventRepository, event.getName(), eventId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
+    protected Integer getId(UpdateEventDTO dto) {
+        return dto.getId();
+    }
 
-        return eventRepository.findById(eventId).map(foundEvent -> {
-            if (event.getName() != null) foundEvent.setName(event.getName());
-            if (event.getDescription() != null) foundEvent.setDescription(event.getDescription());
-            if (event.getEventYear() != 0) foundEvent.setEventYear(event.getEventYear());
-            if (event.getFk_month() != null) foundEvent.setFk_month(event.getFk_month());
-            if (event.getFk_week() != null) foundEvent.setFk_week(event.getFk_week());
-            if (event.getFk_day() != null) foundEvent.setFk_day(event.getFk_day());
-            if (event.getFk_city() != null) foundEvent.setFk_city(event.getFk_city());
-            if (event.getFk_continent() != null) foundEvent.setFk_continent(event.getFk_continent());
-            if (event.getFk_country() != null) foundEvent.setFk_country(event.getFk_country());
+    public List<ViewEventDTO> getEventsByCampaignUUID(UUID uuid) {
 
-            return eventMapper.mapToEventDto(eventRepository.save(foundEvent));
-        });
+        return query(eventRepository::findByCampaign_Uuid, uuid);
+    }
+
+    public List<ViewEventDTO> getEventsByYear(int year) {
+
+        return query(eventRepository::findByYear_Id, year);
+    }
+
+    public List<ViewEventDTO> getEventsByMonthId(int monthId) {
+
+        return query(eventRepository::findByMonth_Id, monthId);
+    }
+
+    public List<ViewEventDTO> getEventsByWeekId(int weekId) {
+
+        return query(eventRepository::findByWeek_Id, weekId);
+    }
+
+    public List<ViewEventDTO> getEventsByDayId(int dayId) {
+
+        return query(eventRepository::findByDay_Id, dayId);
+    }
+
+    public List<ViewEventDTO> getEventsByContinentId(int continentId) {
+
+        return query(eventRepository::findByContinent_Id, continentId);
+    }
+
+    public List<ViewEventDTO> getEventsByCountryId(int countryId) {
+
+        return query(eventRepository::findByCountry_Id, countryId);
+    }
+
+    public List<ViewEventDTO> getEventsByCityId(int cityId) {
+
+        return query(eventRepository::findByCity_Id, cityId);
     }
 }

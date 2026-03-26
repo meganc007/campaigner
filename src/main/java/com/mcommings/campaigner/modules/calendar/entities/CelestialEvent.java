@@ -1,15 +1,19 @@
 package com.mcommings.campaigner.modules.calendar.entities;
 
+import com.mcommings.campaigner.modules.common.entities.Campaign;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.UUID;
 
 @Getter
 @Setter
 @Builder
 @Entity
-@Table(name = "celestial_events")
+@Table(name = "celestial_events",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"name", "fk_campaign_uuid"}
+                )
+        })
 @NoArgsConstructor
 @AllArgsConstructor
 public class CelestialEvent {
@@ -17,16 +21,37 @@ public class CelestialEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false, unique = true)
     private String name;
+
     private String description;
-    @Column(nullable = false)
-    private UUID fk_campaign_uuid;
-    private Integer fk_moon;
-    private Integer fk_sun;
-    private Integer fk_month;
-    private Integer fk_week;
-    private Integer fk_day;
-    private int event_year;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_campaign_uuid", nullable = false)
+    private Campaign campaign;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_moon")
+    private Moon moon;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_sun")
+    private Sun sun;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_month", nullable = false)
+    private Month month;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_week", nullable = false)
+    private Week week;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_day", nullable = false)
+    private Day day;
+
+    @Column(name = "event_year", nullable = false)
+    private int year;
 
 }

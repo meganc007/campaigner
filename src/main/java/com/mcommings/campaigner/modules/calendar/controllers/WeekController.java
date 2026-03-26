@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.calendar.controllers;
 
-import com.mcommings.campaigner.modules.calendar.dtos.WeekDTO;
-import com.mcommings.campaigner.modules.calendar.services.interfaces.IWeek;
+import com.mcommings.campaigner.modules.calendar.dtos.weeks.CreateWeekDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.weeks.UpdateWeekDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.weeks.ViewWeekDTO;
+import com.mcommings.campaigner.modules.calendar.services.WeekService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,47 +11,49 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/weeks")
 public class WeekController {
 
-    private final IWeek weekService;
+    private final WeekService weekService;
 
     @GetMapping
-    public List<WeekDTO> getWeeks() {
-        return weekService.getWeeks();
+    public List<ViewWeekDTO> getWeeks() {
+
+        return weekService.getAll();
     }
 
     @GetMapping(path = "/{weekId}")
-    public WeekDTO getWeek(@PathVariable("weekId") int weekId) {
-        return weekService.getWeek(weekId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewWeekDTO getWeek(@PathVariable int weekId) {
+        return weekService.getById(weekId);
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<WeekDTO> getWeeksByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ViewWeekDTO> getWeeksByCampaignUUID(@PathVariable UUID uuid) {
         return weekService.getWeeksByCampaignUUID(uuid);
     }
 
     @GetMapping(path = "/month/{monthId}")
-    public List<WeekDTO> getWeeksByMonth(@PathVariable("monthId") int monthId) {
-        return weekService.getWeeksByMonth(monthId);
+    public List<ViewWeekDTO> getWeeksByMonthId(
+            @PathVariable int monthId) {
+
+        return weekService.getWeeksByMonthId(monthId);
     }
 
     @PostMapping
-    public void saveWeek(@Valid @RequestBody WeekDTO week) {
-        weekService.saveWeek(week);
+    public ViewWeekDTO createWeek(@Valid @RequestBody CreateWeekDTO week) {
+        return weekService.create(week);
     }
 
-    @DeleteMapping(path = "{weekId}")
-    public void deleteWeek(@PathVariable("weekId") int weekId) {
-        weekService.deleteWeek(weekId);
+    @PutMapping
+    public ViewWeekDTO updateWeek(@Valid @RequestBody UpdateWeekDTO week) {
+        return weekService.update(week);
     }
 
-    @PutMapping(path = "{weekId}")
-    public void updateWeek(@PathVariable("weekId") int weekId, @RequestBody WeekDTO week) {
-        weekService.updateWeek(weekId, week);
+    @DeleteMapping(path = "/{weekId}")
+    public void deleteWeek(@PathVariable int weekId) {
+
+        weekService.delete(weekId);
     }
 }

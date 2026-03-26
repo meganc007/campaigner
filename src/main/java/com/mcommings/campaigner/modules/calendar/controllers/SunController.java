@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.calendar.controllers;
 
-import com.mcommings.campaigner.modules.calendar.dtos.SunDTO;
-import com.mcommings.campaigner.modules.calendar.services.interfaces.ISun;
+import com.mcommings.campaigner.modules.calendar.dtos.suns.CreateSunDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.suns.UpdateSunDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.suns.ViewSunDTO;
+import com.mcommings.campaigner.modules.calendar.services.SunService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,42 +11,42 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/suns")
 public class SunController {
 
-    private final ISun sunService;
+    private final SunService sunService;
 
     @GetMapping
-    public List<SunDTO> getSuns() {
-        return sunService.getSuns();
+    public List<ViewSunDTO> getSuns() {
+
+        return sunService.getAll();
     }
 
     @GetMapping(path = "/{sunId}")
-    public SunDTO getSun(@PathVariable("sunId") int sunId) {
-        return sunService.getSun(sunId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewSunDTO getSun(@PathVariable int sunId) {
+        return sunService.getById(sunId);
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<SunDTO> getSunsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ViewSunDTO> getSunsByCampaignUUID(@PathVariable UUID uuid) {
         return sunService.getSunsByCampaignUUID(uuid);
     }
 
     @PostMapping
-    public void saveSun(@Valid @RequestBody SunDTO sun) {
-        sunService.saveSun(sun);
+    public ViewSunDTO createSun(@Valid @RequestBody CreateSunDTO sun) {
+        return sunService.create(sun);
     }
 
-    @DeleteMapping(path = "{sunId}")
-    public void deleteSun(@PathVariable("sunId") int sunId) {
-        sunService.deleteSun(sunId);
+    @PutMapping
+    public ViewSunDTO updateSun(@Valid @RequestBody UpdateSunDTO sun) {
+        return sunService.update(sun);
     }
 
-    @PutMapping(path = "{sunId}")
-    public void updateSun(@PathVariable("sunId") int sunId, @RequestBody SunDTO sun) {
-        sunService.updateSun(sunId, sun);
+    @DeleteMapping(path = "/{sunId}")
+    public void deleteSun(@PathVariable int sunId) {
+
+        sunService.delete(sunId);
     }
 }

@@ -1,95 +1,74 @@
 package com.mcommings.campaigner.modules.calendar.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.calendar.dtos.WeekDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.calendar.dtos.weeks.CreateWeekDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.weeks.UpdateWeekDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.weeks.ViewWeekDTO;
+import com.mcommings.campaigner.modules.calendar.entities.Week;
 import com.mcommings.campaigner.modules.calendar.mappers.WeekMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.IWeekRepository;
-import com.mcommings.campaigner.modules.calendar.services.interfaces.IWeek;
-import jakarta.transaction.Transactional;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class WeekService implements IWeek {
+public class WeekService extends BaseService<
+        Week,
+        Integer,
+        ViewWeekDTO,
+        CreateWeekDTO,
+        UpdateWeekDTO> {
 
     private final IWeekRepository weekRepository;
+    private final ICampaignRepository campaignRepository;
     private final WeekMapper weekMapper;
 
     @Override
-    public List<WeekDTO> getWeeks() {
-        return weekRepository.findAll()
-                .stream()
-                .map(weekMapper::mapToWeekDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<Week, Integer> getRepository() {
+        return weekRepository;
     }
 
     @Override
-    public Optional<WeekDTO> getWeek(int weekId) {
-        return weekRepository.findById(weekId)
-                .map(weekMapper::mapToWeekDto);
+    protected ViewWeekDTO toViewDto(Week entity) {
+        return weekMapper.toDto(entity);
     }
 
     @Override
-    public List<WeekDTO> getWeeksByCampaignUUID(UUID uuid) {
-        return weekRepository.findByfk_campaign_uuid(uuid)
-                .stream()
-                .map(weekMapper::mapToWeekDto)
-                .collect(Collectors.toList());
-    }
+    protected Week toEntity(CreateWeekDTO dto) {
+        Week entity = weekMapper.toEntity(dto);
 
-    @Override
-    public List<WeekDTO> getWeeksByMonth(int monthId) {
-
-        return weekRepository.findByfk_month(monthId)
-                .stream()
-                .map(weekMapper::mapToWeekDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public void saveWeek(WeekDTO week) throws DataIntegrityViolationException {
-
-        weekMapper.mapToWeekDto(
-                weekRepository.save(weekMapper.mapFromWeekDto(week))
+        entity.setCampaign(
+                campaignRepository.getReferenceById(dto.getCampaignUuid())
         );
+        return entity;
     }
 
     @Override
-    @Transactional
-    public void deleteWeek(int weekId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(weekRepository, weekId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
+    protected void updateEntity(UpdateWeekDTO dto, Week entity) {
+        weekMapper.updateWeekFromDto(dto, entity);
+
+        if (dto.getCampaignUuid() != null) {
+            entity.setCampaign(
+                    campaignRepository.getReferenceById(dto.getCampaignUuid())
+            );
         }
-        weekRepository.deleteById(weekId);
     }
 
     @Override
-    @Transactional
-    public Optional<WeekDTO> updateWeek(int weekId, WeekDTO week) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(weekRepository, weekId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(week)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
+    protected Integer getId(UpdateWeekDTO dto) {
+        return dto.getId();
+    }
 
-        return weekRepository.findById(weekId).map(foundWeek -> {
-            if (week.getDescription() != null) foundWeek.setDescription(week.getDescription());
-            if (week.getFk_campaign_uuid() != null) foundWeek.setFk_campaign_uuid(week.getFk_campaign_uuid());
-            if (week.getWeek_number() != null) foundWeek.setWeek_number(week.getWeek_number());
-            if (week.getFk_month() != null) foundWeek.setFk_month(week.getFk_month());
+    public List<ViewWeekDTO> getWeeksByCampaignUUID(UUID uuid) {
+        return query(weekRepository::findByCampaign_Uuid, uuid);
+    }
 
-            return weekMapper.mapToWeekDto(weekRepository.save(foundWeek));
-        });
+    public List<ViewWeekDTO> getWeeksByMonthId(int monthId) {
+        return query(weekRepository::findByMonth_Id, monthId);
     }
 }

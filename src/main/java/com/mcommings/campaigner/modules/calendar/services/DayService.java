@@ -1,103 +1,75 @@
 package com.mcommings.campaigner.modules.calendar.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.calendar.dtos.DayDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.calendar.dtos.days.CreateDayDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.days.UpdateDayDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.days.ViewDayDTO;
+import com.mcommings.campaigner.modules.calendar.entities.Day;
 import com.mcommings.campaigner.modules.calendar.mappers.DayMapper;
 import com.mcommings.campaigner.modules.calendar.repositories.IDayRepository;
-import com.mcommings.campaigner.modules.calendar.services.interfaces.IDay;
-import jakarta.transaction.Transactional;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class DayService implements IDay {
+public class DayService extends BaseService<
+        Day,
+        Integer,
+        ViewDayDTO,
+        CreateDayDTO,
+        UpdateDayDTO> {
 
     private final IDayRepository dayRepository;
+    private final ICampaignRepository campaignRepository;
     private final DayMapper dayMapper;
 
     @Override
-    public List<DayDTO> getDays() {
-        return dayRepository.findAll()
-                .stream()
-                .map(dayMapper::mapToDayDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<Day, Integer> getRepository() {
+        return dayRepository;
     }
 
     @Override
-    public Optional<DayDTO> getDay(int dayId) {
-        return dayRepository.findById(dayId)
-                .map(dayMapper::mapToDayDto);
+    protected ViewDayDTO toViewDto(Day entity) {
+        return dayMapper.toDto(entity);
     }
 
     @Override
-    public List<DayDTO> getDaysByCampaignUUID(UUID uuid) {
-        return dayRepository.findByfk_campaign_uuid(uuid)
-                .stream()
-                .map(dayMapper::mapToDayDto)
-                .collect(Collectors.toList());
-    }
+    protected Day toEntity(CreateDayDTO dto) {
+        Day entity = dayMapper.toEntity(dto);
 
-    @Override
-    public List<DayDTO> getDaysByWeek(int weekId) {
-        return dayRepository.findByfk_week(weekId)
-                .stream()
-                .map(dayMapper::mapToDayDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public void saveDay(DayDTO day) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(day)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(dayRepository, day.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-        dayMapper.mapToDayDto(
-                dayRepository.save(dayMapper.mapFromDayDto(day))
+        entity.setCampaign(
+                campaignRepository.getReferenceById(dto.getCampaignUuid())
         );
+        return entity;
     }
 
     @Override
-    @Transactional
-    public void deleteDay(int dayId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(dayRepository, dayId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
+    protected void updateEntity(UpdateDayDTO dto, Day entity) {
+        dayMapper.updateDayFromDto(dto, entity);
+
+        if (dto.getCampaignUuid() != null) {
+            entity.setCampaign(
+                    campaignRepository.getReferenceById(dto.getCampaignUuid())
+            );
         }
-        dayRepository.deleteById(dayId);
     }
 
     @Override
-    @Transactional
-    public Optional<DayDTO> updateDay(int dayId, DayDTO day) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(dayRepository, dayId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(day)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(dayRepository, day.getName(), dayId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
+    protected Integer getId(UpdateDayDTO dto) {
+        return dto.getId();
+    }
 
-        return dayRepository.findById(dayId).map(foundDay -> {
-            if (day.getName() != null) foundDay.setName(day.getName());
-            if (day.getDescription() != null) foundDay.setDescription(day.getDescription());
-            if (day.getFk_campaign_uuid() != null) foundDay.setFk_campaign_uuid(day.getFk_campaign_uuid());
-            if (day.getFk_week() != null) foundDay.setFk_week(day.getFk_week());
+    public List<ViewDayDTO> getDaysByCampaignUUID(UUID uuid) {
+        return query(dayRepository::findByCampaign_Uuid, uuid);
+    }
 
-            return dayMapper.mapToDayDto(dayRepository.save(foundDay));
-        });
+    public List<ViewDayDTO> getDaysByWeekId(int weekId) {
+        return query(dayRepository::findByWeek_Id, weekId);
     }
 
 }

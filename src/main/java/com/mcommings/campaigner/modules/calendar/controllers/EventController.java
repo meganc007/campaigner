@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.calendar.controllers;
 
-import com.mcommings.campaigner.modules.calendar.dtos.EventDTO;
-import com.mcommings.campaigner.modules.common.services.interfaces.IEvent;
+import com.mcommings.campaigner.modules.calendar.dtos.events.CreateEventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.events.UpdateEventDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.events.ViewEventDTO;
+import com.mcommings.campaigner.modules.calendar.services.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,77 +11,91 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/events")
 public class EventController {
 
-    private final IEvent eventService;
-    
+    private final EventService eventService;
+
     @GetMapping
-    public List<EventDTO> getEvents() {
-        return eventService.getEvents();
+    public List<ViewEventDTO> getEvents() {
+
+        return eventService.getAll();
     }
 
     @GetMapping(path = "/{eventId}")
-    public EventDTO getEvent(@PathVariable("eventId") int eventId) {
-        return eventService.getEvent(eventId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewEventDTO getEvent(@PathVariable int eventId) {
+        return eventService.getById(eventId);
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<EventDTO> getEventsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ViewEventDTO> getEventsByCampaignUUID(@PathVariable UUID uuid) {
         return eventService.getEventsByCampaignUUID(uuid);
     }
 
     @GetMapping(path = "/year/{year}")
-    public List<EventDTO> getEventsByYear(@PathVariable("year") int year) {
+    public List<ViewEventDTO> getEventsByYear(
+            @PathVariable int year) {
+
         return eventService.getEventsByYear(year);
     }
 
     @GetMapping(path = "/month/{monthId}")
-    public List<EventDTO> getEventsByMonth(@PathVariable("monthId") int monthId) {
-        return eventService.getEventsByMonth(monthId);
+    public List<ViewEventDTO> getEventsByMonthId(
+            @PathVariable int monthId) {
+
+        return eventService.getEventsByMonthId(monthId);
     }
 
     @GetMapping(path = "/week/{weekId}")
-    public List<EventDTO> getEventsByWeek(@PathVariable("weekId") int weekId) {
-        return eventService.getEventsByWeek(weekId);
+    public List<ViewEventDTO> getEventsByWeekId(
+            @PathVariable int weekId) {
+
+        return eventService.getEventsByWeekId(weekId);
     }
 
     @GetMapping(path = "/day/{dayId}")
-    public List<EventDTO> getEventsByDay(@PathVariable("dayId") int dayId) {
-        return eventService.getEventsByDay(dayId);
+    public List<ViewEventDTO> getEventsByDayId(
+            @PathVariable int dayId) {
+
+        return eventService.getEventsByDayId(dayId);
     }
 
     @GetMapping(path = "/continent/{continentId}")
-    public List<EventDTO> getEventsByContinent(@PathVariable("continentId") int continentId) {
-        return eventService.getEventsByContinent(continentId);
+    public List<ViewEventDTO> getEventsByContinentId(
+            @PathVariable int continentId) {
+
+        return eventService.getEventsByContinentId(continentId);
     }
 
     @GetMapping(path = "/country/{countryId}")
-    public List<EventDTO> getEventsByCountry(@PathVariable("countryId") int countryId) {
-        return eventService.getEventsByCountry(countryId);
+    public List<ViewEventDTO> getEventsByCountryId(
+            @PathVariable int countryId) {
+
+        return eventService.getEventsByCountryId(countryId);
     }
 
     @GetMapping(path = "/city/{cityId}")
-    public List<EventDTO> getEventsByCity(@PathVariable("cityId") int cityId) {
-        return eventService.getEventsByCity(cityId);
+    public List<ViewEventDTO> getEventsByCityId(
+            @PathVariable int cityId) {
+
+        return eventService.getEventsByCityId(cityId);
     }
 
     @PostMapping
-    public void saveEvent(@Valid @RequestBody EventDTO event) {
-        eventService.saveEvent(event);
+    public ViewEventDTO createEvent(@Valid @RequestBody CreateEventDTO event) {
+        return eventService.create(event);
     }
 
-    @DeleteMapping(path = "{eventId}")
-    public void deleteEvent(@PathVariable("eventId") int eventId) {
-        eventService.deleteEvent(eventId);
+    @PutMapping
+    public ViewEventDTO updateEvent(@Valid @RequestBody UpdateEventDTO event) {
+        return eventService.update(event);
     }
 
-    @PutMapping(path = "{eventId}")
-    public void updateEvent(@PathVariable("eventId") int eventId, @RequestBody EventDTO event) {
-        eventService.updateEvent(eventId, event);
+    @DeleteMapping(path = "/{eventId}")
+    public void deleteEvent(@PathVariable int eventId) {
+
+        eventService.delete(eventId);
     }
 }

@@ -1,12 +1,25 @@
 package com.mcommings.campaigner.modules.calendar.mappers;
 
-import com.mcommings.campaigner.modules.calendar.dtos.MoonDTO;
+import com.mcommings.campaigner.config.GlobalMapperConfig;
+import com.mcommings.campaigner.modules.calendar.dtos.moons.CreateMoonDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.moons.UpdateMoonDTO;
+import com.mcommings.campaigner.modules.calendar.dtos.moons.ViewMoonDTO;
 import com.mcommings.campaigner.modules.calendar.entities.Moon;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Mapper
+@Mapper(config = GlobalMapperConfig.class)
 public interface MoonMapper {
-    Moon mapFromMoonDto(MoonDTO dto);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "campaign", ignore = true)
+    Moon toEntity(CreateMoonDTO dto);
 
-    MoonDTO mapToMoonDto(Moon moon);
+    @Mapping(source = "campaign.uuid", target = "campaignUuid")
+    ViewMoonDTO toDto(Moon moon);
+
+    void updateMoonFromDto(
+            UpdateMoonDTO dto,
+            @MappingTarget Moon entity
+    );
 }
