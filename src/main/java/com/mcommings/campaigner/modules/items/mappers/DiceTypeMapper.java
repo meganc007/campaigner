@@ -1,12 +1,23 @@
 package com.mcommings.campaigner.modules.items.mappers;
 
-import com.mcommings.campaigner.modules.items.dtos.DiceTypeDTO;
+import com.mcommings.campaigner.config.GlobalMapperConfig;
+import com.mcommings.campaigner.modules.items.dtos.dice_types.CreateDiceTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.dice_types.UpdateDiceTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.dice_types.ViewDiceTypeDTO;
 import com.mcommings.campaigner.modules.items.entities.DiceType;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Mapper
+@Mapper(config = GlobalMapperConfig.class)
 public interface DiceTypeMapper {
-    DiceType mapFromDiceTypeDto(DiceTypeDTO dto);
+    @Mapping(target = "id", ignore = true)
+    DiceType toEntity(CreateDiceTypeDTO dto);
 
-    DiceTypeDTO mapToDiceTypeDto(DiceType diceType);
+    ViewDiceTypeDTO toDto(DiceType DiceType);
+
+    void updateDiceTypeFromDto(
+            UpdateDiceTypeDTO dto,
+            @MappingTarget DiceType entity
+    );
 }

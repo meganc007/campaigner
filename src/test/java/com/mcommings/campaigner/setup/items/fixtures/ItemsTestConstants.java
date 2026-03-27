@@ -15,4 +15,11 @@ public class ItemsTestConstants {
     public static final String DAMAGE_TYPE_NAME = "bludgeoning";
     public static final String DAMAGE_TYPE_DESCRIPTION = "weapon goes bonk";
 
+    //DICE TYPES
+    public static final int DICE_TYPE_ID = 1;
+    public static final String DICE_TYPE_NAME = "D20";
+    public static final String DICE_TYPE_DESCRIPTION = "A 20-sided die";
+
+    public static final int DICE_TYPE_MAX_ROLL = 20;
+
 }

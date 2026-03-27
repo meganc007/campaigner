@@ -15,8 +15,12 @@ public class DiceType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false, unique = true)
     private String name;
+
     private String description;
-    private int max_roll;
+
+    @Column(name = "max_roll", nullable = false, unique = true)
+    private int maxRoll;
 }
