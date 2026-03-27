@@ -19,7 +19,11 @@ public class ItemsTestConstants {
     public static final int DICE_TYPE_ID = 1;
     public static final String DICE_TYPE_NAME = "D20";
     public static final String DICE_TYPE_DESCRIPTION = "A 20-sided die";
-
     public static final int DICE_TYPE_MAX_ROLL = 20;
+
+    //WEAPON TYPES
+    public static final int WEAPON_TYPE_ID = 1;
+    public static final String WEAPON_TYPE_NAME = "Dagger";
+    public static final String WEAPON_TYPE_DESCRIPTION = "Simple melee weapon";
 
 }

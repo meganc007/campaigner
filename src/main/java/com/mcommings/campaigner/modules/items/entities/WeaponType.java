@@ -15,7 +15,9 @@ public class WeaponType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false, unique = true)
     private String name;
+
     private String description;
 }

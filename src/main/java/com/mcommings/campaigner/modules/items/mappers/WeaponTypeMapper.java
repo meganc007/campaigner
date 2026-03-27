@@ -1,12 +1,24 @@
 package com.mcommings.campaigner.modules.items.mappers;
 
-import com.mcommings.campaigner.modules.items.dtos.WeaponTypeDTO;
+import com.mcommings.campaigner.config.GlobalMapperConfig;
+import com.mcommings.campaigner.modules.items.dtos.weapon_types.CreateWeaponTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapon_types.UpdateWeaponTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapon_types.ViewWeaponTypeDTO;
 import com.mcommings.campaigner.modules.items.entities.WeaponType;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Mapper
+@Mapper(config = GlobalMapperConfig.class)
 public interface WeaponTypeMapper {
-    WeaponType mapFromWeaponTypeDto(WeaponTypeDTO dto);
 
-    WeaponTypeDTO mapToWeaponTypeDto(WeaponType weaponType);
+    @Mapping(target = "id", ignore = true)
+    WeaponType toEntity(CreateWeaponTypeDTO dto);
+
+    ViewWeaponTypeDTO toDto(WeaponType WeaponType);
+
+    void updateWeaponTypeFromDto(
+            UpdateWeaponTypeDTO dto,
+            @MappingTarget WeaponType entity
+    );
 }

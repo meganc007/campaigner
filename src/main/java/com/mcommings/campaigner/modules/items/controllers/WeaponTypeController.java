@@ -1,45 +1,47 @@
 package com.mcommings.campaigner.modules.items.controllers;
 
-import com.mcommings.campaigner.modules.items.dtos.WeaponTypeDTO;
-import com.mcommings.campaigner.modules.items.services.interfaces.IWeaponType;
+import com.mcommings.campaigner.modules.items.dtos.weapon_types.CreateWeaponTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapon_types.UpdateWeaponTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapon_types.ViewWeaponTypeDTO;
+import com.mcommings.campaigner.modules.items.services.WeaponTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/weapontypes")
 public class WeaponTypeController {
 
-    private final IWeaponType weaponTypeService;
+    private final WeaponTypeService weaponTypeService;
 
     @GetMapping
-    public List<WeaponTypeDTO> WeaponType() {
-        return weaponTypeService.getWeaponTypes();
+    public List<ViewWeaponTypeDTO> getWeaponTypes() {
+
+        return weaponTypeService.getAll();
     }
 
     @GetMapping(path = "/{weaponTypeId}")
-    public WeaponTypeDTO getWeaponType(@PathVariable("weaponTypeId") int weaponTypeId) {
-        return weaponTypeService.getWeaponType(weaponTypeId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewWeaponTypeDTO getWeaponType(@PathVariable int weaponTypeId) {
+        return weaponTypeService.getById(weaponTypeId);
     }
 
     @PostMapping
-    public void saveWeaponType(@Valid @RequestBody WeaponTypeDTO weaponType) {
-        weaponTypeService.saveWeaponType(weaponType);
+    public ViewWeaponTypeDTO createWeaponType(@Valid @RequestBody CreateWeaponTypeDTO weaponType) {
+
+        return weaponTypeService.create(weaponType);
     }
 
-    @DeleteMapping(path = "{weaponTypeId}")
-    public void deleteWeaponType(@PathVariable("weaponTypeId") int weaponTypeId) {
-        weaponTypeService.deleteWeaponType(weaponTypeId);
+    @PutMapping
+    public ViewWeaponTypeDTO updateWeaponType(@Valid @RequestBody UpdateWeaponTypeDTO weaponType) {
+        return weaponTypeService.update(weaponType);
     }
 
-    @PutMapping(path = "{weaponTypeId}")
-    public void updateWeaponType(@PathVariable("weaponTypeId") int weaponTypeId, @RequestBody WeaponTypeDTO weaponType) {
-        weaponTypeService.updateWeaponType(weaponTypeId, weaponType);
-    }
+    @DeleteMapping(path = "/{weaponTypeId}")
+    public void deleteWeaponType(@PathVariable int weaponTypeId) {
 
+        weaponTypeService.delete(weaponTypeId);
+    }
 }
