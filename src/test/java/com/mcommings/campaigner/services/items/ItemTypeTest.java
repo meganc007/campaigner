@@ -1,194 +1,154 @@
 package com.mcommings.campaigner.services.items;
 
-import com.mcommings.campaigner.modules.items.dtos.ItemTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.item_types.CreateItemTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.item_types.UpdateItemTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.item_types.ViewItemTypeDTO;
 import com.mcommings.campaigner.modules.items.entities.ItemType;
 import com.mcommings.campaigner.modules.items.mappers.ItemTypeMapper;
 import com.mcommings.campaigner.modules.items.repositories.IItemTypeRepository;
 import com.mcommings.campaigner.modules.items.services.ItemTypeService;
+import com.mcommings.campaigner.setup.items.factories.ItemsTestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class ItemTypeTest {
-
-    @Mock
-    private ItemTypeMapper itemTypeMapper;
 
     @Mock
     private IItemTypeRepository itemTypeRepository;
 
+    @Mock
+    private ItemTypeMapper itemTypeMapper;
+
     @InjectMocks
     private ItemTypeService itemTypeService;
 
-    private ItemType entity;
-    private ItemTypeDTO dto;
+    private ItemType itemType;
+    private ViewItemTypeDTO viewDto;
+    private CreateItemTypeDTO createDto;
+    private UpdateItemTypeDTO updateDto;
 
     @BeforeEach
     void setUp() {
-        Random random = new Random();
-        entity = new ItemType();
-        entity.setId(1);
-        entity.setName("Test ItemType");
-        entity.setDescription("A fictional itemType.");
-
-        dto = new ItemTypeDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-
-        when(itemTypeMapper.mapToItemTypeDto(entity)).thenReturn(dto);
-        when(itemTypeMapper.mapFromItemTypeDto(dto)).thenReturn(entity);
+        itemType = ItemsTestDataFactory.itemType();
+        viewDto = ItemsTestDataFactory.viewItemTypeDTO();
+        createDto = ItemsTestDataFactory.createItemTypeDTO();
+        updateDto = ItemsTestDataFactory.updateItemTypeDTO();
     }
 
     @Test
-    public void whenThereAreItemTypes_getItemTypes_ReturnsItemTypes() {
-        when(itemTypeRepository.findAllByOrderByNameAsc()).thenReturn(List.of(entity));
-        when(itemTypeRepository.findAll()).thenReturn(List.of(entity));
-        List<ItemTypeDTO> result = itemTypeService.getItemTypes();
+    void getAll_returnsMappedDtos() {
 
-        assertNotNull(result);
+        when(itemTypeRepository.findAll()).thenReturn(List.of(itemType));
+        when(itemTypeMapper.toDto(itemType)).thenReturn(viewDto);
+
+        List<ViewItemTypeDTO> result = itemTypeService.getAll();
+
         assertEquals(1, result.size());
-        assertEquals("Test ItemType", result.get(0).getName());
+        assertEquals(viewDto, result.get(0));
+
+        verify(itemTypeRepository).findAll();
+        verify(itemTypeMapper).toDto(itemType);
     }
 
     @Test
-    public void whenThereAreNoItemTypes_getItemTypes_ReturnsEmptyList() {
-        when(itemTypeRepository.findAll()).thenReturn(Collections.emptyList());
+    void getById_whenExists_returnsDto() {
 
-        List<ItemTypeDTO> result = itemTypeService.getItemTypes();
+        when(itemTypeRepository.findById(itemType.getId()))
+                .thenReturn(Optional.of(itemType));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when there are no itemTypes.");
+        when(itemTypeMapper.toDto(itemType))
+                .thenReturn(viewDto);
+
+        ViewItemTypeDTO result = itemTypeService.getById(itemType.getId());
+
+        assertEquals(viewDto, result);
+
+        verify(itemTypeRepository).findById(itemType.getId());
+        verify(itemTypeMapper).toDto(itemType);
     }
 
     @Test
-    void whenThereIsAItemType_getItemType_ReturnsItemTypeById() {
-        when(itemTypeRepository.findById(1)).thenReturn(Optional.of(entity));
+    void getById_whenMissing_throwsException() {
 
-        Optional<ItemTypeDTO> result = itemTypeService.getItemType(1);
+        when(itemTypeRepository.findById(itemType.getId()))
+                .thenReturn(Optional.empty());
 
-        assertTrue(result.isPresent());
-        assertEquals("Test ItemType", result.get().getName());
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> itemTypeService.getById(itemType.getId())
+        );
+
+        verify(itemTypeRepository).findById(itemType.getId());
     }
 
     @Test
-    void whenThereIsNotAItemType_getItemType_ReturnsNothing() {
-        when(itemTypeRepository.findById(999)).thenReturn(Optional.empty());
+    void create_whenValid_savesAndReturnsDto() {
 
-        Optional<ItemTypeDTO> result = itemTypeService.getItemType(999);
+        when(itemTypeMapper.toEntity(createDto)).thenReturn(itemType);
 
-        assertTrue(result.isEmpty(), "Expected empty Optional when itemType is not found.");
+        when(itemTypeRepository.save(itemType)).thenReturn(itemType);
+        when(itemTypeMapper.toDto(itemType)).thenReturn(viewDto);
+
+        ViewItemTypeDTO result = itemTypeService.create(createDto);
+
+        assertEquals(viewDto, result);
+
+        verify(itemTypeMapper).toEntity(createDto);
+        verify(itemTypeRepository).save(itemType);
+        verify(itemTypeMapper).toDto(itemType);
     }
 
     @Test
-    void whenItemTypeIsValid_saveItemType_SavesTheItemType() {
-        when(itemTypeRepository.save(entity)).thenReturn(entity);
+    void update_whenValid_updatesAndReturnsDto() {
 
-        itemTypeService.saveItemType(dto);
+        when(itemTypeRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.of(itemType));
 
-        verify(itemTypeRepository, times(1)).save(entity);
+        when(itemTypeRepository.save(itemType)).thenReturn(itemType);
+        when(itemTypeMapper.toDto(itemType)).thenReturn(viewDto);
+
+        ViewItemTypeDTO result = itemTypeService.update(updateDto);
+
+        assertEquals(viewDto, result);
+
+        verify(itemTypeRepository).findById(updateDto.getId());
+        verify(itemTypeMapper).updateItemTypeFromDto(updateDto, itemType);
+        verify(itemTypeRepository).save(itemType);
+        verify(itemTypeMapper).toDto(itemType);
     }
 
     @Test
-    public void whenItemTypeNameIsInvalid_saveItemType_ThrowsIllegalArgumentException() {
-        ItemTypeDTO itemTypeWithEmptyName = new ItemTypeDTO();
-        itemTypeWithEmptyName.setId(1);
-        itemTypeWithEmptyName.setName("");
-        itemTypeWithEmptyName.setDescription("A fictional itemType.");
+    void update_whenMissing_throwsException() {
 
-        ItemTypeDTO itemTypeWithNullName = new ItemTypeDTO();
-        itemTypeWithNullName.setId(1);
-        itemTypeWithNullName.setName(null);
-        itemTypeWithNullName.setDescription("A fictional itemType.");
+        when(itemTypeRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> itemTypeService.saveItemType(itemTypeWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> itemTypeService.saveItemType(itemTypeWithNullName));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> itemTypeService.update(updateDto)
+        );
+
+        verify(itemTypeRepository).findById(updateDto.getId());
     }
 
     @Test
-    public void whenItemTypeNameAlreadyExists_saveItemType_ThrowsDataIntegrityViolationException() {
-        when(itemTypeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-        assertThrows(DataIntegrityViolationException.class, () -> itemTypeService.saveItemType(dto));
-        verify(itemTypeRepository, times(1)).findByName(dto.getName());
-        verify(itemTypeRepository, never()).save(any(ItemType.class));
-    }
+    void delete_callsRepository() {
 
-    @Test
-    void whenItemTypeIdExists_deleteItemType_DeletesTheItemType() {
-        when(itemTypeRepository.existsById(1)).thenReturn(true);
-        itemTypeService.deleteItemType(1);
-        verify(itemTypeRepository, times(1)).deleteById(1);
-    }
+        itemTypeService.delete(itemType.getId());
 
-    @Test
-    void whenItemTypeIdDoesNotExist_deleteItemType_ThrowsIllegalArgumentException() {
-        when(itemTypeRepository.existsById(999)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> itemTypeService.deleteItemType(999));
-    }
-
-    @Test
-    void whenDeleteItemTypeFails_deleteItemType_ThrowsException() {
-        when(itemTypeRepository.existsById(1)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(itemTypeRepository).deleteById(1);
-
-        assertThrows(RuntimeException.class, () -> itemTypeService.deleteItemType(1));
-    }
-
-    @Test
-    void whenItemTypeIdIsFound_updateItemType_UpdatesTheItemType() {
-        ItemTypeDTO updateDTO = new ItemTypeDTO();
-        updateDTO.setName("Updated Name");
-
-        when(itemTypeRepository.findById(1)).thenReturn(Optional.of(entity));
-        when(itemTypeRepository.existsById(1)).thenReturn(true);
-        when(itemTypeRepository.save(entity)).thenReturn(entity);
-        when(itemTypeMapper.mapToItemTypeDto(entity)).thenReturn(updateDTO);
-
-        Optional<ItemTypeDTO> result = itemTypeService.updateItemType(1, updateDTO);
-
-        assertTrue(result.isPresent());
-        assertEquals("Updated Name", result.get().getName());
-    }
-
-    @Test
-    void whenItemTypeIdIsNotFound_updateItemType_ReturnsEmptyOptional() {
-        ItemTypeDTO updateDTO = new ItemTypeDTO();
-        updateDTO.setName("Updated Name");
-
-        when(itemTypeRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> itemTypeService.updateItemType(999, updateDTO));
-    }
-
-    @Test
-    public void whenItemTypeNameIsInvalid_updateItemType_ThrowsIllegalArgumentException() {
-        ItemTypeDTO updateEmptyName = new ItemTypeDTO();
-        updateEmptyName.setName("");
-
-        ItemTypeDTO updateNullName = new ItemTypeDTO();
-        updateNullName.setName(null);
-
-        when(itemTypeRepository.existsById(1)).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> itemTypeService.updateItemType(1, updateEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> itemTypeService.updateItemType(1, updateNullName));
-    }
-
-    @Test
-    public void whenItemTypeNameAlreadyExists_updateItemType_ThrowsDataIntegrityViolationException() {
-        when(itemTypeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-
-        assertThrows(IllegalArgumentException.class, () -> itemTypeService.updateItemType(entity.getId(), dto));
+        verify(itemTypeRepository).deleteById(itemType.getId());
     }
 }

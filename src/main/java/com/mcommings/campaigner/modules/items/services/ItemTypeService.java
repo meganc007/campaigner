@@ -1,85 +1,50 @@
 package com.mcommings.campaigner.modules.items.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.dtos.ItemTypeDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.items.dtos.item_types.CreateItemTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.item_types.UpdateItemTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.item_types.ViewItemTypeDTO;
+import com.mcommings.campaigner.modules.items.entities.ItemType;
 import com.mcommings.campaigner.modules.items.mappers.ItemTypeMapper;
 import com.mcommings.campaigner.modules.items.repositories.IItemTypeRepository;
-import com.mcommings.campaigner.modules.items.services.interfaces.IItemType;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class ItemTypeService implements IItemType {
+public class ItemTypeService extends BaseService<
+        ItemType,
+        Integer,
+        ViewItemTypeDTO,
+        CreateItemTypeDTO,
+        UpdateItemTypeDTO> {
 
     private final IItemTypeRepository itemTypeRepository;
     private final ItemTypeMapper itemTypeMapper;
 
     @Override
-    public List<ItemTypeDTO> getItemTypes() {
-
-        return itemTypeRepository.findAllByOrderByNameAsc()
-                .stream()
-                .map(itemTypeMapper::mapToItemTypeDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<ItemType, Integer> getRepository() {
+        return itemTypeRepository;
     }
 
     @Override
-    public Optional<ItemTypeDTO> getItemType(int itemTypeId) {
-        return itemTypeRepository.findById(itemTypeId)
-                .map(itemTypeMapper::mapToItemTypeDto);
+    protected ViewItemTypeDTO toViewDto(ItemType entity) {
+        return itemTypeMapper.toDto(entity);
     }
 
     @Override
-    @Transactional
-    public void saveItemType(ItemTypeDTO itemType) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(itemType)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(itemTypeRepository, itemType.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-        itemTypeMapper.mapToItemTypeDto(
-                itemTypeRepository.save(itemTypeMapper.mapFromItemTypeDto(itemType))
-        );
+    protected ItemType toEntity(CreateItemTypeDTO dto) {
+        return itemTypeMapper.toEntity(dto);
     }
 
     @Override
-    @Transactional
-    public void deleteItemType(int itemTypeId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(itemTypeRepository, itemTypeId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        itemTypeRepository.deleteById(itemTypeId);
+    protected void updateEntity(UpdateItemTypeDTO dto, ItemType entity) {
+        itemTypeMapper.updateItemTypeFromDto(dto, entity);
     }
 
     @Override
-    @Transactional
-    public Optional<ItemTypeDTO> updateItemType(int itemTypeId, ItemTypeDTO itemType) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(itemTypeRepository, itemTypeId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(itemType)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(itemTypeRepository, itemType.getName(), itemTypeId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        return itemTypeRepository.findById(itemTypeId).map(foundItemType -> {
-            if (itemType.getName() != null) foundItemType.setName(itemType.getName());
-            if (itemType.getDescription() != null) foundItemType.setDescription(itemType.getDescription());
-
-            return itemTypeMapper.mapToItemTypeDto(itemTypeRepository.save(foundItemType));
-        });
+    protected Integer getId(UpdateItemTypeDTO dto) {
+        return dto.getId();
     }
-
 }

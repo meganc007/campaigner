@@ -26,4 +26,9 @@ public class ItemsTestConstants {
     public static final String WEAPON_TYPE_NAME = "Dagger";
     public static final String WEAPON_TYPE_DESCRIPTION = "Simple melee weapon";
 
+    //ITEM TYPES
+    public static final int ITEM_TYPE_ID = 1;
+    public static final String ITEM_TYPE_NAME = "Armor";
+    public static final String ITEM_TYPE_DESCRIPTION = "Protects your body";
+
 }

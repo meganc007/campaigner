@@ -1,44 +1,47 @@
 package com.mcommings.campaigner.modules.items.controllers;
 
-import com.mcommings.campaigner.modules.items.dtos.ItemTypeDTO;
-import com.mcommings.campaigner.modules.items.services.interfaces.IItemType;
+import com.mcommings.campaigner.modules.items.dtos.item_types.CreateItemTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.item_types.UpdateItemTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.item_types.ViewItemTypeDTO;
+import com.mcommings.campaigner.modules.items.services.ItemTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/itemtypes")
 public class ItemTypeController {
 
-    private final IItemType itemTypeService;
+    private final ItemTypeService itemTypeService;
 
     @GetMapping
-    public List<ItemTypeDTO> ItemType() {
-        return itemTypeService.getItemTypes();
+    public List<ViewItemTypeDTO> getItemTypes() {
+
+        return itemTypeService.getAll();
     }
 
     @GetMapping(path = "/{itemTypeId}")
-    public ItemTypeDTO getItemType(@PathVariable("itemTypeId") int itemTypeId) {
-        return itemTypeService.getItemType(itemTypeId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewItemTypeDTO getItemType(@PathVariable int itemTypeId) {
+        return itemTypeService.getById(itemTypeId);
     }
 
     @PostMapping
-    public void saveItemType(@Valid @RequestBody ItemTypeDTO itemType) {
-        itemTypeService.saveItemType(itemType);
+    public ViewItemTypeDTO createItemType(@Valid @RequestBody CreateItemTypeDTO itemType) {
+
+        return itemTypeService.create(itemType);
     }
 
-    @DeleteMapping(path = "{itemTypeId}")
-    public void deleteItemType(@PathVariable("itemTypeId") int itemTypeId) {
-        itemTypeService.deleteItemType(itemTypeId);
+    @PutMapping
+    public ViewItemTypeDTO updateItemType(@Valid @RequestBody UpdateItemTypeDTO itemType) {
+        return itemTypeService.update(itemType);
     }
 
-    @PutMapping(path = "{itemTypeId}")
-    public void updateItemType(@PathVariable("itemTypeId") int itemTypeId, @RequestBody ItemTypeDTO itemType) {
-        itemTypeService.updateItemType(itemTypeId, itemType);
+    @DeleteMapping(path = "/{itemTypeId}")
+    public void deleteItemType(@PathVariable int itemTypeId) {
+
+        itemTypeService.delete(itemTypeId);
     }
 }
