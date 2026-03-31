@@ -1,168 +1,280 @@
 package com.mcommings.campaigner.services.items;
 
-import com.mcommings.campaigner.modules.items.dtos.InventoryDTO;
+import com.mcommings.campaigner.modules.common.entities.Campaign;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.modules.items.dtos.inventories.CreateInventoryDTO;
+import com.mcommings.campaigner.modules.items.dtos.inventories.UpdateInventoryDTO;
+import com.mcommings.campaigner.modules.items.dtos.inventories.ViewInventoryDTO;
 import com.mcommings.campaigner.modules.items.entities.Inventory;
 import com.mcommings.campaigner.modules.items.mappers.InventoryMapper;
 import com.mcommings.campaigner.modules.items.repositories.IInventoryRepository;
 import com.mcommings.campaigner.modules.items.services.InventoryService;
+import com.mcommings.campaigner.setup.items.factories.ItemsTestDataFactory;
+import com.mcommings.campaigner.setup.items.fixtures.ItemsTestConstants;
+import com.mcommings.campaigner.setup.locations.fixtures.LocationsTestConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class InventoryTest {
-
-    @Mock
-    private InventoryMapper inventoryMapper;
 
     @Mock
     private IInventoryRepository inventoryRepository;
 
+    @Mock
+    private ICampaignRepository campaignRepository;
+
+    @Mock
+    private InventoryMapper inventoryMapper;
+
     @InjectMocks
     private InventoryService inventoryService;
 
-    private Inventory entity;
-    private InventoryDTO dto;
+    private Inventory inventory;
+    private ViewInventoryDTO viewDto;
+    private CreateInventoryDTO createDto;
+    private UpdateInventoryDTO updateDto;
 
     @BeforeEach
     void setUp() {
-        Random random = new Random();
-        entity = new Inventory();
-        entity.setId(1);
-        entity.setFk_campaign_uuid(UUID.randomUUID());
-        entity.setFk_person(random.nextInt(100) + 1);
-        entity.setFk_item(random.nextInt(100) + 1);
-        entity.setFk_weapon(random.nextInt(100) + 1);
-        entity.setFk_place(random.nextInt(100) + 1);
-
-        dto = new InventoryDTO();
-        dto.setId(entity.getId());
-        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
-        dto.setFk_person(entity.getFk_person());
-        dto.setFk_item(entity.getFk_item());
-        dto.setFk_weapon(entity.getFk_weapon());
-        dto.setFk_place(entity.getFk_place());
-
-        when(inventoryMapper.mapToInventoryDto(entity)).thenReturn(dto);
-        when(inventoryMapper.mapFromInventoryDto(dto)).thenReturn(entity);
+        inventory = ItemsTestDataFactory.inventory();
+        viewDto = ItemsTestDataFactory.viewInventoryDTO();
+        createDto = ItemsTestDataFactory.createInventoryDTO();
+        updateDto = ItemsTestDataFactory.updateInventoryDTO();
     }
 
     @Test
-    public void whenThereAreInventories_getInventories_ReturnsInventories() {
-        when(inventoryRepository.findAll()).thenReturn(List.of(entity));
-        List<InventoryDTO> result = inventoryService.getInventories();
+    void getAll_returnsMappedDtos() {
 
-        assertNotNull(result);
+        when(inventoryRepository.findAll()).thenReturn(List.of(inventory));
+        when(inventoryMapper.toDto(inventory)).thenReturn(viewDto);
+
+        List<ViewInventoryDTO> result = inventoryService.getAll();
+
         assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(inventoryRepository).findAll();
+        verify(inventoryMapper).toDto(inventory);
     }
 
     @Test
-    public void whenThereAreNoInventories_getInventories_ReturnsEmptyList() {
-        when(inventoryRepository.findAll()).thenReturn(Collections.emptyList());
+    void getInventoriesByCampaignUUID_returnsMappedList() {
 
-        List<InventoryDTO> result = inventoryService.getInventories();
+        when(inventoryRepository.findByCampaign_Uuid(ItemsTestConstants.CAMPAIGN_UUID))
+                .thenReturn(List.of(inventory));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when there are no inventories.");
-    }
+        when(inventoryMapper.toDto(inventory))
+                .thenReturn(viewDto);
 
-    @Test
-    void whenThereIsAInventory_getInventory_ReturnsInventoryById() {
-        when(inventoryRepository.findById(1)).thenReturn(Optional.of(entity));
+        List<ViewInventoryDTO> result =
+                inventoryService.getInventoriesByCampaignUUID(
+                        ItemsTestConstants.CAMPAIGN_UUID);
 
-        Optional<InventoryDTO> result = inventoryService.getInventory(1);
-
-        assertTrue(result.isPresent());
-    }
-
-    @Test
-    void whenThereIsNotAInventory_getInventory_ReturnsNothing() {
-        when(inventoryRepository.findById(999)).thenReturn(Optional.empty());
-
-        Optional<InventoryDTO> result = inventoryService.getInventory(999);
-
-        assertTrue(result.isEmpty(), "Expected empty Optional when inventory is not found.");
-    }
-
-    @Test
-    void whenCampaignUUIDIsValid_getInventoriesByCampaignUUID_ReturnsInventories() {
-        UUID campaignUUID = entity.getFk_campaign_uuid();
-        when(inventoryRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
-
-        List<InventoryDTO> result = inventoryService.getInventoriesByCampaignUUID(campaignUUID);
-
-        assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
+        assertEquals(viewDto, result.get(0));
+
+        verify(inventoryRepository)
+                .findByCampaign_Uuid(ItemsTestConstants.CAMPAIGN_UUID);
+
+        verify(inventoryMapper).toDto(inventory);
     }
 
     @Test
-    void whenCampaignUUIDIsInvalid_getInventoriesByCampaignUUID_ReturnsNothing() {
-        UUID campaignUUID = UUID.randomUUID();
-        when(inventoryRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
+    void getInventoriesByPersonId_returnsMappedList() {
+        when(inventoryRepository.findByPerson_Id(ItemsTestConstants.ITEM_ID))
+                .thenReturn(List.of(inventory));
 
-        List<InventoryDTO> result = inventoryService.getInventoriesByCampaignUUID(campaignUUID);
+        when(inventoryMapper.toDto(inventory))
+                .thenReturn(viewDto);
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when no inventories match the campaign UUID.");
+        List<ViewInventoryDTO> result =
+                inventoryService.getInventoriesByPersonId(
+                        ItemsTestConstants.PERSON_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(inventoryRepository)
+                .findByPerson_Id((ItemsTestConstants.PERSON_ID));
+
+        verify(inventoryMapper).toDto(inventory);
     }
 
     @Test
-    void whenInventoryIsValid_saveInventory_SavesTheInventory() {
-        when(inventoryRepository.save(entity)).thenReturn(entity);
+    void getInventoriesByItemId_returnsMappedList() {
+        when(inventoryRepository.findByItem_Id(ItemsTestConstants.ITEM_ID))
+                .thenReturn(List.of(inventory));
 
-        inventoryService.saveInventory(dto);
+        when(inventoryMapper.toDto(inventory))
+                .thenReturn(viewDto);
 
-        verify(inventoryRepository, times(1)).save(entity);
+        List<ViewInventoryDTO> result =
+                inventoryService.getInventoriesByItemId(
+                        ItemsTestConstants.ITEM_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(inventoryRepository)
+                .findByItem_Id((ItemsTestConstants.ITEM_ID));
+
+        verify(inventoryMapper).toDto(inventory);
     }
 
     @Test
-    void whenInventoryIdExists_deleteInventory_DeletesTheInventory() {
-        when(inventoryRepository.existsById(1)).thenReturn(true);
-        inventoryService.deleteInventory(1);
-        verify(inventoryRepository, times(1)).deleteById(1);
+    void getInventoriesByWeaponId_returnsMappedList() {
+        when(inventoryRepository.findByWeapon_Id(ItemsTestConstants.WEAPON_ID))
+                .thenReturn(List.of(inventory));
+
+        when(inventoryMapper.toDto(inventory))
+                .thenReturn(viewDto);
+
+        List<ViewInventoryDTO> result =
+                inventoryService.getInventoriesByWeaponId(
+                        ItemsTestConstants.WEAPON_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(inventoryRepository)
+                .findByWeapon_Id((ItemsTestConstants.WEAPON_ID));
+
+        verify(inventoryMapper).toDto(inventory);
     }
 
     @Test
-    void whenInventoryIdDoesNotExist_deleteInventory_ThrowsIllegalArgumentException() {
-        when(inventoryRepository.existsById(999)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> inventoryService.deleteInventory(999));
+    void getInventoriesByPlaceId_returnsMappedList() {
+        when(inventoryRepository.findByPlace_Id(LocationsTestConstants.PLACE_ID))
+                .thenReturn(List.of(inventory));
+
+        when(inventoryMapper.toDto(inventory))
+                .thenReturn(viewDto);
+
+        List<ViewInventoryDTO> result =
+                inventoryService.getInventoriesByPlaceId(
+                        LocationsTestConstants.PLACE_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(inventoryRepository)
+                .findByPlace_Id((LocationsTestConstants.PLACE_ID));
+
+        verify(inventoryMapper).toDto(inventory);
     }
 
     @Test
-    void whenDeleteInventoryFails_deleteInventory_ThrowsException() {
-        when(inventoryRepository.existsById(1)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(inventoryRepository).deleteById(1);
+    void getById_whenExists_returnsDto() {
 
-        assertThrows(RuntimeException.class, () -> inventoryService.deleteInventory(1));
+        when(inventoryRepository.findById(inventory.getId()))
+                .thenReturn(Optional.of(inventory));
+
+        when(inventoryMapper.toDto(inventory))
+                .thenReturn(viewDto);
+
+        ViewInventoryDTO result = inventoryService.getById(inventory.getId());
+
+        assertEquals(viewDto, result);
+
+        verify(inventoryRepository).findById(inventory.getId());
+        verify(inventoryMapper).toDto(inventory);
     }
 
     @Test
-    void whenInventoryIdIsFound_updateInventory_UpdatesTheInventory() {
-        InventoryDTO updateDTO = new InventoryDTO();
+    void getById_whenMissing_throwsException() {
 
-        when(inventoryRepository.findById(1)).thenReturn(Optional.of(entity));
-        when(inventoryRepository.existsById(1)).thenReturn(true);
-        when(inventoryRepository.save(entity)).thenReturn(entity);
-        when(inventoryMapper.mapToInventoryDto(entity)).thenReturn(updateDTO);
+        when(inventoryRepository.findById(inventory.getId()))
+                .thenReturn(Optional.empty());
 
-        Optional<InventoryDTO> result = inventoryService.updateInventory(1, updateDTO);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> inventoryService.getById(inventory.getId())
+        );
 
-        assertTrue(result.isPresent());
+        verify(inventoryRepository).findById(inventory.getId());
     }
 
     @Test
-    void whenInventoryIdIsNotFound_updateInventory_ReturnsEmptyOptional() {
-        InventoryDTO updateDTO = new InventoryDTO();
+    void create_whenValid_savesAndReturnsDto() {
 
-        when(inventoryRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> inventoryService.updateInventory(999, updateDTO));
+        Campaign campaign = new Campaign();
+        campaign.setUuid(createDto.getCampaignUuid());
+
+        when(inventoryMapper.toEntity(createDto)).thenReturn(inventory);
+        when(campaignRepository.getReferenceById(createDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(inventoryRepository.save(inventory)).thenReturn(inventory);
+        when(inventoryMapper.toDto(inventory)).thenReturn(viewDto);
+
+        ViewInventoryDTO result = inventoryService.create(createDto);
+
+        assertEquals(viewDto, result);
+
+        verify(inventoryMapper).toEntity(createDto);
+        verify(campaignRepository).getReferenceById(createDto.getCampaignUuid());
+        verify(inventoryRepository).save(inventory);
+        verify(inventoryMapper).toDto(inventory);
+    }
+
+    @Test
+    void update_whenValid_updatesAndReturnsDto() {
+
+        Campaign campaign = new Campaign();
+        campaign.setUuid(updateDto.getCampaignUuid());
+
+        when(inventoryRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.of(inventory));
+
+        when(campaignRepository.getReferenceById(updateDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(inventoryRepository.save(inventory)).thenReturn(inventory);
+        when(inventoryMapper.toDto(inventory)).thenReturn(viewDto);
+
+        ViewInventoryDTO result = inventoryService.update(updateDto);
+
+        assertEquals(viewDto, result);
+
+        verify(inventoryRepository).findById(updateDto.getId());
+        verify(inventoryMapper).updateInventoryFromDto(updateDto, inventory);
+        verify(campaignRepository).getReferenceById(updateDto.getCampaignUuid());
+        verify(inventoryRepository).save(inventory);
+        verify(inventoryMapper).toDto(inventory);
+    }
+
+    @Test
+    void update_whenMissing_throwsException() {
+
+        when(inventoryRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> inventoryService.update(updateDto)
+        );
+
+        verify(inventoryRepository).findById(updateDto.getId());
+    }
+
+    @Test
+    void delete_callsRepository() {
+
+        inventoryService.delete(inventory.getId());
+
+        verify(inventoryRepository).deleteById(inventory.getId());
     }
 }

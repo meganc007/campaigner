@@ -122,7 +122,7 @@ public class WeaponTest {
 
         List<ViewWeaponDTO> result =
                 weaponService.getWeaponsByDamageTypeId(
-                        ItemsTestConstants.WEAPON_TYPE_ID);
+                        ItemsTestConstants.DAMAGE_TYPE_ID);
 
         assertEquals(1, result.size());
         assertEquals(viewDto, result.get(0));

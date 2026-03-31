@@ -9,6 +9,7 @@ public class ItemsTestConstants {
 
     //SHARED
     public static final UUID CAMPAIGN_UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+    public static final int PERSON_ID = 1;
 
     //DAMAGE TYPES
     public static final int DAMAGE_TYPE_ID = 1;
@@ -58,5 +59,8 @@ public class ItemsTestConstants {
     public static final Boolean ITEM_IS_MAGICAL = true;
     public static final Boolean ITEM_IS_CURSED = false;
     public static final String ITEM_NOTES = "must drink all of it to get the benefits";
+
+    //ITEM
+    public static final int INVENTORY_ID = 1;
 
 }

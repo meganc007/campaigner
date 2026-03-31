@@ -1,120 +1,86 @@
 package com.mcommings.campaigner.modules.items.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.dtos.InventoryDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.modules.items.dtos.inventories.CreateInventoryDTO;
+import com.mcommings.campaigner.modules.items.dtos.inventories.UpdateInventoryDTO;
+import com.mcommings.campaigner.modules.items.dtos.inventories.ViewInventoryDTO;
+import com.mcommings.campaigner.modules.items.entities.Inventory;
 import com.mcommings.campaigner.modules.items.mappers.InventoryMapper;
 import com.mcommings.campaigner.modules.items.repositories.IInventoryRepository;
-import com.mcommings.campaigner.modules.items.services.interfaces.IInventory;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.DELETE_NOT_FOUND;
-import static com.mcommings.campaigner.enums.ErrorMessage.UPDATE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
-public class InventoryService implements IInventory {
+public class InventoryService extends BaseService<
+        Inventory,
+        Integer,
+        ViewInventoryDTO,
+        CreateInventoryDTO,
+        UpdateInventoryDTO> {
 
     private final IInventoryRepository inventoryRepository;
+    private final ICampaignRepository campaignRepository;
     private final InventoryMapper inventoryMapper;
 
     @Override
-    public List<InventoryDTO> getInventories() {
-
-        return inventoryRepository.findAll()
-                .stream()
-                .map(inventoryMapper::mapToInventoryDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<Inventory, Integer> getRepository() {
+        return inventoryRepository;
     }
 
     @Override
-    public Optional<InventoryDTO> getInventory(int inventoryId) {
-        return inventoryRepository.findById(inventoryId)
-                .map(inventoryMapper::mapToInventoryDto);
+    protected ViewInventoryDTO toViewDto(Inventory entity) {
+        return inventoryMapper.toDto(entity);
     }
 
     @Override
-    public List<InventoryDTO> getInventoriesByCampaignUUID(UUID uuid) {
-        return inventoryRepository.findByfk_campaign_uuid(uuid)
-                .stream()
-                .map(inventoryMapper::mapToInventoryDto)
-                .collect(Collectors.toList());
-    }
+    protected Inventory toEntity(CreateInventoryDTO dto) {
+        Inventory entity = inventoryMapper.toEntity(dto);
 
-    @Override
-    public List<InventoryDTO> getInventoriesByItem(int itemId) {
-
-        return inventoryRepository.findByfk_item(itemId)
-                .stream()
-                .map(inventoryMapper::mapToInventoryDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<InventoryDTO> getInventoriesByPerson(int personId) {
-        return inventoryRepository.findByfk_person(personId)
-                .stream()
-                .map(inventoryMapper::mapToInventoryDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<InventoryDTO> getInventoriesByPlace(int placeId) {
-
-        return inventoryRepository.findByfk_place(placeId)
-                .stream()
-                .map(inventoryMapper::mapToInventoryDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<InventoryDTO> getInventoriesByWeapon(int weaponId) {
-        return inventoryRepository.findByfk_weapon(weaponId)
-                .stream()
-                .map(inventoryMapper::mapToInventoryDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public void saveInventory(InventoryDTO inventory) throws IllegalArgumentException, DataIntegrityViolationException {
-        inventoryMapper.mapToInventoryDto(
-                inventoryRepository.save(inventoryMapper.mapFromInventoryDto(inventory))
+        entity.setCampaign(
+                campaignRepository.getReferenceById(dto.getCampaignUuid())
         );
+        return entity;
     }
 
     @Override
-    @Transactional
-    public void deleteInventory(int inventoryId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(inventoryRepository, inventoryId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
+    protected void updateEntity(UpdateInventoryDTO dto, Inventory entity) {
+        inventoryMapper.updateInventoryFromDto(dto, entity);
+
+        if (dto.getCampaignUuid() != null) {
+            entity.setCampaign(
+                    campaignRepository.getReferenceById(dto.getCampaignUuid())
+            );
         }
-        inventoryRepository.deleteById(inventoryId);
     }
 
     @Override
-    @Transactional
-    public Optional<InventoryDTO> updateInventory(int inventoryId, InventoryDTO inventory) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(inventoryRepository, inventoryId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
+    protected Integer getId(UpdateInventoryDTO dto) {
+        return dto.getId();
+    }
 
-        return inventoryRepository.findById(inventoryId).map(foundInventory -> {
-            if (inventory.getFk_campaign_uuid() != null)
-                foundInventory.setFk_campaign_uuid(inventory.getFk_campaign_uuid());
-            if (inventory.getFk_person() != null) foundInventory.setFk_person(inventory.getFk_person());
-            if (inventory.getFk_item() != null) foundInventory.setFk_item(inventory.getFk_item());
-            if (inventory.getFk_weapon() != null) foundInventory.setFk_weapon(inventory.getFk_weapon());
-            if (inventory.getFk_place() != null) foundInventory.setFk_place(inventory.getFk_place());
+    public List<ViewInventoryDTO> getInventoriesByCampaignUUID(UUID uuid) {
+        return query(inventoryRepository::findByCampaign_Uuid, uuid);
+    }
 
-            return inventoryMapper.mapToInventoryDto(inventoryRepository.save(foundInventory));
-        });
+    public List<ViewInventoryDTO> getInventoriesByPersonId(int personId) {
+        return query(inventoryRepository::findByPerson_Id, personId);
+    }
+
+    public List<ViewInventoryDTO> getInventoriesByItemId(int itemId) {
+        return query(inventoryRepository::findByItem_Id, itemId);
+    }
+
+    public List<ViewInventoryDTO> getInventoriesByWeaponId(int weaponId) {
+        return query(inventoryRepository::findByWeapon_Id, weaponId);
+    }
+
+    public List<ViewInventoryDTO> getInventoriesByPlaceId(int placeId) {
+        return query(inventoryRepository::findByPlace_Id, placeId);
     }
 }

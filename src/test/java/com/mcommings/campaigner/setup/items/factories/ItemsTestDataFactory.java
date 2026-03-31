@@ -6,6 +6,9 @@ import com.mcommings.campaigner.modules.items.dtos.damage_types.ViewDamageTypeDT
 import com.mcommings.campaigner.modules.items.dtos.dice_types.CreateDiceTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.dice_types.UpdateDiceTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.dice_types.ViewDiceTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.inventories.CreateInventoryDTO;
+import com.mcommings.campaigner.modules.items.dtos.inventories.UpdateInventoryDTO;
+import com.mcommings.campaigner.modules.items.dtos.inventories.ViewInventoryDTO;
 import com.mcommings.campaigner.modules.items.dtos.item_types.CreateItemTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.item_types.UpdateItemTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.item_types.ViewItemTypeDTO;
@@ -21,6 +24,7 @@ import com.mcommings.campaigner.modules.items.dtos.weapons.ViewWeaponDTO;
 import com.mcommings.campaigner.modules.items.entities.*;
 import com.mcommings.campaigner.setup.items.builders.*;
 import com.mcommings.campaigner.setup.items.fixtures.ItemsTestConstants;
+import com.mcommings.campaigner.setup.locations.fixtures.LocationsTestConstants;
 
 public class ItemsTestDataFactory {
 
@@ -240,6 +244,39 @@ public class ItemsTestDataFactory {
         dto.setId(ItemsTestConstants.ITEM_TYPE_ID);
         dto.setName(ItemsTestConstants.ITEM_TYPE_NAME);
         dto.setDescription(ItemsTestConstants.ITEM_TYPE_DESCRIPTION);
+        dto.setCampaignUuid(ItemsTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    //INVENTORY
+    public static Inventory inventory() {
+        return InventoryBuilder.aInventory().build();
+    }
+
+    public static ViewInventoryDTO viewInventoryDTO() {
+        ViewInventoryDTO dto = new ViewInventoryDTO();
+        dto.setId(ItemsTestConstants.INVENTORY_ID);
+        dto.setCampaignUuid(ItemsTestConstants.CAMPAIGN_UUID);
+        dto.setPersonId(ItemsTestConstants.PERSON_ID);
+        dto.setItemId(ItemsTestConstants.ITEM_ID);
+        dto.setWeaponId(ItemsTestConstants.WEAPON_ID);
+        dto.setPlaceId(LocationsTestConstants.PLACE_ID);
+        return dto;
+    }
+
+    public static CreateInventoryDTO createInventoryDTO() {
+        CreateInventoryDTO dto = new CreateInventoryDTO();
+        dto.setCampaignUuid(ItemsTestConstants.CAMPAIGN_UUID);
+        dto.setPersonId(ItemsTestConstants.PERSON_ID);
+        dto.setItemId(ItemsTestConstants.ITEM_ID);
+        dto.setWeaponId(ItemsTestConstants.WEAPON_ID);
+        dto.setPlaceId(LocationsTestConstants.PLACE_ID);
+        return dto;
+    }
+
+    public static UpdateInventoryDTO updateInventoryDTO() {
+        UpdateInventoryDTO dto = new UpdateInventoryDTO();
+        dto.setId(ItemsTestConstants.INVENTORY_ID);
         dto.setCampaignUuid(ItemsTestConstants.CAMPAIGN_UUID);
         return dto;
     }
