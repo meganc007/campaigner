@@ -31,4 +31,19 @@ public class ItemsTestConstants {
     public static final String ITEM_TYPE_NAME = "Armor";
     public static final String ITEM_TYPE_DESCRIPTION = "Protects your body";
 
+    //WEAPON
+    public static final int WEAPON_ID = 1;
+    public static final String WEAPON_NAME = "Dagger";
+    public static final String WEAPON_DESCRIPTION = "Simple melee weapon";
+    public static final String WEAPON_RARITY = "common";
+    public static final Integer WEAPON_GOLD_VALUE = 2;
+    public static final Integer WEAPON_SILVER_VALUE = 0;
+    public static final Integer WEAPON_COPPER_VALUE = 0;
+    public static final Float WEAPON_WEIGHT = 1.0f;
+    public static final Integer WEAPON_NUMBER_OF_DICE = 1;
+    public static final Integer WEAPON_DAMAGE_MODIFIER = 0;
+    public static final Boolean WEAPON_IS_MAGICAL = false;
+    public static final Boolean WEAPON_IS_CURSED = false;
+    public static final String WEAPON_NOTES = "stick 'em with the pointy end";
+
 }

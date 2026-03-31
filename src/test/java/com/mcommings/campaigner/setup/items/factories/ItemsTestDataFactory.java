@@ -12,14 +12,11 @@ import com.mcommings.campaigner.modules.items.dtos.item_types.ViewItemTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.weapon_types.CreateWeaponTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.weapon_types.UpdateWeaponTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.weapon_types.ViewWeaponTypeDTO;
-import com.mcommings.campaigner.modules.items.entities.DamageType;
-import com.mcommings.campaigner.modules.items.entities.DiceType;
-import com.mcommings.campaigner.modules.items.entities.ItemType;
-import com.mcommings.campaigner.modules.items.entities.WeaponType;
-import com.mcommings.campaigner.setup.items.builders.DamageTypeBuilder;
-import com.mcommings.campaigner.setup.items.builders.DiceTypeBuilder;
-import com.mcommings.campaigner.setup.items.builders.ItemTypeBuilder;
-import com.mcommings.campaigner.setup.items.builders.WeaponTypeBuilder;
+import com.mcommings.campaigner.modules.items.dtos.weapons.CreateWeaponDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapons.UpdateWeaponDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapons.ViewWeaponDTO;
+import com.mcommings.campaigner.modules.items.entities.*;
+import com.mcommings.campaigner.setup.items.builders.*;
 import com.mcommings.campaigner.setup.items.fixtures.ItemsTestConstants;
 
 public class ItemsTestDataFactory {
@@ -135,6 +132,63 @@ public class ItemsTestDataFactory {
         dto.setId(ItemsTestConstants.ITEM_TYPE_ID);
         dto.setName(ItemsTestConstants.ITEM_TYPE_NAME);
         dto.setDescription(ItemsTestConstants.ITEM_TYPE_DESCRIPTION);
+        return dto;
+    }
+
+    //WEAPON
+    public static Weapon weapon() {
+        return WeaponBuilder.aWeapon().build();
+    }
+
+    public static ViewWeaponDTO viewWeaponDTO() {
+        ViewWeaponDTO dto = new ViewWeaponDTO();
+        dto.setId(ItemsTestConstants.WEAPON_TYPE_ID);
+        dto.setName(ItemsTestConstants.WEAPON_TYPE_NAME);
+        dto.setDescription(ItemsTestConstants.WEAPON_TYPE_DESCRIPTION);
+        dto.setCampaignUuid(ItemsTestConstants.CAMPAIGN_UUID);
+        dto.setRarity(ItemsTestConstants.WEAPON_RARITY);
+        dto.setGoldValue(ItemsTestConstants.WEAPON_GOLD_VALUE);
+        dto.setSilverValue(ItemsTestConstants.WEAPON_SILVER_VALUE);
+        dto.setCopperValue(ItemsTestConstants.WEAPON_COPPER_VALUE);
+        dto.setWeight(ItemsTestConstants.WEAPON_WEIGHT);
+        dto.setWeaponTypeId(ItemsTestConstants.WEAPON_TYPE_ID);
+        dto.setDamageTypeId(ItemsTestConstants.DAMAGE_TYPE_ID);
+        dto.setDiceTypeId(ItemsTestConstants.DICE_TYPE_ID);
+        dto.setNumberOfDice(ItemsTestConstants.WEAPON_NUMBER_OF_DICE);
+        dto.setDamageModifier(ItemsTestConstants.WEAPON_DAMAGE_MODIFIER);
+        dto.setIsMagical(ItemsTestConstants.WEAPON_IS_MAGICAL);
+        dto.setIsCursed(ItemsTestConstants.WEAPON_IS_CURSED);
+        dto.setNotes(ItemsTestConstants.WEAPON_NOTES);
+        return dto;
+    }
+
+    public static CreateWeaponDTO createWeaponDTO() {
+        CreateWeaponDTO dto = new CreateWeaponDTO();
+        dto.setName(ItemsTestConstants.WEAPON_TYPE_NAME);
+        dto.setDescription(ItemsTestConstants.WEAPON_TYPE_DESCRIPTION);
+        dto.setCampaignUuid(ItemsTestConstants.CAMPAIGN_UUID);
+        dto.setRarity(ItemsTestConstants.WEAPON_RARITY);
+        dto.setGoldValue(ItemsTestConstants.WEAPON_GOLD_VALUE);
+        dto.setSilverValue(ItemsTestConstants.WEAPON_SILVER_VALUE);
+        dto.setCopperValue(ItemsTestConstants.WEAPON_COPPER_VALUE);
+        dto.setWeight(ItemsTestConstants.WEAPON_WEIGHT);
+        dto.setWeaponTypeId(ItemsTestConstants.WEAPON_TYPE_ID);
+        dto.setDamageTypeId(ItemsTestConstants.DAMAGE_TYPE_ID);
+        dto.setDiceTypeId(ItemsTestConstants.DICE_TYPE_ID);
+        dto.setNumberOfDice(ItemsTestConstants.WEAPON_NUMBER_OF_DICE);
+        dto.setDamageModifier(ItemsTestConstants.WEAPON_DAMAGE_MODIFIER);
+        dto.setIsMagical(ItemsTestConstants.WEAPON_IS_MAGICAL);
+        dto.setIsCursed(ItemsTestConstants.WEAPON_IS_CURSED);
+        dto.setNotes(ItemsTestConstants.WEAPON_NOTES);
+        return dto;
+    }
+
+    public static UpdateWeaponDTO updateWeaponDTO() {
+        UpdateWeaponDTO dto = new UpdateWeaponDTO();
+        dto.setId(ItemsTestConstants.WEAPON_TYPE_ID);
+        dto.setName(ItemsTestConstants.WEAPON_TYPE_NAME);
+        dto.setDescription(ItemsTestConstants.WEAPON_TYPE_DESCRIPTION);
+        dto.setCampaignUuid(ItemsTestConstants.CAMPAIGN_UUID);
         return dto;
     }
 }

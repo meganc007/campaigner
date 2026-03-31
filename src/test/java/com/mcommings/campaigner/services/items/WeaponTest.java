@@ -1,269 +1,258 @@
 package com.mcommings.campaigner.services.items;
 
-import com.mcommings.campaigner.modules.items.dtos.WeaponDTO;
+import com.mcommings.campaigner.modules.common.entities.Campaign;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.modules.items.dtos.weapons.CreateWeaponDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapons.UpdateWeaponDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapons.ViewWeaponDTO;
 import com.mcommings.campaigner.modules.items.entities.Weapon;
 import com.mcommings.campaigner.modules.items.mappers.WeaponMapper;
 import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
 import com.mcommings.campaigner.modules.items.services.WeaponService;
+import com.mcommings.campaigner.setup.items.factories.ItemsTestDataFactory;
+import com.mcommings.campaigner.setup.items.fixtures.ItemsTestConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class WeaponTest {
-
-    @Mock
-    private WeaponMapper weaponMapper;
 
     @Mock
     private IWeaponRepository weaponRepository;
 
+    @Mock
+    private ICampaignRepository campaignRepository;
+
+    @Mock
+    private WeaponMapper weaponMapper;
+
     @InjectMocks
     private WeaponService weaponService;
 
-    private Weapon entity;
-    private WeaponDTO dto;
+    private Weapon weapon;
+    private ViewWeaponDTO viewDto;
+    private CreateWeaponDTO createDto;
+    private UpdateWeaponDTO updateDto;
 
     @BeforeEach
     void setUp() {
-        Random random = new Random();
-        entity = new Weapon();
-        entity.setId(1);
-        entity.setName("Test Weapon");
-        entity.setDescription("A fictional weapon.");
-        entity.setFk_campaign_uuid(UUID.randomUUID());
-        entity.setRarity("Super rare.");
-        entity.setGold_value(random.nextInt(100) + 1);
-        entity.setSilver_value(random.nextInt(100) + 1);
-        entity.setCopper_value(random.nextInt(100) + 1);
-        entity.setWeight(1.0f);
-        entity.setFk_weapon_type(random.nextInt(100) + 1);
-        entity.setFk_damage_type(random.nextInt(100) + 1);
-        entity.setFk_dice_type(random.nextInt(100) + 1);
-        entity.setNumber_of_dice(random.nextInt(100) + 1);
-        entity.setDamage_modifier(random.nextInt(100) + 1);
-        entity.setIsMagical(true);
-        entity.setIsCursed(false);
-        entity.setNotes("This is a note");
-
-        dto = new WeaponDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
-        dto.setRarity(entity.getRarity());
-        dto.setGold_value(entity.getGold_value());
-        dto.setSilver_value(entity.getSilver_value());
-        dto.setCopper_value(entity.getCopper_value());
-        dto.setWeight(entity.getWeight());
-        dto.setFk_weapon_type(entity.getFk_weapon_type());
-        dto.setFk_damage_type(entity.getFk_damage_type());
-        dto.setFk_dice_type(entity.getFk_dice_type());
-        dto.setNumber_of_dice(entity.getNumber_of_dice());
-        dto.setDamage_modifier(entity.getDamage_modifier());
-        dto.setIsMagical(entity.getIsMagical());
-        dto.setIsCursed(entity.getIsCursed());
-        dto.setNotes(entity.getNotes());
-
-        when(weaponMapper.mapToWeaponDto(entity)).thenReturn(dto);
-        when(weaponMapper.mapFromWeaponDto(dto)).thenReturn(entity);
+        weapon = ItemsTestDataFactory.weapon();
+        viewDto = ItemsTestDataFactory.viewWeaponDTO();
+        createDto = ItemsTestDataFactory.createWeaponDTO();
+        updateDto = ItemsTestDataFactory.updateWeaponDTO();
     }
 
     @Test
-    public void whenThereAreWeapons_getWeapons_ReturnsWeapons() {
-        when(weaponRepository.findAll()).thenReturn(List.of(entity));
-        List<WeaponDTO> result = weaponService.getWeapons();
+    void getAll_returnsMappedDtos() {
 
-        assertNotNull(result);
+        when(weaponRepository.findAll()).thenReturn(List.of(weapon));
+        when(weaponMapper.toDto(weapon)).thenReturn(viewDto);
+
+        List<ViewWeaponDTO> result = weaponService.getAll();
+
         assertEquals(1, result.size());
-        assertEquals("Test Weapon", result.get(0).getName());
+        assertEquals(viewDto, result.get(0));
+
+        verify(weaponRepository).findAll();
+        verify(weaponMapper).toDto(weapon);
     }
 
     @Test
-    public void whenThereAreNoWeapons_getWeapons_ReturnsEmptyList() {
-        when(weaponRepository.findAll()).thenReturn(Collections.emptyList());
+    void getWeaponsByCampaignUUID_returnsMappedList() {
 
-        List<WeaponDTO> result = weaponService.getWeapons();
+        when(weaponRepository.findByCampaign_Uuid(ItemsTestConstants.CAMPAIGN_UUID))
+                .thenReturn(List.of(weapon));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when there are no weapons.");
-    }
+        when(weaponMapper.toDto(weapon))
+                .thenReturn(viewDto);
 
-    @Test
-    void whenThereIsAWeapon_getWeapon_ReturnsWeaponById() {
-        when(weaponRepository.findById(1)).thenReturn(Optional.of(entity));
+        List<ViewWeaponDTO> result =
+                weaponService.getWeaponsByCampaignUUID(
+                        ItemsTestConstants.CAMPAIGN_UUID);
 
-        Optional<WeaponDTO> result = weaponService.getWeapon(1);
-
-        assertTrue(result.isPresent());
-        assertEquals("Test Weapon", result.get().getName());
-    }
-
-    @Test
-    void whenThereIsNotAWeapon_getWeapon_ReturnsNothing() {
-        when(weaponRepository.findById(999)).thenReturn(Optional.empty());
-
-        Optional<WeaponDTO> result = weaponService.getWeapon(999);
-
-        assertTrue(result.isEmpty(), "Expected empty Optional when weapon is not found.");
-    }
-
-    @Test
-    void whenCampaignUUIDIsValid_getWeaponsByCampaignUUID_ReturnsWeapons() {
-        UUID campaignUUID = entity.getFk_campaign_uuid();
-        when(weaponRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(List.of(entity));
-
-        List<WeaponDTO> result = weaponService.getWeaponsByCampaignUUID(campaignUUID);
-
-        assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(campaignUUID, result.get(0).getFk_campaign_uuid());
+        assertEquals(viewDto, result.get(0));
+
+        verify(weaponRepository)
+                .findByCampaign_Uuid(ItemsTestConstants.CAMPAIGN_UUID);
+
+        verify(weaponMapper).toDto(weapon);
     }
 
     @Test
-    void whenCampaignUUIDIsInvalid_getWeaponsByCampaignUUID_ReturnsNothing() {
-        UUID campaignUUID = UUID.randomUUID();
-        when(weaponRepository.findByfk_campaign_uuid(campaignUUID)).thenReturn(Collections.emptyList());
+    void getWeaponsByWeaponTypeId_returnsMappedList() {
+        when(weaponRepository.findByWeaponType_Id(ItemsTestConstants.WEAPON_TYPE_ID))
+                .thenReturn(List.of(weapon));
 
-        List<WeaponDTO> result = weaponService.getWeaponsByCampaignUUID(campaignUUID);
+        when(weaponMapper.toDto(weapon))
+                .thenReturn(viewDto);
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when no weapons match the campaign UUID.");
+        List<ViewWeaponDTO> result =
+                weaponService.getWeaponsByWeaponTypeId(
+                        ItemsTestConstants.WEAPON_TYPE_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(weaponRepository)
+                .findByWeaponType_Id((ItemsTestConstants.WEAPON_TYPE_ID));
+
+        verify(weaponMapper).toDto(weapon);
     }
 
     @Test
-    void whenWeaponIsValid_saveWeapon_SavesTheWeapon() {
-        when(weaponRepository.save(entity)).thenReturn(entity);
+    void getWeaponsByDamageTypeId_returnsMappedList() {
+        when(weaponRepository.findByDamageType_Id(ItemsTestConstants.DAMAGE_TYPE_ID))
+                .thenReturn(List.of(weapon));
 
-        weaponService.saveWeapon(dto);
+        when(weaponMapper.toDto(weapon))
+                .thenReturn(viewDto);
 
-        verify(weaponRepository, times(1)).save(entity);
+        List<ViewWeaponDTO> result =
+                weaponService.getWeaponsByDamageTypeId(
+                        ItemsTestConstants.WEAPON_TYPE_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(weaponRepository)
+                .findByDamageType_Id((ItemsTestConstants.DAMAGE_TYPE_ID));
+
+        verify(weaponMapper).toDto(weapon);
     }
 
     @Test
-    public void whenWeaponNameIsInvalid_saveWeapon_ThrowsIllegalArgumentException() {
-        WeaponDTO weaponWithEmptyName = new WeaponDTO();
-        weaponWithEmptyName.setId(1);
-        weaponWithEmptyName.setName("");
-        weaponWithEmptyName.setDescription("A fictional weapon.");
-        weaponWithEmptyName.setFk_campaign_uuid(UUID.randomUUID());
-        weaponWithEmptyName.setRarity("rare");
-        weaponWithEmptyName.setGold_value(1);
-        weaponWithEmptyName.setSilver_value(1);
-        weaponWithEmptyName.setCopper_value(1);
-        weaponWithEmptyName.setWeight(1f);
-        weaponWithEmptyName.setFk_weapon_type(1);
-        weaponWithEmptyName.setFk_damage_type(1);
-        weaponWithEmptyName.setFk_dice_type(1);
-        weaponWithEmptyName.setNumber_of_dice(1);
-        weaponWithEmptyName.setDamage_modifier(1);
-        weaponWithEmptyName.setIsMagical(true);
-        weaponWithEmptyName.setIsCursed(true);
-        weaponWithEmptyName.setNotes("note");
+    void getWeaponsByDiceTypeId_returnsMappedList() {
+        when(weaponRepository.findByDiceType_Id(ItemsTestConstants.DICE_TYPE_ID))
+                .thenReturn(List.of(weapon));
 
-        WeaponDTO weaponWithNullName = new WeaponDTO();
-        weaponWithNullName.setId(1);
-        weaponWithNullName.setName(null);
-        weaponWithNullName.setDescription("A fictional weapon.");
-        weaponWithNullName.setFk_campaign_uuid(UUID.randomUUID());
-        weaponWithNullName.setRarity("rare");
-        weaponWithNullName.setGold_value(1);
-        weaponWithNullName.setSilver_value(1);
-        weaponWithNullName.setCopper_value(1);
-        weaponWithNullName.setWeight(1f);
-        weaponWithNullName.setFk_weapon_type(1);
-        weaponWithNullName.setFk_damage_type(1);
-        weaponWithNullName.setFk_dice_type(1);
-        weaponWithNullName.setNumber_of_dice(1);
-        weaponWithNullName.setDamage_modifier(1);
-        weaponWithNullName.setIsMagical(true);
-        weaponWithNullName.setIsCursed(true);
-        weaponWithNullName.setNotes("note");
+        when(weaponMapper.toDto(weapon))
+                .thenReturn(viewDto);
 
-        assertThrows(IllegalArgumentException.class, () -> weaponService.saveWeapon(weaponWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> weaponService.saveWeapon(weaponWithNullName));
+        List<ViewWeaponDTO> result =
+                weaponService.getWeaponsByDiceTypeId(
+                        ItemsTestConstants.WEAPON_TYPE_ID);
+
+        assertEquals(1, result.size());
+        assertEquals(viewDto, result.get(0));
+
+        verify(weaponRepository)
+                .findByDiceType_Id((ItemsTestConstants.DICE_TYPE_ID));
+
+        verify(weaponMapper).toDto(weapon);
     }
 
     @Test
-    public void whenWeaponNameAlreadyExists_saveWeapon_ThrowsDataIntegrityViolationException() {
-        when(weaponRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-        assertThrows(DataIntegrityViolationException.class, () -> weaponService.saveWeapon(dto));
-        verify(weaponRepository, times(1)).findByName(dto.getName());
-        verify(weaponRepository, never()).save(any(Weapon.class));
+    void getById_whenExists_returnsDto() {
+
+        when(weaponRepository.findById(weapon.getId()))
+                .thenReturn(Optional.of(weapon));
+
+        when(weaponMapper.toDto(weapon))
+                .thenReturn(viewDto);
+
+        ViewWeaponDTO result = weaponService.getById(weapon.getId());
+
+        assertEquals(viewDto, result);
+
+        verify(weaponRepository).findById(weapon.getId());
+        verify(weaponMapper).toDto(weapon);
     }
 
     @Test
-    void whenWeaponIdExists_deleteWeapon_DeletesTheWeapon() {
-        when(weaponRepository.existsById(1)).thenReturn(true);
-        weaponService.deleteWeapon(1);
-        verify(weaponRepository, times(1)).deleteById(1);
+    void getById_whenMissing_throwsException() {
+
+        when(weaponRepository.findById(weapon.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> weaponService.getById(weapon.getId())
+        );
+
+        verify(weaponRepository).findById(weapon.getId());
     }
 
     @Test
-    void whenWeaponIdDoesNotExist_deleteWeapon_ThrowsIllegalArgumentException() {
-        when(weaponRepository.existsById(999)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> weaponService.deleteWeapon(999));
+    void create_whenValid_savesAndReturnsDto() {
+
+        Campaign campaign = new Campaign();
+        campaign.setUuid(createDto.getCampaignUuid());
+
+        when(weaponMapper.toEntity(createDto)).thenReturn(weapon);
+        when(campaignRepository.getReferenceById(createDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(weaponRepository.save(weapon)).thenReturn(weapon);
+        when(weaponMapper.toDto(weapon)).thenReturn(viewDto);
+
+        ViewWeaponDTO result = weaponService.create(createDto);
+
+        assertEquals(viewDto, result);
+
+        verify(weaponMapper).toEntity(createDto);
+        verify(campaignRepository).getReferenceById(createDto.getCampaignUuid());
+        verify(weaponRepository).save(weapon);
+        verify(weaponMapper).toDto(weapon);
     }
 
     @Test
-    void whenDeleteWeaponFails_deleteWeapon_ThrowsException() {
-        when(weaponRepository.existsById(1)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(weaponRepository).deleteById(1);
+    void update_whenValid_updatesAndReturnsDto() {
 
-        assertThrows(RuntimeException.class, () -> weaponService.deleteWeapon(1));
+        Campaign campaign = new Campaign();
+        campaign.setUuid(updateDto.getCampaignUuid());
+
+        when(weaponRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.of(weapon));
+
+        when(campaignRepository.getReferenceById(updateDto.getCampaignUuid()))
+                .thenReturn(campaign);
+
+        when(weaponRepository.save(weapon)).thenReturn(weapon);
+        when(weaponMapper.toDto(weapon)).thenReturn(viewDto);
+
+        ViewWeaponDTO result = weaponService.update(updateDto);
+
+        assertEquals(viewDto, result);
+
+        verify(weaponRepository).findById(updateDto.getId());
+        verify(weaponMapper).updateWeaponFromDto(updateDto, weapon);
+        verify(campaignRepository).getReferenceById(updateDto.getCampaignUuid());
+        verify(weaponRepository).save(weapon);
+        verify(weaponMapper).toDto(weapon);
     }
 
     @Test
-    void whenWeaponIdIsFound_updateWeapon_UpdatesTheWeapon() {
-        WeaponDTO updateDTO = new WeaponDTO();
-        updateDTO.setName("Updated Name");
+    void update_whenMissing_throwsException() {
 
-        when(weaponRepository.findById(1)).thenReturn(Optional.of(entity));
-        when(weaponRepository.existsById(1)).thenReturn(true);
-        when(weaponRepository.save(entity)).thenReturn(entity);
-        when(weaponMapper.mapToWeaponDto(entity)).thenReturn(updateDTO);
+        when(weaponRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.empty());
 
-        Optional<WeaponDTO> result = weaponService.updateWeapon(1, updateDTO);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> weaponService.update(updateDto)
+        );
 
-        assertTrue(result.isPresent());
-        assertEquals("Updated Name", result.get().getName());
+        verify(weaponRepository).findById(updateDto.getId());
     }
 
     @Test
-    void whenWeaponIdIsNotFound_updateWeapon_ReturnsEmptyOptional() {
-        WeaponDTO updateDTO = new WeaponDTO();
-        updateDTO.setName("Updated Name");
+    void delete_callsRepository() {
 
-        when(weaponRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> weaponService.updateWeapon(999, updateDTO));
-    }
+        weaponService.delete(weapon.getId());
 
-    @Test
-    public void whenWeaponNameIsInvalid_updateWeapon_ThrowsIllegalArgumentException() {
-        WeaponDTO updateEmptyName = new WeaponDTO();
-        updateEmptyName.setName("");
-
-        WeaponDTO updateNullName = new WeaponDTO();
-        updateNullName.setName(null);
-
-        when(weaponRepository.existsById(1)).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> weaponService.updateWeapon(1, updateEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> weaponService.updateWeapon(1, updateNullName));
-    }
-
-    @Test
-    public void whenWeaponNameAlreadyExists_updateWeapon_ThrowsDataIntegrityViolationException() {
-        when(weaponRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-
-        assertThrows(IllegalArgumentException.class, () -> weaponService.updateWeapon(entity.getId(), dto));
+        verify(weaponRepository).deleteById(weapon.getId());
     }
 }

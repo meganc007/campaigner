@@ -1,15 +1,19 @@
 package com.mcommings.campaigner.modules.items.entities;
 
+import com.mcommings.campaigner.modules.common.entities.Campaign;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.UUID;
 
 @Getter
 @Setter
 @Builder
 @Entity
-@Table(name = "weapons")
+@Table(name = "weapons",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"name", "fk_campaign_uuid"}
+                )
+        })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Weapon {
@@ -17,24 +21,52 @@ public class Weapon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false, unique = true)
     private String name;
+
     private String description;
-    @Column(nullable = false)
-    private UUID fk_campaign_uuid;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_campaign_uuid", nullable = false)
+    private Campaign campaign;
+
     private String rarity;
-    private int gold_value;
-    private int silver_value;
-    private int copper_value;
+
+    @Column(name = "gold_value")
+    private int goldValue;
+
+    @Column(name = "silver_value")
+    private int silverValue;
+
+    @Column(name = "copper_value")
+    private int copperValue;
+
     private float weight;
-    private Integer fk_weapon_type;
-    private Integer fk_damage_type;
-    private Integer fk_dice_type;
-    private int number_of_dice;
-    private int damage_modifier;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_weapon_type")
+    private WeaponType weaponType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_damage_type")
+    private DamageType damageType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_dice_type")
+    private DiceType diceType;
+
+    @Column(name = "number_of_dice")
+    private int numberOfDice;
+
+    @Column(name = "damage_modifier")
+    private int damageModifier;
+
     @Column(name = "ismagical")
     private Boolean isMagical;
+
     @Column(name = "iscursed")
     private Boolean isCursed;
+
     private String notes;
 }
