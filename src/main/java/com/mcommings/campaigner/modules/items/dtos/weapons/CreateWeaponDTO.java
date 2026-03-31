@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.items.dtos;
+package com.mcommings.campaigner.modules.items.dtos.weapons;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,25 +13,39 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WeaponDTO {
+public class CreateWeaponDTO {
 
-    private int id;
     @NotBlank(message = "Weapon name cannot be empty")
     private String name;
+
     private String description;
-    @NotNull(message = "Campaign UUID cannot be null or empty.")
-    private UUID fk_campaign_uuid;
+
+    @NotNull(message = "Campaign UUID cannot be null or empty")
+    private UUID campaignUuid;
+
     private String rarity;
-    private int gold_value;
-    private int silver_value;
-    private int copper_value;
-    private float weight;
-    private Integer fk_weapon_type;
-    private Integer fk_damage_type;
-    private Integer fk_dice_type;
-    private int number_of_dice;
-    private int damage_modifier;
+
+    private Integer goldValue;
+
+    private Integer silverValue;
+
+    private Integer copperValue;
+
+    private Float weight;
+
+    private Integer weaponTypeId;
+
+    private Integer damageTypeId;
+
+    private Integer diceTypeId;
+
+    private Integer numberOfDice;
+
+    private Integer damageModifier;
+
     private Boolean isMagical;
+
     private Boolean isCursed;
+
     private String notes;
 }

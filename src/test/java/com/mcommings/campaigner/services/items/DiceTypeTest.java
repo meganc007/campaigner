@@ -1,197 +1,154 @@
 package com.mcommings.campaigner.services.items;
 
-import com.mcommings.campaigner.modules.items.dtos.DiceTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.dice_types.CreateDiceTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.dice_types.UpdateDiceTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.dice_types.ViewDiceTypeDTO;
 import com.mcommings.campaigner.modules.items.entities.DiceType;
 import com.mcommings.campaigner.modules.items.mappers.DiceTypeMapper;
 import com.mcommings.campaigner.modules.items.repositories.IDiceTypeRepository;
 import com.mcommings.campaigner.modules.items.services.DiceTypeService;
+import com.mcommings.campaigner.setup.items.factories.ItemsTestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class DiceTypeTest {
-
-    @Mock
-    private DiceTypeMapper diceTypeMapper;
 
     @Mock
     private IDiceTypeRepository diceTypeRepository;
 
+    @Mock
+    private DiceTypeMapper diceTypeMapper;
+
     @InjectMocks
     private DiceTypeService diceTypeService;
 
-    private DiceType entity;
-    private DiceTypeDTO dto;
+    private DiceType diceType;
+    private ViewDiceTypeDTO viewDto;
+    private CreateDiceTypeDTO createDto;
+    private UpdateDiceTypeDTO updateDto;
 
     @BeforeEach
     void setUp() {
-        Random random = new Random();
-        entity = new DiceType();
-        entity.setId(1);
-        entity.setName("Test DiceType");
-        entity.setDescription("A fictional diceType.");
-        entity.setMax_roll(random.nextInt(100) + 1);
-
-        dto = new DiceTypeDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-        dto.setMax_roll(entity.getMax_roll());
-
-        when(diceTypeMapper.mapToDiceTypeDto(entity)).thenReturn(dto);
-        when(diceTypeMapper.mapFromDiceTypeDto(dto)).thenReturn(entity);
+        diceType = ItemsTestDataFactory.diceType();
+        viewDto = ItemsTestDataFactory.viewDiceTypeDTO();
+        createDto = ItemsTestDataFactory.createDiceTypeDTO();
+        updateDto = ItemsTestDataFactory.updateDiceTypeDTO();
     }
 
     @Test
-    public void whenThereAreDiceTypes_getDiceTypes_ReturnsDiceTypes() {
-        when(diceTypeRepository.findAll()).thenReturn(List.of(entity));
-        List<DiceTypeDTO> result = diceTypeService.getDiceTypes();
+    void getAll_returnsMappedDtos() {
 
-        assertNotNull(result);
+        when(diceTypeRepository.findAll()).thenReturn(List.of(diceType));
+        when(diceTypeMapper.toDto(diceType)).thenReturn(viewDto);
+
+        List<ViewDiceTypeDTO> result = diceTypeService.getAll();
+
         assertEquals(1, result.size());
-        assertEquals("Test DiceType", result.get(0).getName());
+        assertEquals(viewDto, result.get(0));
+
+        verify(diceTypeRepository).findAll();
+        verify(diceTypeMapper).toDto(diceType);
     }
 
     @Test
-    public void whenThereAreNoDiceTypes_getDiceTypes_ReturnsEmptyList() {
-        when(diceTypeRepository.findAll()).thenReturn(Collections.emptyList());
+    void getById_whenExists_returnsDto() {
 
-        List<DiceTypeDTO> result = diceTypeService.getDiceTypes();
+        when(diceTypeRepository.findById(diceType.getId()))
+                .thenReturn(Optional.of(diceType));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when there are no diceTypes.");
+        when(diceTypeMapper.toDto(diceType))
+                .thenReturn(viewDto);
+
+        ViewDiceTypeDTO result = diceTypeService.getById(diceType.getId());
+
+        assertEquals(viewDto, result);
+
+        verify(diceTypeRepository).findById(diceType.getId());
+        verify(diceTypeMapper).toDto(diceType);
     }
 
     @Test
-    void whenThereIsADiceType_getDiceType_ReturnsDiceTypeById() {
-        when(diceTypeRepository.findById(1)).thenReturn(Optional.of(entity));
+    void getById_whenMissing_throwsException() {
 
-        Optional<DiceTypeDTO> result = diceTypeService.getDiceType(1);
+        when(diceTypeRepository.findById(diceType.getId()))
+                .thenReturn(Optional.empty());
 
-        assertTrue(result.isPresent());
-        assertEquals("Test DiceType", result.get().getName());
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> diceTypeService.getById(diceType.getId())
+        );
+
+        verify(diceTypeRepository).findById(diceType.getId());
     }
 
     @Test
-    void whenThereIsNotADiceType_getDiceType_ReturnsNothing() {
-        when(diceTypeRepository.findById(999)).thenReturn(Optional.empty());
+    void create_whenValid_savesAndReturnsDto() {
 
-        Optional<DiceTypeDTO> result = diceTypeService.getDiceType(999);
+        when(diceTypeMapper.toEntity(createDto)).thenReturn(diceType);
 
-        assertTrue(result.isEmpty(), "Expected empty Optional when diceType is not found.");
+        when(diceTypeRepository.save(diceType)).thenReturn(diceType);
+        when(diceTypeMapper.toDto(diceType)).thenReturn(viewDto);
+
+        ViewDiceTypeDTO result = diceTypeService.create(createDto);
+
+        assertEquals(viewDto, result);
+
+        verify(diceTypeMapper).toEntity(createDto);
+        verify(diceTypeRepository).save(diceType);
+        verify(diceTypeMapper).toDto(diceType);
     }
 
     @Test
-    void whenDiceTypeIsValid_saveDiceType_SavesTheDiceType() {
-        when(diceTypeRepository.save(entity)).thenReturn(entity);
+    void update_whenValid_updatesAndReturnsDto() {
 
-        diceTypeService.saveDiceType(dto);
+        when(diceTypeRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.of(diceType));
 
-        verify(diceTypeRepository, times(1)).save(entity);
+        when(diceTypeRepository.save(diceType)).thenReturn(diceType);
+        when(diceTypeMapper.toDto(diceType)).thenReturn(viewDto);
+
+        ViewDiceTypeDTO result = diceTypeService.update(updateDto);
+
+        assertEquals(viewDto, result);
+
+        verify(diceTypeRepository).findById(updateDto.getId());
+        verify(diceTypeMapper).updateDiceTypeFromDto(updateDto, diceType);
+        verify(diceTypeRepository).save(diceType);
+        verify(diceTypeMapper).toDto(diceType);
     }
 
     @Test
-    public void whenDiceTypeNameIsInvalid_saveDiceType_ThrowsIllegalArgumentException() {
-        DiceTypeDTO diceTypeWithEmptyName = new DiceTypeDTO();
-        diceTypeWithEmptyName.setId(1);
-        diceTypeWithEmptyName.setName("");
-        diceTypeWithEmptyName.setDescription("A fictional diceType.");
-        diceTypeWithEmptyName.setMax_roll(6);
+    void update_whenMissing_throwsException() {
 
-        DiceTypeDTO diceTypeWithNullName = new DiceTypeDTO();
-        diceTypeWithNullName.setId(1);
-        diceTypeWithNullName.setName(null);
-        diceTypeWithNullName.setDescription("A fictional diceType.");
-        diceTypeWithNullName.setMax_roll(6);
+        when(diceTypeRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> diceTypeService.saveDiceType(diceTypeWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> diceTypeService.saveDiceType(diceTypeWithNullName));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> diceTypeService.update(updateDto)
+        );
+
+        verify(diceTypeRepository).findById(updateDto.getId());
     }
 
     @Test
-    public void whenDiceTypeNameAlreadyExists_saveDiceType_ThrowsDataIntegrityViolationException() {
-        when(diceTypeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-        assertThrows(DataIntegrityViolationException.class, () -> diceTypeService.saveDiceType(dto));
-        verify(diceTypeRepository, times(1)).findByName(dto.getName());
-        verify(diceTypeRepository, never()).save(any(DiceType.class));
-    }
+    void delete_callsRepository() {
 
-    @Test
-    void whenDiceTypeIdExists_deleteDiceType_DeletesTheDiceType() {
-        when(diceTypeRepository.existsById(1)).thenReturn(true);
-        diceTypeService.deleteDiceType(1);
-        verify(diceTypeRepository, times(1)).deleteById(1);
-    }
+        diceTypeService.delete(diceType.getId());
 
-    @Test
-    void whenDiceTypeIdDoesNotExist_deleteDiceType_ThrowsIllegalArgumentException() {
-        when(diceTypeRepository.existsById(999)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> diceTypeService.deleteDiceType(999));
-    }
-
-    @Test
-    void whenDeleteDiceTypeFails_deleteDiceType_ThrowsException() {
-        when(diceTypeRepository.existsById(1)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(diceTypeRepository).deleteById(1);
-
-        assertThrows(RuntimeException.class, () -> diceTypeService.deleteDiceType(1));
-    }
-
-    @Test
-    void whenDiceTypeIdIsFound_updateDiceType_UpdatesTheDiceType() {
-        DiceTypeDTO updateDTO = new DiceTypeDTO();
-        updateDTO.setName("Updated Name");
-
-        when(diceTypeRepository.findById(1)).thenReturn(Optional.of(entity));
-        when(diceTypeRepository.existsById(1)).thenReturn(true);
-        when(diceTypeRepository.save(entity)).thenReturn(entity);
-        when(diceTypeMapper.mapToDiceTypeDto(entity)).thenReturn(updateDTO);
-
-        Optional<DiceTypeDTO> result = diceTypeService.updateDiceType(1, updateDTO);
-
-        assertTrue(result.isPresent());
-        assertEquals("Updated Name", result.get().getName());
-    }
-
-    @Test
-    void whenDiceTypeIdIsNotFound_updateDiceType_ReturnsEmptyOptional() {
-        DiceTypeDTO updateDTO = new DiceTypeDTO();
-        updateDTO.setName("Updated Name");
-
-        when(diceTypeRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> diceTypeService.updateDiceType(999, updateDTO));
-    }
-
-    @Test
-    public void whenDiceTypeNameIsInvalid_updateDiceType_ThrowsIllegalArgumentException() {
-        DiceTypeDTO updateEmptyName = new DiceTypeDTO();
-        updateEmptyName.setName("");
-
-        DiceTypeDTO updateNullName = new DiceTypeDTO();
-        updateNullName.setName(null);
-
-        when(diceTypeRepository.existsById(1)).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> diceTypeService.updateDiceType(1, updateEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> diceTypeService.updateDiceType(1, updateNullName));
-    }
-
-    @Test
-    public void whenDiceTypeNameAlreadyExists_updateDiceType_ThrowsDataIntegrityViolationException() {
-        when(diceTypeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-
-        assertThrows(IllegalArgumentException.class, () -> diceTypeService.updateDiceType(entity.getId(), dto));
+        verify(diceTypeRepository).deleteById(diceType.getId());
     }
 }

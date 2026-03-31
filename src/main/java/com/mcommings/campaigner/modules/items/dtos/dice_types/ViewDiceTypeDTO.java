@@ -1,6 +1,5 @@
-package com.mcommings.campaigner.modules.items.dtos;
+package com.mcommings.campaigner.modules.items.dtos.dice_types;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,11 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DiceTypeDTO {
-
+public class ViewDiceTypeDTO {
     private int id;
-    @NotBlank(message = "DiceType name cannot be empty")
     private String name;
     private String description;
-    private int max_roll;
+    private Integer maxRoll;
 }

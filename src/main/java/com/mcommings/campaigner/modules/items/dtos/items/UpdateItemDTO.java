@@ -1,6 +1,5 @@
-package com.mcommings.campaigner.modules.items.dtos;
+package com.mcommings.campaigner.modules.items.dtos.items;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,20 +12,19 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemDTO {
+public class UpdateItemDTO {
 
+    @NotNull
     private int id;
-    @NotBlank(message = "Item name cannot be empty")
     private String name;
     private String description;
-    @NotNull(message = "Campaign UUID cannot be null or empty.")
-    private UUID fk_campaign_uuid;
+    private UUID campaignUuid;
     private String rarity;
-    private int gold_value;
-    private int silver_value;
-    private int copper_value;
-    private float weight;
-    private Integer fk_item_type;
+    private Integer goldValue;
+    private Integer silverValue;
+    private Integer copperValue;
+    private Float weight;
+    private Integer itemTypeId;
     private Boolean isMagical;
     private Boolean isCursed;
     private String notes;

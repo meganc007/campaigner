@@ -2,8 +2,6 @@ package com.mcommings.campaigner.modules.items.repositories;
 
 import com.mcommings.campaigner.modules.items.entities.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +11,11 @@ public interface IItemRepository extends JpaRepository<Item, Integer> {
 
     Optional<Item> findByName(String name);
 
-    @Query("SELECT i FROM Item i WHERE i.fk_campaign_uuid = :uuid")
-    List<Item> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
+    List<Item> findByCampaign_Uuid(UUID uuid);
 
-    @Query("SELECT i FROM Item i WHERE i.fk_item_type = :id")
-    List<Item> findByfk_item_type(@Param("id") Integer id);
+    List<Item> findByItemType_Id(Integer id);
+
+    boolean existsByNameAndCampaign_UuidAndIdNot(String name, UUID campaignUuid, Integer id);
+
+    boolean existsByNameAndCampaign_Uuid(String name, UUID campaignUuid);
 }

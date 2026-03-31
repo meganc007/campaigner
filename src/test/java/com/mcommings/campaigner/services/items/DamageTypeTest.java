@@ -1,193 +1,154 @@
 package com.mcommings.campaigner.services.items;
 
-import com.mcommings.campaigner.modules.items.dtos.DamageTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.damage_types.CreateDamageTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.damage_types.UpdateDamageTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.damage_types.ViewDamageTypeDTO;
 import com.mcommings.campaigner.modules.items.entities.DamageType;
 import com.mcommings.campaigner.modules.items.mappers.DamageTypeMapper;
 import com.mcommings.campaigner.modules.items.repositories.IDamageTypeRepository;
 import com.mcommings.campaigner.modules.items.services.DamageTypeService;
+import com.mcommings.campaigner.setup.items.factories.ItemsTestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class DamageTypeTest {
-
-    @Mock
-    private DamageTypeMapper damageTypeMapper;
 
     @Mock
     private IDamageTypeRepository damageTypeRepository;
 
+    @Mock
+    private DamageTypeMapper damageTypeMapper;
+
     @InjectMocks
     private DamageTypeService damageTypeService;
 
-    private DamageType entity;
-    private DamageTypeDTO dto;
+    private DamageType damageType;
+    private ViewDamageTypeDTO viewDto;
+    private CreateDamageTypeDTO createDto;
+    private UpdateDamageTypeDTO updateDto;
 
     @BeforeEach
     void setUp() {
-        Random random = new Random();
-        entity = new DamageType();
-        entity.setId(1);
-        entity.setName("Test DamageType");
-        entity.setDescription("A fictional damageType.");
-
-        dto = new DamageTypeDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-
-        when(damageTypeMapper.mapToDamageTypeDto(entity)).thenReturn(dto);
-        when(damageTypeMapper.mapFromDamageTypeDto(dto)).thenReturn(entity);
+        damageType = ItemsTestDataFactory.damageType();
+        viewDto = ItemsTestDataFactory.viewDamageTypeDTO();
+        createDto = ItemsTestDataFactory.createDamageTypeDTO();
+        updateDto = ItemsTestDataFactory.updateDamageTypeDTO();
     }
 
     @Test
-    public void whenThereAreDamageTypes_getDamageTypes_ReturnsDamageTypes() {
-        when(damageTypeRepository.findAll()).thenReturn(List.of(entity));
-        List<DamageTypeDTO> result = damageTypeService.getDamageTypes();
+    void getAll_returnsMappedDtos() {
 
-        assertNotNull(result);
+        when(damageTypeRepository.findAll()).thenReturn(List.of(damageType));
+        when(damageTypeMapper.toDto(damageType)).thenReturn(viewDto);
+
+        List<ViewDamageTypeDTO> result = damageTypeService.getAll();
+
         assertEquals(1, result.size());
-        assertEquals("Test DamageType", result.get(0).getName());
+        assertEquals(viewDto, result.get(0));
+
+        verify(damageTypeRepository).findAll();
+        verify(damageTypeMapper).toDto(damageType);
     }
 
     @Test
-    public void whenThereAreNoDamageTypes_getDamageTypes_ReturnsEmptyList() {
-        when(damageTypeRepository.findAll()).thenReturn(Collections.emptyList());
+    void getById_whenExists_returnsDto() {
 
-        List<DamageTypeDTO> result = damageTypeService.getDamageTypes();
+        when(damageTypeRepository.findById(damageType.getId()))
+                .thenReturn(Optional.of(damageType));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty(), "Expected an empty list when there are no damageTypes.");
+        when(damageTypeMapper.toDto(damageType))
+                .thenReturn(viewDto);
+
+        ViewDamageTypeDTO result = damageTypeService.getById(damageType.getId());
+
+        assertEquals(viewDto, result);
+
+        verify(damageTypeRepository).findById(damageType.getId());
+        verify(damageTypeMapper).toDto(damageType);
     }
 
     @Test
-    void whenThereIsADamageType_getDamageType_ReturnsDamageTypeById() {
-        when(damageTypeRepository.findById(1)).thenReturn(Optional.of(entity));
+    void getById_whenMissing_throwsException() {
 
-        Optional<DamageTypeDTO> result = damageTypeService.getDamageType(1);
+        when(damageTypeRepository.findById(damageType.getId()))
+                .thenReturn(Optional.empty());
 
-        assertTrue(result.isPresent());
-        assertEquals("Test DamageType", result.get().getName());
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> damageTypeService.getById(damageType.getId())
+        );
+
+        verify(damageTypeRepository).findById(damageType.getId());
     }
 
     @Test
-    void whenThereIsNotADamageType_getDamageType_ReturnsNothing() {
-        when(damageTypeRepository.findById(999)).thenReturn(Optional.empty());
+    void create_whenValid_savesAndReturnsDto() {
 
-        Optional<DamageTypeDTO> result = damageTypeService.getDamageType(999);
+        when(damageTypeMapper.toEntity(createDto)).thenReturn(damageType);
 
-        assertTrue(result.isEmpty(), "Expected empty Optional when damageType is not found.");
+        when(damageTypeRepository.save(damageType)).thenReturn(damageType);
+        when(damageTypeMapper.toDto(damageType)).thenReturn(viewDto);
+
+        ViewDamageTypeDTO result = damageTypeService.create(createDto);
+
+        assertEquals(viewDto, result);
+
+        verify(damageTypeMapper).toEntity(createDto);
+        verify(damageTypeRepository).save(damageType);
+        verify(damageTypeMapper).toDto(damageType);
     }
 
     @Test
-    void whenDamageTypeIsValid_saveDamageType_SavesTheDamageType() {
-        when(damageTypeRepository.save(entity)).thenReturn(entity);
+    void update_whenValid_updatesAndReturnsDto() {
 
-        damageTypeService.saveDamageType(dto);
+        when(damageTypeRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.of(damageType));
 
-        verify(damageTypeRepository, times(1)).save(entity);
+        when(damageTypeRepository.save(damageType)).thenReturn(damageType);
+        when(damageTypeMapper.toDto(damageType)).thenReturn(viewDto);
+
+        ViewDamageTypeDTO result = damageTypeService.update(updateDto);
+
+        assertEquals(viewDto, result);
+
+        verify(damageTypeRepository).findById(updateDto.getId());
+        verify(damageTypeMapper).updateDamageTypeFromDto(updateDto, damageType);
+        verify(damageTypeRepository).save(damageType);
+        verify(damageTypeMapper).toDto(damageType);
     }
 
     @Test
-    public void whenDamageTypeNameIsInvalid_saveDamageType_ThrowsIllegalArgumentException() {
-        DamageTypeDTO damageTypeWithEmptyName = new DamageTypeDTO();
-        damageTypeWithEmptyName.setId(1);
-        damageTypeWithEmptyName.setName("");
-        damageTypeWithEmptyName.setDescription("A fictional damageType.");
+    void update_whenMissing_throwsException() {
 
-        DamageTypeDTO damageTypeWithNullName = new DamageTypeDTO();
-        damageTypeWithNullName.setId(1);
-        damageTypeWithNullName.setName(null);
-        damageTypeWithNullName.setDescription("A fictional damageType.");
+        when(damageTypeRepository.findById(updateDto.getId()))
+                .thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> damageTypeService.saveDamageType(damageTypeWithEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> damageTypeService.saveDamageType(damageTypeWithNullName));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> damageTypeService.update(updateDto)
+        );
+
+        verify(damageTypeRepository).findById(updateDto.getId());
     }
 
     @Test
-    public void whenDamageTypeNameAlreadyExists_saveDamageType_ThrowsDataIntegrityViolationException() {
-        when(damageTypeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-        assertThrows(DataIntegrityViolationException.class, () -> damageTypeService.saveDamageType(dto));
-        verify(damageTypeRepository, times(1)).findByName(dto.getName());
-        verify(damageTypeRepository, never()).save(any(DamageType.class));
-    }
+    void delete_callsRepository() {
 
-    @Test
-    void whenDamageTypeIdExists_deleteDamageType_DeletesTheDamageType() {
-        when(damageTypeRepository.existsById(1)).thenReturn(true);
-        damageTypeService.deleteDamageType(1);
-        verify(damageTypeRepository, times(1)).deleteById(1);
-    }
+        damageTypeService.delete(damageType.getId());
 
-    @Test
-    void whenDamageTypeIdDoesNotExist_deleteDamageType_ThrowsIllegalArgumentException() {
-        when(damageTypeRepository.existsById(999)).thenReturn(false);
-        assertThrows(IllegalArgumentException.class, () -> damageTypeService.deleteDamageType(999));
-    }
-
-    @Test
-    void whenDeleteDamageTypeFails_deleteDamageType_ThrowsException() {
-        when(damageTypeRepository.existsById(1)).thenReturn(true);
-        doThrow(new RuntimeException("Database error")).when(damageTypeRepository).deleteById(1);
-
-        assertThrows(RuntimeException.class, () -> damageTypeService.deleteDamageType(1));
-    }
-
-    @Test
-    void whenDamageTypeIdIsFound_updateDamageType_UpdatesTheDamageType() {
-        DamageTypeDTO updateDTO = new DamageTypeDTO();
-        updateDTO.setName("Updated Name");
-
-        when(damageTypeRepository.findById(1)).thenReturn(Optional.of(entity));
-        when(damageTypeRepository.existsById(1)).thenReturn(true);
-        when(damageTypeRepository.save(entity)).thenReturn(entity);
-        when(damageTypeMapper.mapToDamageTypeDto(entity)).thenReturn(updateDTO);
-
-        Optional<DamageTypeDTO> result = damageTypeService.updateDamageType(1, updateDTO);
-
-        assertTrue(result.isPresent());
-        assertEquals("Updated Name", result.get().getName());
-    }
-
-    @Test
-    void whenDamageTypeIdIsNotFound_updateDamageType_ReturnsEmptyOptional() {
-        DamageTypeDTO updateDTO = new DamageTypeDTO();
-        updateDTO.setName("Updated Name");
-
-        when(damageTypeRepository.findById(999)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> damageTypeService.updateDamageType(999, updateDTO));
-    }
-
-    @Test
-    public void whenDamageTypeNameIsInvalid_updateDamageType_ThrowsIllegalArgumentException() {
-        DamageTypeDTO updateEmptyName = new DamageTypeDTO();
-        updateEmptyName.setName("");
-
-        DamageTypeDTO updateNullName = new DamageTypeDTO();
-        updateNullName.setName(null);
-
-        when(damageTypeRepository.existsById(1)).thenReturn(true);
-
-        assertThrows(IllegalArgumentException.class, () -> damageTypeService.updateDamageType(1, updateEmptyName));
-        assertThrows(IllegalArgumentException.class, () -> damageTypeService.updateDamageType(1, updateNullName));
-    }
-
-    @Test
-    public void whenDamageTypeNameAlreadyExists_updateDamageType_ThrowsDataIntegrityViolationException() {
-        when(damageTypeRepository.findByName(dto.getName())).thenReturn(Optional.of(entity));
-
-        assertThrows(IllegalArgumentException.class, () -> damageTypeService.updateDamageType(entity.getId(), dto));
+        verify(damageTypeRepository).deleteById(damageType.getId());
     }
 }

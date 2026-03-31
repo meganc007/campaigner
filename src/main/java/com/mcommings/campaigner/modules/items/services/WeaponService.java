@@ -1,131 +1,82 @@
 package com.mcommings.campaigner.modules.items.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.dtos.WeaponDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.common.repositories.ICampaignRepository;
+import com.mcommings.campaigner.modules.items.dtos.weapons.CreateWeaponDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapons.UpdateWeaponDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapons.ViewWeaponDTO;
+import com.mcommings.campaigner.modules.items.entities.Weapon;
 import com.mcommings.campaigner.modules.items.mappers.WeaponMapper;
 import com.mcommings.campaigner.modules.items.repositories.IWeaponRepository;
-import com.mcommings.campaigner.modules.items.services.interfaces.IWeapon;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class WeaponService implements IWeapon {
+public class WeaponService extends BaseService<
+        Weapon,
+        Integer,
+        ViewWeaponDTO,
+        CreateWeaponDTO,
+        UpdateWeaponDTO> {
 
     private final IWeaponRepository weaponRepository;
+    private final ICampaignRepository campaignRepository;
     private final WeaponMapper weaponMapper;
 
     @Override
-    public List<WeaponDTO> getWeapons() {
-        return weaponRepository.findAll()
-                .stream()
-                .map(weaponMapper::mapToWeaponDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<Weapon, Integer> getRepository() {
+        return weaponRepository;
     }
 
     @Override
-    public Optional<WeaponDTO> getWeapon(int weaponId) {
-        return weaponRepository.findById(weaponId)
-                .map(weaponMapper::mapToWeaponDto);
+    protected ViewWeaponDTO toViewDto(Weapon entity) {
+        return weaponMapper.toDto(entity);
     }
 
     @Override
-    public List<WeaponDTO> getWeaponsByCampaignUUID(UUID uuid) {
+    protected Weapon toEntity(CreateWeaponDTO dto) {
+        Weapon entity = weaponMapper.toEntity(dto);
 
-        return weaponRepository.findByfk_campaign_uuid(uuid)
-                .stream()
-                .map(weaponMapper::mapToWeaponDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<WeaponDTO> getWeaponsByWeaponType(int weaponTypeId) {
-        return weaponRepository.findByfk_weapon_type(weaponTypeId)
-                .stream()
-                .map(weaponMapper::mapToWeaponDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<WeaponDTO> getWeaponsByDamageType(int damageTypeId) {
-        return weaponRepository.findByfk_damage_type(damageTypeId)
-                .stream()
-                .map(weaponMapper::mapToWeaponDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<WeaponDTO> getWeaponsByDiceType(int diceTypeId) {
-        return weaponRepository.findByfk_dice_type(diceTypeId)
-                .stream()
-                .map(weaponMapper::mapToWeaponDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public void saveWeapon(WeaponDTO weapon) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(weapon)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(weaponRepository, weapon.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-        weaponMapper.mapToWeaponDto(
-                weaponRepository.save(weaponMapper.mapFromWeaponDto(weapon))
+        entity.setCampaign(
+                campaignRepository.getReferenceById(dto.getCampaignUuid())
         );
+        return entity;
     }
 
     @Override
-    @Transactional
-    public void deleteWeapon(int weaponId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(weaponRepository, weaponId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
+    protected void updateEntity(UpdateWeaponDTO dto, Weapon entity) {
+        weaponMapper.updateWeaponFromDto(dto, entity);
+
+        if (dto.getCampaignUuid() != null) {
+            entity.setCampaign(
+                    campaignRepository.getReferenceById(dto.getCampaignUuid())
+            );
         }
-        weaponRepository.deleteById(weaponId);
     }
 
     @Override
-    @Transactional
-    public Optional<WeaponDTO> updateWeapon(int weaponId, WeaponDTO weapon) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(weaponRepository, weaponId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(weapon)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(weaponRepository, weapon.getName(), weaponId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
+    protected Integer getId(UpdateWeaponDTO dto) {
+        return dto.getId();
+    }
 
-        return weaponRepository.findById(weaponId).map(foundWeapon -> {
-            if (weapon.getName() != null) foundWeapon.setName(weapon.getName());
-            if (weapon.getDescription() != null) foundWeapon.setDescription(weapon.getDescription());
-            if (weapon.getFk_campaign_uuid() != null) foundWeapon.setFk_campaign_uuid(weapon.getFk_campaign_uuid());
-            if (weapon.getRarity() != null) foundWeapon.setRarity(weapon.getRarity());
-            if (weapon.getGold_value() >= 0) foundWeapon.setGold_value(weapon.getGold_value());
-            if (weapon.getSilver_value() >= 0) foundWeapon.setSilver_value(weapon.getSilver_value());
-            if (weapon.getCopper_value() >= 0) foundWeapon.setCopper_value(weapon.getCopper_value());
-            if (weapon.getWeight() >= 0) foundWeapon.setWeight(weapon.getWeight());
-            if (weapon.getFk_weapon_type() != null) foundWeapon.setFk_weapon_type(weapon.getFk_weapon_type());
-            if (weapon.getFk_damage_type() != null) foundWeapon.setFk_damage_type(weapon.getFk_damage_type());
-            if (weapon.getFk_dice_type() != null) foundWeapon.setFk_dice_type(weapon.getFk_dice_type());
-            if (weapon.getNumber_of_dice() >= 1) foundWeapon.setNumber_of_dice(weapon.getNumber_of_dice());
-            if (weapon.getDamage_modifier() >= 0) foundWeapon.setDamage_modifier(weapon.getDamage_modifier());
-            if (weapon.getIsMagical() != null) foundWeapon.setIsMagical(weapon.getIsMagical());
-            if (weapon.getIsCursed() != null) foundWeapon.setIsCursed(weapon.getIsCursed());
-            if (weapon.getNotes() != null) foundWeapon.setNotes(weapon.getNotes());
+    public List<ViewWeaponDTO> getWeaponsByCampaignUUID(UUID uuid) {
+        return query(weaponRepository::findByCampaign_Uuid, uuid);
+    }
 
-            return weaponMapper.mapToWeaponDto(weaponRepository.save(foundWeapon));
-        });
+    public List<ViewWeaponDTO> getWeaponsByWeaponTypeId(int weaponTypeId) {
+        return query(weaponRepository::findByWeaponType_Id, weaponTypeId);
+    }
+
+    public List<ViewWeaponDTO> getWeaponsByDamageTypeId(int damageTypeId) {
+        return query(weaponRepository::findByDamageType_Id, damageTypeId);
+    }
+
+    public List<ViewWeaponDTO> getWeaponsByDiceTypeId(int diceTypeId) {
+        return query(weaponRepository::findByDiceType_Id, diceTypeId);
     }
 }

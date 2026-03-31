@@ -1,84 +1,50 @@
 package com.mcommings.campaigner.modules.items.services;
 
-import com.mcommings.campaigner.modules.RepositoryHelper;
-import com.mcommings.campaigner.modules.items.dtos.DamageTypeDTO;
+import com.mcommings.campaigner.config.BaseService;
+import com.mcommings.campaigner.modules.items.dtos.damage_types.CreateDamageTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.damage_types.UpdateDamageTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.damage_types.ViewDamageTypeDTO;
+import com.mcommings.campaigner.modules.items.entities.DamageType;
 import com.mcommings.campaigner.modules.items.mappers.DamageTypeMapper;
 import com.mcommings.campaigner.modules.items.repositories.IDamageTypeRepository;
-import com.mcommings.campaigner.modules.items.services.interfaces.IDamageType;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.mcommings.campaigner.enums.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
-public class DamageTypeService implements IDamageType {
+public class DamageTypeService extends BaseService<
+        DamageType,
+        Integer,
+        ViewDamageTypeDTO,
+        CreateDamageTypeDTO,
+        UpdateDamageTypeDTO> {
 
     private final IDamageTypeRepository damageTypeRepository;
     private final DamageTypeMapper damageTypeMapper;
 
     @Override
-    public List<DamageTypeDTO> getDamageTypes() {
-
-        return damageTypeRepository.findAll()
-                .stream()
-                .map(damageTypeMapper::mapToDamageTypeDto)
-                .collect(Collectors.toList());
+    protected JpaRepository<DamageType, Integer> getRepository() {
+        return damageTypeRepository;
     }
 
     @Override
-    public Optional<DamageTypeDTO> getDamageType(int damageTypeId) {
-        return damageTypeRepository.findById(damageTypeId)
-                .map(damageTypeMapper::mapToDamageTypeDto);
+    protected ViewDamageTypeDTO toViewDto(DamageType entity) {
+        return damageTypeMapper.toDto(entity);
     }
 
     @Override
-    @Transactional
-    public void saveDamageType(DamageTypeDTO damageType) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.nameIsNullOrEmpty(damageType)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExists(damageTypeRepository, damageType.getName())) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-        damageTypeMapper.mapToDamageTypeDto(
-                damageTypeRepository.save(damageTypeMapper.mapFromDamageTypeDto(damageType))
-        );
+    protected DamageType toEntity(CreateDamageTypeDTO dto) {
+        return damageTypeMapper.toEntity(dto);
     }
 
     @Override
-    @Transactional
-    public void deleteDamageType(int damageTypeId) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(damageTypeRepository, damageTypeId)) {
-            throw new IllegalArgumentException(DELETE_NOT_FOUND.message);
-        }
-        damageTypeRepository.deleteById(damageTypeId);
+    protected void updateEntity(UpdateDamageTypeDTO dto, DamageType entity) {
+        damageTypeMapper.updateDamageTypeFromDto(dto, entity);
     }
 
     @Override
-    @Transactional
-    public Optional<DamageTypeDTO> updateDamageType(int damageTypeId, DamageTypeDTO damageType) throws IllegalArgumentException, DataIntegrityViolationException {
-        if (RepositoryHelper.cannotFindId(damageTypeRepository, damageTypeId)) {
-            throw new IllegalArgumentException(UPDATE_NOT_FOUND.message);
-        }
-        if (RepositoryHelper.nameIsNullOrEmpty(damageType)) {
-            throw new IllegalArgumentException(NULL_OR_EMPTY.message);
-        }
-        if (RepositoryHelper.nameAlreadyExistsInAnotherRecord(damageTypeRepository, damageType.getName(), damageTypeId)) {
-            throw new DataIntegrityViolationException(NAME_EXISTS.message);
-        }
-
-        return damageTypeRepository.findById(damageTypeId).map(foundDamageType -> {
-            if (damageType.getName() != null) foundDamageType.setName(damageType.getName());
-            if (damageType.getDescription() != null) foundDamageType.setDescription(damageType.getDescription());
-
-            return damageTypeMapper.mapToDamageTypeDto(damageTypeRepository.save(foundDamageType));
-        });
+    protected Integer getId(UpdateDamageTypeDTO dto) {
+        return dto.getId();
     }
 }

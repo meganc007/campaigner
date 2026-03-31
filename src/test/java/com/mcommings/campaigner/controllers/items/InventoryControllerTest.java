@@ -1,367 +1,167 @@
 package com.mcommings.campaigner.controllers.items;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mcommings.campaigner.controllers.BaseControllerTest;
 import com.mcommings.campaigner.modules.items.controllers.InventoryController;
-import com.mcommings.campaigner.modules.items.dtos.InventoryDTO;
-import com.mcommings.campaigner.modules.items.entities.Inventory;
+import com.mcommings.campaigner.modules.items.dtos.inventories.CreateInventoryDTO;
+import com.mcommings.campaigner.modules.items.dtos.inventories.UpdateInventoryDTO;
+import com.mcommings.campaigner.modules.items.dtos.inventories.ViewInventoryDTO;
 import com.mcommings.campaigner.modules.items.services.InventoryService;
-import org.junit.jupiter.api.BeforeEach;
+import com.mcommings.campaigner.setup.items.factories.ItemsTestDataFactory;
+import com.mcommings.campaigner.setup.items.fixtures.ItemsTestConstants;
+import com.mcommings.campaigner.setup.locations.fixtures.LocationsTestConstants;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(InventoryController.class)
-public class InventoryControllerTest {
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+public class InventoryControllerTest extends BaseControllerTest {
 
     @MockitoBean
     InventoryService inventoryService;
 
-    private static final int VALID_INVENTORY_ID = 1;
-    private static final int INVALID_INVENTORY_ID = 999;
-    private static final String URI = "/api/inventory";
-    private Inventory entity;
-    private InventoryDTO dto;
-    private Random random = new Random();
-
-    @BeforeEach
-    void setUp() {
-        entity = new Inventory();
-        entity.setId(VALID_INVENTORY_ID);
-        entity.setFk_campaign_uuid(UUID.randomUUID());
-        entity.setFk_person(random.nextInt(100) + 1);
-        entity.setFk_item(random.nextInt(100) + 1);
-        entity.setFk_weapon(random.nextInt(100) + 1);
-        entity.setFk_place(random.nextInt(100) + 1);
-
-        dto = new InventoryDTO();
-        dto.setId(entity.getId());
-        dto.setFk_campaign_uuid(entity.getFk_campaign_uuid());
-        dto.setFk_person(entity.getFk_person());
-        dto.setFk_item(entity.getFk_item());
-        dto.setFk_weapon(entity.getFk_weapon());
-        dto.setFk_place(entity.getFk_place());
-    }
-
+    //GET all
     @Test
-    void whenThereAreInventories_getInventories_ReturnsInventories() throws Exception {
-        when(inventoryService.getInventories()).thenReturn(List.of(dto));
+    void getInventories_returnsList() throws Exception {
 
-        String response = objectMapper.writeValueAsString(List.of(dto));
+        when(inventoryService.getAll())
+                .thenReturn(List.of(ItemsTestDataFactory.viewInventoryDTO()));
 
-        mockMvc.perform(get(URI))
-                .andExpect(status().isOk())
-                .andExpect(content().json(response));
-    }
-
-    @Test
-    void whenThereAreInventories_getInventories_ReturnsEmptyList() throws Exception {
-        when(inventoryService.getInventories()).thenReturn(List.of());
-
-        mockMvc.perform(get(URI))
-                .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
-    }
-
-    @Test
-    void whenThereIsAInventory_getInventory_ReturnsInventory() throws Exception {
-        when(inventoryService.getInventory(VALID_INVENTORY_ID)).thenReturn(Optional.of(dto));
-
-        mockMvc.perform(get(URI + "/" + VALID_INVENTORY_ID))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(VALID_INVENTORY_ID));
-    }
-
-    @Test
-    void whenThereIsNotAInventory_getInventory_ThrowsIllegalArgumentException() throws Exception {
-        when(inventoryService.getInventory(INVALID_INVENTORY_ID)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get(URI + "/" + INVALID_INVENTORY_ID))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals(ID_NOT_FOUND.message, result.getResolvedException().getMessage()));
-    }
-
-    @Test
-    void whenUserEntersWrongIdType_getInventory_ReturnsBadRequest() throws Exception {
-        mockMvc.perform(get(URI + "/abc"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void whenServiceFails_getInventory_ReturnsInternalServerError() throws Exception {
-        when(inventoryService.getInventory(VALID_INVENTORY_ID)).thenThrow(new RuntimeException("Database failure"));
-
-        mockMvc.perform(get(URI + "/" + VALID_INVENTORY_ID))
-                .andExpect(status().isInternalServerError())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RuntimeException))
-                .andExpect(result -> assertEquals("Database failure", result.getResolvedException().getMessage()));
-    }
-
-    @Test
-    void whenServiceReturnsNull_getInventory_ReturnsInternalServerError() throws Exception {
-        when(inventoryService.getInventory(VALID_INVENTORY_ID)).thenReturn(null);
-
-        mockMvc.perform(get(URI + "/" + VALID_INVENTORY_ID))
-                .andExpect(status().isInternalServerError());
-    }
-
-    @Test
-    void whenCampaignUUIDIsValid_getInventoriesByCampaignUUID_ReturnsInventories() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        when(inventoryService.getInventoriesByCampaignUUID(uuid)).thenReturn(List.of(dto));
-
-        String response = objectMapper.writeValueAsString(List.of(dto));
-
-        mockMvc.perform(get(URI + "/campaign/" + uuid))
-                .andExpect(status().isOk())
-                .andExpect(content().json(response));
-    }
-
-    @Test
-    void whenCampaignUUIDIsValid_getInventoriesByCampaignUUID_ReturnsEmptyList() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        when(inventoryService.getInventoriesByCampaignUUID(uuid)).thenReturn(List.of());
-
-        mockMvc.perform(get(URI + "/campaign/" + uuid))
-                .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
-    }
-
-    @Test
-    void whenUserEntersWrongCampaignUUIDType_getInventory_ReturnsBadRequest() throws Exception {
-        mockMvc.perform(get(URI + "/abc"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void whenPersonIDIsValid_getInventorysByPerson_ReturnsInventorys() throws Exception {
-        int personId = random.nextInt(100) + 1;
-        when(inventoryService.getInventoriesByPerson(personId)).thenReturn(List.of(dto));
-
-        String response = objectMapper.writeValueAsString(List.of(dto));
-
-        mockMvc.perform(get(URI + "/person/" + personId))
-                .andExpect(status().isOk())
-                .andExpect(content().json(response));
-    }
-
-    @Test
-    void whenPersonIDIsNotValid_getInventorysByPerson_ReturnsEmptyList() throws Exception {
-        int personId = random.nextInt(100) + 1;
-        when(inventoryService.getInventoriesByPerson(personId)).thenReturn(List.of());
-
-        mockMvc.perform(get(URI + "/person/" + personId))
-                .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
-    }
-
-    @Test
-    void whenItemIDIsValid_getInventorysByItem_ReturnsInventorys() throws Exception {
-        int itemId = random.nextInt(100) + 1;
-        when(inventoryService.getInventoriesByItem(itemId)).thenReturn(List.of(dto));
-
-        String response = objectMapper.writeValueAsString(List.of(dto));
-
-        mockMvc.perform(get(URI + "/item/" + itemId))
-                .andExpect(status().isOk())
-                .andExpect(content().json(response));
-    }
-
-    @Test
-    void whenItemIDIsNotValid_getInventorysByItem_ReturnsEmptyList() throws Exception {
-        int itemId = random.nextInt(100) + 1;
-        when(inventoryService.getInventoriesByItem(itemId)).thenReturn(List.of());
-
-        mockMvc.perform(get(URI + "/item/" + itemId))
-                .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
-    }
-
-    @Test
-    void whenWeaponIDIsValid_getInventorysByWeapon_ReturnsInventorys() throws Exception {
-        int weaponId = random.nextInt(100) + 1;
-        when(inventoryService.getInventoriesByWeapon(weaponId)).thenReturn(List.of(dto));
-
-        String response = objectMapper.writeValueAsString(List.of(dto));
-
-        mockMvc.perform(get(URI + "/weapon/" + weaponId))
-                .andExpect(status().isOk())
-                .andExpect(content().json(response));
-    }
-
-    @Test
-    void whenWeaponIDIsNotValid_getInventorysByWeapon_ReturnsEmptyList() throws Exception {
-        int weaponId = random.nextInt(100) + 1;
-        when(inventoryService.getInventoriesByWeapon(weaponId)).thenReturn(List.of());
-
-        mockMvc.perform(get(URI + "/weapon/" + weaponId))
-                .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
-    }
-
-    @Test
-    void whenPlaceIDIsValid_getInventorysByPlace_ReturnsInventorys() throws Exception {
-        int placeId = random.nextInt(100) + 1;
-        when(inventoryService.getInventoriesByPlace(placeId)).thenReturn(List.of(dto));
-
-        String response = objectMapper.writeValueAsString(List.of(dto));
-
-        mockMvc.perform(get(URI + "/place/" + placeId))
-                .andExpect(status().isOk())
-                .andExpect(content().json(response));
-    }
-
-    @Test
-    void whenPlaceIDIsNotValid_getInventorysByPlace_ReturnsEmptyList() throws Exception {
-        int placeId = random.nextInt(100) + 1;
-        when(inventoryService.getInventoriesByPlace(placeId)).thenReturn(List.of());
-
-        mockMvc.perform(get(URI + "/place/" + placeId))
-                .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
-    }
-
-    @Test
-    void whenInventoryIsValid_saveInventory_RespondsOkRequest() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        InventoryDTO requestDto = new InventoryDTO();
-        requestDto.setId(2);
-        requestDto.setFk_campaign_uuid(uuid);
-
-        String requestJson = objectMapper.writeValueAsString(requestDto);
-
-        mockMvc.perform(post("/api/inventory")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+        get("/api/inventory")
                 .andExpect(status().isOk());
 
-        verify(inventoryService, times(1)).saveInventory(any(InventoryDTO.class));
+        verify(inventoryService).getAll();
     }
 
+    //GET by id
     @Test
-    void whenInventoryIsNotValid_saveInventory_RespondsBadRequest() throws Exception {
-        InventoryDTO invalidInventory = new InventoryDTO();
-        invalidInventory.setId(2);
-        invalidInventory.setFk_campaign_uuid(null); // Invalid UUID
+    void getInventory_returnsInventory() throws Exception {
 
-        String requestJson = objectMapper.writeValueAsString(invalidInventory);
+        ViewInventoryDTO dto = ItemsTestDataFactory.viewInventoryDTO();
 
-        doThrow(new IllegalArgumentException("Campaign UUID cannot be null or empty."))
-                .when(inventoryService).saveInventory(any(InventoryDTO.class));
+        when(inventoryService.getById(1)).thenReturn(dto);
 
-        MvcResult result = mockMvc.perform(post("/api/inventory")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String responseBody = result.getResponse().getContentAsString();
-        ObjectMapper mapper = new ObjectMapper();
-        List<String> errors = mapper.readValue(responseBody, new TypeReference<List<String>>() {
-        });
-
-        assertTrue(errors.contains("Campaign UUID cannot be null or empty."));
-
-        verify(inventoryService, times(0)).saveInventory(any(InventoryDTO.class));
+        get("/api/inventory/1")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(dto.getId()));
     }
 
+    //GET by PersonId
     @Test
-    void whenInventoryIdIsValid_deleteInventory_RespondsOkRequest() throws Exception {
-        when(inventoryService.getInventory(VALID_INVENTORY_ID)).thenReturn(Optional.of(dto));
+    void getInventoriesByPersonId_returnsInventories() throws Exception {
 
-        mockMvc.perform(delete(URI + "/" + VALID_INVENTORY_ID))
+        when(inventoryService.getInventoriesByPersonId(ItemsTestConstants.PERSON_ID))
+                .thenReturn(List.of(ItemsTestDataFactory.viewInventoryDTO()));
+
+        get("/api/inventory/person/" + ItemsTestConstants.PERSON_ID)
                 .andExpect(status().isOk());
 
-        verify(inventoryService, times(1)).deleteInventory(VALID_INVENTORY_ID);
+        verify(inventoryService)
+                .getInventoriesByPersonId(ItemsTestConstants.PERSON_ID);
     }
 
+    //GET by ItemId
     @Test
-    void whenInventoryIdIsInvalid_deleteInventory_RespondsBadRequest() throws Exception {
-        doThrow(new IllegalArgumentException("Unable to delete; This item was not found."))
-                .when(inventoryService).deleteInventory(INVALID_INVENTORY_ID);
+    void getInventoriesByItemId_returnsInventories() throws Exception {
 
-        mockMvc.perform(delete(URI + "/" + INVALID_INVENTORY_ID))
-                .andExpect(status().isBadRequest())  // Expecting 400 Bad Request
-                .andExpect(content().string("Unable to delete; This item was not found."));
+        when(inventoryService.getInventoriesByItemId(ItemsTestConstants.ITEM_ID))
+                .thenReturn(List.of(ItemsTestDataFactory.viewInventoryDTO()));
 
-        verify(inventoryService, times(1)).deleteInventory(INVALID_INVENTORY_ID);
-    }
-
-    @Test
-    void whenInventoryIdIsValid_updateInventory_RespondsOkRequest() throws Exception {
-        InventoryDTO updatedDto = new InventoryDTO();
-        updatedDto.setId(VALID_INVENTORY_ID);
-        updatedDto.setFk_campaign_uuid(UUID.randomUUID());
-
-        String json = objectMapper.writeValueAsString(updatedDto);
-
-        mockMvc.perform(put(URI + "/" + VALID_INVENTORY_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+        get("/api/inventory/item/" + ItemsTestConstants.ITEM_ID)
                 .andExpect(status().isOk());
 
-        verify(inventoryService, times(1)).updateInventory(eq(VALID_INVENTORY_ID), any(InventoryDTO.class));
+        verify(inventoryService)
+                .getInventoriesByItemId(ItemsTestConstants.ITEM_ID);
     }
 
+    //GET by WeaponId
     @Test
-    void whenInventoryIdIsInvalid_updateInventory_RespondsBadRequest() throws Exception {
-        InventoryDTO updatedDto = new InventoryDTO();
-        updatedDto.setId(INVALID_INVENTORY_ID);
-        updatedDto.setFk_campaign_uuid(UUID.randomUUID());
+    void getInventoriesByWeaponId_returnsInventories() throws Exception {
 
-        String json = objectMapper.writeValueAsString(updatedDto);
+        when(inventoryService.getInventoriesByWeaponId(ItemsTestConstants.WEAPON_ID))
+                .thenReturn(List.of(ItemsTestDataFactory.viewInventoryDTO()));
 
-        doThrow(new IllegalArgumentException("Unable to update; This item was not found."))
-                .when(inventoryService).updateInventory(eq(INVALID_INVENTORY_ID), any(InventoryDTO.class));
+        get("/api/inventory/weapon/" + ItemsTestConstants.WEAPON_ID)
+                .andExpect(status().isOk());
 
-        mockMvc.perform(put(URI + "/" + INVALID_INVENTORY_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Unable to update; This item was not found.")));
+        verify(inventoryService)
+                .getInventoriesByWeaponId(ItemsTestConstants.WEAPON_ID);
     }
 
+    //GET by PlaceId
     @Test
-    void whenInventoryNameIsInvalid_updateInventory_RespondsBadRequest() throws Exception {
-        InventoryDTO invalidDto = new InventoryDTO();
-        invalidDto.setId(VALID_INVENTORY_ID);
-        invalidDto.setFk_campaign_uuid(UUID.randomUUID());
+    void getInventoriesByPlaceId_returnsInventories() throws Exception {
 
-        String json = objectMapper.writeValueAsString(invalidDto);
+        when(inventoryService.getInventoriesByPlaceId(LocationsTestConstants.PLACE_ID))
+                .thenReturn(List.of(ItemsTestDataFactory.viewInventoryDTO()));
 
-        when(inventoryService.updateInventory(eq(VALID_INVENTORY_ID), any(InventoryDTO.class)))
-                .thenThrow(new IllegalArgumentException("Item name cannot be null or empty."));
+        get("/api/inventory/place/" + LocationsTestConstants.PLACE_ID)
+                .andExpect(status().isOk());
 
-        mockMvc.perform(put(URI + "/" + VALID_INVENTORY_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Item name cannot be null or empty.")));
+        verify(inventoryService)
+                .getInventoriesByPlaceId(LocationsTestConstants.PLACE_ID);
+    }
+
+    //GET by CampaignUUID
+    @Test
+    void getInventoriesByCampaignUUID_returnsInventorys() throws Exception {
+
+        when(inventoryService.getInventoriesByCampaignUUID(ItemsTestConstants.CAMPAIGN_UUID))
+                .thenReturn(List.of(ItemsTestDataFactory.viewInventoryDTO()));
+
+        get("/api/inventory/campaign/" + ItemsTestConstants.CAMPAIGN_UUID)
+                .andExpect(status().isOk());
+
+        verify(inventoryService)
+                .getInventoriesByCampaignUUID(ItemsTestConstants.CAMPAIGN_UUID);
+    }
+
+    //POST
+    @Test
+    void createInventory_returnsSaved() throws Exception {
+
+        CreateInventoryDTO create =
+                ItemsTestDataFactory.createInventoryDTO();
+
+        ViewInventoryDTO response =
+                ItemsTestDataFactory.viewInventoryDTO();
+
+        when(inventoryService.create(any())).thenReturn(response);
+
+        post("/api/inventory", create)
+                .andExpect(status().isOk());
+    }
+
+    //PUT
+    @Test
+    void updateInventory_returnsUpdated() throws Exception {
+
+        UpdateInventoryDTO update =
+                ItemsTestDataFactory.updateInventoryDTO();
+
+        ViewInventoryDTO response =
+                ItemsTestDataFactory.viewInventoryDTO();
+
+        when(inventoryService.update(any())).thenReturn(response);
+
+        put("/api/inventory", update)
+                .andExpect(status().isOk());
+    }
+
+    //DELETE
+    @Test
+    void deleteInventory_returnsOk() throws Exception {
+
+        delete("/api/inventory/1")
+                .andExpect(status().isOk());
+
+        verify(inventoryService).delete(1);
     }
 }

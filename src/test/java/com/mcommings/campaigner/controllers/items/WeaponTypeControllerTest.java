@@ -1,253 +1,95 @@
 package com.mcommings.campaigner.controllers.items;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mcommings.campaigner.controllers.BaseControllerTest;
 import com.mcommings.campaigner.modules.items.controllers.WeaponTypeController;
-import com.mcommings.campaigner.modules.items.dtos.WeaponTypeDTO;
-import com.mcommings.campaigner.modules.items.entities.WeaponType;
+import com.mcommings.campaigner.modules.items.dtos.weapon_types.CreateWeaponTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapon_types.UpdateWeaponTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.weapon_types.ViewWeaponTypeDTO;
 import com.mcommings.campaigner.modules.items.services.WeaponTypeService;
-import org.junit.jupiter.api.BeforeEach;
+import com.mcommings.campaigner.setup.items.factories.ItemsTestDataFactory;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(WeaponTypeController.class)
-public class WeaponTypeControllerTest {
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+public class WeaponTypeControllerTest extends BaseControllerTest {
 
     @MockitoBean
     WeaponTypeService weaponTypeService;
 
-    private static final int VALID_WEAPONTYPE_ID = 1;
-    private static final int INVALID_WEAPONTYPE_ID = 999;
-    private static final String URI = "/api/weapontypes";
-    private WeaponType entity;
-    private WeaponTypeDTO dto;
-    private Random random = new Random();
-
-    @BeforeEach
-    void setUp() {
-        entity = new WeaponType();
-        entity.setId(VALID_WEAPONTYPE_ID);
-        entity.setName("A name.");
-        entity.setDescription("A description.");
-
-        dto = new WeaponTypeDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setDescription(entity.getDescription());
-    }
-
+    //GET all
     @Test
-    void whenThereAreWeaponTypes_getWeaponTypes_ReturnsWeaponTypes() throws Exception {
-        when(weaponTypeService.getWeaponTypes()).thenReturn(List.of(dto));
+    void getWeaponTypes_returnsList() throws Exception {
 
-        String response = objectMapper.writeValueAsString(List.of(dto));
+        when(weaponTypeService.getAll())
+                .thenReturn(List.of(ItemsTestDataFactory.viewWeaponTypeDTO()));
 
-        mockMvc.perform(get(URI))
-                .andExpect(status().isOk())
-                .andExpect(content().json(response));
-    }
-
-    @Test
-    void whenThereAreWeaponTypes_getWeaponTypes_ReturnsEmptyList() throws Exception {
-        when(weaponTypeService.getWeaponTypes()).thenReturn(List.of());
-
-        mockMvc.perform(get(URI))
-                .andExpect(status().isOk())
-                .andExpect(content().json("[]"));
-    }
-
-    @Test
-    void whenThereIsAWeaponType_getWeaponType_ReturnsWeaponType() throws Exception {
-        when(weaponTypeService.getWeaponType(VALID_WEAPONTYPE_ID)).thenReturn(Optional.of(dto));
-
-        mockMvc.perform(get(URI + "/" + VALID_WEAPONTYPE_ID))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(VALID_WEAPONTYPE_ID))
-                .andExpect(jsonPath("$.description").value(dto.getDescription()));
-    }
-
-    @Test
-    void whenThereIsNotAWeaponType_getWeaponType_ThrowsIllegalArgumentException() throws Exception {
-        when(weaponTypeService.getWeaponType(INVALID_WEAPONTYPE_ID)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get(URI + "/" + INVALID_WEAPONTYPE_ID))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
-                .andExpect(result -> assertEquals(ID_NOT_FOUND.message, result.getResolvedException().getMessage()));
-    }
-
-    @Test
-    void whenUserEntersWrongIdType_getWeaponType_ReturnsBadRequest() throws Exception {
-        mockMvc.perform(get(URI + "/abc"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void whenServiceFails_getWeaponType_ReturnsInternalServerError() throws Exception {
-        when(weaponTypeService.getWeaponType(VALID_WEAPONTYPE_ID)).thenThrow(new RuntimeException("Database failure"));
-
-        mockMvc.perform(get(URI + "/" + VALID_WEAPONTYPE_ID))
-                .andExpect(status().isInternalServerError())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof RuntimeException))
-                .andExpect(result -> assertEquals("Database failure", result.getResolvedException().getMessage()));
-    }
-
-    @Test
-    void whenServiceReturnsNull_getWeaponType_ReturnsInternalServerError() throws Exception {
-        when(weaponTypeService.getWeaponType(VALID_WEAPONTYPE_ID)).thenReturn(null);
-
-        mockMvc.perform(get(URI + "/" + VALID_WEAPONTYPE_ID))
-                .andExpect(status().isInternalServerError());
-    }
-
-    @Test
-    void whenUserEntersWrongCampaignUUIDType_getWeaponType_ReturnsBadRequest() throws Exception {
-        mockMvc.perform(get(URI + "/abc"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void whenWeaponTypeIsValid_saveWeaponType_RespondsOkRequest() throws Exception {
-        UUID uuid = UUID.randomUUID();
-        WeaponTypeDTO requestDto = new WeaponTypeDTO();
-        requestDto.setId(2);
-        requestDto.setName("This is a name");
-        requestDto.setDescription("This is a description");
-
-        String requestJson = objectMapper.writeValueAsString(requestDto);
-
-        mockMvc.perform(post("/api/weapontypes")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
+        get("/api/weapontypes")
                 .andExpect(status().isOk());
 
-        verify(weaponTypeService, times(1)).saveWeaponType(any(WeaponTypeDTO.class));
+        verify(weaponTypeService).getAll();
     }
 
+    //GET by id
     @Test
-    void whenWeaponTypeIsNotValid_saveWeaponType_RespondsBadRequest() throws Exception {
-        WeaponTypeDTO invalidWeaponType = new WeaponTypeDTO();
-        invalidWeaponType.setId(2);
-        invalidWeaponType.setDescription("This is a description");
+    void getWeaponTypes_returnsWeaponTypes() throws Exception {
 
-        String requestJson = objectMapper.writeValueAsString(invalidWeaponType);
+        ViewWeaponTypeDTO dto = ItemsTestDataFactory.viewWeaponTypeDTO();
 
-        doThrow(new IllegalArgumentException("Campaign UUID cannot be null or empty."))
-                .when(weaponTypeService).saveWeaponType(any(WeaponTypeDTO.class));
+        when(weaponTypeService.getById(1)).thenReturn(dto);
 
-        MvcResult result = mockMvc.perform(post("/api/weapontypes")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestJson))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        String responseBody = result.getResponse().getContentAsString();
-        ObjectMapper mapper = new ObjectMapper();
-        List<String> errors = mapper.readValue(responseBody, new TypeReference<List<String>>() {
-        });
-
-        assertTrue(errors.contains("WeaponType name cannot be empty"));
-
-        verify(weaponTypeService, times(0)).saveWeaponType(any(WeaponTypeDTO.class));
+        get("/api/weapontypes/1")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(dto.getId()));
     }
 
+    //POST
     @Test
-    void whenWeaponTypeIdIsValid_deleteWeaponType_RespondsOkRequest() throws Exception {
-        when(weaponTypeService.getWeaponType(VALID_WEAPONTYPE_ID)).thenReturn(Optional.of(dto));
+    void createWeaponType_returnsSaved() throws Exception {
 
-        mockMvc.perform(delete(URI + "/" + VALID_WEAPONTYPE_ID))
+        CreateWeaponTypeDTO create =
+                ItemsTestDataFactory.createWeaponTypeDTO();
+
+        ViewWeaponTypeDTO response =
+                ItemsTestDataFactory.viewWeaponTypeDTO();
+
+        when(weaponTypeService.create(any())).thenReturn(response);
+
+        post("/api/weapontypes", create)
+                .andExpect(status().isOk());
+    }
+
+    //PUT
+    @Test
+    void updateWeaponType_returnsUpdated() throws Exception {
+
+        UpdateWeaponTypeDTO update =
+                ItemsTestDataFactory.updateWeaponTypeDTO();
+
+        ViewWeaponTypeDTO response =
+                ItemsTestDataFactory.viewWeaponTypeDTO();
+
+        when(weaponTypeService.update(any())).thenReturn(response);
+
+        put("/api/weapontypes", update)
+                .andExpect(status().isOk());
+    }
+
+    //DELETE
+    @Test
+    void deleteWeaponType_returnsOk() throws Exception {
+
+        delete("/api/weapontypes/1")
                 .andExpect(status().isOk());
 
-        verify(weaponTypeService, times(1)).deleteWeaponType(VALID_WEAPONTYPE_ID);
-    }
-
-    @Test
-    void whenWeaponTypeIdIsInvalid_deleteWeaponType_RespondsBadRequest() throws Exception {
-        doThrow(new IllegalArgumentException("Unable to delete; This item was not found."))
-                .when(weaponTypeService).deleteWeaponType(INVALID_WEAPONTYPE_ID);
-
-        mockMvc.perform(delete(URI + "/" + INVALID_WEAPONTYPE_ID))
-                .andExpect(status().isBadRequest())  // Expecting 400 Bad Request
-                .andExpect(content().string("Unable to delete; This item was not found."));
-
-        verify(weaponTypeService, times(1)).deleteWeaponType(INVALID_WEAPONTYPE_ID);
-    }
-
-    @Test
-    void whenWeaponTypeIdIsValid_updateWeaponType_RespondsOkRequest() throws Exception {
-        WeaponTypeDTO updatedDto = new WeaponTypeDTO();
-        updatedDto.setId(VALID_WEAPONTYPE_ID);
-        updatedDto.setDescription("Updated description");
-
-        String json = objectMapper.writeValueAsString(updatedDto);
-
-        mockMvc.perform(put(URI + "/" + VALID_WEAPONTYPE_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isOk());
-
-        verify(weaponTypeService, times(1)).updateWeaponType(eq(VALID_WEAPONTYPE_ID), any(WeaponTypeDTO.class));
-    }
-
-    @Test
-    void whenWeaponTypeIdIsInvalid_updateWeaponType_RespondsBadRequest() throws Exception {
-        WeaponTypeDTO updatedDto = new WeaponTypeDTO();
-        updatedDto.setId(INVALID_WEAPONTYPE_ID);
-        updatedDto.setDescription("Some update");
-
-        String json = objectMapper.writeValueAsString(updatedDto);
-
-        doThrow(new IllegalArgumentException("Unable to update; This item was not found."))
-                .when(weaponTypeService).updateWeaponType(eq(INVALID_WEAPONTYPE_ID), any(WeaponTypeDTO.class));
-
-        mockMvc.perform(put(URI + "/" + INVALID_WEAPONTYPE_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Unable to update; This item was not found.")));
-    }
-
-    @Test
-    void whenWeaponTypeNameIsInvalid_updateWeaponType_RespondsBadRequest() throws Exception {
-        WeaponTypeDTO invalidDto = new WeaponTypeDTO();
-        invalidDto.setId(VALID_WEAPONTYPE_ID);
-        invalidDto.setDescription("");
-
-        String json = objectMapper.writeValueAsString(invalidDto);
-
-        when(weaponTypeService.updateWeaponType(eq(VALID_WEAPONTYPE_ID), any(WeaponTypeDTO.class)))
-                .thenThrow(new IllegalArgumentException("Item name cannot be null or empty."));
-
-        mockMvc.perform(put(URI + "/" + VALID_WEAPONTYPE_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Item name cannot be null or empty.")));
+        verify(weaponTypeService).delete(1);
     }
 }

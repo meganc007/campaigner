@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.items.dtos;
+package com.mcommings.campaigner.modules.items.dtos.item_types;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemTypeDTO {
+public class CreateItemTypeDTO {
 
-    private int id;
-    @NotBlank(message = "ItemType name cannot be empty")
+    @NotBlank(message = "Item Type name cannot be empty")
     private String name;
+
     private String description;
 }

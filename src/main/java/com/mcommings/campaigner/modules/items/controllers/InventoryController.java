@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.items.controllers;
 
-import com.mcommings.campaigner.modules.items.dtos.InventoryDTO;
-import com.mcommings.campaigner.modules.items.services.interfaces.IInventory;
+import com.mcommings.campaigner.modules.items.dtos.inventories.CreateInventoryDTO;
+import com.mcommings.campaigner.modules.items.dtos.inventories.UpdateInventoryDTO;
+import com.mcommings.campaigner.modules.items.dtos.inventories.ViewInventoryDTO;
+import com.mcommings.campaigner.modules.items.services.InventoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,62 +11,63 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/inventory")
 public class InventoryController {
 
-    private final IInventory inventoryService;
+    private final InventoryService inventoryService;
 
     @GetMapping
-    public List<InventoryDTO> Inventory() {
-        return inventoryService.getInventories();
+    public List<ViewInventoryDTO> getInventories() {
+
+        return inventoryService.getAll();
     }
 
     @GetMapping(path = "/{inventoryId}")
-    public InventoryDTO getInventory(@PathVariable("inventoryId") int inventoryId) {
-        return inventoryService.getInventory(inventoryId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewInventoryDTO getInventory(@PathVariable int inventoryId) {
+        return inventoryService.getById(inventoryId);
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<InventoryDTO> getInventoriesByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ViewInventoryDTO> getInventoriesByCampaignUUID(@PathVariable UUID uuid) {
         return inventoryService.getInventoriesByCampaignUUID(uuid);
     }
 
-    @GetMapping(path = "/item/{itemId}")
-    public List<InventoryDTO> getInventoriesByItem(@PathVariable("itemId") int itemId) {
-        return inventoryService.getInventoriesByItem(itemId);
-    }
-
     @GetMapping(path = "/person/{personId}")
-    public List<InventoryDTO> getInventoriesByPerson(@PathVariable("personId") int personId) {
-        return inventoryService.getInventoriesByPerson(personId);
+    public List<ViewInventoryDTO> getInventoriesByPersonId(@PathVariable int personId) {
+        return inventoryService.getInventoriesByPersonId(personId);
     }
 
-    @GetMapping(path = "/place/{placeId}")
-    public List<InventoryDTO> getInventoriesByPlace(@PathVariable("placeId") int placeId) {
-        return inventoryService.getInventoriesByPlace(placeId);
+    @GetMapping(path = "/item/{itemId}")
+    public List<ViewInventoryDTO> getInventoriesByItemId(@PathVariable int itemId) {
+        return inventoryService.getInventoriesByItemId(itemId);
     }
 
     @GetMapping(path = "/weapon/{weaponId}")
-    public List<InventoryDTO> getInventoriesByWeapon(@PathVariable("weaponId") int weaponId) {
-        return inventoryService.getInventoriesByWeapon(weaponId);
+    public List<ViewInventoryDTO> getInventoriesByWeaponId(@PathVariable int weaponId) {
+        return inventoryService.getInventoriesByWeaponId(weaponId);
+    }
+
+    @GetMapping(path = "/place/{placeId}")
+    public List<ViewInventoryDTO> getInventoriesByPlaceId(@PathVariable int placeId) {
+        return inventoryService.getInventoriesByPlaceId(placeId);
     }
 
     @PostMapping
-    public void saveInventory(@Valid @RequestBody InventoryDTO inventory) {
-        inventoryService.saveInventory(inventory);
+    public ViewInventoryDTO createInventory(@Valid @RequestBody CreateInventoryDTO inventory) {
+
+        return inventoryService.create(inventory);
     }
 
-    @DeleteMapping(path = "{inventoryId}")
-    public void deleteInventory(@PathVariable("inventoryId") int inventoryId) {
-        inventoryService.deleteInventory(inventoryId);
+    @PutMapping
+    public ViewInventoryDTO updateInventory(@Valid @RequestBody UpdateInventoryDTO inventory) {
+        return inventoryService.update(inventory);
     }
 
-    @PutMapping(path = "{inventoryId}")
-    public void updateInventory(@PathVariable("inventoryId") int inventoryId, @RequestBody InventoryDTO inventory) {
-        inventoryService.updateInventory(inventoryId, inventory);
+    @DeleteMapping(path = "/{inventoryId}")
+    public void deleteInventory(@PathVariable int inventoryId) {
+
+        inventoryService.delete(inventoryId);
     }
 }

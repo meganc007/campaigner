@@ -1,44 +1,47 @@
 package com.mcommings.campaigner.modules.items.controllers;
 
-import com.mcommings.campaigner.modules.items.dtos.DamageTypeDTO;
-import com.mcommings.campaigner.modules.items.services.interfaces.IDamageType;
+import com.mcommings.campaigner.modules.items.dtos.damage_types.CreateDamageTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.damage_types.UpdateDamageTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.damage_types.ViewDamageTypeDTO;
+import com.mcommings.campaigner.modules.items.services.DamageTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/damagetypes")
 public class DamageTypeController {
 
-    private final IDamageType damageTypeService;
+    private final DamageTypeService damageTypeService;
 
     @GetMapping
-    public List<DamageTypeDTO> DamageType() {
-        return damageTypeService.getDamageTypes();
+    public List<ViewDamageTypeDTO> getDamageTypes() {
+
+        return damageTypeService.getAll();
     }
 
     @GetMapping(path = "/{damageTypeId}")
-    public DamageTypeDTO getDamageType(@PathVariable("damageTypeId") int damageTypeId) {
-        return damageTypeService.getDamageType(damageTypeId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewDamageTypeDTO getDamageType(@PathVariable int damageTypeId) {
+        return damageTypeService.getById(damageTypeId);
     }
 
     @PostMapping
-    public void saveDamageType(@Valid @RequestBody DamageTypeDTO damageType) {
-        damageTypeService.saveDamageType(damageType);
+    public ViewDamageTypeDTO createDamageType(@Valid @RequestBody CreateDamageTypeDTO damageType) {
+
+        return damageTypeService.create(damageType);
     }
 
-    @DeleteMapping(path = "{damageTypeId}")
-    public void deleteDamageType(@PathVariable("damageTypeId") int damageTypeId) {
-        damageTypeService.deleteDamageType(damageTypeId);
+    @PutMapping
+    public ViewDamageTypeDTO updateDamageType(@Valid @RequestBody UpdateDamageTypeDTO damageType) {
+        return damageTypeService.update(damageType);
     }
 
-    @PutMapping(path = "{damageTypeId}")
-    public void updateDamageType(@PathVariable("damageTypeId") int damageTypeId, @RequestBody DamageTypeDTO damageType) {
-        damageTypeService.updateDamageType(damageTypeId, damageType);
+    @DeleteMapping(path = "/{damageTypeId}")
+    public void deleteDamageType(@PathVariable int damageTypeId) {
+
+        damageTypeService.delete(damageTypeId);
     }
 }

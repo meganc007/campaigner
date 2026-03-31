@@ -20,18 +20,13 @@ public interface IInventoryRepository extends JpaRepository<Inventory, Integer> 
             "i.fk_place = :#{#inventory.fk_place}")
     Optional<Inventory> inventoryExists(@Param("inventory") Inventory inventory);
 
-    @Query("SELECT i FROM Inventory i WHERE i.fk_campaign_uuid = :uuid")
-    List<Inventory> findByfk_campaign_uuid(@Param("uuid") UUID uuid);
+    List<Inventory> findByCampaign_Uuid(UUID uuid);
 
-    @Query("SELECT i FROM Inventory i WHERE i.fk_person = :id")
-    List<Inventory> findByfk_person(@Param("id") Integer id);
+    List<Inventory> findByPerson_Id(Integer id);
 
-    @Query("SELECT i FROM Inventory i WHERE i.fk_item = :id")
-    List<Inventory> findByfk_item(@Param("id") Integer id);
+    List<Inventory> findByItem_Id(Integer id);
 
-    @Query("SELECT i FROM Inventory i WHERE i.fk_weapon = :id")
-    List<Inventory> findByfk_weapon(@Param("id") Integer id);
+    List<Inventory> findByWeapon_Id(Integer id);
 
-    @Query("SELECT i FROM Inventory i WHERE i.fk_place = :id")
-    List<Inventory> findByfk_place(@Param("id") Integer id);
+    List<Inventory> findByPlace_Id(Integer id);
 }

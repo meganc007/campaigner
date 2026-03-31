@@ -1,4 +1,4 @@
-package com.mcommings.campaigner.modules.items.dtos;
+package com.mcommings.campaigner.modules.items.dtos.weapon_types;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WeaponTypeDTO {
+public class CreateWeaponTypeDTO {
 
-    private int id;
-    @NotBlank(message = "WeaponType name cannot be empty")
+    @NotBlank(message = "Weapon Type name cannot be empty")
     private String name;
+
     private String description;
 }
