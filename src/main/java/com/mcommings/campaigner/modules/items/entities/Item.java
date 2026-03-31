@@ -1,9 +1,8 @@
 package com.mcommings.campaigner.modules.items.entities;
 
+import com.mcommings.campaigner.modules.common.entities.Campaign;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,18 +16,38 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false, unique = true)
     private String name;
+
     private String description;
-    @Column(nullable = false)
-    private UUID fk_campaign_uuid;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_campaign_uuid", nullable = false)
+    private Campaign campaign;
+
     private String rarity;
-    private int gold_value;
-    private int silver_value;
-    private int copper_value;
+
+    @Column(name = "gold_value")
+    private int goldValue;
+
+    @Column(name = "silver_value")
+    private int silverValue;
+
+    @Column(name = "copper_value")
+    private int copperValue;
+
     private float weight;
-    private Integer fk_item_type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_item_type")
+    private ItemType itemType;
+
+    @Column(name = "ismagical")
     private Boolean isMagical;
+
+    @Column(name = "iscursed")
     private Boolean isCursed;
+
     private String notes;
 }

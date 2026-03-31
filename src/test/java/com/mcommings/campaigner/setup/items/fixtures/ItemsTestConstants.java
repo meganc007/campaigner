@@ -46,4 +46,17 @@ public class ItemsTestConstants {
     public static final Boolean WEAPON_IS_CURSED = false;
     public static final String WEAPON_NOTES = "stick 'em with the pointy end";
 
+    //ITEM
+    public static final int ITEM_ID = 1;
+    public static final String ITEM_NAME = "Health potion";
+    public static final String ITEM_DESCRIPTION = "Restores health";
+    public static final String ITEM_RARITY = "uncommon";
+    public static final Integer ITEM_GOLD_VALUE = 20;
+    public static final Integer ITEM_SILVER_VALUE = 0;
+    public static final Integer ITEM_COPPER_VALUE = 0;
+    public static final Float ITEM_WEIGHT = 0.5f;
+    public static final Boolean ITEM_IS_MAGICAL = true;
+    public static final Boolean ITEM_IS_CURSED = false;
+    public static final String ITEM_NOTES = "must drink all of it to get the benefits";
+
 }

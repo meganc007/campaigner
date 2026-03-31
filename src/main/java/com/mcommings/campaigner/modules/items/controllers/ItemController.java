@@ -1,7 +1,9 @@
 package com.mcommings.campaigner.modules.items.controllers;
 
-import com.mcommings.campaigner.modules.items.dtos.ItemDTO;
-import com.mcommings.campaigner.modules.items.services.interfaces.IItem;
+import com.mcommings.campaigner.modules.items.dtos.items.CreateItemDTO;
+import com.mcommings.campaigner.modules.items.dtos.items.UpdateItemDTO;
+import com.mcommings.campaigner.modules.items.dtos.items.ViewItemDTO;
+import com.mcommings.campaigner.modules.items.services.ItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -9,47 +11,48 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-import static com.mcommings.campaigner.enums.ErrorMessage.ID_NOT_FOUND;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "api/items")
 public class ItemController {
 
-    private final IItem itemService;
+    private final ItemService itemService;
 
     @GetMapping
-    public List<ItemDTO> Item() {
-        return itemService.getItems();
+    public List<ViewItemDTO> getItems() {
+
+        return itemService.getAll();
     }
 
     @GetMapping(path = "/{itemId}")
-    public ItemDTO getItem(@PathVariable("itemId") int itemId) {
-        return itemService.getItem(itemId).orElseThrow(() -> new IllegalArgumentException(ID_NOT_FOUND.message));
+    public ViewItemDTO getItem(@PathVariable int itemId) {
+        return itemService.getById(itemId);
     }
 
     @GetMapping(path = "/campaign/{uuid}")
-    public List<ItemDTO> getItemsByCampaignUUID(@PathVariable("uuid") UUID uuid) {
+    public List<ViewItemDTO> getItemsByCampaignUUID(@PathVariable UUID uuid) {
         return itemService.getItemsByCampaignUUID(uuid);
     }
 
-    @GetMapping(path = "/itemtype/{itemTypeId}")
-    public List<ItemDTO> getItemsByItemTypeId(@PathVariable("itemTypeId") int itemTypeId) {
-        return itemService.getItemsByItemType(itemTypeId);
+    @GetMapping(path = "/itemType/{itemTypeId}")
+    public List<ViewItemDTO> getItemsByItemTypeId(@PathVariable int itemTypeId) {
+        return itemService.getItemsByItemTypeId(itemTypeId);
     }
 
     @PostMapping
-    public void saveItem(@Valid @RequestBody ItemDTO item) {
-        itemService.saveItem(item);
+    public ViewItemDTO createItem(@Valid @RequestBody CreateItemDTO item) {
+
+        return itemService.create(item);
     }
 
-    @DeleteMapping(path = "{itemId}")
-    public void deleteItem(@PathVariable("itemId") int itemId) {
-        itemService.deleteItem(itemId);
+    @PutMapping
+    public ViewItemDTO updateItem(@Valid @RequestBody UpdateItemDTO item) {
+        return itemService.update(item);
     }
 
-    @PutMapping(path = "{itemId}")
-    public void updateItem(@PathVariable("itemId") int itemId, @RequestBody ItemDTO item) {
-        itemService.updateItem(itemId, item);
+    @DeleteMapping(path = "/{itemId}")
+    public void deleteItem(@PathVariable int itemId) {
+
+        itemService.delete(itemId);
     }
 }

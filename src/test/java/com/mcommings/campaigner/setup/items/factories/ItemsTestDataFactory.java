@@ -9,6 +9,9 @@ import com.mcommings.campaigner.modules.items.dtos.dice_types.ViewDiceTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.item_types.CreateItemTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.item_types.UpdateItemTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.item_types.ViewItemTypeDTO;
+import com.mcommings.campaigner.modules.items.dtos.items.CreateItemDTO;
+import com.mcommings.campaigner.modules.items.dtos.items.UpdateItemDTO;
+import com.mcommings.campaigner.modules.items.dtos.items.ViewItemDTO;
 import com.mcommings.campaigner.modules.items.dtos.weapon_types.CreateWeaponTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.weapon_types.UpdateWeaponTypeDTO;
 import com.mcommings.campaigner.modules.items.dtos.weapon_types.ViewWeaponTypeDTO;
@@ -188,6 +191,55 @@ public class ItemsTestDataFactory {
         dto.setId(ItemsTestConstants.WEAPON_TYPE_ID);
         dto.setName(ItemsTestConstants.WEAPON_TYPE_NAME);
         dto.setDescription(ItemsTestConstants.WEAPON_TYPE_DESCRIPTION);
+        dto.setCampaignUuid(ItemsTestConstants.CAMPAIGN_UUID);
+        return dto;
+    }
+
+    //ITEM
+    public static Item item() {
+        return ItemBuilder.aItem().build();
+    }
+
+    public static ViewItemDTO viewItemDTO() {
+        ViewItemDTO dto = new ViewItemDTO();
+        dto.setId(ItemsTestConstants.ITEM_TYPE_ID);
+        dto.setName(ItemsTestConstants.ITEM_TYPE_NAME);
+        dto.setDescription(ItemsTestConstants.ITEM_TYPE_DESCRIPTION);
+        dto.setCampaignUuid(ItemsTestConstants.CAMPAIGN_UUID);
+        dto.setRarity(ItemsTestConstants.ITEM_RARITY);
+        dto.setGoldValue(ItemsTestConstants.ITEM_GOLD_VALUE);
+        dto.setSilverValue(ItemsTestConstants.ITEM_SILVER_VALUE);
+        dto.setCopperValue(ItemsTestConstants.ITEM_COPPER_VALUE);
+        dto.setWeight(ItemsTestConstants.ITEM_WEIGHT);
+        dto.setItemTypeId(ItemsTestConstants.ITEM_TYPE_ID);
+        dto.setIsMagical(ItemsTestConstants.ITEM_IS_MAGICAL);
+        dto.setIsCursed(ItemsTestConstants.ITEM_IS_CURSED);
+        dto.setNotes(ItemsTestConstants.ITEM_NOTES);
+        return dto;
+    }
+
+    public static CreateItemDTO createItemDTO() {
+        CreateItemDTO dto = new CreateItemDTO();
+        dto.setName(ItemsTestConstants.ITEM_TYPE_NAME);
+        dto.setDescription(ItemsTestConstants.ITEM_TYPE_DESCRIPTION);
+        dto.setCampaignUuid(ItemsTestConstants.CAMPAIGN_UUID);
+        dto.setRarity(ItemsTestConstants.ITEM_RARITY);
+        dto.setGoldValue(ItemsTestConstants.ITEM_GOLD_VALUE);
+        dto.setSilverValue(ItemsTestConstants.ITEM_SILVER_VALUE);
+        dto.setCopperValue(ItemsTestConstants.ITEM_COPPER_VALUE);
+        dto.setWeight(ItemsTestConstants.ITEM_WEIGHT);
+        dto.setItemTypeId(ItemsTestConstants.ITEM_TYPE_ID);
+        dto.setIsMagical(ItemsTestConstants.ITEM_IS_MAGICAL);
+        dto.setIsCursed(ItemsTestConstants.ITEM_IS_CURSED);
+        dto.setNotes(ItemsTestConstants.ITEM_NOTES);
+        return dto;
+    }
+
+    public static UpdateItemDTO updateItemDTO() {
+        UpdateItemDTO dto = new UpdateItemDTO();
+        dto.setId(ItemsTestConstants.ITEM_TYPE_ID);
+        dto.setName(ItemsTestConstants.ITEM_TYPE_NAME);
+        dto.setDescription(ItemsTestConstants.ITEM_TYPE_DESCRIPTION);
         dto.setCampaignUuid(ItemsTestConstants.CAMPAIGN_UUID);
         return dto;
     }
